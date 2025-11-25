@@ -1,0 +1,40 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Kingituste kogumik
+    match /gifts/{giftId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Piltide kogumik
+    match /photos/{photoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Sooduskoodide kogumik
+    match /discountCodes/{discountId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Jõuluketast elementide kogumik
+    match /wheelItems/{itemId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Postkontori kirjade kogumik
+    match /letters/{letterId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Kõik muud dokumendid on keelatud
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
