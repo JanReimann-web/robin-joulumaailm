@@ -57,6 +57,7 @@ export default function AdminPage() {
   const [wheelFormData, setWheelFormData] = useState({
     text: '',
     emoji: '',
+    question: '',
     audioUrl: '',
   })
 
@@ -349,12 +350,14 @@ export default function AdminPage() {
         await updateDoc(itemRef, {
           text: wheelFormData.text,
           emoji: wheelFormData.emoji,
+          question: wheelFormData.question || null,
           audioUrl: wheelFormData.audioUrl || null,
         })
       } else {
         await addDoc(collection(db, 'wheelItems'), {
           text: wheelFormData.text,
           emoji: wheelFormData.emoji,
+          question: wheelFormData.question || null,
           audioUrl: wheelFormData.audioUrl || null,
         })
       }
@@ -382,6 +385,7 @@ export default function AdminPage() {
     setWheelFormData({
       text: item.text,
       emoji: item.emoji,
+      question: item.question || '',
       audioUrl: item.audioUrl || '',
     })
     setShowWheelForm(true)
@@ -391,6 +395,7 @@ export default function AdminPage() {
     setWheelFormData({
       text: '',
       emoji: '',
+      question: '',
       audioUrl: '',
     })
     setEditingWheelItem(null)
@@ -969,7 +974,7 @@ export default function AdminPage() {
                 <h2 className="text-2xl font-bold mb-4">{editingWheelItem ? 'Muuda ketta elementi' : 'Lisa uus ketta element'}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block mb-2">Tekst *</label>
+                    <label className="block mb-2">Tekst (vastus) *</label>
                     <input
                       type="text"
                       required
@@ -978,6 +983,7 @@ export default function AdminPage() {
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                       placeholder="Nt: Robin armastab Legot!"
                     />
+                    <p className="text-sm text-white/60 mt-1">See on õige vastus, mis näidatakse pärast küsimust</p>
                   </div>
                   <div>
                     <label className="block mb-2">Emoji *</label>
@@ -991,7 +997,18 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block mb-2">Helifaili URL (valikuline - Robin räägib)</label>
+                    <label className="block mb-2">Küsimus (valikuline)</label>
+                    <textarea
+                      value={wheelFormData.question}
+                      onChange={(e) => setWheelFormData({ ...wheelFormData, question: e.target.value })}
+                      className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                      rows={2}
+                      placeholder="Nt: Mida Robin armastab mängida?"
+                    />
+                    <p className="text-sm text-white/60 mt-1">Kui lisad küsimuse, näidatakse see enne vastust. Kasutaja saab mõelda vastust ja siis vajutada "Näita vastust" nuppu.</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block mb-2">Helifaili URL (valikuline - Robin räägib õige vastuse)</label>
                     <input
                       type="url"
                       value={wheelFormData.audioUrl}
@@ -999,7 +1016,7 @@ export default function AdminPage() {
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                       placeholder="/audio/robin-räägib.mp3 või täielik URL"
                     />
-                    <p className="text-sm text-white/60 mt-1">Kui lisad helifaili, mängib see automaatselt, kui ketast keerutatakse</p>
+                    <p className="text-sm text-white/60 mt-1">Kui lisad helifaili, mängib see, kui kasutaja vajutab "Näita vastust" nuppu. Robin räägib õige vastuse.</p>
                   </div>
                 </div>
                 <div className="flex gap-4 mt-6">
@@ -1020,6 +1037,9 @@ export default function AdminPage() {
                     <span className="text-3xl">{item.emoji}</span>
                     <p className="font-bold text-lg">{item.text}</p>
                   </div>
+                  {item.question && (
+                    <p className="text-sm text-white/80 mb-2">❓ Küsimus: {item.question}</p>
+                  )}
                   {item.audioUrl && (
                     <p className="text-sm text-white/60 mb-2">🎤 Helifail: {item.audioUrl}</p>
                   )}

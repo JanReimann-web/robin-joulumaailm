@@ -34,6 +34,7 @@ export interface WheelItem {
   id: string
   text: string
   emoji: string
+  question?: string
   audioUrl?: string
 }
 

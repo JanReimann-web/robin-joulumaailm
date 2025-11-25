@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useMotionValue, useTransform } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { WheelItem } from '@/lib/types'
@@ -11,6 +11,8 @@ export default function ChristmasWheel() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedItem, setSelectedItem] = useState<WheelItem | null>(null)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [showAnswer, setShowAnswer] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [items, setItems] = useState<WheelItem[]>([])
   const [loading, setLoading] = useState(true)
   const rotate = useMotionValue(0)
@@ -48,6 +50,13 @@ export default function ChristmasWheel() {
     setIsSpinning(true)
     setSelectedItem(null)
     setIsPlayingAudio(false)
+    setShowAnswer(false)
+    
+    // Peata praegune audio, kui see mängib
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
 
     const randomRotation = 360 * 5 + Math.random() * 360
     rotate.set(rotate.get() + randomRotation)
@@ -58,12 +67,19 @@ export default function ChristmasWheel() {
       const selected = items[itemIndex]
       setSelectedItem(selected)
       setIsSpinning(false)
-      
-      // Mängi helifaili, kui see on olemas
-      if (selected.audioUrl) {
-        setIsPlayingAudio(true)
-      }
     }, 3000)
+  }
+
+  const handleShowAnswer = () => {
+    setShowAnswer(true)
+    // Mängi helifaili, kui see on olemas
+    if (selectedItem?.audioUrl && audioRef.current) {
+      setIsPlayingAudio(true)
+      audioRef.current.play().catch((error) => {
+        console.error('Helifaili mängimise viga:', error)
+        setIsPlayingAudio(false)
+      })
+    }
   }
 
   const rotation = useTransform(rotate, (value) => `${value}deg`)
@@ -146,19 +162,64 @@ export default function ChristmasWheel() {
             className="mt-8 bg-joulu-gold p-6 rounded-lg border-4 border-joulu-red"
           >
             <div className="text-4xl mb-2">{selectedItem.emoji}</div>
-            <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.text}</p>
             
-            {/* Helifail */}
-            {selectedItem.audioUrl && (
-              <div className="mt-4">
-                <audio
-                  src={selectedItem.audioUrl}
-                  controls
-                  autoPlay
-                  className="w-full"
-                  onEnded={() => setIsPlayingAudio(false)}
-                />
-                <p className="text-sm text-slate-700 mt-2">🎤 Robin räägib:</p>
+            {/* Küsimus */}
+            {selectedItem.question && !showAnswer && (
+              <div className="mb-4">
+                <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.question}</p>
+                <button
+                  onClick={handleShowAnswer}
+                  className="px-6 py-3 bg-joulu-red hover:bg-red-700 rounded-lg font-bold text-white text-lg transition-colors"
+                >
+                  Näita vastust
+                </button>
+              </div>
+            )}
+            
+            {/* Vastus */}
+            {showAnswer && (
+              <div>
+                <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.text}</p>
+                
+                {/* Helifail */}
+                {selectedItem.audioUrl && (
+                  <div className="mt-4">
+                    <audio
+                      ref={audioRef}
+                      src={selectedItem.audioUrl}
+                      controls
+                      className="w-full"
+                      onEnded={() => setIsPlayingAudio(false)}
+                      onPlay={() => setIsPlayingAudio(true)}
+                      onPause={() => setIsPlayingAudio(false)}
+                    />
+                    <p className="text-sm text-slate-700 mt-2">🎤 Robin räägib õige vastuse:</p>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Kui küsimust pole, näita kohe teksti */}
+            {!selectedItem.question && (
+              <div>
+                <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.text}</p>
+                
+                {/* Helifail */}
+                {selectedItem.audioUrl && (
+                  <div className="mt-4">
+                    <audio
+                      ref={audioRef}
+                      src={selectedItem.audioUrl}
+                      controls
+                      autoPlay
+                      className="w-full"
+                      onEnded={() => setIsPlayingAudio(false)}
+                      onPlay={() => setIsPlayingAudio(true)}
+                      onPause={() => setIsPlayingAudio(false)}
+                    />
+                    <p className="text-sm text-slate-700 mt-2">🎤 Robin räägib:</p>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>
