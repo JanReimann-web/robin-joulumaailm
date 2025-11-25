@@ -98,8 +98,8 @@ export default function Home() {
 
           {/* Footer */}
           <footer className="py-12 px-4 text-center text-white/60">
-            <p>Loodud Robinile ❤️</p>
-            <p className="text-sm mt-2">2024</p>
+            <p>Loodud Robini sõpradele ❤️</p>
+            <p className="text-sm mt-2">2025</p>
           </footer>
         </div>
       )}
