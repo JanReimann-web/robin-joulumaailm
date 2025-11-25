@@ -75,18 +75,37 @@ export default function RobinsYear() {
                       className="w-full h-full object-cover"
                       loading="lazy"
                       onError={(e) => {
-                        // Kui pilt ei lae, näita viga
                         const target = e.target as HTMLImageElement
                         target.style.display = 'none'
                         const parent = target.parentElement
                         if (parent) {
-                          parent.innerHTML = '<div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-4"><span class="text-4xl mb-2">❌</span><span class="text-xs text-center">Pilt ei lae<br/>Kontrolli URL-i</span></div>'
+                          parent.innerHTML =
+                            '<div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-4"><span class="text-4xl mb-2">❌</span><span class="text-xs text-center">Pilt ei lae<br/>Kontrolli URL-i</span></div>'
                         }
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-6xl">
-                      🎥
+                    <div className="relative w-full h-full">
+                      <video
+                        src={photo.url}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                        loop
+                        preload="metadata"
+                        onError={(e) => {
+                          const target = e.target as HTMLVideoElement
+                          target.style.display = 'none'
+                          const parent = target.parentElement
+                          if (parent) {
+                            parent.innerHTML =
+                              '<div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-4"><span class="text-4xl mb-2">❌</span><span class="text-xs text-center">Video ei lae<br/>Kontrolli URL-i</span></div>'
+                          }
+                        }}
+                      />
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/30 text-white text-4xl">
+                        ▶️
+                      </div>
                     </div>
                   )}
                 </div>
@@ -119,7 +138,16 @@ export default function RobinsYear() {
                       className="w-full h-full object-contain"
                     />
                   ) : (
-                    <div className="text-6xl">🎥</div>
+                    <video
+                      src={selectedPhoto.url}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-contain bg-black"
+                      preload="metadata"
+                    >
+                      Teie brauser ei toeta videot.
+                    </video>
                   )}
                 </div>
                 <h3 className="text-center text-2xl font-bold mb-2">{selectedPhoto.title}</h3>
