@@ -7,7 +7,7 @@ export default function LetterJourney() {
   const [showMap, setShowMap] = useState(false)
 
   return (
-    <div className="py-12 px-4 bg-gradient-to-b from-green-900 to-green-800">
+    <div className="py-12 px-4 bg-gradient-to-b from-slate-900 to-slate-800">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

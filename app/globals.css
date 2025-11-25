@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-b from-joulu-green via-green-800 to-joulu-green text-white;
+    @apply bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
       sans-serif;

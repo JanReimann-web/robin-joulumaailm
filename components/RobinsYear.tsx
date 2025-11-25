@@ -28,7 +28,7 @@ export default function RobinsYear() {
 
   if (loading) {
     return (
-      <div className="py-12 px-4 bg-gradient-to-b from-green-900 to-green-800">
+      <div className="py-12 px-4 bg-gradient-to-b from-slate-800 to-slate-900">
         <div className="text-center py-20">
           <div className="text-4xl mb-4">⏳</div>
           <p className="text-white/60">Laen pilte...</p>
@@ -38,7 +38,7 @@ export default function RobinsYear() {
   }
 
   return (
-    <div className="py-12 px-4 bg-gradient-to-b from-green-900 to-green-800">
+    <div className="py-12 px-4 bg-gradient-to-b from-slate-800 to-slate-900">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

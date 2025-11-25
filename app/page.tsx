@@ -1,19 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import Snowflakes from '@/components/Snowflakes'
 import ElfEntrance from '@/components/ElfEntrance'
 import GiftPile from '@/components/GiftPile'
-import RobinsYear from '@/components/RobinsYear'
-import DiscountCodes from '@/components/DiscountCodes'
-import LetterJourney from '@/components/LetterJourney'
 import ThankYouCard from '@/components/ThankYouCard'
 import ElfFootprints from '@/components/ElfFootprints'
-import ChristmasWheel from '@/components/ChristmasWheel'
 import GiftProgress from '@/components/GiftProgress'
 import BackgroundMusic from '@/components/BackgroundMusic'
-import PostOfficeBox from '@/components/PostOfficeBox'
 import { motion } from 'framer-motion'
+
+// Lazy load komponendid, mis ei ole kohe vajalikud
+const RobinsYear = lazy(() => import('@/components/RobinsYear'))
+const DiscountCodes = lazy(() => import('@/components/DiscountCodes'))
+const LetterJourney = lazy(() => import('@/components/LetterJourney'))
+const ChristmasWheel = lazy(() => import('@/components/ChristmasWheel'))
+const PostOfficeBox = lazy(() => import('@/components/PostOfficeBox'))
 
 export default function Home() {
   const [showEntrance, setShowEntrance] = useState(true)
@@ -70,19 +72,29 @@ export default function Home() {
           <GiftPile onGiftSelected={handleGiftSelected} />
 
           {/* Robin's Year */}
-          <RobinsYear />
+          <Suspense fallback={<div className="py-12 px-4 text-center"><div className="text-4xl mb-4">⏳</div><p className="text-white/60">Laen...</p></div>}>
+            <RobinsYear />
+          </Suspense>
 
           {/* Christmas Wheel */}
-          <ChristmasWheel />
+          <Suspense fallback={<div className="py-12 px-4 text-center"><div className="text-4xl mb-4">⏳</div><p className="text-white/60">Laen...</p></div>}>
+            <ChristmasWheel />
+          </Suspense>
 
           {/* Discount Codes */}
-          <DiscountCodes />
+          <Suspense fallback={null}>
+            <DiscountCodes />
+          </Suspense>
 
           {/* Post Office Box */}
-          <PostOfficeBox />
+          <Suspense fallback={<div className="py-12 px-4 text-center"><div className="text-4xl mb-4">⏳</div><p className="text-white/60">Laen...</p></div>}>
+            <PostOfficeBox />
+          </Suspense>
 
           {/* Letter Journey */}
-          <LetterJourney />
+          <Suspense fallback={<div className="py-12 px-4 text-center"><div className="text-4xl mb-4">⏳</div><p className="text-white/60">Laen...</p></div>}>
+            <LetterJourney />
+          </Suspense>
 
           {/* Footer */}
           <footer className="py-12 px-4 text-center text-white/60">
