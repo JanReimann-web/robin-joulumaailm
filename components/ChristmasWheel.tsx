@@ -1,11 +1,10 @@
 'use client'
 
-import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { WheelItem } from '@/lib/types'
-import { Volume2, VolumeX } from 'lucide-react'
 
 export default function ChristmasWheel() {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -44,7 +43,7 @@ export default function ChristmasWheel() {
     return () => unsubscribe()
   }, [])
 
-  const handleSpin = () => {
+  const handleSpin = async () => {
     if (isSpinning || items.length === 0) return
 
     setIsSpinning(true)
@@ -58,16 +57,21 @@ export default function ChristmasWheel() {
       audioRef.current.currentTime = 0
     }
 
-    const randomRotation = 360 * 5 + Math.random() * 360
-    rotate.set(rotate.get() + randomRotation)
+    const randomRotation = 360 * 6 + Math.random() * 360
+    const targetRotation = rotate.get() + randomRotation
 
-    setTimeout(() => {
-      const normalizedRotation = (rotate.get() % 360) + 360
-      const itemIndex = Math.floor((360 - normalizedRotation) / (360 / items.length)) % items.length
-      const selected = items[itemIndex]
-      setSelectedItem(selected)
-      setIsSpinning(false)
-    }, 3000)
+    const controls = animate(rotate, targetRotation, {
+      duration: 3.2,
+      ease: [0.2, 0.8, 0.2, 1],
+    })
+
+    await controls.finished
+
+    const normalizedRotation = (rotate.get() % 360) + 360
+    const itemIndex = Math.floor((360 - normalizedRotation) / (360 / items.length)) % items.length
+    const selected = items[itemIndex]
+    setSelectedItem(selected)
+    setIsSpinning(false)
   }
 
   const handleShowAnswer = () => {
@@ -112,34 +116,17 @@ export default function ChristmasWheel() {
         <div className="relative mb-8">
           <motion.div
             style={{ rotate: rotation }}
-            className="w-64 h-64 mx-auto relative"
+            className="w-72 h-72 mx-auto relative drop-shadow-2xl"
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-joulu-red to-red-900 border-8 border-joulu-gold shadow-2xl">
-              {items.map((item, index) => {
-                const angle = (360 / items.length) * index
-                const radian = (angle * Math.PI) / 180
-                const radius = 100
-                const x = Math.cos(radian) * radius
-                const y = Math.sin(radian) * radius
-
-                return (
-                  <div
-                    key={item.id}
-                    className="absolute top-1/2 left-1/2"
-                    style={{
-                      transform: `translate(${x - 20}px, ${y - 20}px) rotate(${angle + 90}deg)`,
-                    }}
-                  >
-                    <div className="text-3xl">{item.emoji}</div>
-                  </div>
-                )
-              })}
-            </div>
+            <WheelCanvas items={items} />
           </motion.div>
 
-          {/* Pointer */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2">
-            <div className="text-4xl">⬇️</div>
+          <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="w-6 h-6 bg-white rounded-full border-4 border-joulu-red shadow-inner" />
+          </div>
+
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2">
+            <div className="w-0 h-0 border-l-[20px] border-r-[20px] border-b-[30px] border-l-transparent border-r-transparent border-b-joulu-gold drop-shadow-lg" />
           </div>
         </div>
 
@@ -225,6 +212,62 @@ export default function ChristmasWheel() {
           </motion.div>
         )}
       </motion.div>
+    </div>
+  )
+}
+
+function WheelCanvas({ items }: { items: WheelItem[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="w-full h-full rounded-full border-8 border-joulu-gold bg-slate-700 flex items-center justify-center text-white/70">
+        🎡
+      </div>
+    )
+  }
+
+  const palette = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#60a5fa', '#c084fc']
+
+  const segmentBackground = items
+    .map((item, index) => {
+      const start = (index / items.length) * 100
+      const end = ((index + 1) / items.length) * 100
+      return `${palette[index % palette.length]} ${start}% ${end}%`
+    })
+    .join(', ')
+
+  return (
+    <div
+      className="absolute inset-0 rounded-full border-8 border-joulu-gold shadow-2xl overflow-hidden"
+      style={{ backgroundImage: `conic-gradient(${segmentBackground})` }}
+    >
+      {items.map((item, index) => {
+        const angle = (360 / items.length) * index + (180 / items.length)
+        return (
+          <div
+            key={item.id}
+            className="absolute inset-0"
+            style={{ transform: `rotate(${angle}deg)` }}
+          >
+            <div className="absolute left-1/2 top-2 -translate-x-1/2 flex flex-col items-center text-white drop-shadow-lg">
+              <span className="text-3xl">{item.emoji}</span>
+              <span className="text-xs font-bold max-w-[90px] text-center leading-tight mt-1">
+                {item.question ? item.question : item.text}
+              </span>
+            </div>
+          </div>
+        )
+      })}
+
+      {/* jagajad */}
+      {items.map((_, index) => (
+        <div
+          key={`divider-${index}`}
+          className="absolute inset-0"
+          style={{ transform: `rotate(${(360 / items.length) * index}deg)` }}
+        >
+          <div className="absolute top-0 left-1/2 h-1/2 w-[2px] bg-white/40" />
+        </div>
+      ))}
     </div>
   )
 }

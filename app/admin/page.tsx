@@ -1,12 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
-import { Gift, DiscountCode, Photo, WheelItem, Letter } from '@/lib/types'
-import { Trash2, Edit, Plus, RotateCcw, Save } from 'lucide-react'
+import {
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
+  getDoc,
+  setDoc,
+} from 'firebase/firestore'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { db, storage } from '@/lib/firebase'
+import { Gift, DiscountCode, Photo, WheelItem, Letter, SiteSettings } from '@/lib/types'
+import { Trash2, Edit, Plus, RotateCcw, Upload, Video, Music } from 'lucide-react'
 
-type Tab = 'gifts' | 'photos' | 'discounts' | 'wheel' | 'letters'
+type Tab = 'gifts' | 'photos' | 'discounts' | 'wheel' | 'letters' | 'settings'
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -71,6 +83,16 @@ export default function AdminPage() {
     description: '',
   })
 
+  // Seaded
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null)
+  const [settingsLoading, setSettingsLoading] = useState(true)
+
+  // Üldised uploadi seisundid
+  const [photoUploadProgress, setPhotoUploadProgress] = useState<number | null>(null)
+  const [musicUploadProgress, setMusicUploadProgress] = useState<number | null>(null)
+  const [letterVideoUploadProgress, setLetterVideoUploadProgress] = useState<number | null>(null)
+  const emojiOptions = ['🎄', '🎁', '✨', '❤️', '🎅', '🧝‍♂️', '❄️', '🌟', '🎂', '🐶']
+
   const [loading, setLoading] = useState(true)
   const ADMIN_PASSWORD = 'robin2024'
 
@@ -82,7 +104,14 @@ export default function AdminPage() {
 
   const loadAllData = async () => {
     setLoading(true)
-    await Promise.all([loadGifts(), loadPhotos(), loadDiscounts(), loadWheelItems(), loadLetters()])
+    await Promise.all([
+      loadGifts(),
+      loadPhotos(),
+      loadDiscounts(),
+      loadWheelItems(),
+      loadLetters(),
+      loadSettings(),
+    ])
     setLoading(false)
   }
 
@@ -190,15 +219,10 @@ export default function AdminPage() {
     try {
       const q = query(collection(db, 'photos'), orderBy('order', 'asc'))
       const querySnapshot = await getDocs(q)
-      const photosData = querySnapshot.docs.map(doc => {
-        const data = doc.data()
-        console.log('Firestore dokument:', doc.id, data)
-        return {
-          id: doc.id,
-          ...data
-        }
-      }) as Photo[]
-      console.log('Kõik pildid Firestore\'ist:', photosData)
+      const photosData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Photo[]
       setPhotos(photosData)
     } catch (error) {
       console.error('Viga piltide laadimisel:', error)
@@ -487,6 +511,134 @@ export default function AdminPage() {
     setShowLetterForm(false)
   }
 
+  // ========== SEADED ==========
+  const loadSettings = async () => {
+    try {
+      const settingsRef = doc(db, 'settings', 'site')
+      const snap = await getDoc(settingsRef)
+      if (snap.exists()) {
+        setSiteSettings(snap.data() as SiteSettings)
+      } else {
+        setSiteSettings(null)
+      }
+    } catch (error) {
+      console.error('Viga seadete laadimisel:', error)
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
+  const updateSettings = async (data: Partial<SiteSettings>) => {
+    try {
+      setSettingsLoading(true)
+      const settingsRef = doc(db, 'settings', 'site')
+      await setDoc(
+        settingsRef,
+        {
+          ...data,
+          updatedAt: Date.now(),
+        },
+        { merge: true }
+      )
+      await loadSettings()
+      alert('✅ Seaded salvestatud!')
+    } catch (error: any) {
+      console.error('Viga seadete salvestamisel:', error)
+      alert(`❌ Viga: ${error.message}`)
+    }
+  }
+
+  const uploadMediaFile = (
+    file: File,
+    folder: string,
+    setProgress?: (value: number | null) => void
+  ) => {
+    return new Promise<string>((resolve, reject) => {
+      const storageRef = ref(storage, `${folder}/${Date.now()}-${file.name}`)
+      const uploadTask = uploadBytesResumable(storageRef, file)
+      setProgress?.(0)
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          if (setProgress) {
+            const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+            setProgress(percent)
+          }
+        },
+        (error) => {
+          setProgress?.(null)
+          reject(error)
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+          setProgress?.(null)
+          resolve(downloadURL)
+        }
+      )
+    })
+  }
+
+  const handlePhotoFileUpload = async (file: File) => {
+    try {
+      const folder = photoFormData.type === 'video' ? 'gallery/videos' : 'gallery/photos'
+      const url = await uploadMediaFile(file, folder, setPhotoUploadProgress)
+      setPhotoFormData((prev) => ({ ...prev, url }))
+      alert('✅ Fail laetud! URL täidetud automaatselt.')
+    } catch (error: any) {
+      console.error('Foto/video üleslaadimise viga:', error)
+      alert(`❌ Faili üleslaadimine ebaõnnestus: ${error.message}`)
+    }
+  }
+
+  const handleMusicUpload = async (file: File) => {
+    try {
+      const url = await uploadMediaFile(file, 'music', setMusicUploadProgress)
+      await updateSettings({ musicUrl: url, musicFileName: file.name })
+    } catch (error: any) {
+      console.error('Muusika üleslaadimise viga:', error)
+      alert(`❌ Muusika üleslaadimine ebaõnnestus: ${error.message}`)
+    }
+  }
+
+  const handleLetterVideoUpload = async (file: File) => {
+    try {
+      const url = await uploadMediaFile(file, 'letterJourney', setLetterVideoUploadProgress)
+      await updateSettings({ letterVideoUrl: url, letterVideoFileName: file.name })
+    } catch (error: any) {
+      console.error('Video üleslaadimise viga:', error)
+      alert(`❌ Video üleslaadimine ebaõnnestus: ${error.message}`)
+    }
+  }
+
+  const handleRemoveMusic = async () => {
+    if (!siteSettings?.musicUrl) return
+    if (!confirm('Kas eemaldada taustamuusika?')) return
+    await updateSettings({ musicUrl: null, musicFileName: null })
+  }
+
+  const handleRemoveLetterVideo = async () => {
+    if (!siteSettings?.letterVideoUrl) return
+    if (!confirm('Kas eemaldada kirja video?')) return
+    await updateSettings({ letterVideoUrl: null, letterVideoFileName: null })
+  }
+
+  const EmojiToolbar = ({ onSelect }: { onSelect: (emoji: string) => void }) => (
+    <div className="flex flex-wrap gap-1 mt-2">
+      {emojiOptions.map((emoji) => (
+        <button
+          key={emoji}
+          type="button"
+          className="px-2 py-1 rounded bg-slate-700 text-lg hover:bg-slate-600"
+          onClick={() => onSelect(emoji)}
+          aria-label={`Lisa emoji ${emoji}`}
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+  )
+
   // ========== AUTENTIMINE ==========
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -595,6 +747,16 @@ export default function AdminPage() {
           >
             📮 Postkontor ({letters.length})
           </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-6 py-3 font-bold transition-colors ${
+              activeTab === 'settings'
+                ? 'border-b-2 border-joulu-gold text-joulu-gold'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            ⚙️ Seaded
+          </button>
         </div>
 
         {/* Kingitused Tab */}
@@ -631,6 +793,11 @@ export default function AdminPage() {
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                       rows={3}
                     />
+                    <EmojiToolbar
+                      onSelect={(emoji) =>
+                        setGiftFormData((prev) => ({ ...prev, description: `${prev.description}${emoji}` }))
+                      }
+                    />
                   </div>
                   <div>
                     <label className="block mb-2">Pildi URL</label>
@@ -657,6 +824,11 @@ export default function AdminPage() {
                       onChange={(e) => setGiftFormData({ ...giftFormData, robinStory: e.target.value })}
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                       rows={2}
+                    />
+                    <EmojiToolbar
+                      onSelect={(emoji) =>
+                        setGiftFormData((prev) => ({ ...prev, robinStory: `${prev.robinStory}${emoji}` }))
+                      }
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -746,52 +918,38 @@ export default function AdminPage() {
                 <h2 className="text-2xl font-bold mb-4">{editingPhoto ? 'Muuda pilti' : 'Lisa uus pilt'}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block mb-2">Pildi/Video URL *</label>
-                    <input
-                      type="text"
-                      required
-                      value={photoFormData.url}
-                      onChange={(e) => {
-                        let value = e.target.value
-                        // Teisenda Windows failitee veebi URL-iks
-                        if (value.includes('public\\videos\\') || value.includes('public/videos/')) {
-                          value = value.replace(/.*public[\\\/]videos[\\\/]/, '/videos/')
-                        } else if (value.includes('public\\images\\') || value.includes('public/images/')) {
-                          value = value.replace(/.*public[\\\/]images[\\\/]/, '/images/')
-                        } else if (value.includes('\\videos\\') || value.includes('/videos/')) {
-                          value = value.replace(/.*[\\\/]videos[\\\/]/, '/videos/')
-                        } else if (value.includes('\\images\\') || value.includes('/images/')) {
-                          value = value.replace(/.*[\\\/]images[\\\/]/, '/images/')
-                        } else if (value.match(/^[A-Z]:\\/)) {
-                          // Windows absoluutne tee
-                          const matchVideo = value.match(/public[\\\/]videos[\\\/](.+)$/i)
-                          const matchImage = value.match(/public[\\\/]images[\\\/](.+)$/i)
-                          if (matchVideo) {
-                            value = `/videos/${matchVideo[1].replace(/\\/g, '/')}`
-                          } else if (matchImage) {
-                            value = `/images/${matchImage[1].replace(/\\/g, '/')}`
-                          }
-                        }
-                        setPhotoFormData({ ...photoFormData, url: value })
-                      }}
-                      className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
-                      placeholder={photoFormData.type === 'video' ? '/videos/video.mp4' : '/images/pilt.jpg'}
-                    />
+                    <label className="block mb-2">Lae fail või kleebi URL *</label>
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                      <input
+                        type="text"
+                        required
+                        value={photoFormData.url}
+                        onChange={(e) => setPhotoFormData({ ...photoFormData, url: e.target.value })}
+                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                        placeholder="https://firebasestorage.googleapis.com/..."
+                      />
+                      <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
+                        <Upload size={18} />
+                        {photoFormData.type === 'video' ? 'Vali video' : 'Vali foto'}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept={photoFormData.type === 'video' ? 'video/*' : 'image/*'}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              handlePhotoFileUpload(file)
+                              e.target.value = ''
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {photoUploadProgress !== null && (
+                      <p className="text-sm text-white mt-2">Laen faili... {photoUploadProgress}%</p>
+                    )}
                     <p className="text-sm text-white/60 mt-1">
-                      💡 <strong>Õige formaat:</strong>
-                      {photoFormData.type === 'video' ? (
-                        <>
-                          <code>/videos/video.mp4</code> (videod peaksid olema <code>public/videos/</code> kaustas)
-                          <br />
-                          Kui fail on <code>public/videos/Muumi.mp4</code>, siis URL on <code>/videos/Muumi.mp4</code>
-                        </>
-                      ) : (
-                        <>
-                          <code>/images/pilt.jpg</code> (pildid peaksid olema <code>public/images/</code> kaustas)
-                          <br />
-                          Kui fail on <code>public/images/Joulud.jpg</code>, siis URL on <code>/images/Joulud.jpg</code>
-                        </>
-                      )}
+                      Saad valida faili arvutist (soovitatav) või kasutada juba avalikku URL-i.
                     </p>
                   </div>
                   <div className="md:col-span-2">
@@ -812,6 +970,11 @@ export default function AdminPage() {
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                       rows={4}
                       placeholder="Nt: See on pilt, kus Robin mängib Legoga. Ta oli väga õnnelik..."
+                    />
+                    <EmojiToolbar
+                      onSelect={(emoji) =>
+                        setPhotoFormData((prev) => ({ ...prev, description: `${prev.description}${emoji}` }))
+                      }
                     />
                   </div>
                   <div>
@@ -834,6 +997,18 @@ export default function AdminPage() {
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                     />
                   </div>
+                  {photoFormData.url && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm text-white/60 mb-2">Eelvaade</p>
+                      <div className="aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-700">
+                        {photoFormData.type === 'photo' ? (
+                          <img src={photoFormData.url} alt={photoFormData.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <video src={photoFormData.url} controls className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-4 mt-6">
                   <button type="submit" className="px-6 py-3 bg-joulu-green rounded-lg hover:bg-green-700 font-bold">
@@ -853,7 +1028,7 @@ export default function AdminPage() {
                     {photo.type === 'photo' ? (
                       <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">🎥</div>
+                      <video src={photo.url} className="w-full h-full object-cover" controls muted />
                     )}
                   </div>
                   <h3 className="font-bold mb-1">{photo.title}</h3>
@@ -1017,6 +1192,11 @@ export default function AdminPage() {
                       placeholder="Nt: Robin armastab Legot!"
                     />
                     <p className="text-sm text-white/60 mt-1">See on õige vastus, mis näidatakse pärast küsimust</p>
+                    <EmojiToolbar
+                      onSelect={(emoji) =>
+                        setWheelFormData((prev) => ({ ...prev, text: `${prev.text}${emoji}` }))
+                      }
+                    />
                   </div>
                   <div>
                     <label className="block mb-2">Emoji *</label>
@@ -1039,6 +1219,11 @@ export default function AdminPage() {
                       placeholder="Nt: Mida Robin armastab mängida?"
                     />
                     <p className="text-sm text-white/60 mt-1">Kui lisad küsimuse, näidatakse see enne vastust. Kasutaja saab mõelda vastust ja siis vajutada "Näita vastust" nuppu.</p>
+                    <EmojiToolbar
+                      onSelect={(emoji) =>
+                        setWheelFormData((prev) => ({ ...prev, question: `${prev.question}${emoji}` }))
+                      }
+                    />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block mb-2">Helifaili URL (valikuline - Robin räägib õige vastuse)</label>
@@ -1162,6 +1347,11 @@ export default function AdminPage() {
                       rows={3}
                       placeholder="Lühike kirjeldus kirjast..."
                     />
+                    <EmojiToolbar
+                      onSelect={(emoji) =>
+                        setLetterFormData((prev) => ({ ...prev, description: `${prev.description}${emoji}` }))
+                      }
+                    />
                   </div>
                 </div>
                 <div className="flex gap-4 mt-6">
@@ -1201,6 +1391,119 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Seaded */}
+        {activeTab === 'settings' && (
+          <div className="space-y-8">
+            <div className="bg-slate-800 p-6 rounded-lg border-2 border-joulu-gold">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-full bg-joulu-red/20 text-joulu-gold">
+                    <Music />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Taustamuusika</h3>
+                    <p className="text-white/70 text-sm">Lae üles MP3/OGG fail, mida külastajad kuulevad.</p>
+                  </div>
+                </div>
+                <label className="inline-flex items-center gap-2 px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 cursor-pointer">
+                  <Upload size={18} />
+                  Lae uus fail
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        handleMusicUpload(file)
+                        e.target.value = ''
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              {musicUploadProgress !== null && (
+                <p className="text-sm text-white/80 mb-2">Laen muusikat... {musicUploadProgress}%</p>
+              )}
+
+              {settingsLoading ? (
+                <p className="text-white/60">Laen seadeid...</p>
+              ) : siteSettings?.musicUrl ? (
+                <div className="space-y-3">
+                  <audio controls src={siteSettings.musicUrl} className="w-full" />
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-white/70">
+                    <span>Fail: {siteSettings.musicFileName ?? 'Laetud fail'}</span>
+                    <a href={siteSettings.musicUrl} target="_blank" rel="noreferrer" className="underline">
+                      Ava uues aknas
+                    </a>
+                    <button onClick={handleRemoveMusic} className="text-red-400 hover:text-red-300">
+                      Eemalda
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-white/60">Muusikafaili pole veel lisatud.</p>
+              )}
+            </div>
+
+            <div className="bg-slate-800 p-6 rounded-lg border-2 border-joulu-gold">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-full bg-joulu-red/20 text-joulu-gold">
+                    <Video />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Robini kirja video</h3>
+                    <p className="text-white/70 text-sm">See video kuvatakse "Robini kirja teekond" jaotises.</p>
+                  </div>
+                </div>
+                <label className="inline-flex items-center gap-2 px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 cursor-pointer">
+                  <Upload size={18} />
+                  Lae video
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        handleLetterVideoUpload(file)
+                        e.target.value = ''
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              {letterVideoUploadProgress !== null && (
+                <p className="text-sm text-white/80 mb-2">Laen videot... {letterVideoUploadProgress}%</p>
+              )}
+
+              {settingsLoading ? (
+                <p className="text-white/60">Laen seadeid...</p>
+              ) : siteSettings?.letterVideoUrl ? (
+                <div className="space-y-3">
+                  <video controls src={siteSettings.letterVideoUrl} className="w-full rounded-lg" />
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-white/70">
+                    <span>Fail: {siteSettings.letterVideoFileName ?? 'Laetud video'}</span>
+                    <a href={siteSettings.letterVideoUrl} target="_blank" rel="noreferrer" className="underline">
+                      Ava uues aknas
+                    </a>
+                    <button onClick={handleRemoveLetterVideo} className="text-red-400 hover:text-red-300">
+                      Eemalda
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-white/60">
+                  Lisa video, et külastajad näeksid, kuidas Robin kirja jõuluvanale postitab.
+                </p>
+              )}
             </div>
           </div>
         )}

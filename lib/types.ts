@@ -45,3 +45,11 @@ export interface Letter {
   description?: string
 }
 
+export interface SiteSettings {
+  musicUrl?: string | null
+  musicFileName?: string | null
+  letterVideoUrl?: string | null
+  letterVideoFileName?: string | null
+  updatedAt?: number
+}
+

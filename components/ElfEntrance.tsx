@@ -1,12 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function ElfEntrance() {
   const [showGreeting, setShowGreeting] = useState(true)
   const [showElf, setShowElf] = useState(false)
   const [showChest, setShowChest] = useState(false)
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 18 }, (_, index) => ({
+        id: index,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        delay: Math.random() * 2,
+      })),
+    []
+  )
 
   useEffect(() => {
     // Kuvame tervituse
@@ -26,15 +36,34 @@ export default function ElfEntrance() {
     }
   }, [])
 
+  const skipIntro = () => {
+    setShowGreeting(false)
+    setShowElf(true)
+    setShowChest(true)
+  }
+
   return (
     <div className="relative min-h-screen flex items-center justify-center">
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-900/80 to-slate-950" />
+      {stars.map((star) => (
+        <motion.span
+          key={star.id}
+          className="absolute text-white/70"
+          style={{ left: `${star.left}%`, top: `${star.top}%` }}
+          animate={{ opacity: [0.2, 1, 0.2], scale: [0.6, 1.1, 0.6] }}
+          transition={{ duration: 2 + star.delay, repeat: Infinity }}
+        >
+          ✨
+        </motion.span>
+      ))}
+
       <AnimatePresence>
         {showGreeting && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-center z-10"
+            className="text-center z-10 px-4"
           >
             <motion.h1
               initial={{ y: -20 }}
@@ -96,6 +125,13 @@ export default function ElfEntrance() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <button
+        onClick={skipIntro}
+        className="absolute bottom-6 right-6 bg-white/20 text-white px-4 py-2 rounded-full text-sm backdrop-blur hover:bg-white/30 transition"
+      >
+        Jätka otse lehele ↠
+      </button>
     </div>
   )
 }
