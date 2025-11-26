@@ -90,16 +90,43 @@ export default function RobinsYear() {
                       className="w-full h-full object-cover"
                       muted
                       playsInline
+                      preload="metadata"
                       onError={(e) => {
                         // Kui video ei lae, näita viga
+                        console.error('Video laadimise viga:', photo.url, e)
                         const target = e.target as HTMLVideoElement
+                        const error = (e.target as HTMLVideoElement).error
+                        console.error('Video error details:', {
+                          code: error?.code,
+                          message: error?.message,
+                          url: photo.url
+                        })
                         target.style.display = 'none'
                         const parent = target.parentElement
                         if (parent) {
-                          parent.innerHTML = '<div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-4"><span class="text-4xl mb-2">❌</span><span class="text-xs text-center">Video ei lae<br/>Kontrolli URL-i</span></div>'
+                          parent.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center text-white/60 p-4">
+                            <span class="text-4xl mb-2">❌</span>
+                            <span class="text-xs text-center mb-2">Video ei lae<br/>URL: ${photo.url}</span>
+                            <a href="${photo.url}" target="_blank" class="text-blue-400 underline text-xs">Proovi avada otse</a>
+                          </div>`
                         }
                       }}
-                    />
+                      onLoadStart={() => {
+                        console.log('Video hakkab laadima:', photo.url)
+                      }}
+                      onCanPlay={() => {
+                        console.log('Video on valmis mängimiseks:', photo.url)
+                      }}
+                      onLoadedMetadata={() => {
+                        console.log('Video metadata laetud:', photo.url)
+                      }}
+                      onStalled={() => {
+                        console.warn('Video laadimine on seiskunud:', photo.url)
+                      }}
+                    >
+                      <source src={photo.url} type="video/mp4" />
+                      Teie brauser ei toeta video elementi.
+                    </video>
                   )}
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2">
@@ -137,7 +164,29 @@ export default function RobinsYear() {
                       controls
                       autoPlay
                       playsInline
-                    />
+                      preload="auto"
+                      onError={(e) => {
+                        console.error('Video laadimise viga:', selectedPhoto.url, e)
+                        const target = e.target as HTMLVideoElement
+                        const parent = target.parentElement
+                        if (parent) {
+                          parent.innerHTML = `<div class="w-full h-full flex flex-col items-center justify-center text-white p-4">
+                            <span class="text-4xl mb-2">❌</span>
+                            <span class="text-sm text-center mb-2">Video ei lae<br/>URL: ${selectedPhoto.url}</span>
+                            <a href="${selectedPhoto.url}" target="_blank" class="text-blue-400 underline">Proovi avada otse</a>
+                          </div>`
+                        }
+                      }}
+                      onLoadStart={() => {
+                        console.log('Modal video hakkab laadima:', selectedPhoto.url)
+                      }}
+                      onCanPlay={() => {
+                        console.log('Modal video on valmis:', selectedPhoto.url)
+                      }}
+                    >
+                      <source src={selectedPhoto.url} type="video/mp4" />
+                      Teie brauser ei toeta video elementi.
+                    </video>
                   )}
                 </div>
                 <h3 className="text-center text-2xl font-bold mb-2">{selectedPhoto.title}</h3>

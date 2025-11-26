@@ -190,10 +190,15 @@ export default function AdminPage() {
     try {
       const q = query(collection(db, 'photos'), orderBy('order', 'asc'))
       const querySnapshot = await getDocs(q)
-      const photosData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Photo[]
+      const photosData = querySnapshot.docs.map(doc => {
+        const data = doc.data()
+        console.log('Firestore dokument:', doc.id, data)
+        return {
+          id: doc.id,
+          ...data
+        }
+      }) as Photo[]
+      console.log('Kõik pildid Firestore\'ist:', photosData)
       setPhotos(photosData)
     } catch (error) {
       console.error('Viga piltide laadimisel:', error)
@@ -202,27 +207,37 @@ export default function AdminPage() {
 
   const handlePhotoSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Kontrolli, et URL on täidetud
+    if (!photoFormData.url || photoFormData.url.trim() === '') {
+      alert('❌ Viga: URL on kohustuslik!')
+      return
+    }
+    
     try {
+      const dataToSave = {
+        url: photoFormData.url.trim(),
+        title: photoFormData.title,
+        description: photoFormData.description || null,
+        type: photoFormData.type,
+        order: photoFormData.order || 0,
+      }
+      
+      console.log('Salvestan Firestore\'i:', dataToSave)
+      
       if (editingPhoto) {
         const photoRef = doc(db, 'photos', editingPhoto.id)
-        await updateDoc(photoRef, {
-          url: photoFormData.url,
-          title: photoFormData.title,
-          description: photoFormData.description || null,
-          type: photoFormData.type,
-          order: photoFormData.order || 0,
-        })
+        await updateDoc(photoRef, dataToSave)
+        alert(`✅ Pilti uuendatud! URL: ${dataToSave.url}`)
       } else {
-        await addDoc(collection(db, 'photos'), {
-          ...photoFormData,
-          description: photoFormData.description || null,
-          order: photoFormData.order || 0,
-        })
+        const docRef = await addDoc(collection(db, 'photos'), dataToSave)
+        console.log('Dokument lisatud ID-ga:', docRef.id)
+        alert(`✅ Pilt lisatud! URL: ${dataToSave.url}`)
       }
       resetPhotoForm()
       loadPhotos()
-      alert(editingPhoto ? '✅ Pilti uuendatud!' : '✅ Pilt lisatud!')
     } catch (error: any) {
+      console.error('Firestore viga:', error)
       alert(`❌ Viga: ${error.message}`)
     }
   }
@@ -731,7 +746,7 @@ export default function AdminPage() {
                 <h2 className="text-2xl font-bold mb-4">{editingPhoto ? 'Muuda pilti' : 'Lisa uus pilt'}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block mb-2">Pildi URL *</label>
+                    <label className="block mb-2">Pildi/Video URL *</label>
                     <input
                       type="text"
                       required
@@ -739,26 +754,44 @@ export default function AdminPage() {
                       onChange={(e) => {
                         let value = e.target.value
                         // Teisenda Windows failitee veebi URL-iks
-                        if (value.includes('public\\images\\') || value.includes('public/images/')) {
+                        if (value.includes('public\\videos\\') || value.includes('public/videos/')) {
+                          value = value.replace(/.*public[\\\/]videos[\\\/]/, '/videos/')
+                        } else if (value.includes('public\\images\\') || value.includes('public/images/')) {
                           value = value.replace(/.*public[\\\/]images[\\\/]/, '/images/')
+                        } else if (value.includes('\\videos\\') || value.includes('/videos/')) {
+                          value = value.replace(/.*[\\\/]videos[\\\/]/, '/videos/')
                         } else if (value.includes('\\images\\') || value.includes('/images/')) {
                           value = value.replace(/.*[\\\/]images[\\\/]/, '/images/')
                         } else if (value.match(/^[A-Z]:\\/)) {
                           // Windows absoluutne tee
-                          const match = value.match(/public[\\\/]images[\\\/](.+)$/i)
-                          if (match) {
-                            value = `/images/${match[1].replace(/\\/g, '/')}`
+                          const matchVideo = value.match(/public[\\\/]videos[\\\/](.+)$/i)
+                          const matchImage = value.match(/public[\\\/]images[\\\/](.+)$/i)
+                          if (matchVideo) {
+                            value = `/videos/${matchVideo[1].replace(/\\/g, '/')}`
+                          } else if (matchImage) {
+                            value = `/images/${matchImage[1].replace(/\\/g, '/')}`
                           }
                         }
                         setPhotoFormData({ ...photoFormData, url: value })
                       }}
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
-                      placeholder="/images/pilt.jpg"
+                      placeholder={photoFormData.type === 'video' ? '/videos/video.mp4' : '/images/pilt.jpg'}
                     />
                     <p className="text-sm text-white/60 mt-1">
-                      💡 <strong>Õige formaat:</strong> <code>/images/pilt.jpg</code> (mitte Windows failitee!)
-                      <br />
-                      Kui fail on <code>public/images/Joulud.jpg</code>, siis URL on <code>/images/Joulud.jpg</code>
+                      💡 <strong>Õige formaat:</strong>
+                      {photoFormData.type === 'video' ? (
+                        <>
+                          <code>/videos/video.mp4</code> (videod peaksid olema <code>public/videos/</code> kaustas)
+                          <br />
+                          Kui fail on <code>public/videos/Muumi.mp4</code>, siis URL on <code>/videos/Muumi.mp4</code>
+                        </>
+                      ) : (
+                        <>
+                          <code>/images/pilt.jpg</code> (pildid peaksid olema <code>public/images/</code> kaustas)
+                          <br />
+                          Kui fail on <code>public/images/Joulud.jpg</code>, siis URL on <code>/images/Joulud.jpg</code>
+                        </>
+                      )}
                     </p>
                   </div>
                   <div className="md:col-span-2">
