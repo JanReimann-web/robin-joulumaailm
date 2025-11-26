@@ -43,7 +43,7 @@ export default function ChristmasWheel() {
     return () => unsubscribe()
   }, [])
 
-  const handleSpin = async () => {
+  const handleSpin = () => {
     if (isSpinning || items.length === 0) return
 
     setIsSpinning(true)
@@ -60,18 +60,27 @@ export default function ChristmasWheel() {
     const randomRotation = 360 * 6 + Math.random() * 360
     const targetRotation = rotate.get() + randomRotation
 
+    const onSpinComplete = () => {
+      const normalizedRotation = (rotate.get() % 360) + 360
+      const itemIndex = Math.floor((360 - normalizedRotation) / (360 / items.length)) % items.length
+      const selected = items[itemIndex]
+      setSelectedItem(selected)
+      setIsSpinning(false)
+    }
+
     const controls = animate(rotate, targetRotation, {
       duration: 3.2,
       ease: [0.2, 0.8, 0.2, 1],
     })
 
-    await controls.finished
-
-    const normalizedRotation = (rotate.get() % 360) + 360
-    const itemIndex = Math.floor((360 - normalizedRotation) / (360 / items.length)) % items.length
-    const selected = items[itemIndex]
-    setSelectedItem(selected)
-    setIsSpinning(false)
+    if ('then' in controls && typeof controls.then === 'function') {
+      controls.then(onSpinComplete).catch((error) => {
+        console.error('Ketta animatsiooni viga:', error)
+        onSpinComplete()
+      })
+    } else {
+      onSpinComplete()
+    }
   }
 
   const handleShowAnswer = () => {
