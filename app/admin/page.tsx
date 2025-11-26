@@ -692,13 +692,13 @@ export default function AdminPage() {
             <h1 className="text-4xl font-bold text-joulu-gold mb-2">🎁 Admin Halduskeskus</h1>
             <p className="text-white/60">Halda kõiki lehe sisu</p>
           </div>
-          <div className="flex gap-2">
-            <a href="/" className="px-4 py-2 bg-slate-700 rounded hover:bg-slate-600">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <a href="/" className="flex-1 md:flex-none text-center px-4 py-2 bg-slate-700 rounded hover:bg-slate-600">
               Vaata lehte
             </a>
             <button
               onClick={() => setIsAuthenticated(false)}
-              className="px-4 py-2 bg-red-700 rounded hover:bg-red-600"
+              className="flex-1 md:flex-none px-4 py-2 bg-red-700 rounded hover:bg-red-600"
             >
               Logi välja
             </button>
@@ -706,10 +706,10 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-slate-700">
+        <div className="flex gap-2 mb-6 border-b border-slate-700 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('gifts')}
-            className={`px-6 py-3 font-bold transition-colors ${
+            className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
               activeTab === 'gifts' ? 'border-b-2 border-joulu-gold text-joulu-gold' : 'text-white/60 hover:text-white'
             }`}
           >
@@ -717,7 +717,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('photos')}
-            className={`px-6 py-3 font-bold transition-colors ${
+            className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
               activeTab === 'photos' ? 'border-b-2 border-joulu-gold text-joulu-gold' : 'text-white/60 hover:text-white'
             }`}
           >
@@ -725,7 +725,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('discounts')}
-            className={`px-6 py-3 font-bold transition-colors ${
+            className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
               activeTab === 'discounts' ? 'border-b-2 border-joulu-gold text-joulu-gold' : 'text-white/60 hover:text-white'
             }`}
           >
@@ -733,7 +733,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('wheel')}
-            className={`px-6 py-3 font-bold transition-colors ${
+            className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
               activeTab === 'wheel' ? 'border-b-2 border-joulu-gold text-joulu-gold' : 'text-white/60 hover:text-white'
             }`}
           >
@@ -741,7 +741,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('letters')}
-            className={`px-6 py-3 font-bold transition-colors ${
+            className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
               activeTab === 'letters' ? 'border-b-2 border-joulu-gold text-joulu-gold' : 'text-white/60 hover:text-white'
             }`}
           >
@@ -749,7 +749,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`px-6 py-3 font-bold transition-colors ${
+            className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
               activeTab === 'settings'
                 ? 'border-b-2 border-joulu-gold text-joulu-gold'
                 : 'text-white/60 hover:text-white'
