@@ -94,6 +94,8 @@ export default function AdminPage() {
   const [letterImageUploadProgress, setLetterImageUploadProgress] = useState<number | null>(null)
   const [wheelAudioUploadProgress, setWheelAudioUploadProgress] = useState<number | null>(null)
   const emojiOptions = ['🎄', '🎁', '✨', '❤️', '🎅', '🧝‍♂️', '❄️', '🌟', '🎂', '🐶']
+  const isPhotoUploadInProgress = photoUploadProgress !== null
+  const isLetterImageUploadInProgress = letterImageUploadProgress !== null
 
   const [loading, setLoading] = useState(true)
   const ADMIN_PASSWORD = 'robin2024'
@@ -236,7 +238,7 @@ export default function AdminPage() {
     
     // Kontrolli, et URL on täidetud
     if (!photoFormData.url || photoFormData.url.trim() === '') {
-      alert('❌ Viga: URL on kohustuslik!')
+      alert('❌ Palun vali fail või sisesta URL. Kui upload käib, oota kuni see lõppeb.')
       return
     }
     
@@ -1037,11 +1039,26 @@ export default function AdminPage() {
                     </div>
                   )}
                 </div>
+                {isPhotoUploadInProgress && (
+                  <p className="text-sm text-joulu-gold mt-2">Fail laadib üles... palun oota, kuni see lõpetab.</p>
+                )}
                 <div className="flex gap-4 mt-6">
-                  <button type="submit" className="px-6 py-3 bg-joulu-green rounded-lg hover:bg-green-700 font-bold">
-                    {editingPhoto ? 'Uuenda' : 'Lisa'}
+                  <button
+                    type="submit"
+                    disabled={isPhotoUploadInProgress}
+                    className={`px-6 py-3 rounded-lg font-bold ${
+                      isPhotoUploadInProgress
+                        ? 'bg-slate-600 cursor-not-allowed'
+                        : 'bg-joulu-green hover:bg-green-700'
+                    }`}
+                  >
+                    {isPhotoUploadInProgress ? 'Laen faili...' : editingPhoto ? 'Uuenda' : 'Lisa'}
                   </button>
-                  <button type="button" onClick={resetPhotoForm} className="px-6 py-3 bg-slate-600 rounded-lg hover:bg-slate-500">
+                  <button
+                    type="button"
+                    onClick={resetPhotoForm}
+                    className="px-6 py-3 bg-slate-600 rounded-lg hover:bg-slate-500"
+                  >
                     Tühista
                   </button>
                 </div>
@@ -1415,11 +1432,26 @@ export default function AdminPage() {
                     </div>
                   )}
                 </div>
+                {isLetterImageUploadInProgress && (
+                  <p className="text-sm text-joulu-gold mt-2">Pildi üleslaadimine käib... palun oota.</p>
+                )}
                 <div className="flex gap-4 mt-6">
-                  <button type="submit" className="px-6 py-3 bg-joulu-green rounded-lg hover:bg-green-700 font-bold">
-                    {editingLetter ? 'Uuenda' : 'Lisa'}
+                  <button
+                    type="submit"
+                    disabled={isLetterImageUploadInProgress}
+                    className={`px-6 py-3 rounded-lg font-bold ${
+                      isLetterImageUploadInProgress
+                        ? 'bg-slate-600 cursor-not-allowed'
+                        : 'bg-joulu-green hover:bg-green-700'
+                    }`}
+                  >
+                    {isLetterImageUploadInProgress ? 'Laen pilti...' : editingLetter ? 'Uuenda' : 'Lisa'}
                   </button>
-                  <button type="button" onClick={resetLetterForm} className="px-6 py-3 bg-slate-600 rounded-lg hover:bg-slate-500">
+                  <button
+                    type="button"
+                    onClick={resetLetterForm}
+                    className="px-6 py-3 bg-slate-600 rounded-lg hover:bg-slate-500"
+                  >
                     Tühista
                   </button>
                 </div>
