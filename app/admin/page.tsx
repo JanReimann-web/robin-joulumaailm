@@ -583,8 +583,9 @@ export default function AdminPage() {
           setProgress?.(null)
           resolve(downloadURL)
         }
-      )
-    })
+        )
+      })
+      if (setProgress) setProgress(100)
   }
 
   const handlePhotoFileUpload = async (file: File) => {
@@ -953,8 +954,8 @@ export default function AdminPage() {
                       <input
                         type="text"
                         value={photoFormData.url}
-                        onChange={(e) => setPhotoFormData({ ...photoFormData, url: e.target.value })}
-                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                        readOnly
+                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600 opacity-70"
                         placeholder="URL täidetakse automaatselt pärast faili üleslaadust"
                       />
                       <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
@@ -978,7 +979,7 @@ export default function AdminPage() {
                       <p className="text-sm text-white mt-2">Laen faili... {photoUploadProgress}%</p>
                     )}
                     <p className="text-sm text-white/60 mt-1">
-                      Vali fail telefonist/arvutist või sisesta olemasolev avalik URL. Ilma URLita vormi salvestada ei saa.
+                      Vali fail telefonist/arvutist – URL täidetakse automaatselt. Vajadusel saad hiljem olemasoleva avaliku URL-i siia kleepida.
                     </p>
                   </div>
                   <div className="md:col-span-2">
@@ -1369,8 +1370,8 @@ export default function AdminPage() {
                       <input
                         type="text"
                         value={letterFormData.imageUrl}
-                        onChange={(e) => setLetterFormData({ ...letterFormData, imageUrl: e.target.value })}
-                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                        readOnly
+                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600 opacity-70"
                         placeholder="URL täidetakse automaatselt pärast üleslaadust"
                       />
                       <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
