@@ -580,12 +580,12 @@ export default function AdminPage() {
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+          setProgress?.(100)
           setProgress?.(null)
           resolve(downloadURL)
         }
-        )
-      })
-      if (setProgress) setProgress(100)
+      )
+    })
   }
 
   const handlePhotoFileUpload = async (file: File) => {
