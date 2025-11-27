@@ -459,6 +459,10 @@ export default function AdminPage() {
 
   const handleLetterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!letterFormData.imageUrl || letterFormData.imageUrl.trim() === '') {
+      alert('❌ Palun lae pilt või sisesta pildi URL.')
+      return
+    }
     try {
       if (editingLetter) {
         const letterRef = doc(db, 'letters', editingLetter.id)
@@ -946,11 +950,10 @@ export default function AdminPage() {
                     <div className="flex flex-col gap-2 md:flex-row md:items-center">
                       <input
                         type="text"
-                        required
                         value={photoFormData.url}
                         onChange={(e) => setPhotoFormData({ ...photoFormData, url: e.target.value })}
                         className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
-                        placeholder="https://firebasestorage.googleapis.com/..."
+                        placeholder="URL täidetakse automaatselt pärast faili üleslaadust"
                       />
                       <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
                         <Upload size={18} />
@@ -973,7 +976,7 @@ export default function AdminPage() {
                       <p className="text-sm text-white mt-2">Laen faili... {photoUploadProgress}%</p>
                     )}
                     <p className="text-sm text-white/60 mt-1">
-                      Saad valida faili arvutist (soovitatav) või kasutada juba avalikku URL-i.
+                      Vali fail telefonist/arvutist või sisesta olemasolev avalik URL. Ilma URLita vormi salvestada ei saa.
                     </p>
                   </div>
                   <div className="md:col-span-2">
@@ -1348,11 +1351,10 @@ export default function AdminPage() {
                     <div className="flex flex-col gap-2 md:flex-row md:items-center">
                       <input
                         type="text"
-                        required
                         value={letterFormData.imageUrl}
                         onChange={(e) => setLetterFormData({ ...letterFormData, imageUrl: e.target.value })}
                         className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
-                        placeholder="https://firebasestorage.googleapis.com/..."
+                        placeholder="URL täidetakse automaatselt pärast üleslaadust"
                       />
                       <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
                         <Upload size={18} />
@@ -1375,7 +1377,7 @@ export default function AdminPage() {
                       <p className="text-sm text-white mt-1">Laen pilti... {letterImageUploadProgress}%</p>
                     )}
                     <p className="text-sm text-white/60 mt-1">
-                      Saad valida faili otse telefonist või sisestada mõne olemasoleva pildi URL-i.
+                      Saad valida faili otse telefonist või sisestada olemasoleva URL-i. Vorm vajab URL-i, seega oota, kuni üleslaadus on valmis.
                     </p>
                   </div>
                   <div className="md:col-span-2">
