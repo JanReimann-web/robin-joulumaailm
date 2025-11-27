@@ -91,6 +91,8 @@ export default function AdminPage() {
   const [photoUploadProgress, setPhotoUploadProgress] = useState<number | null>(null)
   const [musicUploadProgress, setMusicUploadProgress] = useState<number | null>(null)
   const [letterVideoUploadProgress, setLetterVideoUploadProgress] = useState<number | null>(null)
+  const [letterImageUploadProgress, setLetterImageUploadProgress] = useState<number | null>(null)
+  const [wheelAudioUploadProgress, setWheelAudioUploadProgress] = useState<number | null>(null)
   const emojiOptions = ['🎄', '🎁', '✨', '❤️', '🎅', '🧝‍♂️', '❄️', '🌟', '🎂', '🐶']
 
   const [loading, setLoading] = useState(true)
@@ -608,6 +610,28 @@ export default function AdminPage() {
     } catch (error: any) {
       console.error('Video üleslaadimise viga:', error)
       alert(`❌ Video üleslaadimine ebaõnnestus: ${error.message}`)
+    }
+  }
+
+  const handleLetterImageUpload = async (file: File) => {
+    try {
+      const url = await uploadMediaFile(file, 'letters/images', setLetterImageUploadProgress)
+      setLetterFormData((prev) => ({ ...prev, imageUrl: url }))
+      alert('✅ Pildi fail laetud! URL sisestati automaatselt.')
+    } catch (error: any) {
+      console.error('Pildi üleslaadimise viga:', error)
+      alert(`❌ Pildi üleslaadimine ebaõnnestus: ${error.message}`)
+    }
+  }
+
+  const handleWheelAudioUpload = async (file: File) => {
+    try {
+      const url = await uploadMediaFile(file, 'wheel/audio', setWheelAudioUploadProgress)
+      setWheelFormData((prev) => ({ ...prev, audioUrl: url }))
+      alert('✅ Helifail laetud! URL sisestati automaatselt.')
+    } catch (error: any) {
+      console.error('Helifaili üleslaadimise viga:', error)
+      alert(`❌ Helifaili üleslaadimine ebaõnnestus: ${error.message}`)
     }
   }
 
@@ -1227,14 +1251,37 @@ export default function AdminPage() {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block mb-2">Helifaili URL (valikuline - Robin räägib õige vastuse)</label>
-                    <input
-                      type="url"
-                      value={wheelFormData.audioUrl}
-                      onChange={(e) => setWheelFormData({ ...wheelFormData, audioUrl: e.target.value })}
-                      className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
-                      placeholder="/audio/robin-räägib.mp3 või täielik URL"
-                    />
-                    <p className="text-sm text-white/60 mt-1">Kui lisad helifaili, mängib see, kui kasutaja vajutab "Näita vastust" nuppu. Robin räägib õige vastuse.</p>
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                      <input
+                        type="url"
+                        value={wheelFormData.audioUrl}
+                        onChange={(e) => setWheelFormData({ ...wheelFormData, audioUrl: e.target.value })}
+                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                        placeholder="https://firebasestorage.googleapis.com/..."
+                      />
+                      <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
+                        <Upload size={18} />
+                        Lae helifail
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              handleWheelAudioUpload(file)
+                              e.target.value = ''
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {wheelAudioUploadProgress !== null && (
+                      <p className="text-sm text-white mt-1">Laen heli... {wheelAudioUploadProgress}%</p>
+                    )}
+                    <p className="text-sm text-white/60 mt-1">
+                      Kui lisad helifaili, mängib see, kui kasutaja vajutab &quot;Näita vastust&quot; nuppu. Robin räägib õige vastuse.
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-4 mt-6">
@@ -1297,34 +1344,38 @@ export default function AdminPage() {
                 <h2 className="text-2xl font-bold mb-4">{editingLetter ? 'Muuda kirja' : 'Lisa uus kiri'}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block mb-2">Robini kirja foto URL *</label>
-                    <input
-                      type="text"
-                      required
-                      value={letterFormData.imageUrl}
-                      onChange={(e) => {
-                        let value = e.target.value
-                        // Teisenda Windows failitee veebi URL-iks
-                        if (value.includes('public\\images\\') || value.includes('public/images/')) {
-                          value = value.replace(/.*public[\\\/]images[\\\/]/, '/images/')
-                        } else if (value.includes('\\images\\') || value.includes('/images/')) {
-                          value = value.replace(/.*[\\\/]images[\\\/]/, '/images/')
-                        } else if (value.match(/^[A-Z]:\\/)) {
-                          // Windows absoluutne tee
-                          const match = value.match(/public[\\\/]images[\\\/](.+)$/i)
-                          if (match) {
-                            value = `/images/${match[1].replace(/\\/g, '/')}`
-                          }
-                        }
-                        setLetterFormData({ ...letterFormData, imageUrl: value })
-                      }}
-                      className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
-                      placeholder="/images/robin-kiri.jpg"
-                    />
+                    <label className="block mb-2">Robini kirja foto (fail või URL) *</label>
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                      <input
+                        type="text"
+                        required
+                        value={letterFormData.imageUrl}
+                        onChange={(e) => setLetterFormData({ ...letterFormData, imageUrl: e.target.value })}
+                        className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                        placeholder="https://firebasestorage.googleapis.com/..."
+                      />
+                      <label className="flex items-center gap-2 px-4 py-2 rounded bg-slate-700 text-white cursor-pointer hover:bg-slate-600">
+                        <Upload size={18} />
+                        Lae pilt
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              handleLetterImageUpload(file)
+                              e.target.value = ''
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {letterImageUploadProgress !== null && (
+                      <p className="text-sm text-white mt-1">Laen pilti... {letterImageUploadProgress}%</p>
+                    )}
                     <p className="text-sm text-white/60 mt-1">
-                      💡 <strong>Õige formaat:</strong> <code>/images/robin-kiri.jpg</code>
-                      <br />
-                      Foto Robini kirjutatud kirjast. Kui fail on <code>public/images/robin-kiri.jpg</code>, siis URL on <code>/images/robin-kiri.jpg</code>
+                      Saad valida faili otse telefonist või sisestada mõne olemasoleva pildi URL-i.
                     </p>
                   </div>
                   <div className="md:col-span-2">
@@ -1353,6 +1404,14 @@ export default function AdminPage() {
                       }
                     />
                   </div>
+                  {letterFormData.imageUrl && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm text-white/60 mb-2">Pildi eelvaade</p>
+                      <div className="aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-700">
+                        <img src={letterFormData.imageUrl} alt={letterFormData.title} className="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-4 mt-6">
                   <button type="submit" className="px-6 py-3 bg-joulu-green rounded-lg hover:bg-green-700 font-bold">

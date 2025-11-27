@@ -8,6 +8,7 @@ import { Photo } from '@/lib/types'
 
 export default function RobinsYear() {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -65,7 +66,10 @@ export default function RobinsYear() {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
                 className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shadow-xl"
-                onClick={() => setSelectedPhoto(photo)}
+                onClick={() => {
+                  setSelectedPhoto(photo)
+                  setIsFullscreen(false)
+                }}
               >
                 <div className="w-full h-full bg-slate-900">
                   {photo.type === 'photo' ? (
@@ -141,26 +145,44 @@ export default function RobinsYear() {
         {selectedPhoto && (
           <div
             className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedPhoto(null)}
+            onClick={() => {
+              setSelectedPhoto(null)
+              setIsFullscreen(false)
+            }}
           >
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              className="max-w-4xl w-full"
+              className={`w-full ${isFullscreen ? 'max-w-6xl h-[90vh]' : 'max-w-4xl'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="bg-slate-800 rounded-lg p-4">
-                <div className="aspect-video bg-black rounded overflow-hidden flex items-center justify-center mb-4">
+              <div className={`bg-slate-800 rounded-lg p-4 flex flex-col ${isFullscreen ? 'h-full' : ''}`}>
+                <div className="flex justify-between items-center mb-4 text-sm text-white/80">
+                  <button onClick={() => setSelectedPhoto(null)} className="hover:text-white">
+                    Sulge ✕
+                  </button>
+                  <button
+                    onClick={() => setIsFullscreen((prev) => !prev)}
+                    className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600"
+                  >
+                    {isFullscreen ? 'Vähenda' : 'Täisekraan'}
+                  </button>
+                </div>
+                <div
+                  className={`bg-black rounded overflow-hidden flex items-center justify-center mb-4 ${
+                    isFullscreen ? 'flex-1' : 'aspect-video'
+                  }`}
+                >
                   {selectedPhoto.type === 'photo' ? (
                     <img
                       src={selectedPhoto.url}
                       alt={selectedPhoto.title}
-                      className="w-full h-full object-contain"
+                      className={`w-full h-full object-contain ${isFullscreen ? 'max-h-full' : ''}`}
                     />
                   ) : (
                     <video
                       src={selectedPhoto.url}
-                      className="w-full h-full object-contain"
+                      className={`w-full h-full object-contain ${isFullscreen ? 'max-h-full' : ''}`}
                       controls
                       autoPlay
                       playsInline
