@@ -566,23 +566,31 @@ export default function AdminPage() {
       const uploadTask = uploadBytesResumable(storageRef, file)
       setProgress?.(0)
 
-      uploadTask.on(
+      const unsubscribe = uploadTask.on(
         'state_changed',
         (snapshot) => {
-          if (setProgress) {
-            const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-            setProgress(percent)
-          }
+          if (!setProgress) return
+          const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+          setProgress(percent)
         },
         (error) => {
+          console.error('Faili üleslaadimise viga:', error)
           setProgress?.(null)
+          unsubscribe()
           reject(error)
         },
         async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-          setProgress?.(100)
-          setProgress?.(null)
-          resolve(downloadURL)
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            setProgress?.(100)
+            resolve(downloadURL)
+          } catch (error) {
+            console.error('URL-i hankimine ebaõnnestus:', error)
+            reject(error)
+          } finally {
+            setProgress?.(null)
+            unsubscribe()
+          }
         }
       )
     })
