@@ -43,7 +43,7 @@ export default function LetterJourney() {
           animate={{ scale: 1 }}
           className="bg-slate-800 rounded-lg p-4 sm:p-8 border-4 border-joulu-gold mb-6"
         >
-          <div className="aspect-video bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg overflow-hidden mb-4">
+          <div className="aspect-video bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg overflow-hidden">
             <video
               src={resolvedVideoUrl}
               controls
@@ -54,18 +54,6 @@ export default function LetterJourney() {
               Teie brauser ei toeta video elementi.
             </video>
           </div>
-
-          <p className="text-white/80">
-            {isCustomVideo
-              ? 'Viimati lisatud video admin-lehelt.'
-              : 'Hetkel kasutame vaikimisi videot, kuni admin lisab oma klipi.'}
-          </p>
-          {videoFileName && (
-            <p className="text-white/60 text-sm mt-1">Fail: {videoFileName}</p>
-          )}
-          <p className="text-white/60 text-sm mt-3">
-            Kui soovid näha uut klippi, laadi see admin-lehe seadetest üles ja see uuendub siin automaatselt.
-          </p>
         </motion.div>
       </motion.div>
     </div>
