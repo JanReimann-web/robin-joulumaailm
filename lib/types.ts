@@ -8,6 +8,7 @@ export interface Gift {
   takenBy?: string
   takenByName?: string
   takenAt?: string
+  takenWish?: string
   robinStory?: string
   robinVideoUrl?: string
   robinAudioLabel?: string

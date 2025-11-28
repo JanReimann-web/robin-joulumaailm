@@ -29,7 +29,7 @@ export default function GiftPile({ onGiftSelected }: GiftPileProps) {
     return () => unsubscribe()
   }, [])
 
-  const handleSelectGift = async (giftId: string, name?: string) => {
+  const handleSelectGift = async (giftId: string, name?: string, wish?: string) => {
     try {
       const giftRef = doc(db, 'gifts', giftId)
       const gift = gifts.find(g => g.id === giftId)
@@ -37,7 +37,8 @@ export default function GiftPile({ onGiftSelected }: GiftPileProps) {
       await updateDoc(giftRef, {
         status: 'taken',
         takenByName: name || null,
-        takenAt: new Date().toISOString()
+        takenAt: new Date().toISOString(),
+        takenWish: wish || null,
       })
 
       // Kutsume välja callback tänukaardi jaoks

@@ -8,12 +8,13 @@ import { ExternalLink, ShoppingCart } from 'lucide-react'
 
 interface GiftBoxProps {
   gift: Gift
-  onSelect: (giftId: string, name?: string) => void
+  onSelect: (giftId: string, name?: string, wish?: string) => void
 }
 
 export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
   const [showModal, setShowModal] = useState(false)
   const [selectedName, setSelectedName] = useState('')
+  const [wishMessage, setWishMessage] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(true)
   const isAvailable = gift.status === 'available'
 
@@ -55,9 +56,12 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
   }
 
   const handleConfirm = () => {
-    onSelect(gift.id, isAnonymous ? undefined : selectedName)
+    const trimmedName = selectedName.trim()
+    const trimmedWish = wishMessage.trim()
+    onSelect(gift.id, isAnonymous ? undefined : trimmedName || undefined, trimmedWish || undefined)
     setShowModal(false)
     setSelectedName('')
+    setWishMessage('')
   }
 
   const handleLinkClick = (e: React.MouseEvent) => {
@@ -84,17 +88,16 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
             {/* Valiku lint */}
             {!isAvailable && (
               <div className="absolute inset-0 pointer-events-none z-20">
-                <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-                <div className="absolute inset-0">
-                  <div className="absolute inset-y-0 left-1/2 w-4 -translate-x-1/2 bg-gradient-to-b from-joulu-gold via-yellow-300 to-joulu-gold opacity-80" />
-                  <div className="absolute inset-x-0 top-1/2 h-4 -translate-y-1/2 bg-gradient-to-r from-joulu-gold via-yellow-300 to-joulu-gold opacity-80" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16">
-                    <span className="absolute inset-0 rounded-full bg-yellow-200/70 blur-md" />
-                    <span className="absolute inset-2 rounded-full bg-gradient-to-br from-joulu-gold to-yellow-300 border-2 border-white shadow-inner" />
+                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-slate-900">
+                  <div className="bg-white/90 text-xs font-bold px-3 py-1 rounded-full shadow-lg mb-2">
+                    Kingitus valitud
                   </div>
-                </div>
-                <div className="absolute top-4 right-4 bg-white/90 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                  Kingitus valitud
+                  {gift.takenWish && (
+                    <div className="bg-white/90 text-slate-900 rounded-lg px-4 py-3 shadow-lg max-w-[90%]">
+                      <p className="text-sm italic">"{gift.takenWish}"</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -207,13 +210,13 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
                 />
               )}
 
-              {!isAnonymous && (
-                <textarea
-                  placeholder="Väike soov Robini jaoks (valikuline)"
-                  className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600 mt-2"
-                  rows={3}
-                />
-              )}
+              <textarea
+                placeholder="Väike soov Robini jaoks (valikuline)"
+                className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600 mt-2"
+                rows={3}
+                value={wishMessage}
+                onChange={(e) => setWishMessage(e.target.value)}
+              />
             </div>
 
             <div className="flex gap-4 mt-6">
