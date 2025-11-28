@@ -1,10 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState } from 'react'
 
 export default function LetterJourney() {
-  const [showMap, setShowMap] = useState(false)
 
   return (
     <div className="py-12 px-4 bg-gradient-to-b from-slate-900 to-slate-800">
@@ -35,60 +33,14 @@ export default function LetterJourney() {
             </div>
           </div>
 
-          <button
-            onClick={() => setShowMap(!showMap)}
-            className="bg-joulu-red px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-bold"
-          >
-            {showMap ? 'Peida kaart' : 'Näita kaarti'}
-          </button>
+          <p className="text-white/80">
+            Varsti lisame siia päris video, kus Robin näitab samm-sammult, kuidas kiri jõuab postkasti ja sealt
+            edasi põhjapõtrade juurde. Hetkel valmib ka uus interaktiivne kaart.
+          </p>
+          <p className="text-white/60 text-sm mt-3">
+            Kaardi funktsionaalsus on ajutiselt eemaldatud, et saaksime selle veelgi ilusamaks ja tõetruumaks teha.
+          </p>
         </motion.div>
-
-        {showMap && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="bg-slate-800 rounded-lg p-8 border-4 border-joulu-gold"
-          >
-            <div className="relative aspect-video bg-gradient-to-br from-green-800 to-blue-800 rounded-lg overflow-hidden">
-              {/* Eesti kaart placeholder */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <span className="text-4xl mb-2 block">🗺️</span>
-                  <p className="text-white">Eesti kaart</p>
-                </div>
-              </div>
-
-              {/* Animaatiline rada */}
-              <motion.div
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute inset-0"
-              >
-                <svg className="w-full h-full">
-                  <motion.path
-                    d="M 50 400 Q 200 200 400 100 T 800 50"
-                    fill="none"
-                    stroke="#EF4444"
-                    strokeWidth="4"
-                    strokeDasharray="10 5"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                </svg>
-              </motion.div>
-
-              {/* Põhjapõtrade marker */}
-              <div className="absolute top-10 right-20">
-                <div className="bg-white rounded-full p-3 shadow-xl">
-                  <span className="text-2xl">🎅</span>
-                </div>
-                <p className="text-white text-sm mt-2 text-center">Põhjapõtra</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
       </motion.div>
     </div>
   )

@@ -17,7 +17,7 @@ export default function ThankYouCard({ show, onClose, giftName }: ThankYouCardPr
       setConfetti(Array.from({ length: 50 }, (_, i) => i))
       const timer = setTimeout(() => {
         onClose()
-      }, 5000)
+      }, 8000)
       return () => clearTimeout(timer)
     }
   }, [show, onClose])
