@@ -29,7 +29,7 @@ export default function GiftProgress() {
     <div className="py-8 px-4 bg-gradient-to-r from-slate-800 to-slate-900">
       <div className="max-w-4xl mx-auto">
         <h3 className="text-2xl font-bold text-center mb-4 text-joulu-gold">
-          Kingipakid liiguvad Jüuluvana kingikotti 🎅
+          Kingipakid liiguvad jõuluvana kingikotti 🎅
         </h3>
 
         <div className="relative">
