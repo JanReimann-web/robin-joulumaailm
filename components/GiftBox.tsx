@@ -88,14 +88,33 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
             {/* Valiku lint */}
             {!isAvailable && (
               <div className="absolute inset-0 pointer-events-none z-20">
-                <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-slate-900">
-                  <div className="bg-white/90 text-xs font-bold px-3 py-1 rounded-full shadow-lg mb-2">
+                <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center space-y-3">
+                  <div className="bg-white/90 text-xs font-bold px-3 py-1 rounded-full shadow-lg text-slate-900">
                     Kingitus valitud
                   </div>
-                  {gift.takenWish && (
-                    <div className="bg-white/90 text-slate-900 rounded-lg px-4 py-3 shadow-lg max-w-[90%]">
-                      <p className="text-sm italic">"{gift.takenWish}"</p>
+                  {(gift.takenWish || gift.takenByName || gift.link) && (
+                    <div className="bg-green-600/90 text-white rounded-lg px-4 py-3 shadow-lg max-w-[90%] border border-green-300 space-y-2">
+                      {gift.takenByName && (
+                        <p className="text-sm font-semibold">
+                          {gift.takenByName}
+                        </p>
+                      )}
+                      {gift.takenWish && (
+                        <p className="text-sm italic">"{gift.takenWish}"</p>
+                      )}
+                      {gift.link && (
+                        <a
+                          href={gift.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-xs font-bold bg-white text-green-700 px-3 py-1 rounded"
+                        >
+                          <ShoppingCart size={12} />
+                          Ava link poes
+                          <ExternalLink size={10} />
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
