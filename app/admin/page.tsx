@@ -809,12 +809,12 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-900 text-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 w-full">
           <div>
             <h1 className="text-4xl font-bold text-joulu-gold mb-2">🎁 Admin Halduskeskus</h1>
             <p className="text-white/60">Halda kõiki lehe sisu</p>
           </div>
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
             <a href="/" className="flex-1 md:flex-none text-center px-4 py-2 bg-slate-700 rounded hover:bg-slate-600">
               Vaata lehte
             </a>
@@ -828,7 +828,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-slate-700 overflow-x-auto pb-2">
+        <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-700 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('gifts')}
             className={`px-4 md:px-6 py-2 md:py-3 font-bold whitespace-nowrap transition-colors ${
@@ -1022,7 +1022,7 @@ export default function AdminPage() {
 
             <div className="space-y-4">
               {gifts.map((gift) => (
-                <div key={gift.id} className="bg-slate-800 p-4 rounded-lg flex justify-between items-start gap-4">
+                <div key={gift.id} className="bg-slate-800 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-bold">{gift.name}</h3>
@@ -1039,7 +1039,7 @@ export default function AdminPage() {
                       <p className="text-sm text-white/60">Võttis: {gift.takenByName}</p>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end sm:justify-start">
                     {gift.status === 'taken' && (
                       <button
                         onClick={() => handleReleaseGift(gift.id)}
@@ -1226,7 +1226,7 @@ export default function AdminPage() {
                   </div>
                   <h3 className="font-bold mb-1">{photo.title}</h3>
                   {photo.description && <p className="text-sm text-white/60 mb-3">{photo.description}</p>}
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => handleEditPhoto(photo)}
                       className="flex-1 px-3 py-2 bg-blue-600 rounded hover:bg-blue-700 text-sm"
@@ -1339,7 +1339,7 @@ export default function AdminPage() {
                       <p className="font-bold text-lg">{discount.discount}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => handleEditDiscount(discount)}
                       className="flex-1 px-3 py-2 bg-blue-600 rounded hover:bg-blue-700"
@@ -1477,7 +1477,7 @@ export default function AdminPage() {
                   {item.audioUrl && (
                     <p className="text-sm text-white/60 mb-2">🎤 Helifail: {item.audioUrl}</p>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => handleEditWheelItem(item)}
                       className="flex-1 px-3 py-2 bg-blue-600 rounded hover:bg-blue-700"
@@ -1617,7 +1617,7 @@ export default function AdminPage() {
                   {letter.description && (
                     <p className="text-sm text-white/60 mb-3">{letter.description}</p>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => handleEditLetter(letter)}
                       className="flex-1 px-3 py-2 bg-blue-600 rounded hover:bg-blue-700"

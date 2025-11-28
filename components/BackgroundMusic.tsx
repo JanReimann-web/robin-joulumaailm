@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Volume2, VolumeX } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -8,42 +8,65 @@ const MUSIC_URL = process.env.NEXT_PUBLIC_BACKGROUND_MUSIC_URL || '/audio/christ
 
 export default function BackgroundMusic() {
   const [isMuted, setIsMuted] = useState(false)
+  const [needsInteraction, setNeedsInteraction] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  const playAudio = useCallback(async () => {
-    if (!audioRef.current) return
-    try {
-      await audioRef.current.play()
-    } catch (error) {
-      console.warn('Taustamuusika autoplay ebaõnnestus, ootan kasutaja tegevust.', error)
-    }
-  }, [])
-
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.muted = isMuted
-      if (isMuted) {
-        audioRef.current.pause()
-      } else {
-        playAudio()
+    const audio = audioRef.current
+    if (!audio) return
+
+    const attemptAutoplay = async () => {
+      try {
+        const shouldUnmuteAfterStart = !isMuted
+        audio.muted = true
+        await audio.play()
+        setTimeout(() => {
+          if (audioRef.current && shouldUnmuteAfterStart) {
+            audioRef.current.muted = false
+          }
+        }, 200)
+      } catch (error) {
+        console.warn('Taustamuusika autoplay ebaõnnestus, ootan kasutaja tegevust.', error)
+        setNeedsInteraction(true)
       }
     }
-  }, [isMuted, playAudio])
+
+    attemptAutoplay()
+  }, []) // run once on mount
 
   useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    audio.muted = isMuted
     if (isMuted) {
-      return
+      audio.pause()
+    } else {
+      audio.play().catch(() => setNeedsInteraction(true))
     }
+  }, [isMuted])
+
+  useEffect(() => {
+    if (!needsInteraction) return
 
     const resumeOnInteraction = () => {
-      playAudio()
+      if (!audioRef.current) return
+      audioRef.current
+        .play()
+        .then(() => {
+          audioRef.current!.muted = isMuted
+          setNeedsInteraction(false)
+        })
+        .catch((error) => {
+          console.warn('Kasutaja interaktsioonist hoolimata ei saanud heli käivitada:', error)
+        })
     }
 
     document.addEventListener('pointerdown', resumeOnInteraction, { once: true })
     return () => {
       document.removeEventListener('pointerdown', resumeOnInteraction)
     }
-  }, [isMuted, playAudio])
+  }, [needsInteraction, isMuted])
 
   if (!MUSIC_URL) {
     return null
@@ -65,6 +88,12 @@ export default function BackgroundMusic() {
           <Volume2 size={24} className="text-white" />
         )}
       </motion.button>
+
+      {needsInteraction && (
+        <p className="mt-2 text-xs text-white/80 text-center">
+          Aktiveeri heli puudutusega
+        </p>
+      )}
 
       <audio
         ref={audioRef}
