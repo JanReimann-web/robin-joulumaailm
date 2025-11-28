@@ -126,7 +126,6 @@ export default function BackgroundMusic() {
         autoPlay
         preload="auto"
         playsInline
-        defaultMuted
         className="hidden"
       />
     </div>
