@@ -172,14 +172,17 @@ export default function ChristmasWheel() {
               </div>
             )}
             
-            {/* Vastus */}
-            {showAnswer && (
+            {selectedItem.question && showAnswer && (
               <div>
                 <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.text}</p>
-                
-                {/* Helifail */}
                 {selectedItem.audioUrl && (
                   <div className="mt-4">
+                    <div className="flex items-center gap-3 justify-center text-slate-900 font-semibold text-lg mb-2">
+                      <span role="img" aria-label="microphone" className="text-2xl">
+                        🎤
+                      </span>
+                      <span>{selectedItem.robinAudioLabel || 'Kuula kuidas Robin ütleb õige vastuse'}</span>
+                    </div>
                     <audio
                       ref={audioRef}
                       src={selectedItem.audioUrl}
@@ -189,32 +192,47 @@ export default function ChristmasWheel() {
                       onPlay={() => setIsPlayingAudio(true)}
                       onPause={() => setIsPlayingAudio(false)}
                     />
-                    <p className="text-sm text-slate-700 mt-2">🎤 Robin räägib õige vastuse:</p>
                   </div>
                 )}
               </div>
             )}
             
-            {/* Kui küsimust pole, näita kohe teksti */}
             {!selectedItem.question && (
               <div>
-                <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.text}</p>
-                
-                {/* Helifail */}
-                {selectedItem.audioUrl && (
-                  <div className="mt-4">
-                    <audio
-                      ref={audioRef}
-                      src={selectedItem.audioUrl}
-                      controls
-                      autoPlay
-                      className="w-full"
-                      onEnded={() => setIsPlayingAudio(false)}
-                      onPlay={() => setIsPlayingAudio(true)}
-                      onPause={() => setIsPlayingAudio(false)}
-                    />
-                    <p className="text-sm text-slate-700 mt-2">🎤 Robin räägib:</p>
+                {!showAnswer && (
+                  <div className="mb-4">
+                    <button
+                      onClick={handleShowAnswer}
+                      className="px-6 py-3 bg-joulu-red hover:bg-red-700 rounded-lg font-bold text-white text-lg transition-colors"
+                    >
+                      Näita vastust
+                    </button>
                   </div>
+                )}
+                {showAnswer && (
+                  <>
+                    <p className="text-xl font-bold text-slate-900 mb-4">{selectedItem.text}</p>
+                    {selectedItem.audioUrl && (
+                      <div className="mt-4">
+                        <div className="flex items-center gap-3 justify-center text-slate-900 font-semibold text-lg mb-2">
+                          <span role="img" aria-label="microphone" className="text-2xl">
+                            🎤
+                          </span>
+                          <span>{selectedItem.robinAudioLabel || 'Kuula kuidas Robin ütleb õige vastuse'}</span>
+                        </div>
+                        <audio
+                          ref={audioRef}
+                          src={selectedItem.audioUrl}
+                          controls
+                          autoPlay
+                          className="w-full"
+                          onEnded={() => setIsPlayingAudio(false)}
+                          onPlay={() => setIsPlayingAudio(true)}
+                          onPause={() => setIsPlayingAudio(false)}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -257,11 +275,8 @@ function WheelCanvas({ items }: { items: WheelItem[] }) {
             className="absolute inset-0"
             style={{ transform: `rotate(${angle}deg)` }}
           >
-            <div className="absolute left-1/2 top-2 -translate-x-1/2 flex flex-col items-center text-white drop-shadow-lg">
+            <div className="absolute left-1/2 top-6 -translate-x-1/2 flex items-center justify-center text-white drop-shadow-lg">
               <span className="text-3xl">{item.emoji}</span>
-              <span className="text-xs font-bold max-w-[90px] text-center leading-tight mt-1">
-                {item.question ? item.question : item.text}
-              </span>
             </div>
           </div>
         )

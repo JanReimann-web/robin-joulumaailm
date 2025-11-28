@@ -36,6 +36,7 @@ export default function AdminPage() {
     link: '',
     robinStory: '',
     robinVideoUrl: '',
+    robinAudioLabel: '',
   })
   const [giftImageMeta, setGiftImageMeta] = useState<{ name: string; size: number } | null>(null)
   const [giftImageUploadProgress, setGiftImageUploadProgress] = useState<number | null>(null)
@@ -266,6 +267,7 @@ export default function AdminPage() {
       link: gift.link || '',
       robinStory: gift.robinStory || '',
       robinVideoUrl: gift.robinVideoUrl || '',
+      robinAudioLabel: gift.robinAudioLabel || '',
     })
     setGiftImageMeta(null)
     setShowGiftForm(true)
@@ -279,6 +281,7 @@ export default function AdminPage() {
       link: '',
       robinStory: '',
       robinVideoUrl: '',
+      robinAudioLabel: '',
     })
     setEditingGift(null)
     setGiftImageMeta(null)
@@ -906,6 +909,16 @@ export default function AdminPage() {
                       className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
                     />
                   </div>
+                <div className="md:col-span-2">
+                  <label className="block mb-2">Audio tekst (kuvame nupu kõrval)</label>
+                  <input
+                    type="text"
+                    value={giftFormData.robinAudioLabel}
+                    onChange={(e) => setGiftFormData({ ...giftFormData, robinAudioLabel: e.target.value })}
+                    className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600"
+                    placeholder="Näide: Kuula kuidas Robin ütleb õige vastuse"
+                  />
+                </div>
                   <div className="md:col-span-2">
                     <label className="block mb-2">Kirjeldus *</label>
                     <textarea

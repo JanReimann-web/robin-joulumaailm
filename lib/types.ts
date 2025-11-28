@@ -10,6 +10,7 @@ export interface Gift {
   takenAt?: string
   robinStory?: string
   robinVideoUrl?: string
+  robinAudioLabel?: string
 }
 
 export interface DiscountCode {
