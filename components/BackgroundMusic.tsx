@@ -40,6 +40,7 @@ export default function BackgroundMusic() {
         const shouldUnmuteAfterStart = !isMuted
         audio.muted = true
         await audio.play()
+        setNeedsInteraction(false)
         setTimeout(() => {
           if (audioRef.current && shouldUnmuteAfterStart) {
             audioRef.current.muted = false
@@ -63,7 +64,10 @@ export default function BackgroundMusic() {
     if (isMuted) {
       audio.pause()
     } else {
-      audio.play().catch(() => setNeedsInteraction(true))
+      audio
+        .play()
+        .then(() => setNeedsInteraction(false))
+        .catch(() => setNeedsInteraction(true))
     }
   }, [isMuted, resolvedMusicUrl])
 
@@ -116,7 +120,15 @@ export default function BackgroundMusic() {
         </p>
       )}
 
-      <audio ref={audioRef} loop autoPlay preload="auto" className="hidden" />
+      <audio
+        ref={audioRef}
+        loop
+        autoPlay
+        preload="auto"
+        playsInline
+        defaultMuted
+        className="hidden"
+      />
     </div>
   )
 }

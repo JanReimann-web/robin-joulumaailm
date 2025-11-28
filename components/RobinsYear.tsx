@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { Photo } from '@/lib/types'
@@ -10,6 +10,7 @@ export default function RobinsYear() {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
+  const mediaContainerRef = useRef<HTMLDivElement | null>(null)
   const selectedMediaType = selectedPhoto?.type === 'video' ? 'video' : 'photo'
 
   useEffect(() => {
@@ -153,7 +154,10 @@ export default function RobinsYear() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-slate-800 rounded-lg p-4">
-                <div className="aspect-video bg-black rounded overflow-hidden flex items-center justify-center mb-4">
+                <div
+                  ref={mediaContainerRef}
+                  className="aspect-video bg-black rounded overflow-hidden flex items-center justify-center mb-4"
+                >
                   {selectedMediaType === 'photo' ? (
                     <img
                       src={selectedPhoto.url}
@@ -196,6 +200,29 @@ export default function RobinsYear() {
                 {selectedPhoto.description && (
                   <p className="text-center text-white/80">{selectedPhoto.description}</p>
                 )}
+                <div className="flex flex-wrap justify-center gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      const el = mediaContainerRef.current
+                      if (el && 'requestFullscreen' in el) {
+                        (el as HTMLElement & { requestFullscreen?: () => Promise<void> })
+                          .requestFullscreen?.()
+                          .catch(() => window.open(selectedPhoto.url, '_blank'))
+                      } else {
+                        window.open(selectedPhoto.url, '_blank')
+                      }
+                    }}
+                    className="px-4 py-2 rounded bg-joulu-red hover:bg-red-700 text-white font-bold"
+                  >
+                    Täisekraan
+                  </button>
+                  <button
+                    onClick={() => window.open(selectedPhoto.url, '_blank')}
+                    className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-white font-bold"
+                  >
+                    Ava uues aknas
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
