@@ -61,8 +61,14 @@ export default function ChristmasWheel() {
     const targetRotation = rotate.get() + randomRotation
 
     const onSpinComplete = () => {
-      const normalizedRotation = (rotate.get() % 360) + 360
-      const itemIndex = Math.floor((360 - normalizedRotation) / (360 / items.length)) % items.length
+      const normalizedRotation = ((rotate.get() % 360) + 360) % 360
+      const pointerAngle = (360 - normalizedRotation + 360) % 360
+      let itemIndex = Math.floor(pointerAngle / (360 / items.length))
+      if (itemIndex < 0) {
+        itemIndex = (itemIndex + items.length) % items.length
+      } else {
+        itemIndex = itemIndex % items.length
+      }
       const selected = items[itemIndex]
       setSelectedItem(selected)
       setIsSpinning(false)
