@@ -93,7 +93,7 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
                   <div className="bg-white/90 text-xs font-bold px-3 py-1 rounded-full shadow-lg text-slate-900">
                     Kingitus valitud
                   </div>
-                  {(gift.takenWish || gift.takenByName || gift.link) && (
+                  {(gift.takenWish || gift.takenByName) && (
                     <div className="bg-green-600/90 text-white rounded-lg px-4 py-3 shadow-lg max-w-[90%] border border-green-300 space-y-2">
                       {gift.takenByName && (
                         <p className="text-sm font-semibold">
@@ -102,18 +102,6 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
                       )}
                       {gift.takenWish && (
                         <p className="text-sm italic">"{gift.takenWish}"</p>
-                      )}
-                      {gift.link && (
-                        <a
-                          href={gift.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-xs font-bold bg-white text-green-700 px-3 py-1 rounded"
-                        >
-                          <ShoppingCart size={12} />
-                          Ava link poes
-                          <ExternalLink size={10} />
-                        </a>
                       )}
                     </div>
                   )}
