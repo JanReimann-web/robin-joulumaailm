@@ -118,6 +118,18 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
                     </div>
                   )}
                 </div>
+                {gift.link && (
+                  <a
+                    href={gift.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute bottom-3 right-3 flex items-center gap-2 text-xs font-bold bg-white text-green-700 px-3 py-1 rounded shadow pointer-events-auto"
+                  >
+                    <ShoppingCart size={12} />
+                    Ava poes
+                    <ExternalLink size={10} />
+                  </a>
+                )}
               </div>
             )}
 
@@ -143,20 +155,16 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
             </div>
 
             {/* Link nupp */}
-            {gift.link && (
+            {gift.link && isAvailable && (
               <a
                 href={gift.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleLinkClick}
-                className={`mb-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
-                  isAvailable
-                    ? 'bg-joulu-gold text-slate-900 hover:bg-yellow-400'
-                    : 'bg-white/90 text-slate-900 hover:bg-white'
-                }`}
+                className="mb-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors bg-joulu-gold text-slate-900 hover:bg-yellow-400"
               >
                 <ShoppingCart size={16} />
-                {isAvailable ? 'Vaata poes' : 'Ava link poes'}
+                Vaata poes
                 <ExternalLink size={14} />
               </a>
             )}
