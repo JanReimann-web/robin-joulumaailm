@@ -22,7 +22,7 @@ export default function ChristmasWheel() {
       const itemsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })) as WheelItem[]
+      })) as (WheelItem & { robinAudioLabel?: string })[]
       
       // Kui andmeid pole, kasuta vaikimisi andmeid
       if (itemsData.length === 0) {
@@ -181,7 +181,7 @@ export default function ChristmasWheel() {
                       <span role="img" aria-label="microphone" className="text-2xl">
                         🎤
                       </span>
-                      <span>{selectedItem.robinAudioLabel || 'Kuula kuidas Robin ütleb õige vastuse'}</span>
+                      <span>{(selectedItem as any).robinAudioLabel || 'Kuula kuidas Robin ütleb õige vastuse'}</span>
                     </div>
                     <audio
                       ref={audioRef}
@@ -218,7 +218,7 @@ export default function ChristmasWheel() {
                           <span role="img" aria-label="microphone" className="text-2xl">
                             🎤
                           </span>
-                          <span>{selectedItem.robinAudioLabel || 'Kuula kuidas Robin ütleb õige vastuse'}</span>
+                          <span>{(selectedItem as any).robinAudioLabel || 'Kuula kuidas Robin ütleb õige vastuse'}</span>
                         </div>
                         <audio
                           ref={audioRef}
