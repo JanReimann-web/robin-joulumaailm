@@ -128,7 +128,7 @@ export default function PostOfficeBox() {
             </motion.div>
 
             <p className="mt-6 text-white/80">
-              Kliki postkastile, et näha Robini kirju
+              Kliki postkastile, et näha Robini kirja jõuluvanale!
             </p>
           </>
         )}

@@ -70,7 +70,7 @@ export default function GiftPile({ onGiftSelected }: GiftPileProps) {
           🎁 Kingipundar
         </h2>
         <p className="text-center text-white/80 mb-8">
-          Vali kingitust, mida soovid Robini jaoks osta
+          Vali kingitust, mida soovid, et Jõuluvana Robinile tooks
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

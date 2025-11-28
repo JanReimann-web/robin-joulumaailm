@@ -1,69 +1,79 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { Volume2, VolumeX, Download } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { doc, onSnapshot } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
-import type { SiteSettings } from '@/lib/types'
+
+const MUSIC_URL = process.env.NEXT_PUBLIC_BACKGROUND_MUSIC_URL || '/audio/christmas-background.mp3'
 
 export default function BackgroundMusic() {
-  const [isMuted, setIsMuted] = useState(true)
-  const [musicUrl, setMusicUrl] = useState<string | null>(null)
+  const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
 
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'site'), (snapshot) => {
-      const data = snapshot.data() as SiteSettings | undefined
-      setMusicUrl(data?.musicUrl ?? null)
-    })
-
-    return () => unsub()
+  const playAudio = useCallback(async () => {
+    if (!audioRef.current) return
+    try {
+      await audioRef.current.play()
+    } catch (error) {
+      console.warn('Taustamuusika autoplay ebaõnnestus, ootan kasutaja tegevust.', error)
+    }
   }, [])
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.muted = isMuted
-      if (!isMuted && musicUrl) {
-        audioRef.current.play().catch(() => {
-          // Autoplay võib ebaõnnestuda, see on normaalne
-        })
+      if (isMuted) {
+        audioRef.current.pause()
+      } else {
+        playAudio()
       }
     }
-  }, [isMuted, musicUrl])
+  }, [isMuted, playAudio])
 
-  if (!musicUrl) {
+  useEffect(() => {
+    if (isMuted) {
+      return
+    }
+
+    const resumeOnInteraction = () => {
+      playAudio()
+    }
+
+    document.addEventListener('pointerdown', resumeOnInteraction, { once: true })
+    return () => {
+      document.removeEventListener('pointerdown', resumeOnInteraction)
+    }
+  }, [isMuted, playAudio])
+
+  if (!MUSIC_URL) {
     return null
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2">
-      <div className="flex items-center gap-2 bg-slate-900/70 backdrop-blur px-3 py-2 rounded-full shadow-lg">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsMuted(!isMuted)}
-          className="bg-joulu-red p-3 rounded-full shadow-xl hover:bg-red-700 transition-colors"
-          aria-label={isMuted ? 'Lülita muusika sisse' : 'Lülita muusika välja'}
-        >
-          {isMuted ? (
-            <VolumeX size={20} className="text-white" />
-          ) : (
-            <Volume2 size={20} className="text-white" />
-          )}
-        </motion.button>
+    <div className="fixed bottom-4 right-4 z-50">
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsMuted(!isMuted)}
+        className="bg-joulu-red p-4 rounded-full shadow-xl hover:bg-red-700 transition-colors"
+        aria-label={isMuted ? 'Lülita muusika sisse' : 'Lülita muusika välja'}
+        aria-pressed={!isMuted}
+      >
+        {isMuted ? (
+          <VolumeX size={24} className="text-white" />
+        ) : (
+          <Volume2 size={24} className="text-white" />
+        )}
+      </motion.button>
 
-        <a
-          href={musicUrl}
-          download
-          className="text-white/80 hover:text-white flex items-center gap-1 text-sm"
-        >
-          <Download size={16} />
-          Laadi alla
-        </a>
-      </div>
-
-      <audio ref={audioRef} src={musicUrl} loop className="hidden" />
+      <audio
+        ref={audioRef}
+        src={MUSIC_URL}
+        loop
+        autoPlay
+        preload="auto"
+        className="hidden"
+      />
     </div>
   )
 }

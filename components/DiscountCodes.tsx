@@ -51,7 +51,7 @@ export default function DiscountCodes() {
           🎁 Päkapiku soovitused
         </h2>
         <p className="text-center text-white/80 mb-8">
-          Spetsiaalsed pakkumised Robini jaoks
+          Sooduskoodid ja pakkumised Robini lemmikpoodidest
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

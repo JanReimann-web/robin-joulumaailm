@@ -15,6 +15,7 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
   const [showModal, setShowModal] = useState(false)
   const [selectedName, setSelectedName] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(true)
+  const isAvailable = gift.status === 'available'
 
   const getStatusColor = () => {
     switch (gift.status) {
@@ -48,7 +49,7 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
       return
     }
     
-    if (gift.status === 'available') {
+    if (isAvailable) {
       setShowModal(true)
     }
   }
@@ -66,9 +67,9 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
   return (
     <>
       <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className={`relative cursor-pointer ${gift.status === 'available' ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+        whileHover={{ scale: isAvailable ? 1.05 : 1 }}
+        whileTap={{ scale: isAvailable ? 0.95 : 1 }}
+        className={`relative ${isAvailable ? 'cursor-pointer' : 'cursor-not-allowed opacity-80'}`}
         onClick={handleSelect}
       >
         <div className="bg-gradient-to-br from-joulu-red to-red-800 p-6 rounded-lg shadow-xl border-4 border-joulu-gold relative overflow-hidden">
@@ -80,6 +81,24 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
           </div>
 
           <div className="relative z-10">
+            {/* Valiku lint */}
+            {!isAvailable && (
+              <div className="absolute inset-0 pointer-events-none z-20">
+                <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+                <div className="absolute inset-0">
+                  <div className="absolute inset-y-0 left-1/2 w-4 -translate-x-1/2 bg-gradient-to-b from-joulu-gold via-yellow-300 to-joulu-gold opacity-80" />
+                  <div className="absolute inset-x-0 top-1/2 h-4 -translate-y-1/2 bg-gradient-to-r from-joulu-gold via-yellow-300 to-joulu-gold opacity-80" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16">
+                    <span className="absolute inset-0 rounded-full bg-yellow-200/70 blur-md" />
+                    <span className="absolute inset-2 rounded-full bg-gradient-to-br from-joulu-gold to-yellow-300 border-2 border-white shadow-inner" />
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4 bg-white/90 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  Kingitus valitud
+                </div>
+              </div>
+            )}
+
             {/* Pildi sektsioon */}
             {gift.image && (
               <div className="mb-4 rounded-lg overflow-hidden aspect-square bg-slate-900">
@@ -102,16 +121,20 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
             </div>
 
             {/* Link nupp */}
-            {gift.link && gift.status === 'available' && (
+            {gift.link && (
               <a
                 href={gift.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleLinkClick}
-                className="mb-3 w-full flex items-center justify-center gap-2 bg-joulu-gold text-slate-900 px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors font-bold text-sm"
+                className={`mb-3 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
+                  isAvailable
+                    ? 'bg-joulu-gold text-slate-900 hover:bg-yellow-400'
+                    : 'bg-white/90 text-slate-900 hover:bg-white'
+                }`}
               >
                 <ShoppingCart size={16} />
-                Vaata poes
+                {isAvailable ? 'Vaata poes' : 'Ava link poes'}
                 <ExternalLink size={14} />
               </a>
             )}
@@ -132,7 +155,7 @@ export default function GiftBox({ gift, onSelect }: GiftBoxProps) {
             )}
           </div>
 
-          {/* Ribbon */}
+          {/* Ribbon dekoratsioon nurgas */}
           <div className="absolute top-0 right-0 w-0 h-0 border-l-[30px] border-l-transparent border-t-[30px] border-t-joulu-gold" />
         </div>
       </motion.div>
