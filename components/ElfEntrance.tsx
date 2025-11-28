@@ -86,7 +86,7 @@ export default function ElfEntrance() {
                         📮
                       </p>
                       <p className="text-slate-900">
-                        Päkapik avab kirstu ja hakkab lugema...
+                        Oota veel hetk ja siis saad avastada Robini jõulumaailma...
                       </p>
                     </div>
                   </div>
