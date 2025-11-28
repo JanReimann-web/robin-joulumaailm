@@ -10,6 +10,7 @@ export default function RobinsYear() {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null)
   const [photos, setPhotos] = useState<Photo[]>([])
   const [loading, setLoading] = useState(true)
+  const selectedMediaType = selectedPhoto?.type === 'video' ? 'video' : 'photo'
 
   useEffect(() => {
     // Reaalajas andmete kuulamine
@@ -57,7 +58,9 @@ export default function RobinsYear() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {photos.map((photo, index) => (
+            {photos.map((photo, index) => {
+              const mediaType = photo.type === 'video' ? 'video' : 'photo'
+              return (
               <motion.div
                 key={photo.id}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -68,7 +71,7 @@ export default function RobinsYear() {
                 onClick={() => setSelectedPhoto(photo)}
               >
                 <div className="w-full h-full bg-slate-900">
-                  {photo.type === 'photo' ? (
+                  {mediaType === 'photo' ? (
                     <img
                       src={photo.url}
                       alt={photo.title}
@@ -133,7 +136,7 @@ export default function RobinsYear() {
                   <p className="text-sm text-white text-center font-bold">{photo.title}</p>
                 </div>
               </motion.div>
-            ))}
+            )})}
           </div>
         )}
 
@@ -151,7 +154,7 @@ export default function RobinsYear() {
             >
               <div className="bg-slate-800 rounded-lg p-4">
                 <div className="aspect-video bg-black rounded overflow-hidden flex items-center justify-center mb-4">
-                  {selectedPhoto.type === 'photo' ? (
+                  {selectedMediaType === 'photo' ? (
                     <img
                       src={selectedPhoto.url}
                       alt={selectedPhoto.title}

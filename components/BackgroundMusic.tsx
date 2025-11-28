@@ -1,19 +1,39 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 import { Volume2, VolumeX } from 'lucide-react'
 import { motion } from 'framer-motion'
 
-const MUSIC_URL = process.env.NEXT_PUBLIC_BACKGROUND_MUSIC_URL || '/audio/christmas-background.mp3'
+const DEFAULT_MUSIC_URL = process.env.NEXT_PUBLIC_BACKGROUND_MUSIC_URL || '/audio/christmas-background.mp3'
 
 export default function BackgroundMusic() {
   const [isMuted, setIsMuted] = useState(false)
   const [needsInteraction, setNeedsInteraction] = useState(false)
+  const [remoteMusicUrl, setRemoteMusicUrl] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
+  const lastSourceRef = useRef<string | null>(null)
+
+  const resolvedMusicUrl = remoteMusicUrl || DEFAULT_MUSIC_URL
+
+  useEffect(() => {
+    const settingsRef = doc(db, 'settings', 'site')
+    const unsubscribe = onSnapshot(settingsRef, (snap) => {
+      const musicUrl = snap.data()?.musicUrl as string | undefined
+      setRemoteMusicUrl(musicUrl ?? null)
+    })
+    return () => unsubscribe()
+  }, [])
 
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !resolvedMusicUrl) return
+    if (lastSourceRef.current === resolvedMusicUrl) return
+    lastSourceRef.current = resolvedMusicUrl
+
+    audio.src = resolvedMusicUrl
+    audio.load()
 
     const attemptAutoplay = async () => {
       try {
@@ -24,7 +44,7 @@ export default function BackgroundMusic() {
           if (audioRef.current && shouldUnmuteAfterStart) {
             audioRef.current.muted = false
           }
-        }, 200)
+        }, 150)
       } catch (error) {
         console.warn('Taustamuusika autoplay ebaõnnestus, ootan kasutaja tegevust.', error)
         setNeedsInteraction(true)
@@ -32,9 +52,10 @@ export default function BackgroundMusic() {
     }
 
     attemptAutoplay()
-  }, []) // run once on mount
+  }, [resolvedMusicUrl])
 
   useEffect(() => {
+    if (!resolvedMusicUrl) return
     const audio = audioRef.current
     if (!audio) return
 
@@ -44,10 +65,10 @@ export default function BackgroundMusic() {
     } else {
       audio.play().catch(() => setNeedsInteraction(true))
     }
-  }, [isMuted])
+  }, [isMuted, resolvedMusicUrl])
 
   useEffect(() => {
-    if (!needsInteraction) return
+    if (!needsInteraction || !resolvedMusicUrl) return
 
     const resumeOnInteraction = () => {
       if (!audioRef.current) return
@@ -66,9 +87,9 @@ export default function BackgroundMusic() {
     return () => {
       document.removeEventListener('pointerdown', resumeOnInteraction)
     }
-  }, [needsInteraction, isMuted])
+  }, [needsInteraction, isMuted, resolvedMusicUrl])
 
-  if (!MUSIC_URL) {
+  if (!resolvedMusicUrl) {
     return null
   }
 
@@ -95,14 +116,7 @@ export default function BackgroundMusic() {
         </p>
       )}
 
-      <audio
-        ref={audioRef}
-        src={MUSIC_URL}
-        loop
-        autoPlay
-        preload="auto"
-        className="hidden"
-      />
+      <audio ref={audioRef} loop autoPlay preload="auto" className="hidden" />
     </div>
   )
 }
