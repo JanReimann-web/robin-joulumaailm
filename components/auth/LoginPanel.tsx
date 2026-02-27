@@ -20,6 +20,10 @@ type LoginPanelProps = {
 
 type PendingAction = 'google' | 'signIn' | 'create' | 'resetPassword' | null
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const isValidEmail = (value: string): boolean => EMAIL_PATTERN.test(value)
+
 const mapFirebaseAuthError = (
   error: unknown,
   labels: Dictionary['login']
@@ -30,13 +34,19 @@ const mapFirebaseAuthError = (
 
   switch (error.code) {
     case 'auth/invalid-credential':
+    case 'auth/invalid-login-credentials':
     case 'auth/user-not-found':
     case 'auth/wrong-password':
       return labels.errorInvalidCredentials
+    case 'auth/invalid-email':
+    case 'auth/missing-email':
+      return labels.errorInvalidEmail
     case 'auth/email-already-in-use':
       return labels.errorEmailInUse
     case 'auth/weak-password':
       return labels.errorWeakPassword
+    case 'auth/operation-not-allowed':
+      return labels.errorEmailPasswordDisabled
     default:
       return labels.errorGeneric
   }
@@ -98,19 +108,36 @@ export default function LoginPanel({ locale, labels }: LoginPanelProps) {
   }
 
   const handleCreateAccount = async () => {
+    const trimmedEmail = email.trim()
+
+    if (!isValidEmail(trimmedEmail)) {
+      setError(labels.errorInvalidEmail)
+      setSuccessMessage(null)
+      return
+    }
+
+    if (password.length < 6) {
+      setError(labels.errorWeakPassword)
+      setSuccessMessage(null)
+      return
+    }
+
     await withPendingState('create', async () => {
-      await createAccountWithEmail(email.trim(), password)
+      await createAccountWithEmail(trimmedEmail, password)
     })
   }
 
   const handlePasswordReset = async () => {
-    if (!email.trim()) {
-      setError(labels.errorGeneric)
+    const trimmedEmail = email.trim()
+
+    if (!isValidEmail(trimmedEmail)) {
+      setError(labels.errorInvalidEmail)
+      setSuccessMessage(null)
       return
     }
 
     await withPendingState('resetPassword', async () => {
-      await resetPassword(email.trim())
+      await resetPassword(trimmedEmail)
       setSuccessMessage(labels.resetPasswordSent)
     }, {
       redirectOnSuccess: false,

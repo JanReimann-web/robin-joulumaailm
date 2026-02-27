@@ -180,8 +180,10 @@ export const enDictionary: Dictionary = {
     accountCreated: 'Account created. Check your email for verification and continue.',
     errorGeneric: 'Authentication failed. Please try again.',
     errorInvalidCredentials: 'Incorrect email or password.',
+    errorInvalidEmail: 'Please enter a valid email address.',
     errorEmailInUse: 'This email is already in use.',
     errorWeakPassword: 'Password is too weak. Use at least 6 characters.',
+    errorEmailPasswordDisabled: 'Email/password sign-in is not enabled in Firebase Auth.',
   },
   dashboard: {
     title: 'Dashboard',

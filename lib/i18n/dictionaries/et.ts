@@ -180,8 +180,10 @@ export const etDictionary: Dictionary = {
     accountCreated: 'Konto loodud. Kinnita e-post ja jätka.',
     errorGeneric: 'Autentimine ebaõnnestus. Proovi uuesti.',
     errorInvalidCredentials: 'Vale e-post või parool.',
+    errorInvalidEmail: 'Sisesta korrektne e-posti aadress.',
     errorEmailInUse: 'See e-post on juba kasutusel.',
     errorWeakPassword: 'Parool on liiga nõrk. Kasuta vähemalt 6 märki.',
+    errorEmailPasswordDisabled: 'E-posti/parooli sisselogimine pole Firebase Authis lubatud.',
   },
   dashboard: {
     title: 'Töölaud',

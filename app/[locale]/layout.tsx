@@ -46,8 +46,8 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <Link href={`/${locale}`} className="text-lg font-semibold tracking-tight text-white">
+        <div className="mx-auto flex w-full max-w-6xl items-start justify-between gap-3 px-4 py-3 sm:items-center">
+          <Link href={`/${locale}`} className="text-base font-semibold leading-tight tracking-tight text-white sm:text-lg">
             {dict.brand}
           </Link>
 

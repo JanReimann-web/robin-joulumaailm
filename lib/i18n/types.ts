@@ -124,8 +124,10 @@ export interface Dictionary {
     accountCreated: string
     errorGeneric: string
     errorInvalidCredentials: string
+    errorInvalidEmail: string
     errorEmailInUse: string
     errorWeakPassword: string
+    errorEmailPasswordDisabled: string
   }
   dashboard: {
     title: string
