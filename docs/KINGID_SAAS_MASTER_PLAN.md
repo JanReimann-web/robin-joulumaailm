@@ -11,9 +11,12 @@ Build a scalable paid gift-list service where event hosts create and share a uni
 Primary event types for MVP:
 
 1. Wedding
-2. Birthday
-3. Baby shower
-4. Christmas
+2. Birthday (adults)
+3. Birthday (kids)
+4. Baby shower
+5. Graduation (school, kindergarten, university)
+6. Housewarming
+7. Christmas
 
 ## 2. MVP Scope
 
@@ -61,8 +64,8 @@ Status legend: `[ ]` not started, `[-]` in progress, `[x]` done
 - [x] P0-01 Create legacy snapshot branch and tag
 - [x] P0-02 Save current working tree diff as patch backup
 - [x] P0-03 Scaffold clean SaaS base structure
-- [ ] P0-04 Configure environments (`dev`, `staging`, `prod`)
-- [ ] P0-05 Configure CI checks (`lint`, `typecheck`, `build`)
+- [x] P0-04 Configure environments (`dev`, `staging`, `prod`)
+- [x] P0-05 Configure CI checks (`lint`, `typecheck`, `build`)
 
 ### P1 - Auth and security baseline
 
@@ -73,7 +76,7 @@ Status legend: `[ ]` not started, `[-]` in progress, `[x]` done
 - [x] P1-05 Implement password reset and email verification
 - [x] P1-06 Lock Firestore security rules
 - [x] P1-07 Lock Storage security rules
-- [ ] P1-08 Add security regression tests
+- [x] P1-08 Add security regression tests
 
 ### P2 - Multi-tenant model and builder
 
@@ -112,11 +115,11 @@ Status legend: `[ ]` not started, `[-]` in progress, `[x]` done
 
 ### P6 - Quality and launch
 
-- [ ] P6-01 Add unit tests for validators and core business logic
-- [ ] P6-02 Add E2E happy-path test
-- [ ] P6-03 Add E2E payment/trial expiry test
-- [ ] P6-04 Add error tracking and alerting
-- [ ] P6-05 Configure Firebase/GCP budget alerts
+- [x] P6-01 Add unit tests for validators and core business logic
+- [x] P6-02 Add E2E happy-path test
+- [x] P6-03 Add E2E payment/trial expiry test
+- [-] P6-04 Add error tracking and alerting
+- [-] P6-05 Configure Firebase/GCP budget alerts
 - [ ] P6-06 Soft launch with pilot users
 - [ ] P6-07 Public launch
 

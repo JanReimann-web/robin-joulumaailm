@@ -1,6 +1,14 @@
 import { ListAccessStatus } from '@/lib/lists/access'
 
-export const EVENT_TYPES = ['wedding', 'birthday', 'babyShower', 'christmas'] as const
+export const EVENT_TYPES = [
+  'wedding',
+  'birthday',
+  'kidsBirthday',
+  'babyShower',
+  'graduation',
+  'housewarming',
+  'christmas',
+] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
 export const TEMPLATE_IDS = [

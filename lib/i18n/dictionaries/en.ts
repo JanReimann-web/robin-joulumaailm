@@ -24,7 +24,7 @@ export const enDictionary: Dictionary = {
   highlights: {
     title: 'Why hosts use Giftlist Studio',
     templateTitle: 'Event-based templates',
-    templateBody: 'Choose from focused designs for weddings, birthdays, baby showers, and holidays.',
+    templateBody: 'Choose from focused designs for weddings, adult birthdays, kids birthdays, baby showers, graduations, housewarmings, and holidays.',
     reserveTitle: 'Duplicate-safe reservations',
     reserveBody: 'Reservation actions are transaction-protected to avoid two guests choosing the same gift.',
     trialTitle: 'Trial first, one-time payment later',
@@ -33,8 +33,11 @@ export const enDictionary: Dictionary = {
   events: {
     title: 'Supported event types',
     wedding: 'Wedding',
-    birthday: 'Birthday',
+    birthday: 'Birthday (Adults)',
+    kidsBirthday: 'Birthday (Kids)',
     babyShower: 'Baby shower',
+    graduation: 'Graduation',
+    housewarming: 'Housewarming',
     christmas: 'Christmas',
   },
   eventPages: {
@@ -77,6 +80,20 @@ export const enDictionary: Dictionary = {
         'Experience voucher',
       ],
     },
+    kidsBirthday: {
+      seoTitle: 'Kids Birthday Gift List',
+      seoDescription:
+        'Create a playful kids birthday gift list with stories and fun wheel questions for guests.',
+      headline: 'Kids birthday gift list full of fun',
+      intro:
+        'Share a colorful birthday list where guests can reserve gifts and enjoy the child-friendly story and wheel sections.',
+      samples: [
+        'Creative toy set',
+        'Outdoor play gear',
+        'Kids books collection',
+        'Science experiment kit',
+      ],
+    },
     babyShower: {
       seoTitle: 'Baby Shower Gift List',
       seoDescription:
@@ -89,6 +106,34 @@ export const enDictionary: Dictionary = {
         'Baby monitor',
         'Stroller accessories',
         'Soft blankets and wraps',
+      ],
+    },
+    graduation: {
+      seoTitle: 'Graduation Gift List',
+      seoDescription:
+        'Create a graduation gift list for school, high school, or university celebrations.',
+      headline: 'Graduation gift list for milestone celebrations',
+      intro:
+        'Share one list with family and friends so graduation gifts are meaningful and not duplicated.',
+      samples: [
+        'Quality backpack or laptop bag',
+        'Books for next study phase',
+        'Travel gift card',
+        'Memory photo album',
+      ],
+    },
+    housewarming: {
+      seoTitle: 'Housewarming Gift List',
+      seoDescription:
+        'Build a housewarming gift list page and let guests reserve useful gifts for your new home.',
+      headline: 'Housewarming gift list for your new home',
+      intro:
+        'Collect practical and cozy home gift ideas in one place and avoid duplicate items.',
+      samples: [
+        'Kitchen essentials set',
+        'Indoor plants',
+        'Home decor accents',
+        'Tool starter kit',
       ],
     },
     christmas: {

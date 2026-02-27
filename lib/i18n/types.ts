@@ -31,7 +31,10 @@ export interface Dictionary {
     title: string
     wedding: string
     birthday: string
+    kidsBirthday: string
     babyShower: string
+    graduation: string
+    housewarming: string
     christmas: string
   }
   eventPages: {
@@ -56,7 +59,28 @@ export interface Dictionary {
       intro: string
       samples: string[]
     }
+    kidsBirthday: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
     babyShower: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
+    graduation: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
+    housewarming: {
       seoTitle: string
       seoDescription: string
       headline: string

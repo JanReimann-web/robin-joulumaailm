@@ -14,7 +14,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 const eventDescriptionMap = {
   wedding: 'Wedding gift list',
   birthday: 'Birthday gift list',
+  kidsBirthday: 'Kids birthday gift list',
   babyShower: 'Baby shower gift list',
+  graduation: 'Graduation gift list',
+  housewarming: 'Housewarming gift list',
   christmas: 'Christmas gift list',
 } as const
 

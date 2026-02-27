@@ -75,9 +75,33 @@ const eventLabelMap = (
 ): Record<EventType, string> => ({
   wedding: labels.wedding,
   birthday: labels.birthday,
+  kidsBirthday: labels.kidsBirthday,
   babyShower: labels.babyShower,
+  graduation: labels.graduation,
+  housewarming: labels.housewarming,
   christmas: labels.christmas,
 })
+
+const previewThemeClass = (eventType: EventType) => {
+  if (eventType === 'kidsBirthday') {
+    return {
+      panel: 'border-pink-300/30 bg-pink-300/10',
+      card: 'border-pink-200/30 bg-pink-950/30',
+    }
+  }
+
+  if (eventType === 'birthday') {
+    return {
+      panel: 'border-cyan-300/30 bg-cyan-300/10',
+      card: 'border-cyan-200/30 bg-cyan-950/30',
+    }
+  }
+
+  return {
+    panel: 'border-white/10 bg-white/5',
+    card: 'border-white/10 bg-slate-950/60',
+  }
+}
 
 const visibilityLabelMap = (
   labels: Dictionary['dashboard']
@@ -365,6 +389,7 @@ export default function ListWorkspace({
   const previewItems = previewListId === selectedListId ? items : []
   const previewStories = previewListId === selectedListId ? stories : []
   const previewWheelEntries = previewListId === selectedListId ? wheelEntries : []
+  const previewTheme = previewList ? previewThemeClass(previewList.eventType) : null
 
   const getPublicListUrl = (slug: string) => {
     const siteUrl = (
@@ -1579,7 +1604,7 @@ export default function ListWorkspace({
                       : labels.previewPrivateHint}
                   </p>
 
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
+                  <div className={`mt-4 rounded-2xl border p-4 sm:p-5 ${previewTheme?.panel ?? 'border-white/10 bg-white/5'}`}>
                     <h4 className="text-xl font-semibold text-white">{previewList.title}</h4>
                     <p className="mt-2 text-sm text-slate-300">
                       {labels.eventTag}: {eventTypeLabels[previewList.eventType]} - {
@@ -1595,10 +1620,10 @@ export default function ListWorkspace({
                     )}
 
                     {previewItems.map((item) => (
-                      <article
-                        key={`preview-${item.id}`}
-                        className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
-                      >
+                        <article
+                          key={`preview-${item.id}`}
+                          className={`rounded-xl border p-4 ${previewTheme?.card ?? 'border-white/10 bg-slate-950/60'}`}
+                        >
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <h5 className="text-base font-semibold text-white">{item.name}</h5>
@@ -1633,7 +1658,7 @@ export default function ListWorkspace({
                       {previewStories.map((story) => (
                         <article
                           key={`preview-story-${story.id}`}
-                          className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                          className={`rounded-xl border p-4 ${previewTheme?.card ?? 'border-white/10 bg-slate-950/60'}`}
                         >
                           <h6 className="text-base font-semibold text-white">{story.title}</h6>
                           <p className="mt-2 text-sm text-slate-300">{story.body}</p>
@@ -1653,7 +1678,7 @@ export default function ListWorkspace({
                       {previewWheelEntries.map((entry) => (
                         <article
                           key={`preview-wheel-${entry.id}`}
-                          className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                          className={`rounded-xl border p-4 ${previewTheme?.card ?? 'border-white/10 bg-slate-950/60'}`}
                         >
                           <h6 className="text-base font-semibold text-white">{entry.question}</h6>
                           {entry.answerText && (

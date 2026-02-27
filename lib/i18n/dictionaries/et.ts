@@ -24,7 +24,7 @@ export const etDictionary: Dictionary = {
   highlights: {
     title: 'Miks korraldajad kasutavad Giftlist Studiot',
     templateTitle: 'Sündmusepõhised kujundused',
-    templateBody: 'Vali valmis lahenduste seast pulmadeks, sünnipäevaks, baby showeriks ja jõuludeks.',
+    templateBody: 'Vali valmis lahenduste seast pulmadeks, täiskasvanute sünnipäevaks, laste sünnipäevaks, baby showeriks, lõpetamiseks, soolaleivaks ja jõuludeks.',
     reserveTitle: 'Topeltbroneeringu kaitse',
     reserveBody: 'Broneeringud tehakse transaktsiooniga, et sama kingitus ei satuks kahele külalisele.',
     trialTitle: 'Alusta tasuta, maksa ühe korra',
@@ -33,8 +33,11 @@ export const etDictionary: Dictionary = {
   events: {
     title: 'Toetatud sündmused',
     wedding: 'Pulm',
-    birthday: 'Sünnipäev',
+    birthday: 'Sünnipäev (täiskasvanud)',
+    kidsBirthday: 'Laste sünnipäev',
     babyShower: 'Baby shower',
+    graduation: 'Lõpetamine',
+    housewarming: 'Soolaleib',
     christmas: 'Jõulud',
   },
   eventPages: {
@@ -77,6 +80,20 @@ export const etDictionary: Dictionary = {
         'Elamuskingi vautšer',
       ],
     },
+    kidsBirthday: {
+      seoTitle: 'Laste sünnipäeva kinginimekiri',
+      seoDescription:
+        'Loo mänguline laste sünnipäeva kinginimekiri koos loo ja õnneratta sektsiooniga.',
+      headline: 'Laste sünnipäeva kinginimekiri rõõmsaks peoks',
+      intro:
+        'Jaga lõbusat sünnipäeva lehte, kus külalised saavad kingitusi broneerida ning vaadata lapse looga ja küsimusterattaga sisu.',
+      samples: [
+        'Loovmängu komplekt',
+        'Õuemängude varustus',
+        'Lasteraamatute kogu',
+        'Teaduskatsete komplekt',
+      ],
+    },
     babyShower: {
       seoTitle: 'Baby shower kinginimekiri',
       seoDescription:
@@ -89,6 +106,34 @@ export const etDictionary: Dictionary = {
         'Beebimonitor',
         'Vankri lisatarvikud',
         'Pehmed tekid ja mähkimislinad',
+      ],
+    },
+    graduation: {
+      seoTitle: 'Lõpetamise kinginimekiri',
+      seoDescription:
+        'Loo lõpetamise kinginimekiri kooli, gümnaasiumi või ülikooli lõpetamise tähistamiseks.',
+      headline: 'Lõpetamise kinginimekiri tähtsa verstaposti jaoks',
+      intro:
+        'Jaga ühte nimekirja pere ja sõpradega, et lõpetamise kingid oleksid tähenduslikud ega korduks.',
+      samples: [
+        'Kvaliteetne seljakott või sülearvutikott',
+        'Raamatud järgmise õppeetapi jaoks',
+        'Reisikingi kaart',
+        'Mälestuste fotoalbum',
+      ],
+    },
+    housewarming: {
+      seoTitle: 'Soolaleiva kinginimekiri',
+      seoDescription:
+        'Loo soolaleiva kinginimekirja leht ja lase külalistel uue kodu jaoks kingitusi broneerida.',
+      headline: 'Soolaleiva kinginimekiri uude koju',
+      intro:
+        'Koonda praktilised ja hubased kodukingitused ühte nimekirja ning väldi topeltkingitusi.',
+      samples: [
+        'Köögi põhitoodete komplekt',
+        'Toataimed',
+        'Kodukujunduse detailid',
+        'Tööriistade stardikomplekt',
       ],
     },
     christmas: {

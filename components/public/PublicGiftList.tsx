@@ -10,7 +10,7 @@ import {
   subscribeToPublicListBySlug,
   subscribeToWheelEntries,
 } from '@/lib/lists/client'
-import { GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
+import { EventType, GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
 
 type PublicGiftListProps = {
   slug: string
@@ -103,6 +103,44 @@ const wheelPalette = [
   '#14b8a6',
   '#0ea5e9',
 ]
+
+type EventTheme = {
+  panelClass: string
+  cardClass: string
+  wheelPalette: string[]
+  storyTitle: string
+  wheelTitle: string
+}
+
+const getEventTheme = (eventType: EventType): EventTheme => {
+  if (eventType === 'kidsBirthday') {
+    return {
+      panelClass: 'border-pink-300/40 bg-pink-300/10',
+      cardClass: 'border-pink-200/30 bg-pink-950/30',
+      wheelPalette: ['#f472b6', '#fb7185', '#f97316', '#facc15', '#34d399', '#60a5fa'],
+      storyTitle: 'Birthday story adventure',
+      wheelTitle: 'Kids fun wheel',
+    }
+  }
+
+  if (eventType === 'birthday') {
+    return {
+      panelClass: 'border-cyan-300/40 bg-cyan-300/10',
+      cardClass: 'border-cyan-200/30 bg-cyan-950/30',
+      wheelPalette: ['#22d3ee', '#06b6d4', '#0ea5e9', '#6366f1', '#14b8a6', '#2dd4bf'],
+      storyTitle: 'Celebration story',
+      wheelTitle: 'Party question wheel',
+    }
+  }
+
+  return {
+    panelClass: 'border-white/10 bg-white/5',
+    cardClass: 'border-white/10 bg-slate-950/60',
+    wheelPalette,
+    storyTitle: 'Our story',
+    wheelTitle: 'Wheel of fortune',
+  }
+}
 
 export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [list, setList] = useState<GiftList | null>(null)
@@ -227,6 +265,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     [items]
   )
   const isListExpired = list?.accessStatus === 'expired'
+  const eventTheme = list ? getEventTheme(list.eventType) : null
   const selectedWheelEntry = useMemo(
     () => wheelEntries.find((entry) => entry.id === selectedWheelEntryId) ?? null,
     [selectedWheelEntryId, wheelEntries]
@@ -240,10 +279,11 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       .map((entry, index) => {
         const start = (index / wheelEntries.length) * 100
         const end = ((index + 1) / wheelEntries.length) * 100
-        return `${wheelPalette[index % wheelPalette.length]} ${start}% ${end}%`
+        const palette = eventTheme?.wheelPalette ?? wheelPalette
+        return `${palette[index % palette.length]} ${start}% ${end}%`
       })
       .join(', ')})`
-  }, [wheelEntries])
+  }, [eventTheme, wheelEntries])
 
   const handleReserve = async (itemId: string) => {
     if (!list) {
@@ -316,9 +356,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     )
   }
 
+  const panelClass = eventTheme?.panelClass ?? 'border-white/10 bg-white/5'
+  const cardClass = eventTheme?.cardClass ?? 'border-white/10 bg-slate-950/60'
+
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-14">
-      <header className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+      <header className={`rounded-2xl border p-4 sm:p-6 ${panelClass}`}>
         <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
         <p className="mt-2 text-sm text-slate-300">
           Event: {list.eventType} - {availableCount} gifts available
@@ -331,8 +374,8 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         )}
       </header>
 
-      <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-        <h2 className="text-xl font-semibold text-white">Our story</h2>
+      <section className={`mt-6 rounded-2xl border p-4 sm:p-6 ${panelClass}`}>
+        <h2 className="text-xl font-semibold text-white">{eventTheme?.storyTitle ?? 'Our story'}</h2>
         <p className="mt-2 text-sm text-slate-300">
           Personal moments from the host.
         </p>
@@ -349,7 +392,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           {stories.map((story) => (
             <article
               key={story.id}
-              className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
+              className={`rounded-2xl border p-4 sm:p-5 ${cardClass}`}
             >
               <h3 className="text-lg font-semibold text-white">{story.title}</h3>
               <p className="mt-2 text-sm text-slate-300">{story.body}</p>
@@ -359,8 +402,8 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-        <h2 className="text-xl font-semibold text-white">Wheel of fortune</h2>
+      <section className={`mt-6 rounded-2xl border p-4 sm:p-6 ${panelClass}`}>
+        <h2 className="text-xl font-semibold text-white">{eventTheme?.wheelTitle ?? 'Wheel of fortune'}</h2>
         <p className="mt-2 text-sm text-slate-300">
           Spin the wheel, get a question, then reveal the host answer.
         </p>
@@ -404,7 +447,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               </button>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5">
+            <div className={`rounded-2xl border p-4 sm:p-5 ${cardClass}`}>
               {!selectedWheelEntry && (
                 <p className="text-sm text-slate-300">
                   Spin the wheel to pick a random question.
@@ -456,7 +499,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[320px,minmax(0,1fr)]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+          <section className={`rounded-2xl border p-4 sm:p-6 ${panelClass}`}>
             <h2 className="text-lg font-semibold text-white">Your details (optional)</h2>
             <p className="mt-2 text-sm text-slate-300">
               Add your name so the host can thank you later.
@@ -504,7 +547,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             return (
               <article
                 key={item.id}
-                className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
+                className={`rounded-2xl border p-4 sm:p-5 ${cardClass}`}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>

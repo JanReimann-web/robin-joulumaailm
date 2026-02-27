@@ -3,7 +3,10 @@ import { EventType } from '@/lib/lists/types'
 const EVENT_TYPE_SLUG_MAP: Record<EventType, string> = {
   wedding: 'wedding',
   birthday: 'birthday',
+  kidsBirthday: 'kids-birthday',
   babyShower: 'baby-shower',
+  graduation: 'graduation',
+  housewarming: 'housewarming',
   christmas: 'christmas',
 }
 

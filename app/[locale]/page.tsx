@@ -12,7 +12,15 @@ type LocalePageProps = {
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
-const eventKeyOrder = ['wedding', 'birthday', 'babyShower', 'christmas'] as const
+const eventKeyOrder = [
+  'wedding',
+  'birthday',
+  'kidsBirthday',
+  'babyShower',
+  'graduation',
+  'housewarming',
+  'christmas',
+] as const
 
 export function generateMetadata({ params }: LocalePageProps): Metadata {
   const locale = isLocale(params.locale) ? params.locale : 'en'

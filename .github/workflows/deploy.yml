@@ -1,43 +1,73 @@
-name: Deploy to GitHub Pages
+name: CI
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
-  build-and-deploy:
+  quality:
+    name: Lint Typecheck Build Unit
     runs-on: ubuntu-latest
-    
+    env:
+      CI: true
+      NEXT_PUBLIC_FIREBASE_API_KEY: test-key
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: demo-kingid-tests
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: demo-kingid-tests.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "1234567890"
+      NEXT_PUBLIC_FIREBASE_APP_ID: 1:1234567890:web:test
+      NEXT_PUBLIC_SITE_URL: https://example.com
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-        env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+      - name: Run lint, typecheck, unit tests, and build
+        run: npm run ci:checks
 
-      - name: Export
-        run: npm run export
+  emulator-tests:
+    name: Firestore Storage Emulator Tests
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      NEXT_PUBLIC_FIREBASE_API_KEY: test-key
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: demo-kingid-tests
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: demo-kingid-tests.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "1234567890"
+      NEXT_PUBLIC_FIREBASE_APP_ID: 1:1234567890:web:test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out
+          node-version: 20
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security rules tests
+        run: npm run test:security
+
+      - name: Run e2e tests
+        run: npm run test:e2e
 
