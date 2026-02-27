@@ -15,11 +15,11 @@ service firebase.storage {
     }
 
     function listExists(listId) {
-      return exists(listPath(listId));
+      return firestore.exists(listPath(listId));
     }
 
     function listData(listId) {
-      return get(listPath(listId)).data;
+      return firestore.get(listPath(listId)).data;
     }
 
     function isListOwner(listId) {

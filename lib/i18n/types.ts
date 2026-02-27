@@ -98,11 +98,22 @@ export interface Dictionary {
     eventTag: string
     visibilityTag: string
     slugTag: string
+    listLinkTag: string
     accessStatusTag: string
     accessTrial: string
     accessActive: string
     accessExpired: string
     daysLeftTag: string
+    previewAction: string
+    copyLinkAction: string
+    linkCopied: string
+    showQrAction: string
+    hideQrAction: string
+    qrLoading: string
+    qrError: string
+    previewPanelTitle: string
+    previewPublicHint: string
+    previewPrivateHint: string
     activatePassAction: string
     activatingPass: string
     redirectingToCheckout: string

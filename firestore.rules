@@ -28,6 +28,20 @@ service cloud.firestore {
         && listData(listId).ownerId == request.auth.uid;
     }
 
+    function hasActiveListAccessData(data) {
+      return (
+        (
+          data.paidAccessEndsAt is timestamp
+          && data.paidAccessEndsAt > request.time
+        )
+        || (
+          data.paidAccessEndsAt == null
+          && data.trialEndsAt is timestamp
+          && data.trialEndsAt > request.time
+        )
+      );
+    }
+
     function hasActiveListAccess(listId) {
       return listExists(listId)
         && (
@@ -47,6 +61,15 @@ service cloud.firestore {
       return listExists(listId)
         && listData(listId).visibility == 'public'
         && hasActiveListAccess(listId);
+    }
+
+    function isCurrentListOwner() {
+      return isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    function isCurrentListPublicWithAccess() {
+      return resource.data.visibility == 'public'
+        && hasActiveListAccessData(resource.data);
     }
 
     function isStringOrNull(value) {
@@ -156,7 +179,7 @@ service cloud.firestore {
 
     match /lists/{listId} {
       allow create: if isSignedIn() && isValidListCreate();
-      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow read: if isCurrentListOwner() || isCurrentListPublicWithAccess();
       allow update: if isListOwner(listId) && isValidListOwnerUpdate();
       allow delete: if isListOwner(listId);
     }

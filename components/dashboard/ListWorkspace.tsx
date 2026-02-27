@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
 import {
@@ -130,6 +131,11 @@ export default function ListWorkspace({
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
   const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
+  const [copiedListId, setCopiedListId] = useState<string | null>(null)
+  const [qrTargetListId, setQrTargetListId] = useState<string | null>(null)
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
+  const [isQrLoading, setIsQrLoading] = useState(false)
+  const [qrError, setQrError] = useState<string | null>(null)
 
   useEffect(() => {
     const unsubscribe = subscribeToUserLists(
@@ -253,6 +259,15 @@ export default function ListWorkspace({
   const isSelectedListExpired = selectedList?.accessStatus === 'expired'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
 
+  const getPublicListUrl = (slug: string) => {
+    const siteUrl = (
+      process.env.NEXT_PUBLIC_SITE_URL
+      || (typeof window !== 'undefined' ? window.location.origin : '')
+    ).replace(/\/$/, '')
+
+    return `${siteUrl}/${slug}`
+  }
+
   const handleTitleChange = (value: string) => {
     setTitle(value)
 
@@ -356,6 +371,47 @@ export default function ListWorkspace({
       }
     } finally {
       setIsCreatingList(false)
+    }
+  }
+
+  const handleCopyPublicLink = async (list: GiftList) => {
+    const url = getPublicListUrl(list.slug)
+
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedListId(list.id)
+      window.setTimeout(() => {
+        setCopiedListId((current) => (current === list.id ? null : current))
+      }, 1500)
+    } catch {
+      setListError(labels.errorCreateFailed)
+    }
+  }
+
+  const handleToggleQr = async (list: GiftList) => {
+    if (qrTargetListId === list.id) {
+      setQrTargetListId(null)
+      setQrDataUrl(null)
+      setQrError(null)
+      return
+    }
+
+    setQrTargetListId(list.id)
+    setQrDataUrl(null)
+    setQrError(null)
+    setIsQrLoading(true)
+
+    try {
+      const qrUrl = await QRCode.toDataURL(getPublicListUrl(list.slug), {
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        width: 220,
+      })
+      setQrDataUrl(qrUrl)
+    } catch {
+      setQrError(labels.qrError)
+    } finally {
+      setIsQrLoading(false)
     }
   }
 
@@ -665,6 +721,9 @@ export default function ListWorkspace({
                   {labels.slugTag}: {list.slug}
                 </span>
                 <span className="rounded-full border border-white/20 px-2 py-1">
+                  {labels.listLinkTag}: /{list.slug}
+                </span>
+                <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.accessStatusTag}: {accessStatusLabels[list.accessStatus]}
                 </span>
                 {list.accessStatus !== 'expired' && (
@@ -686,8 +745,72 @@ export default function ListWorkspace({
                     : labels.activatePassAction}
                 </button>
               )}
+
+              {list.visibility === 'public' && (
+                <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
+                  <a
+                    href={`/${list.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full rounded-full border border-white/30 px-3 py-1.5 text-center text-xs font-semibold text-white sm:w-auto"
+                  >
+                    {labels.previewAction}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyPublicLink(list)}
+                    className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
+                  >
+                    {copiedListId === list.id ? labels.linkCopied : labels.copyLinkAction}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleToggleQr(list)}
+                    className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
+                  >
+                    {qrTargetListId === list.id ? labels.hideQrAction : labels.showQrAction}
+                  </button>
+                </div>
+              )}
+
+              {qrTargetListId === list.id && (
+                <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                  {isQrLoading && (
+                    <p className="text-xs text-slate-300">{labels.qrLoading}</p>
+                  )}
+                  {qrError && (
+                    <p className="text-xs text-red-200">{qrError}</p>
+                  )}
+                  {qrDataUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={qrDataUrl}
+                      alt={`QR ${list.slug}`}
+                      className="h-40 w-40 rounded-lg bg-white p-2"
+                    />
+                  )}
+                </div>
+              )}
             </article>
           ))}
+        </div>
+
+        <div className="mt-8 rounded-xl border border-white/10 bg-slate-950/40 p-4">
+          <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
+          {selectedList?.visibility === 'public' ? (
+            <>
+              <p className="mt-2 text-xs text-slate-300">{labels.previewPublicHint}</p>
+              <iframe
+                key={selectedList.id}
+                title={`preview-${selectedList.slug}`}
+                src={`/${selectedList.slug}`}
+                className="mt-3 h-[420px] w-full rounded-xl border border-white/20 bg-white"
+                loading="lazy"
+              />
+            </>
+          ) : (
+            <p className="mt-2 text-xs text-slate-300">{labels.previewPrivateHint}</p>
+          )}
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">
