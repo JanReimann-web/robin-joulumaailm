@@ -30,7 +30,7 @@ export default function LanguageSwitcher({
   const pathname = usePathname() || '/'
 
   return (
-    <div className="flex items-center justify-end gap-2" aria-label={label}>
+    <div className="flex shrink-0 items-center justify-end gap-2" aria-label={label}>
       <span className="hidden text-xs uppercase tracking-[0.2em] text-white/60 sm:inline">
         {label}
       </span>

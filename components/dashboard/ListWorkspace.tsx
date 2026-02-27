@@ -196,6 +196,19 @@ export default function ListWorkspace({
   const [previewListId, setPreviewListId] = useState<string | null>(null)
 
   useEffect(() => {
+    // Clear transient UI messages when language changes to avoid mixed-locale state.
+    setListError(null)
+    setListSuccess(null)
+    setItemError(null)
+    setItemSuccess(null)
+    setStoryError(null)
+    setStorySuccess(null)
+    setWheelError(null)
+    setWheelSuccess(null)
+    setQrError(null)
+  }, [locale])
+
+  useEffect(() => {
     const unsubscribe = subscribeToUserLists(
       ownerId,
       (nextLists) => {
@@ -915,8 +928,8 @@ export default function ListWorkspace({
   }
 
   return (
-    <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr,1fr] lg:gap-6">
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+    <div className="mt-6 grid min-w-0 gap-4 overflow-x-hidden lg:grid-cols-[1.2fr,1fr] lg:gap-6">
+      <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
         <p className="mt-2 text-sm text-slate-300">{labels.builderSubtitle}</p>
         <p className="mt-2 text-xs text-emerald-200">{labels.trialNotice}</p>
@@ -929,7 +942,7 @@ export default function ListWorkspace({
               value={title}
               onChange={(entry) => handleTitleChange(entry.target.value)}
               placeholder={labels.listNamePlaceholder}
-              className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
             />
           </label>
 
@@ -939,7 +952,7 @@ export default function ListWorkspace({
               required
               value={slug}
               onChange={(entry) => handleSlugChange(entry.target.value)}
-              className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
             />
             <span className="text-xs text-slate-400">{labels.slugHint}</span>
           </label>
@@ -950,7 +963,7 @@ export default function ListWorkspace({
               <select
                 value={eventType}
                 onChange={(entry) => setEventType(entry.target.value as EventType)}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               >
                 {EVENT_TYPES.map((item) => (
                   <option key={item} value={item}>
@@ -965,7 +978,7 @@ export default function ListWorkspace({
               <select
                 value={templateId}
                 onChange={(entry) => setTemplateId(entry.target.value as TemplateId)}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               >
                 {TEMPLATE_IDS.map((item) => (
                   <option key={item} value={item}>
@@ -983,7 +996,7 @@ export default function ListWorkspace({
               onChange={(entry) =>
                 setVisibility(entry.target.value as ListVisibility)
               }
-              className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
             >
               {VISIBILITY_OPTIONS.map((item) => (
                 <option key={item} value={item}>
@@ -1015,7 +1028,7 @@ export default function ListWorkspace({
         )}
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+      <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.myListsTitle}</h2>
         <p
           className={`mt-3 rounded-xl border px-3 py-2 text-xs ${
@@ -1046,14 +1059,14 @@ export default function ListWorkspace({
           {lists.map((list) => (
             <article
               key={list.id}
-              className={`rounded-xl border p-4 text-sm ${
+              className={`min-w-0 rounded-xl border p-4 text-sm ${
                 selectedListId === list.id
                   ? 'border-emerald-300/40 bg-emerald-300/10 text-slate-100'
                   : 'border-white/10 bg-slate-950/50 text-slate-200'
               }`}
             >
               <h3 className="text-base font-semibold text-white">{list.title}</h3>
-              <p className="mt-1 text-xs text-slate-400">/{list.slug} ({locale})</p>
+              <p className="mt-1 break-all text-xs text-slate-400">/{list.slug} ({locale})</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.eventTag}: {eventTypeLabels[list.eventType]}
@@ -1061,10 +1074,10 @@ export default function ListWorkspace({
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.visibilityTag}: {visibilityLabels[list.visibility]}
                 </span>
-                <span className="rounded-full border border-white/20 px-2 py-1">
+                <span className="rounded-full border border-white/20 px-2 py-1 break-all">
                   {labels.slugTag}: {list.slug}
                 </span>
-                <span className="rounded-full border border-white/20 px-2 py-1">
+                <span className="rounded-full border border-white/20 px-2 py-1 break-all">
                   {labels.listLinkTag}: /{list.slug}
                 </span>
                 <span className="rounded-full border border-white/20 px-2 py-1">
@@ -1149,7 +1162,7 @@ export default function ListWorkspace({
             <select
               value={selectedListId}
               onChange={(entry) => setSelectedListId(entry.target.value)}
-              className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
             >
               {lists.length === 0 && <option value="">-</option>}
               {lists.map((list) => (
@@ -1168,7 +1181,7 @@ export default function ListWorkspace({
                 disabled={isItemActionsDisabled}
                 value={itemName}
                 onChange={(entry) => setItemName(entry.target.value)}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1180,7 +1193,7 @@ export default function ListWorkspace({
                 value={itemDescription}
                 onChange={(entry) => setItemDescription(entry.target.value)}
                 rows={3}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1192,7 +1205,7 @@ export default function ListWorkspace({
                 value={itemLink}
                 onChange={(entry) => setItemLink(entry.target.value)}
                 placeholder={labels.itemLinkPlaceholder}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1207,7 +1220,7 @@ export default function ListWorkspace({
                   const nextFile = event.target.files?.[0] ?? null
                   setItemMediaFile(nextFile)
                 }}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
               />
               <span className="text-xs text-slate-400">{labels.itemMediaHint}</span>
               {itemMediaFile && (
@@ -1270,7 +1283,7 @@ export default function ListWorkspace({
                         href={item.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 inline-block text-xs text-emerald-300 underline"
+                        className="mt-2 inline-block break-all text-xs text-emerald-300 underline"
                       >
                         {item.link}
                       </a>
@@ -1354,7 +1367,7 @@ export default function ListWorkspace({
                 disabled={isItemActionsDisabled}
                 value={storyTitle}
                 onChange={(entry) => setStoryTitle(entry.target.value)}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1366,7 +1379,7 @@ export default function ListWorkspace({
                 value={storyBody}
                 onChange={(entry) => setStoryBody(entry.target.value)}
                 rows={4}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1381,7 +1394,7 @@ export default function ListWorkspace({
                   const nextFile = event.target.files?.[0] ?? null
                   setStoryMediaFile(nextFile)
                 }}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
               />
               <span className="text-xs text-slate-400">{labels.storyMediaHint}</span>
               {storyMediaFile && (
@@ -1463,7 +1476,7 @@ export default function ListWorkspace({
                 disabled={isItemActionsDisabled}
                 value={wheelQuestion}
                 onChange={(entry) => setWheelQuestion(entry.target.value)}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1474,7 +1487,7 @@ export default function ListWorkspace({
                 value={wheelAnswerText}
                 onChange={(entry) => setWheelAnswerText(entry.target.value)}
                 rows={3}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
             </label>
 
@@ -1489,7 +1502,7 @@ export default function ListWorkspace({
                   const nextFile = event.target.files?.[0] ?? null
                   setWheelAnswerAudioFile(nextFile)
                 }}
-                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
               />
               <span className="text-xs text-slate-400">{labels.wheelAnswerAudioHint}</span>
               {wheelAnswerAudioFile && (
@@ -1634,7 +1647,7 @@ export default function ListWorkspace({
                                 href={item.link}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="mt-2 inline-block text-sm text-emerald-300 underline"
+                                className="mt-2 inline-block break-all text-sm text-emerald-300 underline"
                               >
                                 {item.link}
                               </a>
@@ -1705,3 +1718,4 @@ export default function ListWorkspace({
     </div>
   )
 }
+

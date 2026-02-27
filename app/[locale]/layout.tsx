@@ -44,10 +44,13 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const dict = getDictionary(locale)
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden" lang={locale}>
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-start justify-between gap-3 px-4 py-3 sm:items-center">
-          <Link href={`/${locale}`} className="text-base font-semibold leading-tight tracking-tight text-white sm:text-lg">
+        <div className="mx-auto flex w-full max-w-6xl min-w-0 items-start justify-between gap-3 px-4 py-3 sm:items-center">
+          <Link
+            href={`/${locale}`}
+            className="max-w-[11rem] truncate text-base font-semibold leading-tight tracking-tight text-white sm:max-w-none sm:text-lg"
+          >
             {dict.brand}
           </Link>
 

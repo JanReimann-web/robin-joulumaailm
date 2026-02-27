@@ -8,6 +8,8 @@
     --bg-1: #0f172a;
     --bg-2: #082f49;
     --fg: #f8fafc;
+    --press-scale: 0.98;
+    --press-duration: 100ms;
   }
 
   * {
@@ -27,5 +29,24 @@
   a {
     color: inherit;
     text-decoration: none;
+  }
+
+  button,
+  a[href][class] {
+    transform: translateZ(0);
+    transition: transform var(--press-duration) ease-out;
+    will-change: transform;
+  }
+
+  button:active:not(:disabled),
+  a[href][class]:active {
+    transform: scale(var(--press-scale));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    button,
+    a[href][class] {
+      transition: none;
+    }
   }
 }
