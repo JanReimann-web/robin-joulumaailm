@@ -34,6 +34,43 @@ export interface Dictionary {
     babyShower: string
     christmas: string
   }
+  eventPages: {
+    readMoreAction: string
+    processTitle: string
+    processSteps: string[]
+    sampleTitle: string
+    ctaPrimary: string
+    ctaSecondary: string
+    backHomeAction: string
+    wedding: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
+    birthday: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
+    babyShower: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
+    christmas: {
+      seoTitle: string
+      seoDescription: string
+      headline: string
+      intro: string
+      samples: string[]
+    }
+  }
   pricing: {
     title: string
     trialLine: string

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
@@ -5,6 +6,37 @@ import { getDictionary } from '@/lib/i18n/get-dictionary'
 type PricingPageProps = {
   params: {
     locale: string
+  }
+}
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+
+export function generateMetadata({ params }: PricingPageProps): Metadata {
+  const locale = isLocale(params.locale) ? params.locale : 'en'
+  const dict = getDictionary(locale)
+  const url = `${SITE_URL}/${locale}/pricing`
+
+  return {
+    title: dict.pricing.title,
+    description: dict.pricing.retentionLine,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${SITE_URL}/en/pricing`,
+        et: `${SITE_URL}/et/pricing`,
+      },
+    },
+    openGraph: {
+      title: dict.pricing.title,
+      description: dict.pricing.retentionLine,
+      url,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: dict.pricing.title,
+      description: dict.pricing.retentionLine,
+    },
   }
 }
 

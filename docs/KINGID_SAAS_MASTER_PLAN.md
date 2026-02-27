@@ -101,12 +101,12 @@ Status legend: `[ ]` not started, `[-]` in progress, `[x]` done
 
 ### P5 - SEO and marketing
 
-- [ ] P5-01 Build marketing landing page
-- [ ] P5-02 Build event-specific pages
-- [ ] P5-03 Add `sitemap.ts`
-- [ ] P5-04 Add `robots.ts`
-- [ ] P5-05 Add structured data (`Organization`, `WebSite`)
-- [ ] P5-06 Ensure canonical and OG tags
+- [x] P5-01 Build marketing landing page
+- [x] P5-02 Build event-specific pages
+- [x] P5-03 Add `sitemap.ts`
+- [x] P5-04 Add `robots.ts`
+- [x] P5-05 Add structured data (`Organization`, `WebSite`)
+- [x] P5-06 Ensure canonical and OG tags
 
 ### P6 - Quality and launch
 

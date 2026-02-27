@@ -37,6 +37,75 @@ export const enDictionary: Dictionary = {
     babyShower: 'Baby shower',
     christmas: 'Christmas',
   },
+  eventPages: {
+    readMoreAction: 'Explore page',
+    processTitle: 'How it works for this event',
+    processSteps: [
+      'Create your list and choose a style that matches the event.',
+      'Share one public link or QR code with all guests.',
+      'Guests reserve gifts so duplicate presents are avoided.',
+    ],
+    sampleTitle: 'Popular gift ideas',
+    ctaPrimary: 'Start your list',
+    ctaSecondary: 'View pricing',
+    backHomeAction: 'Back to home',
+    wedding: {
+      seoTitle: 'Wedding Gift List',
+      seoDescription:
+        'Create a shareable wedding gift list with reservation tracking and no duplicate gifts.',
+      headline: 'Wedding gift list that stays organized',
+      intro:
+        'Collect all wedding gift wishes in one place and let guests reserve items before buying.',
+      samples: [
+        'Dinnerware set',
+        'Linen and home textiles',
+        'Weekend getaway fund',
+        'Smart kitchen appliance',
+      ],
+    },
+    birthday: {
+      seoTitle: 'Birthday Gift List',
+      seoDescription:
+        'Build a birthday wish list page and let guests reserve gifts without overlap.',
+      headline: 'Birthday gift list for stress-free planning',
+      intro:
+        'Share one birthday list link with friends and family so everyone can pick a unique gift.',
+      samples: [
+        'Board game',
+        'Sports or hobby gear',
+        'Book set',
+        'Experience voucher',
+      ],
+    },
+    babyShower: {
+      seoTitle: 'Baby Shower Gift List',
+      seoDescription:
+        'Plan a baby shower registry-style gift list with simple sharing and duplicate prevention.',
+      headline: 'Baby shower list with clear priorities',
+      intro:
+        'Add essentials and nice-to-have gifts so guests can reserve exactly what you still need.',
+      samples: [
+        'Diaper starter bundle',
+        'Baby monitor',
+        'Stroller accessories',
+        'Soft blankets and wraps',
+      ],
+    },
+    christmas: {
+      seoTitle: 'Christmas Gift List',
+      seoDescription:
+        'Create a Christmas wish list page for family and friends with real-time reservations.',
+      headline: 'Christmas gift list for family events',
+      intro:
+        'Keep holiday gift planning simple by sharing one list and avoiding duplicate purchases.',
+      samples: [
+        'Warm winter wear',
+        'Home decor items',
+        'Coffee or tea set',
+        'Gift cards for experiences',
+      ],
+    },
+  },
   pricing: {
     title: 'One-time pricing for event hosts',
     trialLine: 'Each account starts with a 14-day free trial.',

@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
+import { eventTypeToSlug } from '@/lib/lists/event-route'
 
 type LocalePageProps = {
   params: {
@@ -9,7 +11,37 @@ type LocalePageProps = {
   }
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 const eventKeyOrder = ['wedding', 'birthday', 'babyShower', 'christmas'] as const
+
+export function generateMetadata({ params }: LocalePageProps): Metadata {
+  const locale = isLocale(params.locale) ? params.locale : 'en'
+  const dict = getDictionary(locale)
+  const url = `${SITE_URL}/${locale}`
+
+  return {
+    title: dict.hero.title,
+    description: dict.hero.subtitle,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${SITE_URL}/en`,
+        et: `${SITE_URL}/et`,
+      },
+    },
+    openGraph: {
+      title: dict.hero.title,
+      description: dict.hero.subtitle,
+      url,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: dict.hero.title,
+      description: dict.hero.subtitle,
+    },
+  }
+}
 
 export default function HomePage({ params }: LocalePageProps) {
   if (!isLocale(params.locale)) {
@@ -67,12 +99,14 @@ export default function HomePage({ params }: LocalePageProps) {
         <h3 className="mb-4 text-xl font-semibold text-white">{dict.events.title}</h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {eventKeyOrder.map((eventKey) => (
-            <div
+            <Link
               key={eventKey}
+              href={`/${locale}/events/${eventTypeToSlug(eventKey)}`}
               className="rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-200"
             >
-              {dict.events[eventKey]}
-            </div>
+              <p className="font-semibold text-white">{dict.events[eventKey]}</p>
+              <p className="mt-2 text-xs text-emerald-300">{dict.eventPages.readMoreAction}</p>
+            </Link>
           ))}
         </div>
       </section>

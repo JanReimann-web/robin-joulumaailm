@@ -37,6 +37,75 @@ export const etDictionary: Dictionary = {
     babyShower: 'Baby shower',
     christmas: 'Jõulud',
   },
+  eventPages: {
+    readMoreAction: 'Ava alamleht',
+    processTitle: 'Kuidas see selle sündmuse jaoks töötab',
+    processSteps: [
+      'Loo nimekiri ja vali sündmusele sobiv kujundus.',
+      'Jaga ühte avalikku linki või QR-koodi kõigi külalistega.',
+      'Külalised broneerivad kingitused ning topeltkingid jäävad ära.',
+    ],
+    sampleTitle: 'Populaarsed kingiideed',
+    ctaPrimary: 'Alusta nimekirjaga',
+    ctaSecondary: 'Vaata hinnastust',
+    backHomeAction: 'Tagasi avalehele',
+    wedding: {
+      seoTitle: 'Pulmade kinginimekiri',
+      seoDescription:
+        'Loo jagatav pulmade kinginimekiri broneeringute jälgimisega, et vältida topeltkingitusi.',
+      headline: 'Pulmade kinginimekiri, mis püsib korras',
+      intro:
+        'Koonda kõik pulmakingi soovid ühte kohta ja lase külalistel kingitusi enne ostu broneerida.',
+      samples: [
+        'Lauanõude komplekt',
+        'Voodipesu ja kodutekstiilid',
+        'Nädalalõpureisi fond',
+        'Nutikas köögiseade',
+      ],
+    },
+    birthday: {
+      seoTitle: 'Sünnipäeva kinginimekiri',
+      seoDescription:
+        'Loo sünnipäeva soovinimekirja leht ja lase külalistel kingitusi broneerida ilma kattuvuseta.',
+      headline: 'Sünnipäeva kinginimekiri muretumaks planeerimiseks',
+      intro:
+        'Jaga ühte sünnipäeva nimekirja linki pere ja sõpradega, et igaüks saaks valida unikaalse kingi.',
+      samples: [
+        'Lauamäng',
+        'Spordi- või hobivarustus',
+        'Raamatukomplekt',
+        'Elamuskingi vautšer',
+      ],
+    },
+    babyShower: {
+      seoTitle: 'Baby shower kinginimekiri',
+      seoDescription:
+        'Planeeri baby showeri kinginimekiri lihtsa jagamise ja topeltkingituste vältimisega.',
+      headline: 'Baby shower nimekiri selgete prioriteetidega',
+      intro:
+        'Lisa nii hädavajalikud kui ka toredad lisakingid, et külalised näeksid täpselt, mida veel vaja on.',
+      samples: [
+        'Mähkmete stardikomplekt',
+        'Beebimonitor',
+        'Vankri lisatarvikud',
+        'Pehmed tekid ja mähkimislinad',
+      ],
+    },
+    christmas: {
+      seoTitle: 'Jõulude kinginimekiri',
+      seoDescription:
+        'Loo jõulude soovinimekirja leht perele ja sõpradele koos reaalajas broneeringutega.',
+      headline: 'Jõulude kinginimekiri pere sündmuste jaoks',
+      intro:
+        'Hoia pühade kinkide planeerimine lihtne, jagades ühte nimekirja ja vältides topeltoste.',
+      samples: [
+        'Soojad talveriided',
+        'Kodukujunduse tooted',
+        'Kohvi või tee komplekt',
+        'Elamuste kinkekaardid',
+      ],
+    },
+  },
   pricing: {
     title: 'Ühekordne hinnastus sündmuse korraldajale',
     trialLine: 'Iga konto alustab 14-päevase tasuta katseajaga.',

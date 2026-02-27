@@ -8,6 +8,20 @@ const SITE_TITLE = 'Giftlist Studio'
 const SITE_DESCRIPTION =
   'Create beautiful gift lists for weddings, birthdays, baby showers, and holidays.'
 const SHARE_IMAGE = '/images/Joulud.jpg'
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_TITLE,
+  url: SITE_URL,
+  logo: `${SITE_URL}${SHARE_IMAGE}`,
+}
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_TITLE,
+  url: SITE_URL,
+  inLanguage: ['en', 'et'],
+}
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -52,6 +66,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${spaceGrotesk.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
