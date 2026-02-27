@@ -1,18 +1,31 @@
 import type { Metadata } from 'next'
+import { Space_Grotesk } from 'next/font/google'
+import { AuthProvider } from '@/components/auth/AuthProvider'
 import './globals.css'
 
-const SITE_TITLE = 'Robini Jõulumaailm'
-const SITE_DESCRIPTION = 'Tere tulemast Robini jõulumaailma!'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_TITLE = 'Giftlist Studio'
+const SITE_DESCRIPTION =
+  'Create beautiful gift lists for weddings, birthdays, baby showers, and holidays.'
 const SHARE_IMAGE = '/images/Joulud.jpg'
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+})
+
 export const metadata: Metadata = {
-  title: SITE_TITLE,
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: '%s | Giftlist Studio',
+  },
   description: SITE_DESCRIPTION,
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     siteName: SITE_TITLE,
-    url: '/',
+    url: SITE_URL,
     type: 'website',
     images: [
       {
@@ -37,9 +50,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="et">
-      <body className="antialiased">{children}</body>
+    <html lang="en">
+      <body className={`${spaceGrotesk.variable} antialiased`}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }
-

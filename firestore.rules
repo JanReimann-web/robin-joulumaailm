@@ -2,37 +2,194 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Kingituste kogumik
-    match /gifts/{giftId} {
-      allow read: if true;
-      allow write: if true;
+    function isSignedIn() {
+      return request.auth != null;
     }
-    
-    // Piltide kogumik
-    match /photos/{photoId} {
-      allow read: if true;
-      allow write: if true;
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
     }
-    
-    // Sooduskoodide kogumik
-    match /discountCodes/{discountId} {
-      allow read: if true;
-      allow write: if true;
+
+    function listPath(listId) {
+      return /databases/$(database)/documents/lists/$(listId);
     }
-    
-    // Jõuluketast elementide kogumik
-    match /wheelItems/{itemId} {
-      allow read: if true;
-      allow write: if true;
+
+    function listExists(listId) {
+      return exists(listPath(listId));
     }
-    
-    // Postkontori kirjade kogumik
-    match /letters/{letterId} {
-      allow read: if true;
-      allow write: if true;
+
+    function listData(listId) {
+      return get(listPath(listId)).data;
     }
-    
-    // Kõik muud dokumendid on keelatud
+
+    function isListOwner(listId) {
+      return isSignedIn()
+        && listExists(listId)
+        && listData(listId).ownerId == request.auth.uid;
+    }
+
+    function hasActiveListAccess(listId) {
+      return listExists(listId)
+        && (
+          (
+            listData(listId).paidAccessEndsAt is timestamp
+            && listData(listId).paidAccessEndsAt > request.time
+          )
+          || (
+            listData(listId).paidAccessEndsAt == null
+            && listData(listId).trialEndsAt is timestamp
+            && listData(listId).trialEndsAt > request.time
+          )
+        );
+    }
+
+    function isListPublic(listId) {
+      return listExists(listId)
+        && listData(listId).visibility == 'public'
+        && hasActiveListAccess(listId);
+    }
+
+    function isStringOrNull(value) {
+      return value is string || value == null;
+    }
+
+    function isValidListCreate() {
+      return request.resource.data.keys().hasOnly([
+          'ownerId',
+          'title',
+          'slug',
+          'eventType',
+          'templateId',
+          'visibility',
+          'status',
+          'billingModel',
+          'trialEndsAt',
+          'paidAccessEndsAt',
+          'purgeAt',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.slug is string
+        && request.resource.data.eventType is string
+        && request.resource.data.templateId is string
+        && (
+          request.resource.data.visibility == 'public'
+          || request.resource.data.visibility == 'private'
+        )
+        && request.resource.data.status == 'draft'
+        && request.resource.data.billingModel == 'one_time_90d'
+        && request.resource.data.trialEndsAt is timestamp
+        && request.resource.data.paidAccessEndsAt == null
+        && request.resource.data.purgeAt is timestamp
+        && request.resource.data.purgeAt == request.resource.data.trialEndsAt
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function isValidPublicItemReservationUpdate() {
+      return resource.data.status == 'available'
+        && request.resource.data.status == 'reserved'
+        && request.resource.data.listId == resource.data.listId
+        && request.resource.data.name == resource.data.name
+        && request.resource.data.description == resource.data.description
+        && request.resource.data.link == resource.data.link
+        && request.resource.data.createdAt == resource.data.createdAt
+        && isStringOrNull(request.resource.data.reservedByName)
+        && isStringOrNull(request.resource.data.reservedMessage)
+        && request.resource.data.reservedAt is timestamp
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data
+          .diff(resource.data)
+          .changedKeys()
+          .hasOnly([
+            'status',
+            'reservedByName',
+            'reservedMessage',
+            'reservedAt',
+            'updatedAt',
+          ]);
+    }
+
+    function isValidPublicReservationCreate() {
+      return request.resource.data.keys().hasOnly([
+          'itemId',
+          'guestName',
+          'guestMessage',
+          'status',
+          'createdAt',
+        ])
+        && request.resource.data.itemId is string
+        && isStringOrNull(request.resource.data.guestName)
+        && isStringOrNull(request.resource.data.guestMessage)
+        && request.resource.data.status == 'active'
+        && request.resource.data.createdAt is timestamp;
+    }
+
+    function isValidListOwnerUpdate() {
+      return request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.slug == resource.data.slug
+        && request.resource.data.billingModel == resource.data.billingModel
+        && request.resource.data.trialEndsAt == resource.data.trialEndsAt
+        && request.resource.data.paidAccessEndsAt == resource.data.paidAccessEndsAt
+        && request.resource.data.purgeAt == resource.data.purgeAt
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data
+          .diff(resource.data)
+          .changedKeys()
+          .hasOnly([
+            'title',
+            'eventType',
+            'templateId',
+            'visibility',
+            'status',
+            'updatedAt',
+          ]);
+    }
+
+    match /users/{userId} {
+      allow create: if isUser(userId);
+      allow read, update, delete: if isUser(userId);
+    }
+
+    match /lists/{listId} {
+      allow create: if isSignedIn() && isValidListCreate();
+      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow update: if isListOwner(listId) && isValidListOwnerUpdate();
+      allow delete: if isListOwner(listId);
+    }
+
+    match /lists/{listId}/items/{itemId} {
+      allow create: if isListOwner(listId)
+        && request.resource.data.listId == listId;
+      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow update: if isListOwner(listId)
+        || (isListPublic(listId) && isValidPublicItemReservationUpdate());
+      allow delete: if isListOwner(listId);
+    }
+
+    match /lists/{listId}/reservations/{reservationId} {
+      allow create: if isListOwner(listId)
+        || (isListPublic(listId) && isValidPublicReservationCreate());
+      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow update, delete: if isListOwner(listId);
+    }
+
+    match /slugClaims/{slug} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.slug == slug;
+      allow update, delete: if isSignedIn()
+        && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /subscriptions/{userId} {
+      allow create, read, update, delete: if isUser(userId);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

@@ -1,0 +1,85 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function listPath(listId) {
+      return /databases/(default)/documents/lists/$(listId);
+    }
+
+    function listExists(listId) {
+      return exists(listPath(listId));
+    }
+
+    function listData(listId) {
+      return get(listPath(listId)).data;
+    }
+
+    function isListOwner(listId) {
+      return isSignedIn()
+        && listExists(listId)
+        && listData(listId).ownerId == request.auth.uid;
+    }
+
+    function hasActiveListAccess(listId) {
+      return listExists(listId)
+        && (
+          (
+            listData(listId).paidAccessEndsAt is timestamp
+            && listData(listId).paidAccessEndsAt > request.time
+          )
+          || (
+            listData(listId).paidAccessEndsAt == null
+            && listData(listId).trialEndsAt is timestamp
+            && listData(listId).trialEndsAt > request.time
+          )
+        );
+    }
+
+    function isListPublic(listId) {
+      return listExists(listId)
+        && listData(listId).visibility == 'public'
+        && hasActiveListAccess(listId);
+    }
+
+    function isSupportedMediaType() {
+      return request.resource != null
+        && (
+          request.resource.contentType.matches('image/.*')
+          || request.resource.contentType.matches('video/.*')
+          || request.resource.contentType.matches('audio/.*')
+        );
+    }
+
+    function isWithinSizeLimit(limitMb) {
+      return request.resource != null
+        && request.resource.size <= (limitMb * 1024 * 1024);
+    }
+
+    // Private user-level assets.
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isUser(userId)
+        && isSupportedMediaType()
+        && isWithinSizeLimit(30);
+    }
+
+    // List assets. Ownership is validated against Firestore list document.
+    match /lists/{listId}/{allPaths=**} {
+      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow write: if isListOwner(listId)
+        && isSupportedMediaType()
+        && isWithinSizeLimit(30);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
