@@ -82,6 +82,8 @@ Status legend: `[ ]` not started, `[-]` in progress, `[x]` done
 - [x] P2-03 Implement server transaction for slug claim
 - [x] P2-04 Build dashboard CRUD for gift items
 - [x] P2-05 Implement media upload with limits and validation
+- [x] P2-06 Add story timeline module (title + text + image/video)
+- [x] P2-07 Add wheel module (questions + reveal answer text/audio)
 
 ### P3 - Public flow and reservations
 

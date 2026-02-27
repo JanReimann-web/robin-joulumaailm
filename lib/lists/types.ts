@@ -89,3 +89,41 @@ export interface ReserveGiftItemInput {
   guestName?: string
   guestMessage?: string
 }
+
+export interface ListStoryEntry {
+  id: string
+  listId: string
+  title: string
+  body: string
+  mediaUrl: string | null
+  mediaPath: string | null
+  mediaType: string | null
+  createdAt: number | null
+  updatedAt: number | null
+}
+
+export interface CreateListStoryInput {
+  listId: string
+  title: string
+  body: string
+  media?: GiftItemMediaInput | null
+}
+
+export interface WheelEntry {
+  id: string
+  listId: string
+  question: string
+  answerText: string | null
+  answerAudioUrl: string | null
+  answerAudioPath: string | null
+  answerAudioType: string | null
+  createdAt: number | null
+  updatedAt: number | null
+}
+
+export interface CreateWheelEntryInput {
+  listId: string
+  question: string
+  answerText?: string
+  answerAudio?: GiftItemMediaInput | null
+}

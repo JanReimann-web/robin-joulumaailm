@@ -27,11 +27,15 @@ import {
 } from '@/lib/lists/slug'
 import {
   CreateGiftItemInput,
+  CreateListStoryInput,
+  CreateWheelEntryInput,
   CreateGiftListInput,
   CreateGiftListResult,
   GiftListItem,
   GiftList,
+  ListStoryEntry,
   ReserveGiftItemInput,
+  WheelEntry,
 } from '@/lib/lists/types'
 
 export class SlugTakenError extends Error {
@@ -128,6 +132,40 @@ const mapItemDoc = (
     reservedByName: data.reservedByName ? String(data.reservedByName) : null,
     reservedMessage: data.reservedMessage ? String(data.reservedMessage) : null,
     reservedAt: toMillis(data.reservedAt),
+    createdAt: toMillis(data.createdAt),
+    updatedAt: toMillis(data.updatedAt),
+  }
+}
+
+const mapStoryDoc = (
+  id: string,
+  data: Record<string, unknown>
+): ListStoryEntry => {
+  return {
+    id,
+    listId: String(data.listId ?? ''),
+    title: String(data.title ?? ''),
+    body: String(data.body ?? ''),
+    mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
+    mediaPath: data.mediaPath ? String(data.mediaPath) : null,
+    mediaType: data.mediaType ? String(data.mediaType) : null,
+    createdAt: toMillis(data.createdAt),
+    updatedAt: toMillis(data.updatedAt),
+  }
+}
+
+const mapWheelEntryDoc = (
+  id: string,
+  data: Record<string, unknown>
+): WheelEntry => {
+  return {
+    id,
+    listId: String(data.listId ?? ''),
+    question: String(data.question ?? ''),
+    answerText: data.answerText ? String(data.answerText) : null,
+    answerAudioUrl: data.answerAudioUrl ? String(data.answerAudioUrl) : null,
+    answerAudioPath: data.answerAudioPath ? String(data.answerAudioPath) : null,
+    answerAudioType: data.answerAudioType ? String(data.answerAudioType) : null,
     createdAt: toMillis(data.createdAt),
     updatedAt: toMillis(data.updatedAt),
   }
@@ -307,6 +345,128 @@ export const subscribeToListItems = (
       }
 
       onError(new Error('failed_to_subscribe_items'))
+    }
+  )
+}
+
+export const createListStory = async (input: CreateListStoryInput) => {
+  const storiesCollection = collection(db, 'lists', input.listId, 'stories')
+
+  await addDoc(storiesCollection, {
+    listId: input.listId,
+    title: input.title.trim(),
+    body: input.body.trim(),
+    mediaUrl: input.media?.url ?? null,
+    mediaPath: input.media?.path ?? null,
+    mediaType: input.media?.type ?? null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export const deleteListStory = async (listId: string, storyId: string) => {
+  const storyRef = doc(db, 'lists', listId, 'stories', storyId)
+  const storySnapshot = await getDoc(storyRef)
+  const storyData = storySnapshot.data() as Record<string, unknown> | undefined
+  const mediaPath = storyData?.mediaPath
+
+  return {
+    mediaPath: typeof mediaPath === 'string' ? mediaPath : null,
+    removeStory: async () => {
+      await deleteDoc(storyRef)
+    },
+  }
+}
+
+export const subscribeToListStories = (
+  listId: string,
+  onChange: (stories: ListStoryEntry[]) => void,
+  onError: (error: Error) => void
+) => {
+  const storiesCollection = collection(db, 'lists', listId, 'stories')
+  const storiesQuery = query(storiesCollection)
+
+  return onSnapshot(
+    storiesQuery,
+    (snapshot) => {
+      const nextStories = snapshot.docs
+        .map((entry) => mapStoryDoc(entry.id, entry.data()))
+        .sort((left, right) => {
+          const leftCreated = left.createdAt ?? 0
+          const rightCreated = right.createdAt ?? 0
+          return leftCreated - rightCreated
+        })
+
+      onChange(nextStories)
+    },
+    (rawError) => {
+      if (rawError instanceof FirebaseError) {
+        onError(rawError)
+        return
+      }
+
+      onError(new Error('failed_to_subscribe_stories'))
+    }
+  )
+}
+
+export const createWheelEntry = async (input: CreateWheelEntryInput) => {
+  const entriesCollection = collection(db, 'lists', input.listId, 'wheelEntries')
+
+  await addDoc(entriesCollection, {
+    listId: input.listId,
+    question: input.question.trim(),
+    answerText: input.answerText?.trim() || null,
+    answerAudioUrl: input.answerAudio?.url ?? null,
+    answerAudioPath: input.answerAudio?.path ?? null,
+    answerAudioType: input.answerAudio?.type ?? null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export const deleteWheelEntry = async (listId: string, wheelEntryId: string) => {
+  const wheelRef = doc(db, 'lists', listId, 'wheelEntries', wheelEntryId)
+  const wheelSnapshot = await getDoc(wheelRef)
+  const wheelData = wheelSnapshot.data() as Record<string, unknown> | undefined
+  const answerAudioPath = wheelData?.answerAudioPath
+
+  return {
+    answerAudioPath: typeof answerAudioPath === 'string' ? answerAudioPath : null,
+    removeWheelEntry: async () => {
+      await deleteDoc(wheelRef)
+    },
+  }
+}
+
+export const subscribeToWheelEntries = (
+  listId: string,
+  onChange: (entries: WheelEntry[]) => void,
+  onError: (error: Error) => void
+) => {
+  const entriesCollection = collection(db, 'lists', listId, 'wheelEntries')
+  const entriesQuery = query(entriesCollection)
+
+  return onSnapshot(
+    entriesQuery,
+    (snapshot) => {
+      const nextEntries = snapshot.docs
+        .map((entry) => mapWheelEntryDoc(entry.id, entry.data()))
+        .sort((left, right) => {
+          const leftCreated = left.createdAt ?? 0
+          const rightCreated = right.createdAt ?? 0
+          return leftCreated - rightCreated
+        })
+
+      onChange(nextEntries)
+    },
+    (rawError) => {
+      if (rawError instanceof FirebaseError) {
+        onError(rawError)
+        return
+      }
+
+      onError(new Error('failed_to_subscribe_wheel_entries'))
     }
   )
 }

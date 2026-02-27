@@ -6,9 +6,11 @@ import {
   ListExpiredError,
   reserveGiftItem,
   subscribeToListItems,
+  subscribeToListStories,
   subscribeToPublicListBySlug,
+  subscribeToWheelEntries,
 } from '@/lib/lists/client'
-import { GiftList, GiftListItem } from '@/lib/lists/types'
+import { GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
 
 type PublicGiftListProps = {
   slug: string
@@ -62,14 +64,62 @@ const renderItemMedia = (item: GiftListItem) => {
   return null
 }
 
+const renderStoryMedia = (story: ListStoryEntry) => {
+  if (!story.mediaUrl || !story.mediaType) {
+    return null
+  }
+
+  if (story.mediaType.startsWith('image/')) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={story.mediaUrl}
+        alt={story.title}
+        className="mt-3 h-56 w-full rounded-xl border border-white/20 object-cover sm:h-64"
+        loading="lazy"
+      />
+    )
+  }
+
+  if (story.mediaType.startsWith('video/')) {
+    return (
+      <video
+        src={story.mediaUrl}
+        controls
+        preload="metadata"
+        className="mt-3 h-56 w-full rounded-xl border border-white/20 object-cover sm:h-64"
+      />
+    )
+  }
+
+  return null
+}
+
+const wheelPalette = [
+  '#10b981',
+  '#22d3ee',
+  '#38bdf8',
+  '#6366f1',
+  '#14b8a6',
+  '#0ea5e9',
+]
+
 export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [list, setList] = useState<GiftList | null>(null)
   const [items, setItems] = useState<GiftListItem[]>([])
+  const [stories, setStories] = useState<ListStoryEntry[]>([])
+  const [wheelEntries, setWheelEntries] = useState<WheelEntry[]>([])
   const [loadingList, setLoadingList] = useState(true)
   const [loadingItems, setLoadingItems] = useState(false)
+  const [loadingStories, setLoadingStories] = useState(false)
+  const [loadingWheelEntries, setLoadingWheelEntries] = useState(false)
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
   const [reservingItemId, setReservingItemId] = useState<string | null>(null)
+  const [isSpinningWheel, setIsSpinningWheel] = useState(false)
+  const [wheelRotation, setWheelRotation] = useState(0)
+  const [selectedWheelEntryId, setSelectedWheelEntryId] = useState<string | null>(null)
+  const [isWheelAnswerVisible, setIsWheelAnswerVisible] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -112,11 +162,88 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     return () => unsubscribe()
   }, [list])
 
+  useEffect(() => {
+    if (!list) {
+      setStories([])
+      return
+    }
+
+    setLoadingStories(true)
+
+    const unsubscribe = subscribeToListStories(
+      list.id,
+      (nextStories) => {
+        setStories(nextStories)
+        setLoadingStories(false)
+      },
+      () => {
+        setError('Failed to load story moments.')
+        setLoadingStories(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [list])
+
+  useEffect(() => {
+    if (!list) {
+      setWheelEntries([])
+      setSelectedWheelEntryId(null)
+      setIsWheelAnswerVisible(false)
+      return
+    }
+
+    setLoadingWheelEntries(true)
+
+    const unsubscribe = subscribeToWheelEntries(
+      list.id,
+      (nextEntries) => {
+        setWheelEntries(nextEntries)
+        setLoadingWheelEntries(false)
+      },
+      () => {
+        setError('Failed to load wheel questions.')
+        setLoadingWheelEntries(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [list])
+
+  useEffect(() => {
+    if (!selectedWheelEntryId) {
+      return
+    }
+
+    const exists = wheelEntries.some((entry) => entry.id === selectedWheelEntryId)
+    if (!exists) {
+      setSelectedWheelEntryId(null)
+      setIsWheelAnswerVisible(false)
+    }
+  }, [selectedWheelEntryId, wheelEntries])
+
   const availableCount = useMemo(
     () => items.filter((item) => item.status === 'available').length,
     [items]
   )
   const isListExpired = list?.accessStatus === 'expired'
+  const selectedWheelEntry = useMemo(
+    () => wheelEntries.find((entry) => entry.id === selectedWheelEntryId) ?? null,
+    [selectedWheelEntryId, wheelEntries]
+  )
+  const wheelGradient = useMemo(() => {
+    if (wheelEntries.length === 0) {
+      return 'conic-gradient(#0f172a 0% 100%)'
+    }
+
+    return `conic-gradient(${wheelEntries
+      .map((entry, index) => {
+        const start = (index / wheelEntries.length) * 100
+        const end = ((index + 1) / wheelEntries.length) * 100
+        return `${wheelPalette[index % wheelPalette.length]} ${start}% ${end}%`
+      })
+      .join(', ')})`
+  }, [wheelEntries])
 
   const handleReserve = async (itemId: string) => {
     if (!list) {
@@ -147,6 +274,27 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     } finally {
       setReservingItemId(null)
     }
+  }
+
+  const handleSpinWheel = () => {
+    if (isSpinningWheel || wheelEntries.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * wheelEntries.length)
+    const selectedEntry = wheelEntries[randomIndex]
+    const baseTurns = 360 * 5
+    const randomOffset = Math.random() * 360
+
+    setIsSpinningWheel(true)
+    setIsWheelAnswerVisible(false)
+    setSelectedWheelEntryId(null)
+    setWheelRotation((previous) => previous + baseTurns + randomOffset)
+
+    window.setTimeout(() => {
+      setSelectedWheelEntryId(selectedEntry.id)
+      setIsSpinningWheel(false)
+    }, 3400)
   }
 
   if (loadingList) {
@@ -182,6 +330,129 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           </p>
         )}
       </header>
+
+      <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <h2 className="text-xl font-semibold text-white">Our story</h2>
+        <p className="mt-2 text-sm text-slate-300">
+          Personal moments from the host.
+        </p>
+
+        <div className="mt-4 grid gap-4">
+          {loadingStories && (
+            <p className="text-sm text-slate-300">Loading story moments...</p>
+          )}
+
+          {!loadingStories && stories.length === 0 && (
+            <p className="text-sm text-slate-300">No story moments added yet.</p>
+          )}
+
+          {stories.map((story) => (
+            <article
+              key={story.id}
+              className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
+            >
+              <h3 className="text-lg font-semibold text-white">{story.title}</h3>
+              <p className="mt-2 text-sm text-slate-300">{story.body}</p>
+              {renderStoryMedia(story)}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <h2 className="text-xl font-semibold text-white">Wheel of fortune</h2>
+        <p className="mt-2 text-sm text-slate-300">
+          Spin the wheel, get a question, then reveal the host answer.
+        </p>
+
+        {loadingWheelEntries && (
+          <p className="mt-4 text-sm text-slate-300">Loading wheel questions...</p>
+        )}
+
+        {!loadingWheelEntries && wheelEntries.length === 0 && (
+          <p className="mt-4 text-sm text-slate-300">No wheel questions added yet.</p>
+        )}
+
+        {!loadingWheelEntries && wheelEntries.length > 0 && (
+          <div className="mt-5 grid gap-6 lg:grid-cols-[280px,minmax(0,1fr)] lg:items-start">
+            <div className="mx-auto w-full max-w-[280px]">
+              <div className="relative mx-auto h-64 w-64 sm:h-72 sm:w-72">
+                <div className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
+                  <div className="h-0 w-0 border-x-[12px] border-b-[18px] border-x-transparent border-b-emerald-300" />
+                </div>
+
+                <div
+                  className="absolute inset-0 rounded-full border-4 border-white/30 shadow-xl transition-transform duration-[3400ms] ease-out"
+                  style={{
+                    backgroundImage: wheelGradient,
+                    transform: `rotate(${wheelRotation}deg)`,
+                  }}
+                >
+                  <div className="absolute inset-4 rounded-full border border-white/20" />
+                </div>
+
+                <div className="absolute left-1/2 top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40 bg-slate-950" />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSpinWheel}
+                disabled={isSpinningWheel}
+                className="mt-5 w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSpinningWheel ? 'Spinning...' : 'Spin the wheel'}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5">
+              {!selectedWheelEntry && (
+                <p className="text-sm text-slate-300">
+                  Spin the wheel to pick a random question.
+                </p>
+              )}
+
+              {selectedWheelEntry && (
+                <>
+                  <h3 className="text-lg font-semibold text-white">{selectedWheelEntry.question}</h3>
+
+                  {!isWheelAnswerVisible && (
+                    <button
+                      type="button"
+                      onClick={() => setIsWheelAnswerVisible(true)}
+                      className="mt-4 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      Reveal answer
+                    </button>
+                  )}
+
+                  {isWheelAnswerVisible && (
+                    <div className="mt-4 space-y-3">
+                      {selectedWheelEntry.answerText && (
+                        <p className="text-sm text-slate-200">{selectedWheelEntry.answerText}</p>
+                      )}
+
+                      {selectedWheelEntry.answerAudioUrl && (
+                        <audio
+                          controls
+                          preload="metadata"
+                          className="w-full"
+                          src={selectedWheelEntry.answerAudioUrl}
+                        />
+                      )}
+
+                      {!selectedWheelEntry.answerText && !selectedWheelEntry.answerAudioUrl && (
+                        <p className="text-sm text-slate-300">
+                          No answer media has been added for this question yet.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[320px,minmax(0,1fr)]">
         <aside className="lg:sticky lg:top-24 lg:self-start">

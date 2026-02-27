@@ -150,6 +150,48 @@ service cloud.firestore {
         && request.resource.data.createdAt is timestamp;
     }
 
+    function isValidStoryCreate(listId) {
+      return request.resource.data.keys().hasOnly([
+          'listId',
+          'title',
+          'body',
+          'mediaUrl',
+          'mediaPath',
+          'mediaType',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.listId == listId
+        && request.resource.data.title is string
+        && request.resource.data.body is string
+        && isStringOrNull(request.resource.data.mediaUrl)
+        && isStringOrNull(request.resource.data.mediaPath)
+        && isStringOrNull(request.resource.data.mediaType)
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function isValidWheelEntryCreate(listId) {
+      return request.resource.data.keys().hasOnly([
+          'listId',
+          'question',
+          'answerText',
+          'answerAudioUrl',
+          'answerAudioPath',
+          'answerAudioType',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.listId == listId
+        && request.resource.data.question is string
+        && isStringOrNull(request.resource.data.answerText)
+        && isStringOrNull(request.resource.data.answerAudioUrl)
+        && isStringOrNull(request.resource.data.answerAudioPath)
+        && isStringOrNull(request.resource.data.answerAudioType)
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     function isValidListOwnerUpdate() {
       return request.resource.data.ownerId == resource.data.ownerId
         && request.resource.data.slug == resource.data.slug
@@ -196,6 +238,20 @@ service cloud.firestore {
     match /lists/{listId}/reservations/{reservationId} {
       allow create: if isListOwner(listId)
         || (isListPublic(listId) && isValidPublicReservationCreate());
+      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow update, delete: if isListOwner(listId);
+    }
+
+    match /lists/{listId}/stories/{storyId} {
+      allow create: if isListOwner(listId)
+        && isValidStoryCreate(listId);
+      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow update, delete: if isListOwner(listId);
+    }
+
+    match /lists/{listId}/wheelEntries/{entryId} {
+      allow create: if isListOwner(listId)
+        && isValidWheelEntryCreate(listId);
       allow read: if isListOwner(listId) || isListPublic(listId);
       allow update, delete: if isListOwner(listId);
     }

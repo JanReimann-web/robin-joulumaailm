@@ -18,15 +18,24 @@ import {
   SlugTakenError,
   createGiftItem,
   createGiftList,
+  createListStory,
+  createWheelEntry,
   deleteGiftItem,
+  deleteListStory,
+  deleteWheelEntry,
   setGiftItemStatus,
   subscribeToListItems,
+  subscribeToListStories,
   subscribeToUserLists,
+  subscribeToWheelEntries,
 } from '@/lib/lists/client'
 import {
+  deleteMediaByPath,
   deleteItemMediaByPath,
   MediaValidationError,
   uploadItemMedia,
+  uploadStoryMedia,
+  uploadWheelAnswerAudio,
 } from '@/lib/lists/media'
 import { sanitizeSlug } from '@/lib/lists/slug'
 import {
@@ -34,10 +43,12 @@ import {
   EventType,
   GiftList,
   GiftListItem,
+  ListStoryEntry,
   ListVisibility,
   TEMPLATE_IDS,
   TemplateId,
   VISIBILITY_OPTIONS,
+  WheelEntry,
 } from '@/lib/lists/types'
 
 type ListWorkspaceProps = {
@@ -101,13 +112,21 @@ export default function ListWorkspace({
 }: ListWorkspaceProps) {
   const [lists, setLists] = useState<GiftList[]>([])
   const [items, setItems] = useState<GiftListItem[]>([])
+  const [stories, setStories] = useState<ListStoryEntry[]>([])
+  const [wheelEntries, setWheelEntries] = useState<WheelEntry[]>([])
   const [selectedListId, setSelectedListId] = useState('')
 
   const [isListsLoading, setIsListsLoading] = useState(true)
   const [isItemsLoading, setIsItemsLoading] = useState(false)
+  const [isStoriesLoading, setIsStoriesLoading] = useState(false)
+  const [isWheelLoading, setIsWheelLoading] = useState(false)
   const [isCreatingList, setIsCreatingList] = useState(false)
   const [isAddingItem, setIsAddingItem] = useState(false)
+  const [isAddingStory, setIsAddingStory] = useState(false)
+  const [isAddingWheelEntry, setIsAddingWheelEntry] = useState(false)
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null)
+  const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null)
+  const [deletingWheelEntryId, setDeletingWheelEntryId] = useState<string | null>(null)
   const [statusUpdatingItemId, setStatusUpdatingItemId] = useState<string | null>(null)
   const [activatingPassListId, setActivatingPassListId] = useState<string | null>(null)
 
@@ -123,14 +142,28 @@ export default function ListWorkspace({
   const [itemLink, setItemLink] = useState('')
   const [itemMediaFile, setItemMediaFile] = useState<File | null>(null)
   const itemMediaInputRef = useRef<HTMLInputElement | null>(null)
+  const [storyTitle, setStoryTitle] = useState('')
+  const [storyBody, setStoryBody] = useState('')
+  const [storyMediaFile, setStoryMediaFile] = useState<File | null>(null)
+  const storyMediaInputRef = useRef<HTMLInputElement | null>(null)
+  const [wheelQuestion, setWheelQuestion] = useState('')
+  const [wheelAnswerText, setWheelAnswerText] = useState('')
+  const [wheelAnswerAudioFile, setWheelAnswerAudioFile] = useState<File | null>(null)
+  const wheelAnswerAudioInputRef = useRef<HTMLInputElement | null>(null)
 
   const [listError, setListError] = useState<string | null>(null)
   const [listSuccess, setListSuccess] = useState<string | null>(null)
   const [itemError, setItemError] = useState<string | null>(null)
   const [itemSuccess, setItemSuccess] = useState<string | null>(null)
+  const [storyError, setStoryError] = useState<string | null>(null)
+  const [storySuccess, setStorySuccess] = useState<string | null>(null)
+  const [wheelError, setWheelError] = useState<string | null>(null)
+  const [wheelSuccess, setWheelSuccess] = useState<string | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
   const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
+  const [isUploadingStoryMedia, setIsUploadingStoryMedia] = useState(false)
+  const [isUploadingWheelAudio, setIsUploadingWheelAudio] = useState(false)
   const [copiedListId, setCopiedListId] = useState<string | null>(null)
   const [qrTargetListId, setQrTargetListId] = useState<string | null>(null)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -223,6 +256,54 @@ export default function ListWorkspace({
   }, [labels.errorAddItem, selectedListId])
 
   useEffect(() => {
+    if (!selectedListId) {
+      setStories([])
+      setIsStoriesLoading(false)
+      return
+    }
+
+    setIsStoriesLoading(true)
+
+    const unsubscribe = subscribeToListStories(
+      selectedListId,
+      (nextStories) => {
+        setStories(nextStories)
+        setIsStoriesLoading(false)
+      },
+      () => {
+        setStoryError(labels.errorAddStory)
+        setIsStoriesLoading(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [labels.errorAddStory, selectedListId])
+
+  useEffect(() => {
+    if (!selectedListId) {
+      setWheelEntries([])
+      setIsWheelLoading(false)
+      return
+    }
+
+    setIsWheelLoading(true)
+
+    const unsubscribe = subscribeToWheelEntries(
+      selectedListId,
+      (nextEntries) => {
+        setWheelEntries(nextEntries)
+        setIsWheelLoading(false)
+      },
+      () => {
+        setWheelError(labels.errorAddWheelEntry)
+        setIsWheelLoading(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [labels.errorAddWheelEntry, selectedListId])
+
+  useEffect(() => {
     let cancelled = false
 
     fetchBillingRuntimeConfig()
@@ -279,9 +360,11 @@ export default function ListWorkspace({
     [lists, previewListId]
   )
   const isPreviewLoading = Boolean(previewListId) && (
-    previewListId !== selectedListId || isItemsLoading
+    previewListId !== selectedListId || isItemsLoading || isStoriesLoading || isWheelLoading
   )
   const previewItems = previewListId === selectedListId ? items : []
+  const previewStories = previewListId === selectedListId ? stories : []
+  const previewWheelEntries = previewListId === selectedListId ? wheelEntries : []
 
   const getPublicListUrl = (slug: string) => {
     const siteUrl = (
@@ -352,6 +435,39 @@ export default function ListWorkspace({
           preload="metadata"
           className="mt-2 w-full max-w-xs"
           src={item.mediaUrl}
+        />
+      )
+    }
+
+    return null
+  }
+
+  const renderStoryMediaPreview = (
+    story: Pick<ListStoryEntry, 'title' | 'mediaUrl' | 'mediaType'>
+  ) => {
+    if (!story.mediaUrl || !story.mediaType) {
+      return null
+    }
+
+    if (story.mediaType.startsWith('image/')) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={story.mediaUrl}
+          alt={story.title}
+          className="mt-2 h-24 w-24 rounded-lg border border-white/20 object-cover"
+          loading="lazy"
+        />
+      )
+    }
+
+    if (story.mediaType.startsWith('video/')) {
+      return (
+        <video
+          src={story.mediaUrl}
+          controls
+          preload="metadata"
+          className="mt-2 h-24 w-40 rounded-lg border border-white/20 object-cover"
         />
       )
     }
@@ -600,6 +716,176 @@ export default function ListWorkspace({
       setItemError(labels.errorUpdateStatus)
     } finally {
       setStatusUpdatingItemId(null)
+    }
+  }
+
+  const handleAddStory = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setStoryError(null)
+    setStorySuccess(null)
+
+    if (!selectedListId) {
+      setStoryError(labels.errorSelectList)
+      return
+    }
+
+    if (isSelectedListExpired) {
+      setStoryError(labels.accessExpiredNotice)
+      return
+    }
+
+    setIsAddingStory(true)
+
+    try {
+      let mediaPayload: { url: string; path: string; type: string } | null = null
+
+      if (storyMediaFile) {
+        setIsUploadingStoryMedia(true)
+        mediaPayload = await uploadStoryMedia({
+          listId: selectedListId,
+          file: storyMediaFile,
+        })
+      }
+
+      await createListStory({
+        listId: selectedListId,
+        title: storyTitle,
+        body: storyBody,
+        media: mediaPayload,
+      })
+
+      setStoryTitle('')
+      setStoryBody('')
+      setStoryMediaFile(null)
+      if (storyMediaInputRef.current) {
+        storyMediaInputRef.current.value = ''
+      }
+      setStorySuccess(labels.storyAdded)
+    } catch (rawError) {
+      if (rawError instanceof MediaValidationError) {
+        if (rawError.code === 'unsupported_type') {
+          setStoryError(labels.errorMediaUnsupportedType)
+        } else {
+          setStoryError(labels.errorMediaTooLarge)
+        }
+      } else {
+        setStoryError(labels.errorAddStory)
+      }
+    } finally {
+      setIsUploadingStoryMedia(false)
+      setIsAddingStory(false)
+    }
+  }
+
+  const handleDeleteStory = async (storyId: string) => {
+    if (!selectedListId) {
+      setStoryError(labels.errorSelectList)
+      return
+    }
+
+    if (isSelectedListExpired) {
+      setStoryError(labels.accessExpiredNotice)
+      return
+    }
+
+    setStoryError(null)
+    setStorySuccess(null)
+    setDeletingStoryId(storyId)
+
+    try {
+      const removal = await deleteListStory(selectedListId, storyId)
+      await removal.removeStory()
+      await deleteMediaByPath(removal.mediaPath)
+      setStorySuccess(labels.storyDeleted)
+    } catch {
+      setStoryError(labels.errorDeleteStory)
+    } finally {
+      setDeletingStoryId(null)
+    }
+  }
+
+  const handleAddWheelEntry = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setWheelError(null)
+    setWheelSuccess(null)
+
+    if (!selectedListId) {
+      setWheelError(labels.errorSelectList)
+      return
+    }
+
+    if (isSelectedListExpired) {
+      setWheelError(labels.accessExpiredNotice)
+      return
+    }
+
+    setIsAddingWheelEntry(true)
+
+    try {
+      let answerAudioPayload: { url: string; path: string; type: string } | null = null
+
+      if (wheelAnswerAudioFile) {
+        setIsUploadingWheelAudio(true)
+        answerAudioPayload = await uploadWheelAnswerAudio({
+          listId: selectedListId,
+          file: wheelAnswerAudioFile,
+        })
+      }
+
+      await createWheelEntry({
+        listId: selectedListId,
+        question: wheelQuestion,
+        answerText: wheelAnswerText,
+        answerAudio: answerAudioPayload,
+      })
+
+      setWheelQuestion('')
+      setWheelAnswerText('')
+      setWheelAnswerAudioFile(null)
+      if (wheelAnswerAudioInputRef.current) {
+        wheelAnswerAudioInputRef.current.value = ''
+      }
+      setWheelSuccess(labels.wheelEntryAdded)
+    } catch (rawError) {
+      if (rawError instanceof MediaValidationError) {
+        if (rawError.code === 'unsupported_type') {
+          setWheelError(labels.errorMediaUnsupportedType)
+        } else {
+          setWheelError(labels.errorMediaTooLarge)
+        }
+      } else {
+        setWheelError(labels.errorAddWheelEntry)
+      }
+    } finally {
+      setIsUploadingWheelAudio(false)
+      setIsAddingWheelEntry(false)
+    }
+  }
+
+  const handleDeleteWheelEntry = async (entryId: string) => {
+    if (!selectedListId) {
+      setWheelError(labels.errorSelectList)
+      return
+    }
+
+    if (isSelectedListExpired) {
+      setWheelError(labels.accessExpiredNotice)
+      return
+    }
+
+    setWheelError(null)
+    setWheelSuccess(null)
+    setDeletingWheelEntryId(entryId)
+
+    try {
+      const removal = await deleteWheelEntry(selectedListId, entryId)
+      await removal.removeWheelEntry()
+      await deleteMediaByPath(removal.answerAudioPath)
+      setWheelSuccess(labels.wheelEntryDeleted)
+    } catch {
+      setWheelError(labels.errorDeleteWheelEntry)
+    } finally {
+      setDeletingWheelEntryId(null)
     }
   }
 
@@ -1030,6 +1316,232 @@ export default function ListWorkspace({
             ))}
           </div>
         </div>
+
+        <div className="mt-8 border-t border-white/10 pt-6">
+          <h3 className="text-lg font-semibold text-white">{labels.storiesTitle}</h3>
+          <p className="mt-2 text-sm text-slate-300">{labels.storiesSubtitle}</p>
+
+          <form onSubmit={handleAddStory} className="mt-4 grid gap-3">
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.storyTitleLabel}</span>
+              <input
+                required
+                disabled={isItemActionsDisabled}
+                value={storyTitle}
+                onChange={(entry) => setStoryTitle(entry.target.value)}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+            </label>
+
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.storyBodyLabel}</span>
+              <textarea
+                required
+                disabled={isItemActionsDisabled}
+                value={storyBody}
+                onChange={(entry) => setStoryBody(entry.target.value)}
+                rows={4}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+            </label>
+
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.storyMediaLabel}</span>
+              <input
+                ref={storyMediaInputRef}
+                type="file"
+                accept="image/*,video/*"
+                disabled={isItemActionsDisabled || isUploadingStoryMedia}
+                onChange={(event) => {
+                  const nextFile = event.target.files?.[0] ?? null
+                  setStoryMediaFile(nextFile)
+                }}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+              />
+              <span className="text-xs text-slate-400">{labels.storyMediaHint}</span>
+              {storyMediaFile && (
+                <span className="text-xs text-emerald-200">
+                  {labels.mediaSelected}: {storyMediaFile.name}
+                </span>
+              )}
+            </label>
+
+            <button
+              type="submit"
+              disabled={isAddingStory || isUploadingStoryMedia || isItemActionsDisabled}
+              className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {isUploadingStoryMedia
+                ? labels.uploadingMedia
+                : (isAddingStory ? labels.addingStory : labels.addStoryAction)}
+            </button>
+          </form>
+
+          {storySuccess && (
+            <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+              {storySuccess}
+            </p>
+          )}
+
+          {storyError && (
+            <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+              {storyError}
+            </p>
+          )}
+
+          <div className="mt-4 grid gap-3">
+            {isStoriesLoading && (
+              <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
+            )}
+
+            {!isStoriesLoading && stories.length === 0 && (
+              <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
+            )}
+
+            {stories.map((story) => (
+              <article
+                key={story.id}
+                className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="font-semibold text-white">{story.title}</h4>
+                    <p className="mt-1 text-xs text-slate-300">{story.body}</p>
+                    {renderStoryMediaPreview(story)}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteStory(story.id)}
+                    disabled={deletingStoryId === story.id || isItemActionsDisabled}
+                    className="w-full rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  >
+                    {deletingStoryId === story.id
+                      ? labels.deletingStory
+                      : labels.deleteStoryAction}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 border-t border-white/10 pt-6">
+          <h3 className="text-lg font-semibold text-white">{labels.wheelTitle}</h3>
+          <p className="mt-2 text-sm text-slate-300">{labels.wheelSubtitle}</p>
+
+          <form onSubmit={handleAddWheelEntry} className="mt-4 grid gap-3">
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.wheelQuestionLabel}</span>
+              <input
+                required
+                disabled={isItemActionsDisabled}
+                value={wheelQuestion}
+                onChange={(entry) => setWheelQuestion(entry.target.value)}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+            </label>
+
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.wheelAnswerTextLabel}</span>
+              <textarea
+                disabled={isItemActionsDisabled}
+                value={wheelAnswerText}
+                onChange={(entry) => setWheelAnswerText(entry.target.value)}
+                rows={3}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+            </label>
+
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.wheelAnswerAudioLabel}</span>
+              <input
+                ref={wheelAnswerAudioInputRef}
+                type="file"
+                accept="audio/*"
+                disabled={isItemActionsDisabled || isUploadingWheelAudio}
+                onChange={(event) => {
+                  const nextFile = event.target.files?.[0] ?? null
+                  setWheelAnswerAudioFile(nextFile)
+                }}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+              />
+              <span className="text-xs text-slate-400">{labels.wheelAnswerAudioHint}</span>
+              {wheelAnswerAudioFile && (
+                <span className="text-xs text-emerald-200">
+                  {labels.mediaSelected}: {wheelAnswerAudioFile.name}
+                </span>
+              )}
+            </label>
+
+            <button
+              type="submit"
+              disabled={isAddingWheelEntry || isUploadingWheelAudio || isItemActionsDisabled}
+              className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {isUploadingWheelAudio
+                ? labels.uploadingMedia
+                : (isAddingWheelEntry ? labels.addingWheelEntry : labels.addWheelEntryAction)}
+            </button>
+          </form>
+
+          {wheelSuccess && (
+            <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+              {wheelSuccess}
+            </p>
+          )}
+
+          {wheelError && (
+            <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+              {wheelError}
+            </p>
+          )}
+
+          <div className="mt-4 grid gap-3">
+            {isWheelLoading && (
+              <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
+            )}
+
+            {!isWheelLoading && wheelEntries.length === 0 && (
+              <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
+            )}
+
+            {wheelEntries.map((entry) => (
+              <article
+                key={entry.id}
+                className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="font-semibold text-white">{entry.question}</h4>
+                    {entry.answerText && (
+                      <p className="mt-1 text-xs text-slate-300">{entry.answerText}</p>
+                    )}
+                    {entry.answerAudioUrl && (
+                      <audio
+                        controls
+                        preload="metadata"
+                        className="mt-2 w-full max-w-xs"
+                        src={entry.answerAudioUrl}
+                      />
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteWheelEntry(entry.id)}
+                    disabled={deletingWheelEntryId === entry.id || isItemActionsDisabled}
+                    className="w-full rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  >
+                    {deletingWheelEntryId === entry.id
+                      ? labels.deletingWheelEntry
+                      : labels.deleteWheelEntryAction}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       {previewList && (
@@ -1109,6 +1621,55 @@ export default function ListWorkspace({
                         </div>
                       </article>
                     ))}
+                  </div>
+
+                  <div className="mt-8 border-t border-white/10 pt-5">
+                    <h5 className="text-lg font-semibold text-white">{labels.storiesTitle}</h5>
+                    <div className="mt-3 grid gap-3">
+                      {previewStories.length === 0 && (
+                        <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
+                      )}
+
+                      {previewStories.map((story) => (
+                        <article
+                          key={`preview-story-${story.id}`}
+                          className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                        >
+                          <h6 className="text-base font-semibold text-white">{story.title}</h6>
+                          <p className="mt-2 text-sm text-slate-300">{story.body}</p>
+                          {renderStoryMediaPreview(story)}
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-8 border-t border-white/10 pt-5">
+                    <h5 className="text-lg font-semibold text-white">{labels.wheelTitle}</h5>
+                    <div className="mt-3 grid gap-3">
+                      {previewWheelEntries.length === 0 && (
+                        <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
+                      )}
+
+                      {previewWheelEntries.map((entry) => (
+                        <article
+                          key={`preview-wheel-${entry.id}`}
+                          className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                        >
+                          <h6 className="text-base font-semibold text-white">{entry.question}</h6>
+                          {entry.answerText && (
+                            <p className="mt-2 text-sm text-slate-300">{entry.answerText}</p>
+                          )}
+                          {entry.answerAudioUrl && (
+                            <audio
+                              controls
+                              preload="metadata"
+                              className="mt-2 w-full max-w-xs"
+                              src={entry.answerAudioUrl}
+                            />
+                          )}
+                        </article>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}

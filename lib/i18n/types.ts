@@ -191,10 +191,40 @@ export interface Dictionary {
     statusUpdated: string
     itemAdded: string
     itemDeleted: string
+    storiesTitle: string
+    storiesSubtitle: string
+    storyTitleLabel: string
+    storyBodyLabel: string
+    storyMediaLabel: string
+    storyMediaHint: string
+    addStoryAction: string
+    addingStory: string
+    storiesEmpty: string
+    storyAdded: string
+    storyDeleted: string
+    deleteStoryAction: string
+    deletingStory: string
+    wheelTitle: string
+    wheelSubtitle: string
+    wheelQuestionLabel: string
+    wheelAnswerTextLabel: string
+    wheelAnswerAudioLabel: string
+    wheelAnswerAudioHint: string
+    addWheelEntryAction: string
+    addingWheelEntry: string
+    wheelEmpty: string
+    wheelEntryAdded: string
+    wheelEntryDeleted: string
+    deleteWheelEntryAction: string
+    deletingWheelEntry: string
     errorSelectList: string
     errorAddItem: string
     errorDeleteItem: string
     errorUpdateStatus: string
+    errorAddStory: string
+    errorDeleteStory: string
+    errorAddWheelEntry: string
+    errorDeleteWheelEntry: string
     errorMediaUnsupportedType: string
     errorMediaTooLarge: string
     trialNotice: string
