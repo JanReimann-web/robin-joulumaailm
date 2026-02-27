@@ -16,8 +16,8 @@ export default function PricingPage({ params }: PricingPageProps) {
   const dict = getDictionary(params.locale)
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-16">
-      <h1 className="text-3xl font-bold text-white md:text-4xl">{dict.pricing.title}</h1>
+    <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+      <h1 className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">{dict.pricing.title}</h1>
       <p className="mt-3 text-sm text-slate-200">{dict.pricing.trialLine}</p>
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.retentionLine}</p>
 

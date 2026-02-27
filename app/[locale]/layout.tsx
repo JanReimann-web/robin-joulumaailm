@@ -46,12 +46,12 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <Link href={`/${locale}`} className="text-lg font-semibold tracking-tight text-white">
             {dict.brand}
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm text-white/80 md:flex">
+          <nav className="hidden items-center gap-5 text-sm text-white/80 md:flex">
             <Link href={`/${locale}`} className="hover:text-white">
               {dict.nav.home}
             </Link>
@@ -78,6 +78,35 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
             }}
           />
         </div>
+
+        <nav className="border-t border-white/10 px-4 py-2 md:hidden">
+          <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto pb-1">
+            <Link
+              href={`/${locale}`}
+              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
+            >
+              {dict.nav.home}
+            </Link>
+            <Link
+              href={`/${locale}/pricing`}
+              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
+            >
+              {dict.nav.pricing}
+            </Link>
+            <Link
+              href={`/${locale}/dashboard`}
+              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
+            >
+              {dict.nav.dashboard}
+            </Link>
+            <Link
+              href={`/${locale}/login`}
+              className="whitespace-nowrap rounded-full bg-emerald-400 px-3 py-1.5 text-xs font-semibold text-black"
+            >
+              {dict.nav.login}
+            </Link>
+          </div>
+        </nav>
       </header>
 
       <main>{children}</main>

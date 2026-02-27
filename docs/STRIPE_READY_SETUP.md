@@ -32,6 +32,7 @@ Without admin credentials the billing API cannot update Firestore.
 2. `STRIPE_PRICE_ID_90D`
 3. `STRIPE_WEBHOOK_SECRET`
 4. `BILLING_MANUAL_FALLBACK=false` (recommended after go-live)
+5. `NEXT_PUBLIC_SITE_URL=https://yourdomain.com` (must match deployed domain)
 
 ## Stripe Webhook Endpoint
 
@@ -43,9 +44,30 @@ Listen at minimum:
 
 1. `checkout.session.completed`
 
+## Go-Live Checklist (Stripe switch-over)
+
+1. Create Stripe product and one-time price for 90-day pass.
+2. Set `STRIPE_PRICE_ID_90D` to that price id.
+3. Add `STRIPE_SECRET_KEY` in Vercel env variables.
+4. Add webhook endpoint:
+   - `https://yourdomain.com/api/billing/webhook`
+5. Add `STRIPE_WEBHOOK_SECRET` from Stripe webhook settings.
+6. Set `BILLING_MANUAL_FALLBACK=false`.
+7. Deploy and test:
+   - dashboard shows Stripe mode banner
+   - activating pass redirects to Stripe Checkout
+   - successful payment returns to `/[locale]/dashboard?billing=success...`
+
 ## Firestore Collections Written by Billing
 
 1. `subscriptions/{uid}`
 2. `billingCheckoutSessions/{sessionId}`
 3. `billingPayments/{autoId}`
 4. `billingWebhookEvents/{eventId}`
+
+## Verification Endpoints
+
+1. `GET /api/billing/config`
+   - returns runtime mode (`manual` or `stripe`)
+2. `POST /api/billing/checkout`
+   - starts checkout (Stripe mode) or manual activation (fallback mode)

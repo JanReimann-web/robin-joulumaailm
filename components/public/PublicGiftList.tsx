@@ -109,7 +109,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   if (loadingList) {
     return (
-      <main className="mx-auto w-full max-w-5xl px-4 py-16">
+      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
         <p className="text-slate-200">Loading list...</p>
       </main>
     )
@@ -117,8 +117,8 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   if (!list) {
     return (
-      <main className="mx-auto w-full max-w-5xl px-4 py-16">
-        <h1 className="text-3xl font-bold text-white">List not found</h1>
+      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">List not found</h1>
         <p className="mt-3 text-slate-300">
           This page may be private, deleted, or the URL is incorrect.
         </p>
@@ -127,9 +127,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-16">
-      <header className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h1 className="text-3xl font-bold text-white">{list.title}</h1>
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-14">
+      <header className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
         <p className="mt-2 text-sm text-slate-300">
           Event: {list.eventType} - {availableCount} gifts available
         </p>
@@ -141,90 +141,94 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         )}
       </header>
 
-      <section className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h2 className="text-lg font-semibold text-white">Your details (optional)</h2>
-        <p className="mt-2 text-sm text-slate-300">
-          Add your name so the host can thank you later.
-        </p>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[320px,minmax(0,1fr)]">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <section className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+            <h2 className="text-lg font-semibold text-white">Your details (optional)</h2>
+            <p className="mt-2 text-sm text-slate-300">
+              Add your name so the host can thank you later.
+            </p>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <input
-            value={guestName}
-            onChange={(event) => setGuestName(event.target.value)}
-            placeholder="Your name"
-            className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-          />
-          <input
-            value={guestMessage}
-            onChange={(event) => setGuestMessage(event.target.value)}
-            placeholder="Message (optional)"
-            className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-          />
-        </div>
+            <div className="mt-4 grid gap-3">
+              <input
+                value={guestName}
+                onChange={(event) => setGuestName(event.target.value)}
+                placeholder="Your name"
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+              <input
+                value={guestMessage}
+                onChange={(event) => setGuestMessage(event.target.value)}
+                placeholder="Message (optional)"
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+            </div>
 
-        {success && (
-          <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
-            {success}
-          </p>
-        )}
+            {success && (
+              <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+                {success}
+              </p>
+            )}
 
-        {error && (
-          <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
-            {error}
-          </p>
-        )}
-      </section>
+            {error && (
+              <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                {error}
+              </p>
+            )}
+          </section>
+        </aside>
 
-      <section className="mt-6 grid gap-4">
-        {loadingItems && <p className="text-sm text-slate-300">Loading gifts...</p>}
+        <section className="grid gap-4">
+          {loadingItems && <p className="text-sm text-slate-300">Loading gifts...</p>}
 
-        {!loadingItems && items.length === 0 && (
-          <p className="text-sm text-slate-300">No gift items added yet.</p>
-        )}
+          {!loadingItems && items.length === 0 && (
+            <p className="text-sm text-slate-300">No gift items added yet.</p>
+          )}
 
-        {items.map((item) => {
-          const isAvailable = item.status === 'available'
+          {items.map((item) => {
+            const isAvailable = item.status === 'available'
 
-          return (
-            <article
-              key={item.id}
-              className="rounded-2xl border border-white/10 bg-slate-950/60 p-5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{item.name}</h3>
-                  <p className="mt-2 text-sm text-slate-300">{item.description}</p>
-                  {item.link && (
-                    <a
-                      href={item.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-block text-sm text-emerald-300 underline"
-                    >
-                      Open product link
-                    </a>
-                  )}
+            return (
+              <article
+                key={item.id}
+                className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">{item.name}</h3>
+                    <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                    {item.link && (
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 inline-block text-sm text-emerald-300 underline"
+                      >
+                        Open product link
+                      </a>
+                    )}
+                  </div>
+
+                  <span className="inline-flex w-fit rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
+                    {statusLabel(item.status)}
+                  </span>
                 </div>
 
-                <span className="rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
-                  {statusLabel(item.status)}
-                </span>
-              </div>
-
-              <div className="mt-4">
-                <button
-                  type="button"
-                  disabled={Boolean(isListExpired) || !isAvailable || reservingItemId === item.id}
-                  onClick={() => handleReserve(item.id)}
-                  className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {reservingItemId === item.id ? 'Reserving...' : 'Reserve this gift'}
-                </button>
-              </div>
-            </article>
-          )
-        })}
-      </section>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    disabled={Boolean(isListExpired) || !isAvailable || reservingItemId === item.id}
+                    onClick={() => handleReserve(item.id)}
+                    className="w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                  >
+                    {reservingItemId === item.id ? 'Reserving...' : 'Reserve this gift'}
+                  </button>
+                </div>
+              </article>
+            )
+          })}
+        </section>
+      </div>
     </main>
   )
 }

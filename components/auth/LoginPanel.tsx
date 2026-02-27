@@ -120,8 +120,8 @@ export default function LoginPanel({ locale, labels }: LoginPanelProps) {
   const isBusy = pendingAction !== null
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-16">
-      <h1 className="text-3xl font-bold text-white">{labels.title}</h1>
+    <section className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-10 sm:gap-6 sm:py-16">
+      <h1 className="text-2xl font-bold text-white sm:text-3xl">{labels.title}</h1>
       <p className="text-slate-200">{labels.subtitle}</p>
 
       <button
@@ -161,7 +161,7 @@ export default function LoginPanel({ locale, labels }: LoginPanelProps) {
           />
         </label>
 
-        <div className="mt-2 flex flex-wrap gap-3">
+        <div className="mt-2 grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
           <button
             type="submit"
             disabled={isBusy}

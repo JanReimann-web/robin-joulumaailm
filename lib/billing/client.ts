@@ -51,3 +51,32 @@ export const startBillingCheckout = async (params: {
     activated: true,
   }
 }
+
+export type BillingRuntimeMode = 'stripe' | 'manual'
+
+export interface BillingRuntimeConfig {
+  mode: BillingRuntimeMode
+  manualFallbackEnabled: boolean
+  stripeCheckoutConfigured: boolean
+  stripeWebhookConfigured: boolean
+}
+
+export const fetchBillingRuntimeConfig = async (): Promise<BillingRuntimeConfig> => {
+  const response = await fetch('/api/billing/config', {
+    method: 'GET',
+    cache: 'no-store',
+  })
+
+  if (!response.ok) {
+    throw new BillingCheckoutError('billing_config_unavailable')
+  }
+
+  const payload = await response.json() as Partial<BillingRuntimeConfig>
+
+  return {
+    mode: payload.mode === 'stripe' ? 'stripe' : 'manual',
+    manualFallbackEnabled: Boolean(payload.manualFallbackEnabled),
+    stripeCheckoutConfigured: Boolean(payload.stripeCheckoutConfigured),
+    stripeWebhookConfigured: Boolean(payload.stripeWebhookConfigured),
+  }
+}

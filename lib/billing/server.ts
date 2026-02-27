@@ -128,6 +128,19 @@ export const isStripeWebhookConfigured = () => {
   return Boolean(stripeClient && STRIPE_WEBHOOK_SECRET)
 }
 
+export const getBillingRuntimeConfig = () => {
+  const stripeCheckoutConfigured = isStripeCheckoutConfigured()
+  const stripeWebhookConfigured = isStripeWebhookConfigured()
+  const mode = stripeCheckoutConfigured ? 'stripe' : 'manual'
+
+  return {
+    mode,
+    manualFallbackEnabled: MANUAL_FALLBACK_ENABLED,
+    stripeCheckoutConfigured,
+    stripeWebhookConfigured,
+  }
+}
+
 export const startListCheckout = async (params: {
   listId: string
   ownerId: string

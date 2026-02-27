@@ -61,11 +61,11 @@ export default function DashboardShell({
   }
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-16">
-      <h1 className="text-3xl font-bold text-white">{labels.title}</h1>
+    <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-12 lg:py-16">
+      <h1 className="text-2xl font-bold text-white sm:text-3xl">{labels.title}</h1>
       <p className="mt-3 text-slate-200">{labels.subtitle}</p>
 
-      <div className="mt-6 flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100">
+      <div className="mt-5 flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-100 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center">
         <span>
           {labels.signedInAs}: <strong>{user.displayName ?? user.email ?? user.uid}</strong>
         </span>

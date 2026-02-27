@@ -109,6 +109,10 @@ export interface Dictionary {
     passActivated: string
     billingSuccessReturn: string
     billingCancelReturn: string
+    billingModeManualTitle: string
+    billingModeManualBody: string
+    billingModeStripeTitle: string
+    billingModeStripeBody: string
     accessExpiredNotice: string
     errorSessionExpired: string
     errorActivatePass: string

@@ -3,7 +3,12 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
-import { BillingCheckoutError, startBillingCheckout } from '@/lib/billing/client'
+import {
+  BillingCheckoutError,
+  BillingRuntimeMode,
+  fetchBillingRuntimeConfig,
+  startBillingCheckout,
+} from '@/lib/billing/client'
 import { auth } from '@/lib/firebase'
 import { getRemainingDays, ListAccessStatus } from '@/lib/lists/access'
 import {
@@ -116,6 +121,7 @@ export default function ListWorkspace({
   const [itemError, setItemError] = useState<string | null>(null)
   const [itemSuccess, setItemSuccess] = useState<string | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
+  const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
 
   useEffect(() => {
     const unsubscribe = subscribeToUserLists(
@@ -200,6 +206,30 @@ export default function ListWorkspace({
 
     return () => unsubscribe()
   }, [labels.errorAddItem, selectedListId])
+
+  useEffect(() => {
+    let cancelled = false
+
+    fetchBillingRuntimeConfig()
+      .then((config) => {
+        if (cancelled) {
+          return
+        }
+
+        setBillingRuntimeMode(config.mode)
+      })
+      .catch(() => {
+        if (cancelled) {
+          return
+        }
+
+        setBillingRuntimeMode('manual')
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const templateLabels = useMemo(() => templateLabelMap(labels), [labels])
   const eventTypeLabels = useMemo(() => eventLabelMap(eventLabels), [eventLabels])
@@ -409,9 +439,9 @@ export default function ListWorkspace({
   }
 
   return (
-    <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h2 className="text-xl font-semibold text-white">{labels.builderTitle}</h2>
+    <div className="mt-6 grid gap-4 lg:grid-cols-[1.2fr,1fr] lg:gap-6">
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
         <p className="mt-2 text-sm text-slate-300">{labels.builderSubtitle}</p>
         <p className="mt-2 text-xs text-emerald-200">{labels.trialNotice}</p>
 
@@ -490,7 +520,7 @@ export default function ListWorkspace({
           <button
             type="submit"
             disabled={isCreatingList}
-            className="mt-2 rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-2 w-full rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {isCreatingList ? labels.creatingList : labels.createListAction}
           </button>
@@ -509,8 +539,24 @@ export default function ListWorkspace({
         )}
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h2 className="text-xl font-semibold text-white">{labels.myListsTitle}</h2>
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.myListsTitle}</h2>
+        <p
+          className={`mt-3 rounded-xl border px-3 py-2 text-xs ${
+            billingRuntimeMode === 'stripe'
+              ? 'border-emerald-300/40 bg-emerald-300/10 text-emerald-100'
+              : 'border-amber-300/40 bg-amber-300/10 text-amber-100'
+          }`}
+        >
+          <strong>
+            {billingRuntimeMode === 'stripe'
+              ? labels.billingModeStripeTitle
+              : labels.billingModeManualTitle}
+          </strong>{' '}
+          {billingRuntimeMode === 'stripe'
+            ? labels.billingModeStripeBody
+            : labels.billingModeManualBody}
+        </p>
 
         <div className="mt-4 grid gap-3">
           {isListsLoading && (
@@ -557,7 +603,7 @@ export default function ListWorkspace({
                   type="button"
                   onClick={() => handleActivatePass(list.id)}
                   disabled={activatingPassListId === list.id}
-                  className="mt-3 rounded-full border border-emerald-300/40 px-3 py-1 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-3 w-full rounded-full border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   {activatingPassListId === list.id
                     ? labels.activatingPass
@@ -626,7 +672,7 @@ export default function ListWorkspace({
             <button
               type="submit"
               disabled={isAddingItem || isItemActionsDisabled}
-              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {isAddingItem ? labels.addingItem : labels.addItemAction}
             </button>
@@ -664,7 +710,7 @@ export default function ListWorkspace({
                 key={item.id}
                 className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h4 className="font-semibold text-white">{item.name}</h4>
                     <p className="mt-1 text-xs text-slate-300">{item.description}</p>
@@ -684,13 +730,13 @@ export default function ListWorkspace({
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-end gap-2">
+                  <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
                     {item.status === 'reserved' && (
                       <button
                         type="button"
                         onClick={() => handleUpdateItemStatus(item.id, 'available')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="rounded-full border border-white/30 px-3 py-1 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
@@ -703,7 +749,7 @@ export default function ListWorkspace({
                         type="button"
                         onClick={() => handleUpdateItemStatus(item.id, 'gifted')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="rounded-full border border-emerald-300/40 px-3 py-1 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full rounded-full border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
@@ -716,7 +762,7 @@ export default function ListWorkspace({
                         type="button"
                         onClick={() => handleUpdateItemStatus(item.id, 'available')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="rounded-full border border-white/30 px-3 py-1 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
@@ -732,7 +778,7 @@ export default function ListWorkspace({
                         statusUpdatingItemId === item.id ||
                         isItemActionsDisabled
                       }
-                      className="rounded-full border border-red-300/40 px-3 py-1 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="w-full rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                     >
                       {deletingItemId === item.id
                         ? labels.deletingItem
