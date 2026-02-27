@@ -117,6 +117,8 @@ export const etDictionary: Dictionary = {
     previewPanelTitle: 'Reaalajas eelvaade',
     previewPublicHint: 'Nii näevad külalised sinu avalikku kinginimekirja lehte.',
     previewPrivateHint: 'Muuda nähtavus avalikuks, et eelvaade ja jagamine toimiksid.',
+    closePreviewAction: 'Sulge eelvaade',
+    previewLoading: 'Laen eelvaadet...',
     activatePassAction: 'Aktiveeri 90-päevane pakett',
     activatingPass: 'Aktiveerin paketti...',
     redirectingToCheckout: 'Suunan turvalisse makselehele...',

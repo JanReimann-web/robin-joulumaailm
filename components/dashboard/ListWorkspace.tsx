@@ -136,6 +136,7 @@ export default function ListWorkspace({
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [isQrLoading, setIsQrLoading] = useState(false)
   const [qrError, setQrError] = useState<string | null>(null)
+  const [previewListId, setPreviewListId] = useState<string | null>(null)
 
   useEffect(() => {
     const unsubscribe = subscribeToUserLists(
@@ -245,6 +246,21 @@ export default function ListWorkspace({
     }
   }, [])
 
+  useEffect(() => {
+    if (!previewListId) {
+      return
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPreviewListId(null)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [previewListId])
+
   const templateLabels = useMemo(() => templateLabelMap(labels), [labels])
   const eventTypeLabels = useMemo(() => eventLabelMap(eventLabels), [eventLabels])
   const visibilityLabels = useMemo(() => visibilityLabelMap(labels), [labels])
@@ -258,6 +274,14 @@ export default function ListWorkspace({
 
   const isSelectedListExpired = selectedList?.accessStatus === 'expired'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
+  const previewList = useMemo(
+    () => lists.find((list) => list.id === previewListId) ?? null,
+    [lists, previewListId]
+  )
+  const isPreviewLoading = Boolean(previewListId) && (
+    previewListId !== selectedListId || isItemsLoading
+  )
+  const previewItems = previewListId === selectedListId ? items : []
 
   const getPublicListUrl = (slug: string) => {
     const siteUrl = (
@@ -413,6 +437,15 @@ export default function ListWorkspace({
     } finally {
       setIsQrLoading(false)
     }
+  }
+
+  const handleOpenPreview = (list: GiftList) => {
+    setSelectedListId(list.id)
+    setPreviewListId(list.id)
+  }
+
+  const handleClosePreview = () => {
+    setPreviewListId(null)
   }
 
   const handleActivatePass = async (listId: string) => {
@@ -746,32 +779,34 @@ export default function ListWorkspace({
                 </button>
               )}
 
-              {list.visibility === 'public' && (
-                <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
-                  <a
-                    href={`/${list.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full rounded-full border border-white/30 px-3 py-1.5 text-center text-xs font-semibold text-white sm:w-auto"
-                  >
-                    {labels.previewAction}
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyPublicLink(list)}
-                    className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
-                  >
-                    {copiedListId === list.id ? labels.linkCopied : labels.copyLinkAction}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleToggleQr(list)}
-                    className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
-                  >
-                    {qrTargetListId === list.id ? labels.hideQrAction : labels.showQrAction}
-                  </button>
-                </div>
-              )}
+              <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleOpenPreview(list)}
+                  className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
+                >
+                  {labels.previewAction}
+                </button>
+
+                {list.visibility === 'public' && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyPublicLink(list)}
+                      className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
+                    >
+                      {copiedListId === list.id ? labels.linkCopied : labels.copyLinkAction}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleQr(list)}
+                      className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
+                    >
+                      {qrTargetListId === list.id ? labels.hideQrAction : labels.showQrAction}
+                    </button>
+                  </>
+                )}
+              </div>
 
               {qrTargetListId === list.id && (
                 <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
@@ -793,24 +828,6 @@ export default function ListWorkspace({
               )}
             </article>
           ))}
-        </div>
-
-        <div className="mt-8 rounded-xl border border-white/10 bg-slate-950/40 p-4">
-          <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
-          {selectedList?.visibility === 'public' ? (
-            <>
-              <p className="mt-2 text-xs text-slate-300">{labels.previewPublicHint}</p>
-              <iframe
-                key={selectedList.id}
-                title={`preview-${selectedList.slug}`}
-                src={`/${selectedList.slug}`}
-                className="mt-3 h-[420px] w-full rounded-xl border border-white/20 bg-white"
-                loading="lazy"
-              />
-            </>
-          ) : (
-            <p className="mt-2 text-xs text-slate-300">{labels.previewPrivateHint}</p>
-          )}
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">
@@ -1014,6 +1031,91 @@ export default function ListWorkspace({
           </div>
         </div>
       </section>
+
+      {previewList && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label={labels.closePreviewAction}
+            onClick={handleClosePreview}
+            className="absolute inset-0 bg-slate-950/85"
+          />
+
+          <section className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-2xl">
+            <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6">
+              <div>
+                <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
+                <p className="mt-1 text-xs text-slate-300">/{previewList.slug}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleClosePreview}
+                className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                {labels.closePreviewAction}
+              </button>
+            </header>
+
+            <div className="overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+              {isPreviewLoading ? (
+                <p className="text-sm text-slate-300">{labels.previewLoading}</p>
+              ) : (
+                <>
+                  <p className="text-xs text-slate-300">
+                    {previewList.visibility === 'public'
+                      ? labels.previewPublicHint
+                      : labels.previewPrivateHint}
+                  </p>
+
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
+                    <h4 className="text-xl font-semibold text-white">{previewList.title}</h4>
+                    <p className="mt-2 text-sm text-slate-300">
+                      {labels.eventTag}: {eventTypeLabels[previewList.eventType]} - {
+                        previewItems.filter((item) => item.status === 'available').length
+                      } {labels.itemsTitle.toLowerCase()}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">/{previewList.slug}</p>
+                  </div>
+
+                  <div className="mt-4 grid gap-3">
+                    {previewItems.length === 0 && (
+                      <p className="text-sm text-slate-300">{labels.itemsEmpty}</p>
+                    )}
+
+                    {previewItems.map((item) => (
+                      <article
+                        key={`preview-${item.id}`}
+                        className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <h5 className="text-base font-semibold text-white">{item.name}</h5>
+                            <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                            {renderItemMediaPreview(item)}
+                            {item.link && (
+                              <a
+                                href={item.link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-2 inline-block text-sm text-emerald-300 underline"
+                              >
+                                {item.link}
+                              </a>
+                            )}
+                          </div>
+                          <span className="inline-flex w-fit rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
+                            {itemStatusLabels[item.status]}
+                          </span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   )
 }
