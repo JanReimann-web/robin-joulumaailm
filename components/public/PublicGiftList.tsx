@@ -20,6 +20,48 @@ const statusLabel = (status: GiftListItem['status']) => {
   return 'Gifted'
 }
 
+const renderItemMedia = (item: GiftListItem) => {
+  if (!item.mediaUrl || !item.mediaType) {
+    return null
+  }
+
+  if (item.mediaType.startsWith('image/')) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={item.mediaUrl}
+        alt={item.name}
+        className="mt-3 h-48 w-full rounded-xl border border-white/20 object-cover sm:h-56"
+        loading="lazy"
+      />
+    )
+  }
+
+  if (item.mediaType.startsWith('video/')) {
+    return (
+      <video
+        src={item.mediaUrl}
+        controls
+        preload="metadata"
+        className="mt-3 h-48 w-full rounded-xl border border-white/20 object-cover sm:h-56"
+      />
+    )
+  }
+
+  if (item.mediaType.startsWith('audio/')) {
+    return (
+      <audio
+        controls
+        preload="metadata"
+        className="mt-3 w-full"
+        src={item.mediaUrl}
+      />
+    )
+  }
+
+  return null
+}
+
 export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [list, setList] = useState<GiftList | null>(null)
   const [items, setItems] = useState<GiftListItem[]>([])
@@ -197,6 +239,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                   <div>
                     <h3 className="text-lg font-semibold text-white">{item.name}</h3>
                     <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                    {renderItemMedia(item)}
                     {item.link && (
                       <a
                         href={item.link}

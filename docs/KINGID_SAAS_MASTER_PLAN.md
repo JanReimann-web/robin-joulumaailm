@@ -81,7 +81,7 @@ Status legend: `[ ]` not started, `[-]` in progress, `[x]` done
 - [x] P2-02 Build list creation wizard (event type + template + slug)
 - [x] P2-03 Implement server transaction for slug claim
 - [x] P2-04 Build dashboard CRUD for gift items
-- [ ] P2-05 Implement media upload with limits and validation
+- [x] P2-05 Implement media upload with limits and validation
 
 ### P3 - Public flow and reservations
 

@@ -5,6 +5,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   limit,
   onSnapshot,
   query,
@@ -120,6 +121,9 @@ const mapItemDoc = (
     name: String(data.name ?? ''),
     description: String(data.description ?? ''),
     link: data.link ? String(data.link) : null,
+    mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
+    mediaPath: data.mediaPath ? String(data.mediaPath) : null,
+    mediaType: data.mediaType ? String(data.mediaType) : null,
     status: (data.status as GiftListItem['status']) ?? 'available',
     reservedByName: data.reservedByName ? String(data.reservedByName) : null,
     reservedMessage: data.reservedMessage ? String(data.reservedMessage) : null,
@@ -227,6 +231,9 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
     name: input.name.trim(),
     description: input.description.trim(),
     link: input.link?.trim() || null,
+    mediaUrl: input.media?.url ?? null,
+    mediaPath: input.media?.path ?? null,
+    mediaType: input.media?.type ?? null,
     status: 'available',
     reservedByName: null,
     reservedMessage: null,
@@ -238,7 +245,16 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
 
 export const deleteGiftItem = async (listId: string, itemId: string) => {
   const itemRef = doc(db, 'lists', listId, 'items', itemId)
-  await deleteDoc(itemRef)
+  const itemSnapshot = await getDoc(itemRef)
+  const itemData = itemSnapshot.data() as Record<string, unknown> | undefined
+  const mediaPath = itemData?.mediaPath
+
+  return {
+    mediaPath: typeof mediaPath === 'string' ? mediaPath : null,
+    removeItem: async () => {
+      await deleteDoc(itemRef)
+    },
+  }
 }
 
 export const setGiftItemStatus = async (

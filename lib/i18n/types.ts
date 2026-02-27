@@ -123,6 +123,10 @@ export interface Dictionary {
     itemDescriptionLabel: string
     itemLinkLabel: string
     itemLinkPlaceholder: string
+    itemMediaLabel: string
+    itemMediaHint: string
+    mediaSelected: string
+    uploadingMedia: string
     addItemAction: string
     addingItem: string
     deleteItemAction: string
@@ -141,6 +145,8 @@ export interface Dictionary {
     errorAddItem: string
     errorDeleteItem: string
     errorUpdateStatus: string
+    errorMediaUnsupportedType: string
+    errorMediaTooLarge: string
     trialNotice: string
     errorInvalidSlug: string
     errorSlugReserved: string

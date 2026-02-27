@@ -58,6 +58,9 @@ export interface GiftListItem {
   name: string
   description: string
   link: string | null
+  mediaUrl: string | null
+  mediaPath: string | null
+  mediaType: string | null
   status: GiftItemStatus
   reservedByName: string | null
   reservedMessage: string | null
@@ -66,11 +69,18 @@ export interface GiftListItem {
   updatedAt: number | null
 }
 
+export interface GiftItemMediaInput {
+  url: string
+  path: string
+  type: string
+}
+
 export interface CreateGiftItemInput {
   listId: string
   name: string
   description: string
   link?: string
+  media?: GiftItemMediaInput | null
 }
 
 export interface ReserveGiftItemInput {

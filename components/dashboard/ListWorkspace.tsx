@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
 import {
@@ -22,6 +22,11 @@ import {
   subscribeToListItems,
   subscribeToUserLists,
 } from '@/lib/lists/client'
+import {
+  deleteItemMediaByPath,
+  MediaValidationError,
+  uploadItemMedia,
+} from '@/lib/lists/media'
 import { sanitizeSlug } from '@/lib/lists/slug'
 import {
   EVENT_TYPES,
@@ -115,6 +120,8 @@ export default function ListWorkspace({
   const [itemName, setItemName] = useState('')
   const [itemDescription, setItemDescription] = useState('')
   const [itemLink, setItemLink] = useState('')
+  const [itemMediaFile, setItemMediaFile] = useState<File | null>(null)
+  const itemMediaInputRef = useRef<HTMLInputElement | null>(null)
 
   const [listError, setListError] = useState<string | null>(null)
   const [listSuccess, setListSuccess] = useState<string | null>(null)
@@ -122,6 +129,7 @@ export default function ListWorkspace({
   const [itemSuccess, setItemSuccess] = useState<string | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
   const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false)
 
   useEffect(() => {
     const unsubscribe = subscribeToUserLists(
@@ -270,6 +278,48 @@ export default function ListWorkspace({
     return 0
   }
 
+  const renderItemMediaPreview = (item: GiftListItem) => {
+    if (!item.mediaUrl || !item.mediaType) {
+      return null
+    }
+
+    if (item.mediaType.startsWith('image/')) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.mediaUrl}
+          alt={item.name}
+          className="mt-2 h-24 w-24 rounded-lg border border-white/20 object-cover"
+          loading="lazy"
+        />
+      )
+    }
+
+    if (item.mediaType.startsWith('video/')) {
+      return (
+        <video
+          src={item.mediaUrl}
+          controls
+          preload="metadata"
+          className="mt-2 h-24 w-40 rounded-lg border border-white/20 object-cover"
+        />
+      )
+    }
+
+    if (item.mediaType.startsWith('audio/')) {
+      return (
+        <audio
+          controls
+          preload="metadata"
+          className="mt-2 w-full max-w-xs"
+          src={item.mediaUrl}
+        />
+      )
+    }
+
+    return null
+  }
+
   const handleCreateList = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setListError(null)
@@ -367,20 +417,44 @@ export default function ListWorkspace({
     setIsAddingItem(true)
 
     try {
+      let mediaPayload: { url: string; path: string; type: string } | null = null
+
+      if (itemMediaFile) {
+        setIsUploadingMedia(true)
+        mediaPayload = await uploadItemMedia({
+          listId: selectedListId,
+          file: itemMediaFile,
+        })
+      }
+
       await createGiftItem({
         listId: selectedListId,
         name: itemName,
         description: itemDescription,
         link: itemLink,
+        media: mediaPayload,
       })
 
       setItemName('')
       setItemDescription('')
       setItemLink('')
+      setItemMediaFile(null)
+      if (itemMediaInputRef.current) {
+        itemMediaInputRef.current.value = ''
+      }
       setItemSuccess(labels.itemAdded)
-    } catch {
-      setItemError(labels.errorAddItem)
+    } catch (rawError) {
+      if (rawError instanceof MediaValidationError) {
+        if (rawError.code === 'unsupported_type') {
+          setItemError(labels.errorMediaUnsupportedType)
+        } else {
+          setItemError(labels.errorMediaTooLarge)
+        }
+      } else {
+        setItemError(labels.errorAddItem)
+      }
     } finally {
+      setIsUploadingMedia(false)
       setIsAddingItem(false)
     }
   }
@@ -401,7 +475,9 @@ export default function ListWorkspace({
     setDeletingItemId(itemId)
 
     try {
-      await deleteGiftItem(selectedListId, itemId)
+      const removal = await deleteGiftItem(selectedListId, itemId)
+      await removal.removeItem()
+      await deleteItemMediaByPath(removal.mediaPath)
       setItemSuccess(labels.itemDeleted)
     } catch {
       setItemError(labels.errorDeleteItem)
@@ -669,12 +745,35 @@ export default function ListWorkspace({
               />
             </label>
 
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.itemMediaLabel}</span>
+              <input
+                ref={itemMediaInputRef}
+                type="file"
+                accept="image/*,video/*,audio/*"
+                disabled={isItemActionsDisabled || isUploadingMedia}
+                onChange={(event) => {
+                  const nextFile = event.target.files?.[0] ?? null
+                  setItemMediaFile(nextFile)
+                }}
+                className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+              />
+              <span className="text-xs text-slate-400">{labels.itemMediaHint}</span>
+              {itemMediaFile && (
+                <span className="text-xs text-emerald-200">
+                  {labels.mediaSelected}: {itemMediaFile.name}
+                </span>
+              )}
+            </label>
+
             <button
               type="submit"
-              disabled={isAddingItem || isItemActionsDisabled}
+              disabled={isAddingItem || isUploadingMedia || isItemActionsDisabled}
               className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
-              {isAddingItem ? labels.addingItem : labels.addItemAction}
+              {isUploadingMedia
+                ? labels.uploadingMedia
+                : (isAddingItem ? labels.addingItem : labels.addItemAction)}
             </button>
           </form>
 
@@ -714,6 +813,7 @@ export default function ListWorkspace({
                   <div>
                     <h4 className="font-semibold text-white">{item.name}</h4>
                     <p className="mt-1 text-xs text-slate-300">{item.description}</p>
+                    {renderItemMediaPreview(item)}
                     {item.link && (
                       <a
                         href={item.link}
