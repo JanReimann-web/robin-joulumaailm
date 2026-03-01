@@ -6,7 +6,7 @@ import './globals.css'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 const SITE_TITLE = 'Giftlist Studio'
 const SITE_DESCRIPTION =
-  'Create beautiful gift lists for weddings, adult birthdays, kids birthdays, baby showers, graduations, housewarming parties, and holidays.'
+  'Create beautiful gift lists for weddings, birthdays, kids birthdays, baby showers, graduations, housewarming parties, and holidays.'
 const SHARE_IMAGE = '/images/Joulud.jpg'
 const organizationSchema = {
   '@context': 'https://schema.org',

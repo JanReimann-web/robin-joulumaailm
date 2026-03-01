@@ -16,6 +16,7 @@ import {
   InvalidSlugError,
   ReservedSlugError,
   SlugTakenError,
+  VisibilityPasswordRequiredError,
   createGiftItem,
   createGiftList,
   createListStory,
@@ -107,6 +108,7 @@ const visibilityLabelMap = (
   labels: Dictionary['dashboard']
 ): Record<ListVisibility, string> => ({
   public: labels.visibilityPublic,
+  public_password: labels.visibilityPublicPassword,
   private: labels.visibilityPrivate,
 })
 
@@ -160,6 +162,7 @@ export default function ListWorkspace({
   const [eventType, setEventType] = useState<EventType>('birthday')
   const [templateId, setTemplateId] = useState<TemplateId>('classic')
   const [visibility, setVisibility] = useState<ListVisibility>('public')
+  const [visibilityPassword, setVisibilityPassword] = useState('')
 
   const [itemName, setItemName] = useState('')
   const [itemDescription, setItemDescription] = useState('')
@@ -207,6 +210,12 @@ export default function ListWorkspace({
     setWheelSuccess(null)
     setQrError(null)
   }, [locale])
+
+  useEffect(() => {
+    if (visibility !== 'public_password') {
+      setVisibilityPassword('')
+    }
+  }, [visibility])
 
   useEffect(() => {
     const unsubscribe = subscribeToUserLists(
@@ -517,9 +526,22 @@ export default function ListWorkspace({
     event.preventDefault()
     setListError(null)
     setListSuccess(null)
+
+    if (visibility === 'public_password' && visibilityPassword.trim().length < 6) {
+      setListError(labels.errorVisibilityPasswordRequired)
+      return
+    }
+
+    const user = auth.currentUser
+    if (!user) {
+      setListError(labels.errorSessionExpired)
+      return
+    }
+
     setIsCreatingList(true)
 
     try {
+      const idToken = await user.getIdToken()
       const result = await createGiftList({
         ownerId,
         title,
@@ -527,6 +549,11 @@ export default function ListWorkspace({
         eventType,
         templateId,
         visibility,
+        visibilityPassword:
+          visibility === 'public_password'
+            ? visibilityPassword
+            : undefined,
+        idToken,
       })
 
       setListSuccess(`${labels.listCreated} /${result.slug}`)
@@ -536,6 +563,7 @@ export default function ListWorkspace({
       setEventType('birthday')
       setTemplateId('classic')
       setVisibility('public')
+      setVisibilityPassword('')
       setSelectedListId(result.listId)
     } catch (rawError) {
       if (rawError instanceof InvalidSlugError) {
@@ -544,6 +572,8 @@ export default function ListWorkspace({
         setListError(labels.errorSlugReserved)
       } else if (rawError instanceof SlugTakenError) {
         setListError(labels.errorSlugTaken)
+      } else if (rawError instanceof VisibilityPasswordRequiredError) {
+        setListError(labels.errorVisibilityPasswordRequired)
       } else {
         setListError(labels.errorCreateFailed)
       }
@@ -1004,7 +1034,32 @@ export default function ListWorkspace({
                 </option>
               ))}
             </select>
+            <span className="text-xs text-slate-400">
+              {visibility === 'public'
+                ? labels.visibilityHelpPublic
+                : (
+                  visibility === 'public_password'
+                    ? labels.visibilityHelpPublicPassword
+                    : labels.visibilityHelpPrivate
+                )}
+            </span>
           </label>
+
+          {visibility === 'public_password' && (
+            <label className="grid gap-1 text-sm text-slate-200">
+              <span>{labels.visibilityPasswordLabel}</span>
+              <input
+                required
+                minLength={6}
+                type="password"
+                value={visibilityPassword}
+                onChange={(entry) => setVisibilityPassword(entry.target.value)}
+                placeholder={labels.visibilityPasswordPlaceholder}
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+              />
+              <span className="text-xs text-slate-400">{labels.visibilityPasswordHint}</span>
+            </label>
+          )}
 
           <button
             type="submit"
@@ -1112,7 +1167,7 @@ export default function ListWorkspace({
                   {labels.previewAction}
                 </button>
 
-                {list.visibility === 'public' && (
+                {list.visibility !== 'private' && (
                   <>
                     <button
                       type="button"
@@ -1612,9 +1667,9 @@ export default function ListWorkspace({
               ) : (
                 <>
                   <p className="text-xs text-slate-300">
-                    {previewList.visibility === 'public'
-                      ? labels.previewPublicHint
-                      : labels.previewPrivateHint}
+                    {previewList.visibility === 'private'
+                      ? labels.previewPrivateHint
+                      : labels.previewPublicHint}
                   </p>
 
                   <div className={`mt-4 rounded-2xl border p-4 sm:p-5 ${previewTheme?.panel ?? 'border-white/10 bg-white/5'}`}>

@@ -74,6 +74,12 @@ export class ListExpiredError extends Error {
   }
 }
 
+export class VisibilityPasswordRequiredError extends Error {
+  constructor() {
+    super('invalid_visibility_password')
+  }
+}
+
 const toMillis = (value: unknown): number | null => {
   if (value instanceof Timestamp) {
     return value.toMillis()
@@ -182,6 +188,51 @@ export const createGiftList = async (
 
   if (isReservedSlug(normalizedSlug)) {
     throw new ReservedSlugError()
+  }
+
+  if (input.idToken) {
+    const response = await fetch('/api/lists/create', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${input.idToken}`,
+      },
+      body: JSON.stringify({
+        title: input.title,
+        slug: normalizedSlug,
+        eventType: input.eventType,
+        templateId: input.templateId,
+        visibility: input.visibility,
+        visibilityPassword: input.visibilityPassword,
+      }),
+    })
+
+    if (!response.ok) {
+      const payload = await response
+        .json()
+        .catch(() => ({ error: 'create_failed' })) as { error?: string }
+
+      if (payload.error === 'invalid_slug') {
+        throw new InvalidSlugError()
+      }
+      if (payload.error === 'reserved_slug') {
+        throw new ReservedSlugError()
+      }
+      if (payload.error === 'slug_taken') {
+        throw new SlugTakenError()
+      }
+      if (payload.error === 'invalid_visibility_password') {
+        throw new VisibilityPasswordRequiredError()
+      }
+
+      throw new Error(payload.error ?? 'create_failed')
+    }
+
+    return await response.json() as CreateGiftListResult
+  }
+
+  if (input.visibility === 'public_password') {
+    throw new VisibilityPasswordRequiredError()
   }
 
   const listsCollection = collection(db, 'lists')

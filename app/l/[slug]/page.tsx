@@ -1,6 +1,6 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import PublicGiftList from '@/components/public/PublicGiftList'
-import { getPublicListMetaBySlug } from '@/lib/lists/public'
+import { getPublicListBySlug } from '@/lib/lists/public-server'
 import { sanitizeSlug } from '@/lib/lists/slug'
 
 type PublicListPageProps = {
@@ -25,9 +25,9 @@ export async function generateMetadata({
   params,
 }: PublicListPageProps): Promise<Metadata> {
   const slug = sanitizeSlug(params.slug)
-  const list = await getPublicListMetaBySlug(slug)
+  const list = await getPublicListBySlug(slug)
 
-  if (!list) {
+  if (!list || list.accessStatus === 'expired') {
     return {
       title: 'Gift List',
       description: 'Gift list page',
@@ -42,7 +42,7 @@ export async function generateMetadata({
   }
 
   const description = `${eventDescriptionMap[list.eventType]} for ${list.title}. Reserve a gift without duplicate bookings.`
-  const isIndexable = list.accessStatus !== 'expired'
+  const isIndexable = list.visibility === 'public'
 
   return {
     title: `${list.title} | Gift List`,

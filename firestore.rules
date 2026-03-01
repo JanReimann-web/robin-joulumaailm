@@ -99,6 +99,7 @@ service cloud.firestore {
         && request.resource.data.templateId is string
         && (
           request.resource.data.visibility == 'public'
+          || request.resource.data.visibility == 'public_password'
           || request.resource.data.visibility == 'private'
         )
         && request.resource.data.status == 'draft'
@@ -199,6 +200,11 @@ service cloud.firestore {
         && request.resource.data.trialEndsAt == resource.data.trialEndsAt
         && request.resource.data.paidAccessEndsAt == resource.data.paidAccessEndsAt
         && request.resource.data.purgeAt == resource.data.purgeAt
+        && (
+          request.resource.data.visibility == 'public'
+          || request.resource.data.visibility == 'public_password'
+          || request.resource.data.visibility == 'private'
+        )
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedAt is timestamp
         && request.resource.data
@@ -263,6 +269,11 @@ service cloud.firestore {
         && request.resource.data.slug == slug;
       allow update, delete: if isSignedIn()
         && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Visibility passwords are managed only by trusted server routes.
+    match /listAccessSecrets/{listId} {
+      allow read, write: if false;
     }
 
     match /subscriptions/{userId} {

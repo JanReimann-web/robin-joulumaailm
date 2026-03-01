@@ -59,6 +59,7 @@ export interface PublicListMeta {
   slug: string
   title: string
   eventType: EventType
+  visibility: 'public' | 'public_password'
   accessStatus: 'trial' | 'active' | 'expired'
 }
 
@@ -81,7 +82,7 @@ export const getPublicListMetaBySlug = async (
   const listDoc = await getFirestoreDocument(`lists/${listId}`)
   const visibility = getStringField(listDoc, 'visibility')
 
-  if (visibility !== 'public') {
+  if (visibility !== 'public' && visibility !== 'public_password') {
     return null
   }
 
@@ -112,6 +113,7 @@ export const getPublicListMetaBySlug = async (
     slug: normalizedSlug,
     title,
     eventType: eventType as EventType,
+    visibility,
     accessStatus,
   }
 }

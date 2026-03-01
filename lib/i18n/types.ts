@@ -152,7 +152,14 @@ export interface Dictionary {
     templateEditorial: string
     visibilityLabel: string
     visibilityPublic: string
+    visibilityPublicPassword: string
     visibilityPrivate: string
+    visibilityHelpPublic: string
+    visibilityHelpPublicPassword: string
+    visibilityHelpPrivate: string
+    visibilityPasswordLabel: string
+    visibilityPasswordPlaceholder: string
+    visibilityPasswordHint: string
     createListAction: string
     creatingList: string
     listCreated: string
@@ -257,6 +264,7 @@ export interface Dictionary {
     errorInvalidSlug: string
     errorSlugReserved: string
     errorSlugTaken: string
+    errorVisibilityPasswordRequired: string
     errorCreateFailed: string
   }
   footer: {

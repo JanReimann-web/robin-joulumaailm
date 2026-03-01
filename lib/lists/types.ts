@@ -20,7 +20,7 @@ export const TEMPLATE_IDS = [
 ] as const
 export type TemplateId = (typeof TEMPLATE_IDS)[number]
 
-export const VISIBILITY_OPTIONS = ['public', 'private'] as const
+export const VISIBILITY_OPTIONS = ['public', 'public_password', 'private'] as const
 export type ListVisibility = (typeof VISIBILITY_OPTIONS)[number]
 
 export type GiftListStatus = 'draft'
@@ -51,6 +51,8 @@ export interface CreateGiftListInput {
   eventType: EventType
   templateId: TemplateId
   visibility: ListVisibility
+  visibilityPassword?: string
+  idToken?: string
 }
 
 export interface CreateGiftListResult {

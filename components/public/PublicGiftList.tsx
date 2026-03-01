@@ -1,25 +1,47 @@
-﻿'use client'
+'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import {
-  ItemUnavailableError,
-  ListExpiredError,
-  reserveGiftItem,
-  subscribeToListItems,
-  subscribeToListStories,
-  subscribeToPublicListBySlug,
-  subscribeToWheelEntries,
-} from '@/lib/lists/client'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
 
 type PublicGiftListProps = {
   slug: string
 }
 
+type PublicListView = Pick<
+  GiftList,
+  'id' | 'title' | 'slug' | 'eventType' | 'visibility' | 'accessStatus'
+>
+
+type PreviewMedia = {
+  url: string
+  type: string
+} | null
+
+type PublicListMetaResponse = {
+  list: PublicListView
+  requiresPassword: boolean
+  previewMedia: PreviewMedia
+}
+
+type PublicListContentResponse = {
+  list: PublicListView
+  items: GiftListItem[]
+  stories: ListStoryEntry[]
+  wheelEntries: WheelEntry[]
+  previewMedia: PreviewMedia
+}
+
 const statusLabel = (status: GiftListItem['status']) => {
   if (status === 'available') return 'Available'
   if (status === 'reserved') return 'Reserved'
   return 'Gifted'
+}
+
+const eventLabel = (eventType: EventType) => {
+  if (eventType === 'kidsBirthday') return 'Birthday (kids)'
+  if (eventType === 'babyShower') return 'Baby shower'
+  if (eventType === 'housewarming') return 'Housewarming'
+  return eventType[0].toUpperCase() + eventType.slice(1)
 }
 
 const renderItemMedia = (item: GiftListItem) => {
@@ -142,15 +164,23 @@ const getEventTheme = (eventType: EventType): EventTheme => {
   }
 }
 
+const toListNotFoundMessage = () => {
+  return 'This page may be private, deleted, expired, or the URL is incorrect.'
+}
+
 export default function PublicGiftList({ slug }: PublicGiftListProps) {
-  const [list, setList] = useState<GiftList | null>(null)
+  const [meta, setMeta] = useState<PublicListMetaResponse | null>(null)
+  const [list, setList] = useState<PublicListView | null>(null)
   const [items, setItems] = useState<GiftListItem[]>([])
   const [stories, setStories] = useState<ListStoryEntry[]>([])
   const [wheelEntries, setWheelEntries] = useState<WheelEntry[]>([])
-  const [loadingList, setLoadingList] = useState(true)
-  const [loadingItems, setLoadingItems] = useState(false)
-  const [loadingStories, setLoadingStories] = useState(false)
-  const [loadingWheelEntries, setLoadingWheelEntries] = useState(false)
+  const [previewMedia, setPreviewMedia] = useState<PreviewMedia>(null)
+  const [metaLoading, setMetaLoading] = useState(true)
+  const [contentLoading, setContentLoading] = useState(false)
+  const [hasEntered, setHasEntered] = useState(false)
+  const [password, setPassword] = useState('')
+  const [isPasswordPromptOpen, setIsPasswordPromptOpen] = useState(false)
+  const [isUnlocking, setIsUnlocking] = useState(false)
   const [guestName, setGuestName] = useState('')
   const [guestMessage, setGuestMessage] = useState('')
   const [reservingItemId, setReservingItemId] = useState<string | null>(null)
@@ -160,93 +190,100 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [isWheelAnswerVisible, setIsWheelAnswerVisible] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = subscribeToPublicListBySlug(
-      slug,
-      (nextList) => {
-        setList(nextList)
-        setLoadingList(false)
-      },
-      () => {
-        setError('Failed to load list.')
-        setLoadingList(false)
-      }
-    )
+    let cancelled = false
 
-    return () => unsubscribe()
+    const loadMeta = async () => {
+      setMetaLoading(true)
+      setError(null)
+      setNotFound(false)
+
+      try {
+        const response = await fetch(
+          `/api/public-list/${encodeURIComponent(slug)}/meta`,
+          { cache: 'no-store' }
+        )
+
+        if (!response.ok) {
+          if (response.status === 404 && !cancelled) {
+            setMeta(null)
+            setNotFound(true)
+          }
+          return
+        }
+
+        const payload = await response.json() as PublicListMetaResponse
+        if (cancelled) {
+          return
+        }
+
+        setMeta(payload)
+        setPreviewMedia(payload.previewMedia)
+      } catch {
+        if (!cancelled) {
+          setError('Failed to load list.')
+        }
+      } finally {
+        if (!cancelled) {
+          setMetaLoading(false)
+        }
+      }
+    }
+
+    void loadMeta()
+
+    return () => {
+      cancelled = true
+    }
   }, [slug])
 
-  useEffect(() => {
-    if (!list) {
-      setItems([])
-      return
-    }
+  const loadContent = useCallback(async () => {
+    setContentLoading(true)
+    setError(null)
 
-    setLoadingItems(true)
+    try {
+      const response = await fetch(
+        `/api/public-list/${encodeURIComponent(slug)}/content`,
+        { cache: 'no-store' }
+      )
 
-    const unsubscribe = subscribeToListItems(
-      list.id,
-      (nextItems) => {
-        setItems(nextItems)
-        setLoadingItems(false)
-      },
-      () => {
-        setError('Failed to load gift items.')
-        setLoadingItems(false)
+      if (response.status === 401) {
+        setIsPasswordPromptOpen(true)
+        return false
       }
-    )
 
-    return () => unsubscribe()
-  }, [list])
-
-  useEffect(() => {
-    if (!list) {
-      setStories([])
-      return
-    }
-
-    setLoadingStories(true)
-
-    const unsubscribe = subscribeToListStories(
-      list.id,
-      (nextStories) => {
-        setStories(nextStories)
-        setLoadingStories(false)
-      },
-      () => {
-        setError('Failed to load story moments.')
-        setLoadingStories(false)
+      if (response.status === 404) {
+        setNotFound(true)
+        setMeta(null)
+        setHasEntered(false)
+        return false
       }
-    )
 
-    return () => unsubscribe()
-  }, [list])
-
-  useEffect(() => {
-    if (!list) {
-      setWheelEntries([])
-      setSelectedWheelEntryId(null)
-      setIsWheelAnswerVisible(false)
-      return
-    }
-
-    setLoadingWheelEntries(true)
-
-    const unsubscribe = subscribeToWheelEntries(
-      list.id,
-      (nextEntries) => {
-        setWheelEntries(nextEntries)
-        setLoadingWheelEntries(false)
-      },
-      () => {
-        setError('Failed to load wheel questions.')
-        setLoadingWheelEntries(false)
+      if (!response.ok) {
+        setError('Failed to load list content.')
+        return false
       }
-    )
 
-    return () => unsubscribe()
-  }, [list])
+      const payload = await response.json() as PublicListContentResponse
+      setList(payload.list)
+      setItems(payload.items)
+      setStories(payload.stories)
+      setWheelEntries(payload.wheelEntries)
+      if (payload.previewMedia) {
+        setPreviewMedia(payload.previewMedia)
+      }
+      setIsPasswordPromptOpen(false)
+      setSuccess(null)
+      return true
+    } catch {
+      setError('Failed to load list content.')
+      return false
+    } finally {
+      setContentLoading(false)
+    }
+  }, [slug])
 
   useEffect(() => {
     if (!selectedWheelEntryId) {
@@ -260,16 +297,64 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     }
   }, [selectedWheelEntryId, wheelEntries])
 
+  const handleContinue = async () => {
+    const ok = await loadContent()
+    if (ok) {
+      setHasEntered(true)
+    }
+  }
+
+  const handleUnlock = async () => {
+    if (!meta || !meta.requiresPassword) {
+      return
+    }
+
+    setIsUnlocking(true)
+    setError(null)
+
+    try {
+      const response = await fetch(
+        `/api/public-list/${encodeURIComponent(slug)}/unlock`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            password,
+          }),
+        }
+      )
+
+      if (!response.ok) {
+        setError('Incorrect password. Please try again.')
+        return
+      }
+
+      setPassword('')
+      const ok = await loadContent()
+      if (ok) {
+        setHasEntered(true)
+      }
+    } catch {
+      setError('Password check failed. Please try again.')
+    } finally {
+      setIsUnlocking(false)
+    }
+  }
+
   const availableCount = useMemo(
     () => items.filter((item) => item.status === 'available').length,
     [items]
   )
-  const isListExpired = list?.accessStatus === 'expired'
-  const eventTheme = list ? getEventTheme(list.eventType) : null
+  const activeEventType = list?.eventType ?? meta?.list.eventType
+  const eventTheme = activeEventType ? getEventTheme(activeEventType) : null
+  const isListExpired = (list ?? meta?.list)?.accessStatus === 'expired'
   const selectedWheelEntry = useMemo(
     () => wheelEntries.find((entry) => entry.id === selectedWheelEntryId) ?? null,
     [selectedWheelEntryId, wheelEntries]
   )
+
   const wheelGradient = useMemo(() => {
     if (wheelEntries.length === 0) {
       return 'conic-gradient(#0f172a 0% 100%)'
@@ -295,22 +380,61 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     setReservingItemId(itemId)
 
     try {
-      await reserveGiftItem({
-        listId: list.id,
-        itemId,
-        guestName,
-        guestMessage,
-      })
+      const response = await fetch(
+        `/api/public-list/${encodeURIComponent(slug)}/reserve`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            itemId,
+            guestName,
+            guestMessage,
+          }),
+        }
+      )
 
-      setSuccess('Reservation saved.')
-    } catch (rawError) {
-      if (rawError instanceof ListExpiredError) {
-        setError('This list has expired and no longer accepts reservations.')
-      } else if (rawError instanceof ItemUnavailableError) {
-        setError('This gift has already been reserved.')
-      } else {
+      const payload = await response
+        .json()
+        .catch(() => ({ error: 'reserve_failed' })) as { error?: string }
+
+      if (!response.ok) {
+        if (payload.error === 'list_expired') {
+          setError('This list has expired and no longer accepts reservations.')
+          return
+        }
+        if (payload.error === 'item_unavailable') {
+          setError('This gift has already been reserved.')
+          await loadContent()
+          return
+        }
+        if (payload.error === 'password_required') {
+          setHasEntered(false)
+          setIsPasswordPromptOpen(true)
+          return
+        }
+
         setError('Reservation failed. Please try again.')
+        return
       }
+
+      setItems((current) =>
+        current.map((entry) =>
+          entry.id === itemId
+            ? {
+                ...entry,
+                status: 'reserved',
+                reservedByName: guestName.trim() || null,
+                reservedMessage: guestMessage.trim() || null,
+                reservedAt: Date.now(),
+              }
+            : entry
+        )
+      )
+      setSuccess('Reservation saved.')
+    } catch {
+      setError('Reservation failed. Please try again.')
     } finally {
       setReservingItemId(null)
     }
@@ -337,7 +461,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     }, 3400)
   }
 
-  if (loadingList) {
+  if (metaLoading) {
     return (
       <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
         <p className="text-slate-200">Loading list...</p>
@@ -345,12 +469,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     )
   }
 
-  if (!list) {
+  if (notFound || !meta) {
     return (
       <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
         <h1 className="text-2xl font-bold text-white sm:text-3xl">List not found</h1>
         <p className="mt-3 text-slate-300">
-          This page may be private, deleted, or the URL is incorrect.
+          {toListNotFoundMessage()}
         </p>
       </main>
     )
@@ -359,12 +483,104 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const panelClass = eventTheme?.panelClass ?? 'border-white/10 bg-white/5'
   const cardClass = eventTheme?.cardClass ?? 'border-white/10 bg-slate-950/60'
 
+  if (!hasEntered) {
+    return (
+      <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-14">
+        <section className={`overflow-hidden rounded-2xl border ${panelClass}`}>
+          {previewMedia?.url && previewMedia.type.startsWith('image/') && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewMedia.url}
+              alt={meta.list.title}
+              className="h-52 w-full object-cover sm:h-64"
+            />
+          )}
+          {previewMedia?.url && previewMedia.type.startsWith('video/') && (
+            <video
+              src={previewMedia.url}
+              className="h-52 w-full object-cover sm:h-64"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          )}
+
+          <div className="p-5 sm:p-7">
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">{meta.list.title}</h1>
+            <p className="mt-2 text-sm text-slate-300">
+              Event: {eventLabel(meta.list.eventType)}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">/{meta.list.slug}</p>
+
+            <p className="mt-5 text-sm text-slate-200">
+              Continue to gifts, story moments, and the wheel section.
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleContinue}
+                disabled={contentLoading}
+                className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {contentLoading ? 'Opening...' : 'Continue to list'}
+              </button>
+            </div>
+
+            {isPasswordPromptOpen && (
+              <div className="mt-5 rounded-xl border border-white/20 bg-slate-950/70 p-4">
+                <p className="text-sm text-slate-200">
+                  This list is password protected. Enter the password to continue.
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
+                  <label className="grid gap-1 text-sm text-slate-200">
+                    <span>Password</span>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      className="rounded-lg border border-white/20 bg-slate-900 px-3 py-2 text-white"
+                      minLength={6}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleUnlock}
+                    disabled={isUnlocking || password.trim().length < 6}
+                    className="rounded-full border border-emerald-300/50 px-5 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isUnlocking ? 'Checking...' : 'Unlock'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                {error}
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  if (contentLoading || !list) {
+    return (
+      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+        <p className="text-slate-200">Loading list content...</p>
+      </main>
+    )
+  }
+
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-14">
       <header className={`rounded-2xl border p-4 sm:p-6 ${panelClass}`}>
         <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
         <p className="mt-2 text-sm text-slate-300">
-          Event: {list.eventType} - {availableCount} gifts available
+          Event: {eventLabel(list.eventType)} - {availableCount} gifts available
         </p>
         <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
         {isListExpired && (
@@ -381,11 +597,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         </p>
 
         <div className="mt-4 grid gap-4">
-          {loadingStories && (
-            <p className="text-sm text-slate-300">Loading story moments...</p>
-          )}
-
-          {!loadingStories && stories.length === 0 && (
+          {stories.length === 0 && (
             <p className="text-sm text-slate-300">No story moments added yet.</p>
           )}
 
@@ -408,15 +620,11 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           Spin the wheel, get a question, then reveal the host answer.
         </p>
 
-        {loadingWheelEntries && (
-          <p className="mt-4 text-sm text-slate-300">Loading wheel questions...</p>
-        )}
-
-        {!loadingWheelEntries && wheelEntries.length === 0 && (
+        {wheelEntries.length === 0 && (
           <p className="mt-4 text-sm text-slate-300">No wheel questions added yet.</p>
         )}
 
-        {!loadingWheelEntries && wheelEntries.length > 0 && (
+        {wheelEntries.length > 0 && (
           <div className="mt-5 grid gap-6 lg:grid-cols-[280px,minmax(0,1fr)] lg:items-start">
             <div className="mx-auto w-full max-w-[280px]">
               <div className="relative mx-auto h-64 w-64 sm:h-72 sm:w-72">
@@ -535,9 +743,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         </aside>
 
         <section className="grid gap-4">
-          {loadingItems && <p className="text-sm text-slate-300">Loading gifts...</p>}
-
-          {!loadingItems && items.length === 0 && (
+          {items.length === 0 && (
             <p className="text-sm text-slate-300">No gift items added yet.</p>
           )}
 
