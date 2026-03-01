@@ -33,8 +33,8 @@ export const enDictionary: Dictionary = {
   events: {
     title: 'Supported event types',
     wedding: 'Wedding',
-    birthday: 'Birthday (Adults)',
-    kidsBirthday: 'Birthday (Kids)',
+    birthday: 'Birthday',
+    kidsBirthday: 'Birthday (kids)',
     babyShower: 'Baby shower',
     graduation: 'Graduation',
     housewarming: 'Housewarming',

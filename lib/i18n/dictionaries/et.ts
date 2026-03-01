@@ -33,8 +33,8 @@ export const etDictionary: Dictionary = {
   events: {
     title: 'Toetatud sündmused',
     wedding: 'Pulm',
-    birthday: 'Sünnipäev (täiskasvanud)',
-    kidsBirthday: 'Laste sünnipäev',
+    birthday: 'Sünnipäev',
+    kidsBirthday: 'Sünnipäev (lastele)',
     babyShower: 'Baby shower',
     graduation: 'Lõpetamine',
     housewarming: 'Soolaleib',
