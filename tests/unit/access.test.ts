@@ -50,15 +50,14 @@ describe('access helpers', () => {
   })
 
   it('returns remaining days as ceiling and never negative', () => {
-    const now = Date.now()
+    const now = Date.parse('2026-02-27T00:00:00.000Z')
     const inTenHours = now + 10 * 60 * 60 * 1000
     const inThreeDays = now + 3 * 24 * 60 * 60 * 1000 + 1
     const inPast = now - 1000
 
-    expect(getRemainingDays(inTenHours)).toBe(1)
-    expect(getRemainingDays(inThreeDays)).toBe(4)
-    expect(getRemainingDays(inPast)).toBe(0)
-    expect(getRemainingDays(null)).toBe(0)
+    expect(getRemainingDays(inTenHours, now)).toBe(1)
+    expect(getRemainingDays(inThreeDays, now)).toBe(4)
+    expect(getRemainingDays(inPast, now)).toBe(0)
+    expect(getRemainingDays(null, now)).toBe(0)
   })
 })
-

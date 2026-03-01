@@ -27,12 +27,15 @@ export const resolveListAccessStatus = (params: {
   return 'expired'
 }
 
-export const getRemainingDays = (timestampMs: number | null) => {
+export const getRemainingDays = (
+  timestampMs: number | null,
+  now = Date.now()
+) => {
   if (!timestampMs) {
     return 0
   }
 
-  const diff = timestampMs - Date.now()
+  const diff = timestampMs - now
   if (diff <= 0) {
     return 0
   }
