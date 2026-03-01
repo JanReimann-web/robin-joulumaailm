@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
 
 type PublicGiftListProps = {
@@ -160,7 +161,7 @@ const getEventTheme = (eventType: EventType): EventTheme => {
     cardClass: 'border-white/10 bg-slate-950/60',
     wheelPalette,
     storyTitle: 'Our story',
-    wheelTitle: 'Wheel of fortune',
+      wheelTitle: 'Wheel of Wisdom',
   }
 }
 
@@ -179,6 +180,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [contentLoading, setContentLoading] = useState(false)
   const [hasEntered, setHasEntered] = useState(false)
   const [password, setPassword] = useState('')
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isPasswordPromptOpen, setIsPasswordPromptOpen] = useState(false)
   const [isUnlocking, setIsUnlocking] = useState(false)
   const [guestName, setGuestName] = useState('')
@@ -251,6 +253,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
       if (response.status === 401) {
         setIsPasswordPromptOpen(true)
+        setIsPasswordVisible(false)
         return false
       }
 
@@ -275,6 +278,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         setPreviewMedia(payload.previewMedia)
       }
       setIsPasswordPromptOpen(false)
+      setIsPasswordVisible(false)
       setSuccess(null)
       return true
     } catch {
@@ -332,6 +336,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       }
 
       setPassword('')
+      setIsPasswordVisible(false)
       const ok = await loadContent()
       if (ok) {
         setHasEntered(true)
@@ -536,13 +541,25 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                 <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
                   <label className="grid gap-1 text-sm text-slate-200">
                     <span>Password</span>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      className="rounded-lg border border-white/20 bg-slate-900 px-3 py-2 text-white"
-                      minLength={6}
-                    />
+                    <div className="relative">
+                      <input
+                        type={isPasswordVisible ? 'text' : 'password'}
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        className="w-full rounded-lg border border-white/20 bg-slate-900 px-3 py-2 pr-11 text-white"
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsPasswordVisible((current) => !current)}
+                        aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                        className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
+                      >
+                        {isPasswordVisible
+                          ? <EyeOff size={16} />
+                          : <Eye size={16} />}
+                      </button>
+                    </div>
                   </label>
                   <button
                     type="button"
@@ -615,7 +632,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       </section>
 
       <section className={`mt-6 rounded-2xl border p-4 sm:p-6 ${panelClass}`}>
-        <h2 className="text-xl font-semibold text-white">{eventTheme?.wheelTitle ?? 'Wheel of fortune'}</h2>
+        <h2 className="text-xl font-semibold text-white">{eventTheme?.wheelTitle ?? 'Wheel of Wisdom'}</h2>
         <p className="mt-2 text-sm text-slate-300">
           Spin the wheel, get a question, then reveal the host answer.
         </p>

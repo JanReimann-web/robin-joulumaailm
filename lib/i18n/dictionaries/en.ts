@@ -293,7 +293,7 @@ export const enDictionary: Dictionary = {
     storyDeleted: 'Story moment deleted.',
     deleteStoryAction: 'Delete story',
     deletingStory: 'Deleting story...',
-    wheelTitle: 'Wheel of fortune',
+    wheelTitle: 'Wheel of Wisdom',
     wheelSubtitle: 'Add custom questions and optional answer text/audio for guests.',
     wheelQuestionLabel: 'Question',
     wheelAnswerTextLabel: 'Answer text (optional)',

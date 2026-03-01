@@ -293,7 +293,7 @@ export const etDictionary: Dictionary = {
     storyDeleted: 'Loohetk kustutatud.',
     deleteStoryAction: 'Kustuta lugu',
     deletingStory: 'Kustutan lugu...',
-    wheelTitle: 'Õnneratas',
+    wheelTitle: 'Tarkuseratas',
     wheelSubtitle: 'Lisa külalistele küsimused ning soovi korral vastuse tekst ja audio.',
     wheelQuestionLabel: 'Küsimus',
     wheelAnswerTextLabel: 'Vastuse tekst (valikuline)',

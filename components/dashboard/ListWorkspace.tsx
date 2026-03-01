@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -163,6 +164,7 @@ export default function ListWorkspace({
   const [templateId, setTemplateId] = useState<TemplateId>('classic')
   const [visibility, setVisibility] = useState<ListVisibility>('public')
   const [visibilityPassword, setVisibilityPassword] = useState('')
+  const [isVisibilityPasswordVisible, setIsVisibilityPasswordVisible] = useState(false)
 
   const [itemName, setItemName] = useState('')
   const [itemDescription, setItemDescription] = useState('')
@@ -214,6 +216,7 @@ export default function ListWorkspace({
   useEffect(() => {
     if (visibility !== 'public_password') {
       setVisibilityPassword('')
+      setIsVisibilityPasswordVisible(false)
     }
   }, [visibility])
 
@@ -564,6 +567,7 @@ export default function ListWorkspace({
       setTemplateId('classic')
       setVisibility('public')
       setVisibilityPassword('')
+      setIsVisibilityPasswordVisible(false)
       setSelectedListId(result.listId)
     } catch (rawError) {
       if (rawError instanceof InvalidSlugError) {
@@ -1048,15 +1052,27 @@ export default function ListWorkspace({
           {visibility === 'public_password' && (
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.visibilityPasswordLabel}</span>
-              <input
-                required
-                minLength={6}
-                type="password"
-                value={visibilityPassword}
-                onChange={(entry) => setVisibilityPassword(entry.target.value)}
-                placeholder={labels.visibilityPasswordPlaceholder}
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-              />
+              <div className="relative">
+                <input
+                  required
+                  minLength={6}
+                  type={isVisibilityPasswordVisible ? 'text' : 'password'}
+                  value={visibilityPassword}
+                  onChange={(entry) => setVisibilityPassword(entry.target.value)}
+                  placeholder={labels.visibilityPasswordPlaceholder}
+                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 pr-11 text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsVisibilityPasswordVisible((current) => !current)}
+                  aria-label={isVisibilityPasswordVisible ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
+                >
+                  {isVisibilityPasswordVisible
+                    ? <EyeOff size={16} />
+                    : <Eye size={16} />}
+                </button>
+              </div>
               <span className="text-xs text-slate-400">{labels.visibilityPasswordHint}</span>
             </label>
           )}
