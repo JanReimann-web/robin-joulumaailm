@@ -125,6 +125,11 @@ export async function POST(request: NextRequest) {
         trialEndsAt,
         paidAccessEndsAt: null,
         purgeAt: trialEndsAt,
+        introTitle: null,
+        introBody: null,
+        introMediaUrl: null,
+        introMediaPath: null,
+        introMediaType: null,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       })
@@ -160,4 +165,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'create_failed' }, { status: 500 })
   }
 }
-

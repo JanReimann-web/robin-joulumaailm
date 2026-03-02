@@ -60,6 +60,11 @@ const mapListDoc = (
       trialEndsAt,
       paidAccessEndsAt,
     }),
+    introTitle: data.introTitle ? String(data.introTitle) : null,
+    introBody: data.introBody ? String(data.introBody) : null,
+    introMediaUrl: data.introMediaUrl ? String(data.introMediaUrl) : null,
+    introMediaPath: data.introMediaPath ? String(data.introMediaPath) : null,
+    introMediaType: data.introMediaType ? String(data.introMediaType) : null,
     createdAt,
     updatedAt: toMillis(data.updatedAt),
   }
@@ -199,6 +204,22 @@ export const getPublicListPreviewMedia = async (
   listId: string
 ): Promise<PublicPreviewMedia> => {
   const listRef = adminDb.collection('lists').doc(listId)
+  const listSnap = await listRef.get()
+  const listData = listSnap.data() as Record<string, unknown> | undefined
+  const introMediaUrl = listData?.introMediaUrl
+  const introMediaType = listData?.introMediaType
+
+  if (
+    typeof introMediaUrl === 'string'
+    && typeof introMediaType === 'string'
+    && isPreviewMediaType(introMediaType)
+  ) {
+    return {
+      url: introMediaUrl,
+      type: introMediaType,
+    }
+  }
+
   const [storiesSnap, itemsSnap] = await Promise.all([
     listRef.collection('stories').get(),
     listRef.collection('items').get(),
@@ -240,4 +261,3 @@ export const getPublicListPreviewMedia = async (
 
   return null
 }
-

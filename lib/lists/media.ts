@@ -120,6 +120,18 @@ export const uploadWheelAnswerAudio = async (params: {
   })
 }
 
+export const uploadListIntroMedia = async (params: {
+  listId: string
+  file: File
+}) => {
+  return uploadListMedia({
+    listId: params.listId,
+    sectionPath: 'intro',
+    file: params.file,
+    allowedPrefixes: ['image/', 'video/'],
+  })
+}
+
 export const deleteMediaByPath = async (mediaPath: string | null) => {
   if (!mediaPath) {
     return

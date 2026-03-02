@@ -89,6 +89,11 @@ service cloud.firestore {
           'trialEndsAt',
           'paidAccessEndsAt',
           'purgeAt',
+          'introTitle',
+          'introBody',
+          'introMediaUrl',
+          'introMediaPath',
+          'introMediaType',
           'createdAt',
           'updatedAt',
         ])
@@ -108,6 +113,11 @@ service cloud.firestore {
         && request.resource.data.paidAccessEndsAt == null
         && request.resource.data.purgeAt is timestamp
         && request.resource.data.purgeAt == request.resource.data.trialEndsAt
+        && isStringOrNull(request.resource.data.introTitle)
+        && isStringOrNull(request.resource.data.introBody)
+        && isStringOrNull(request.resource.data.introMediaUrl)
+        && isStringOrNull(request.resource.data.introMediaPath)
+        && isStringOrNull(request.resource.data.introMediaType)
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
     }
@@ -205,6 +215,11 @@ service cloud.firestore {
           || request.resource.data.visibility == 'public_password'
           || request.resource.data.visibility == 'private'
         )
+        && isStringOrNull(request.resource.data.introTitle)
+        && isStringOrNull(request.resource.data.introBody)
+        && isStringOrNull(request.resource.data.introMediaUrl)
+        && isStringOrNull(request.resource.data.introMediaPath)
+        && isStringOrNull(request.resource.data.introMediaType)
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedAt is timestamp
         && request.resource.data
@@ -215,6 +230,11 @@ service cloud.firestore {
             'eventType',
             'templateId',
             'visibility',
+            'introTitle',
+            'introBody',
+            'introMediaUrl',
+            'introMediaPath',
+            'introMediaType',
             'status',
             'updatedAt',
           ]);

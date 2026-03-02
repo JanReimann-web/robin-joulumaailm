@@ -40,6 +40,11 @@ export interface GiftList {
   paidAccessEndsAt: number | null
   purgeAt: number | null
   accessStatus: ListAccessStatus
+  introTitle: string | null
+  introBody: string | null
+  introMediaUrl: string | null
+  introMediaPath: string | null
+  introMediaType: string | null
   createdAt: number | null
   updatedAt: number | null
 }
@@ -58,6 +63,13 @@ export interface CreateGiftListInput {
 export interface CreateGiftListResult {
   listId: string
   slug: string
+}
+
+export interface UpdateGiftListIntroInput {
+  listId: string
+  introTitle: string
+  introBody: string
+  introMedia?: GiftItemMediaInput | null
 }
 
 export type GiftItemStatus = 'available' | 'reserved' | 'gifted'

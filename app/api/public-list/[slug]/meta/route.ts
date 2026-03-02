@@ -30,6 +30,10 @@ export async function GET(
         eventType: list.eventType,
         visibility: list.visibility,
         accessStatus: list.accessStatus,
+        introTitle: list.introTitle,
+        introBody: list.introBody,
+        introMediaUrl: list.introMediaUrl,
+        introMediaType: list.introMediaType,
       },
       requiresPassword: list.visibility === 'public_password',
       previewMedia,
@@ -41,4 +45,3 @@ export async function GET(
     }
   )
 }
-

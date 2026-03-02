@@ -31,6 +31,7 @@ import {
   CreateWheelEntryInput,
   CreateGiftListInput,
   CreateGiftListResult,
+  UpdateGiftListIntroInput,
   GiftListItem,
   GiftList,
   ListStoryEntry,
@@ -116,6 +117,11 @@ const mapListDoc = (
       trialEndsAt,
       paidAccessEndsAt,
     }),
+    introTitle: data.introTitle ? String(data.introTitle) : null,
+    introBody: data.introBody ? String(data.introBody) : null,
+    introMediaUrl: data.introMediaUrl ? String(data.introMediaUrl) : null,
+    introMediaPath: data.introMediaPath ? String(data.introMediaPath) : null,
+    introMediaType: data.introMediaType ? String(data.introMediaType) : null,
     createdAt,
     updatedAt: toMillis(data.updatedAt),
   }
@@ -260,6 +266,11 @@ export const createGiftList = async (
       trialEndsAt,
       paidAccessEndsAt: null,
       purgeAt: trialEndsAt,
+      introTitle: null,
+      introBody: null,
+      introMediaUrl: null,
+      introMediaPath: null,
+      introMediaType: null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
@@ -330,6 +341,23 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
+}
+
+export const updateGiftListIntro = async (input: UpdateGiftListIntroInput) => {
+  const listRef = doc(db, 'lists', input.listId)
+  const payload: Record<string, unknown> = {
+    introTitle: input.introTitle.trim() || null,
+    introBody: input.introBody.trim() || null,
+    updatedAt: serverTimestamp(),
+  }
+
+  if (input.introMedia !== undefined) {
+    payload.introMediaUrl = input.introMedia?.url ?? null
+    payload.introMediaPath = input.introMedia?.path ?? null
+    payload.introMediaType = input.introMedia?.type ?? null
+  }
+
+  await updateDoc(listRef, payload)
 }
 
 export const deleteGiftItem = async (listId: string, itemId: string) => {

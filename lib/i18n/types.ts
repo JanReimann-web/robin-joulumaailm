@@ -200,6 +200,21 @@ export interface Dictionary {
     errorSessionExpired: string
     errorActivatePass: string
     listSelectorLabel: string
+    heroEditorTitle: string
+    heroEditorSubtitle: string
+    heroTitleLabel: string
+    heroBodyLabel: string
+    heroBodyPlaceholder: string
+    heroMediaLabel: string
+    heroMediaHint: string
+    heroCurrentMediaLabel: string
+    heroSaveAction: string
+    heroSaving: string
+    heroSaved: string
+    heroRemoveMediaAction: string
+    heroRemovingMedia: string
+    errorSaveHero: string
+    errorRemoveHeroMedia: string
     itemsTitle: string
     itemsEmpty: string
     itemNameLabel: string

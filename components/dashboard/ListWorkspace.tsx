@@ -30,12 +30,14 @@ import {
   subscribeToListStories,
   subscribeToUserLists,
   subscribeToWheelEntries,
+  updateGiftListIntro,
 } from '@/lib/lists/client'
 import {
   deleteMediaByPath,
   deleteItemMediaByPath,
   MediaValidationError,
   uploadItemMedia,
+  uploadListIntroMedia,
   uploadStoryMedia,
   uploadWheelAnswerAudio,
 } from '@/lib/lists/media'
@@ -165,6 +167,15 @@ export default function ListWorkspace({
   const [visibility, setVisibility] = useState<ListVisibility>('public')
   const [visibilityPassword, setVisibilityPassword] = useState('')
   const [isVisibilityPasswordVisible, setIsVisibilityPasswordVisible] = useState(false)
+  const [introTitle, setIntroTitle] = useState('')
+  const [introBody, setIntroBody] = useState('')
+  const [introMediaFile, setIntroMediaFile] = useState<File | null>(null)
+  const introMediaInputRef = useRef<HTMLInputElement | null>(null)
+  const [isSavingIntro, setIsSavingIntro] = useState(false)
+  const [isUploadingIntroMedia, setIsUploadingIntroMedia] = useState(false)
+  const [isRemovingIntroMedia, setIsRemovingIntroMedia] = useState(false)
+  const [introError, setIntroError] = useState<string | null>(null)
+  const [introSuccess, setIntroSuccess] = useState<string | null>(null)
 
   const [itemName, setItemName] = useState('')
   const [itemDescription, setItemDescription] = useState('')
@@ -206,6 +217,8 @@ export default function ListWorkspace({
     setListSuccess(null)
     setItemError(null)
     setItemSuccess(null)
+    setIntroError(null)
+    setIntroSuccess(null)
     setStoryError(null)
     setStorySuccess(null)
     setWheelError(null)
@@ -415,6 +428,24 @@ export default function ListWorkspace({
   const previewStories = previewListId === selectedListId ? stories : []
   const previewWheelEntries = previewListId === selectedListId ? wheelEntries : []
   const previewTheme = previewList ? previewThemeClass(previewList.eventType) : null
+
+  useEffect(() => {
+    setIntroError(null)
+    setIntroSuccess(null)
+    setIntroMediaFile(null)
+    if (introMediaInputRef.current) {
+      introMediaInputRef.current.value = ''
+    }
+
+    if (!selectedList) {
+      setIntroTitle('')
+      setIntroBody('')
+      return
+    }
+
+    setIntroTitle(selectedList.introTitle ?? '')
+    setIntroBody(selectedList.introBody ?? '')
+  }, [selectedList])
 
   const getPublicListUrl = (slug: string) => {
     const siteUrl = (
@@ -673,6 +704,115 @@ export default function ListWorkspace({
       setListError(labels.errorActivatePass)
     } finally {
       setActivatingPassListId(null)
+    }
+  }
+
+  const handleSaveIntro = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIntroError(null)
+    setIntroSuccess(null)
+
+    if (!selectedList) {
+      setIntroError(labels.errorSelectList)
+      return
+    }
+
+    if (isSelectedListExpired) {
+      setIntroError(labels.accessExpiredNotice)
+      return
+    }
+
+    setIsSavingIntro(true)
+
+    let uploadedMedia: { url: string; path: string; type: string } | null = null
+
+    try {
+      if (introMediaFile) {
+        setIsUploadingIntroMedia(true)
+        uploadedMedia = await uploadListIntroMedia({
+          listId: selectedList.id,
+          file: introMediaFile,
+        })
+      }
+
+      await updateGiftListIntro({
+        listId: selectedList.id,
+        introTitle,
+        introBody,
+        introMedia: uploadedMedia ?? undefined,
+      })
+
+      if (
+        uploadedMedia
+        && selectedList.introMediaPath
+        && selectedList.introMediaPath !== uploadedMedia.path
+      ) {
+        await deleteMediaByPath(selectedList.introMediaPath)
+      }
+
+      if (uploadedMedia) {
+        setIntroMediaFile(null)
+        if (introMediaInputRef.current) {
+          introMediaInputRef.current.value = ''
+        }
+      }
+
+      setIntroSuccess(labels.heroSaved)
+    } catch (rawError) {
+      if (uploadedMedia) {
+        await deleteMediaByPath(uploadedMedia.path).catch(() => undefined)
+      }
+
+      if (rawError instanceof MediaValidationError) {
+        if (rawError.code === 'unsupported_type') {
+          setIntroError(labels.errorMediaUnsupportedType)
+        } else {
+          setIntroError(labels.errorMediaTooLarge)
+        }
+      } else {
+        setIntroError(labels.errorSaveHero)
+      }
+    } finally {
+      setIsSavingIntro(false)
+      setIsUploadingIntroMedia(false)
+    }
+  }
+
+  const handleRemoveIntroMedia = async () => {
+    if (!selectedList?.introMediaPath) {
+      return
+    }
+
+    if (isSelectedListExpired) {
+      setIntroError(labels.accessExpiredNotice)
+      return
+    }
+
+    setIntroError(null)
+    setIntroSuccess(null)
+    setIsRemovingIntroMedia(true)
+
+    try {
+      const previousMediaPath = selectedList.introMediaPath
+
+      await updateGiftListIntro({
+        listId: selectedList.id,
+        introTitle,
+        introBody,
+        introMedia: null,
+      })
+      await deleteMediaByPath(previousMediaPath)
+
+      setIntroMediaFile(null)
+      if (introMediaInputRef.current) {
+        introMediaInputRef.current.value = ''
+      }
+
+      setIntroSuccess(labels.heroSaved)
+    } catch {
+      setIntroError(labels.errorRemoveHeroMedia)
+    } finally {
+      setIsRemovingIntroMedia(false)
     }
   }
 
@@ -1226,8 +1366,6 @@ export default function ListWorkspace({
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">
-          <h3 className="text-lg font-semibold text-white">{labels.itemsTitle}</h3>
-
           <label className="mt-3 grid gap-1 text-sm text-slate-200">
             <span>{labels.listSelectorLabel}</span>
             <select
@@ -1243,6 +1381,112 @@ export default function ListWorkspace({
               ))}
             </select>
           </label>
+
+          <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
+            <h3 className="text-lg font-semibold text-white">{labels.heroEditorTitle}</h3>
+            <p className="mt-2 text-sm text-slate-300">{labels.heroEditorSubtitle}</p>
+
+            <form onSubmit={handleSaveIntro} className="mt-4 grid gap-3">
+              <label className="grid gap-1 text-sm text-slate-200">
+                <span>{labels.heroTitleLabel}</span>
+                <input
+                  value={introTitle}
+                  disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                  onChange={(entry) => setIntroTitle(entry.target.value)}
+                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                />
+              </label>
+
+              <label className="grid gap-1 text-sm text-slate-200">
+                <span>{labels.heroBodyLabel}</span>
+                <textarea
+                  value={introBody}
+                  disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                  onChange={(entry) => setIntroBody(entry.target.value)}
+                  placeholder={labels.heroBodyPlaceholder}
+                  rows={3}
+                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                />
+              </label>
+
+              <label className="grid gap-1 text-sm text-slate-200">
+                <span>{labels.heroMediaLabel}</span>
+                <input
+                  ref={introMediaInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia || isUploadingIntroMedia}
+                  onChange={(event) => {
+                    const nextFile = event.target.files?.[0] ?? null
+                    setIntroMediaFile(nextFile)
+                  }}
+                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                />
+                <span className="text-xs text-slate-400">{labels.heroMediaHint}</span>
+                {introMediaFile && (
+                  <span className="text-xs text-emerald-200">
+                    {labels.mediaSelected}: {introMediaFile.name}
+                  </span>
+                )}
+              </label>
+
+              {selectedList?.introMediaUrl && (
+                <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                  <p className="text-xs text-slate-300">{labels.heroCurrentMediaLabel}</p>
+                  {selectedList.introMediaType?.startsWith('video/') ? (
+                    <video
+                      src={selectedList.introMediaUrl}
+                      controls
+                      preload="metadata"
+                      className="mt-2 h-28 w-full max-w-xs rounded-lg border border-white/20 object-cover"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={selectedList.introMediaUrl}
+                      alt={selectedList.title}
+                      className="mt-2 h-28 w-full max-w-xs rounded-lg border border-white/20 object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleRemoveIntroMedia}
+                    disabled={isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                    className="mt-3 rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isRemovingIntroMedia
+                      ? labels.heroRemovingMedia
+                      : labels.heroRemoveMediaAction}
+                  </button>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {isSavingIntro || isUploadingIntroMedia
+                  ? labels.heroSaving
+                  : labels.heroSaveAction}
+              </button>
+            </form>
+
+            {introSuccess && (
+              <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+                {introSuccess}
+              </p>
+            )}
+
+            {introError && (
+              <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                {introError}
+              </p>
+            )}
+          </div>
+
+          <h3 className="mt-8 text-lg font-semibold text-white">{labels.itemsTitle}</h3>
 
           <form onSubmit={handleAddItem} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
@@ -1689,12 +1933,17 @@ export default function ListWorkspace({
                   </p>
 
                   <div className={`mt-4 rounded-2xl border p-4 sm:p-5 ${previewTheme?.panel ?? 'border-white/10 bg-white/5'}`}>
-                    <h4 className="text-xl font-semibold text-white">{previewList.title}</h4>
+                    <h4 className="text-xl font-semibold text-white">
+                      {previewList.introTitle || previewList.title}
+                    </h4>
                     <p className="mt-2 text-sm text-slate-300">
                       {labels.eventTag}: {eventTypeLabels[previewList.eventType]} - {
                         previewItems.filter((item) => item.status === 'available').length
                       } {labels.itemsTitle.toLowerCase()}
                     </p>
+                    {previewList.introBody && (
+                      <p className="mt-2 text-sm text-slate-200">{previewList.introBody}</p>
+                    )}
                     <p className="mt-1 text-xs text-slate-400">/{previewList.slug}</p>
                   </div>
 

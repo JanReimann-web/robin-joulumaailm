@@ -10,7 +10,16 @@ type PublicGiftListProps = {
 
 type PublicListView = Pick<
   GiftList,
-  'id' | 'title' | 'slug' | 'eventType' | 'visibility' | 'accessStatus'
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'eventType'
+  | 'visibility'
+  | 'accessStatus'
+  | 'introTitle'
+  | 'introBody'
+  | 'introMediaUrl'
+  | 'introMediaType'
 >
 
 type PreviewMedia = {
@@ -512,15 +521,25 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           )}
 
           <div className="p-5 sm:p-7">
-            <h1 className="text-2xl font-bold text-white sm:text-3xl">{meta.list.title}</h1>
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">
+              {meta.list.introTitle || meta.list.title}
+            </h1>
             <p className="mt-2 text-sm text-slate-300">
               Event: {eventLabel(meta.list.eventType)}
             </p>
             <p className="mt-1 text-xs text-slate-400">/{meta.list.slug}</p>
 
-            <p className="mt-5 text-sm text-slate-200">
-              Continue to gifts, story moments, and the wheel section.
-            </p>
+            {(meta.list.introBody || '').trim() && (
+              <p className="mt-5 text-sm text-slate-200">
+                {meta.list.introBody}
+              </p>
+            )}
+
+            {!(meta.list.introBody || '').trim() && (
+              <p className="mt-5 text-sm text-slate-200">
+                Continue to gifts, story moments, and the wheel section.
+              </p>
+            )}
 
             <div className="mt-5 flex flex-wrap gap-3">
               <button

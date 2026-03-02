@@ -14,9 +14,25 @@ type RouteContext = {
 }
 
 const selectPreviewMedia = (params: {
+  introMediaUrl: string | null
+  introMediaType: string | null
   stories: Array<{ mediaUrl: string | null; mediaType: string | null }>
   items: Array<{ mediaUrl: string | null; mediaType: string | null }>
 }) => {
+  if (
+    typeof params.introMediaUrl === 'string'
+    && typeof params.introMediaType === 'string'
+    && (
+      params.introMediaType.startsWith('image/')
+      || params.introMediaType.startsWith('video/')
+    )
+  ) {
+    return {
+      url: params.introMediaUrl,
+      type: params.introMediaType,
+    }
+  }
+
   const storiesMedia = params.stories.find((story) => {
     return (
       typeof story.mediaUrl === 'string'
@@ -77,6 +93,8 @@ export async function GET(
 
   const content = await getPublicListContent(list.id)
   const previewMedia = selectPreviewMedia({
+    introMediaUrl: list.introMediaUrl,
+    introMediaType: list.introMediaType,
     stories: content.stories,
     items: content.items,
   })
@@ -90,6 +108,10 @@ export async function GET(
         eventType: list.eventType,
         visibility: list.visibility,
         accessStatus: list.accessStatus,
+        introTitle: list.introTitle,
+        introBody: list.introBody,
+        introMediaUrl: list.introMediaUrl,
+        introMediaType: list.introMediaType,
       },
       items: content.items,
       stories: content.stories,
@@ -103,4 +125,3 @@ export async function GET(
     }
   )
 }
-
