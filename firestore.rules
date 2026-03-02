@@ -76,6 +76,31 @@ service cloud.firestore {
       return value is string || value == null;
     }
 
+    function hasOptionalIntroFields(data) {
+      return (
+        (
+          !data.keys().hasAny(['introTitle'])
+          || isStringOrNull(data.introTitle)
+        )
+        && (
+          !data.keys().hasAny(['introBody'])
+          || isStringOrNull(data.introBody)
+        )
+        && (
+          !data.keys().hasAny(['introMediaUrl'])
+          || isStringOrNull(data.introMediaUrl)
+        )
+        && (
+          !data.keys().hasAny(['introMediaPath'])
+          || isStringOrNull(data.introMediaPath)
+        )
+        && (
+          !data.keys().hasAny(['introMediaType'])
+          || isStringOrNull(data.introMediaType)
+        )
+      );
+    }
+
     function isValidListCreate() {
       return request.resource.data.keys().hasOnly([
           'ownerId',
@@ -113,11 +138,7 @@ service cloud.firestore {
         && request.resource.data.paidAccessEndsAt == null
         && request.resource.data.purgeAt is timestamp
         && request.resource.data.purgeAt == request.resource.data.trialEndsAt
-        && isStringOrNull(request.resource.data.introTitle)
-        && isStringOrNull(request.resource.data.introBody)
-        && isStringOrNull(request.resource.data.introMediaUrl)
-        && isStringOrNull(request.resource.data.introMediaPath)
-        && isStringOrNull(request.resource.data.introMediaType)
+        && hasOptionalIntroFields(request.resource.data)
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
     }
@@ -215,11 +236,7 @@ service cloud.firestore {
           || request.resource.data.visibility == 'public_password'
           || request.resource.data.visibility == 'private'
         )
-        && isStringOrNull(request.resource.data.introTitle)
-        && isStringOrNull(request.resource.data.introBody)
-        && isStringOrNull(request.resource.data.introMediaUrl)
-        && isStringOrNull(request.resource.data.introMediaPath)
-        && isStringOrNull(request.resource.data.introMediaType)
+        && hasOptionalIntroFields(request.resource.data)
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedAt is timestamp
         && request.resource.data
