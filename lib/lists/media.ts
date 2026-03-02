@@ -6,7 +6,7 @@ import {
   ref,
   uploadBytes,
 } from 'firebase/storage'
-import { storage } from '@/lib/firebase'
+import { auth, storage } from '@/lib/firebase'
 
 const MAX_MEDIA_SIZE_MB = 30
 const MAX_MEDIA_SIZE_BYTES = MAX_MEDIA_SIZE_MB * 1024 * 1024
@@ -58,17 +58,47 @@ export const validateMediaFile = (
 
 type UploadListMediaParams = {
   listId: string
+  ownerId?: string
   sectionPath: string
   file: File
   allowedPrefixes?: AllowedMediaPrefix[]
+}
+
+const createObjectId = (safeName: string) => {
+  const randomPart = (
+    typeof globalThis.crypto !== 'undefined'
+    && typeof globalThis.crypto.randomUUID === 'function'
+  )
+    ? globalThis.crypto.randomUUID()
+    : Math.random().toString(36).slice(2)
+
+  return `${Date.now()}-${randomPart}-${safeName}`
+}
+
+const resolveOwnerId = (ownerId?: string) => {
+  const normalizedOwnerId = ownerId?.trim()
+  if (normalizedOwnerId) {
+    return normalizedOwnerId
+  }
+
+  const authOwnerId = auth.currentUser?.uid?.trim()
+  if (authOwnerId) {
+    return authOwnerId
+  }
+
+  return null
 }
 
 const uploadListMedia = async (params: UploadListMediaParams) => {
   validateMediaFile(params.file, params.allowedPrefixes ?? DEFAULT_ALLOWED_PREFIXES)
 
   const safeName = buildSafeFileName(params.file.name || 'media')
-  const objectId = `${Date.now()}-${crypto.randomUUID()}-${safeName}`
-  const mediaPath = `lists/${params.listId}/${params.sectionPath}/${objectId}`
+  const objectId = createObjectId(safeName)
+  const ownerId = resolveOwnerId(params.ownerId)
+  const mediaRootPath = ownerId
+    ? `users/${ownerId}/lists/${params.listId}`
+    : `lists/${params.listId}`
+  const mediaPath = `${mediaRootPath}/${params.sectionPath}/${objectId}`
   const mediaRef = ref(storage, mediaPath)
 
   await uploadBytes(mediaRef, params.file, {
@@ -86,10 +116,12 @@ const uploadListMedia = async (params: UploadListMediaParams) => {
 
 export const uploadItemMedia = async (params: {
   listId: string
+  ownerId?: string
   file: File
 }) => {
   return uploadListMedia({
     listId: params.listId,
+    ownerId: params.ownerId,
     sectionPath: 'items',
     file: params.file,
     allowedPrefixes: ['image/', 'video/', 'audio/'],
@@ -98,10 +130,12 @@ export const uploadItemMedia = async (params: {
 
 export const uploadStoryMedia = async (params: {
   listId: string
+  ownerId?: string
   file: File
 }) => {
   return uploadListMedia({
     listId: params.listId,
+    ownerId: params.ownerId,
     sectionPath: 'stories',
     file: params.file,
     allowedPrefixes: ['image/', 'video/'],
@@ -110,10 +144,12 @@ export const uploadStoryMedia = async (params: {
 
 export const uploadWheelAnswerAudio = async (params: {
   listId: string
+  ownerId?: string
   file: File
 }) => {
   return uploadListMedia({
     listId: params.listId,
+    ownerId: params.ownerId,
     sectionPath: 'wheel',
     file: params.file,
     allowedPrefixes: ['audio/'],
@@ -122,10 +158,12 @@ export const uploadWheelAnswerAudio = async (params: {
 
 export const uploadListIntroMedia = async (params: {
   listId: string
+  ownerId?: string
   file: File
 }) => {
   return uploadListMedia({
     listId: params.listId,
+    ownerId: params.ownerId,
     sectionPath: 'intro',
     file: params.file,
     allowedPrefixes: ['image/', 'video/'],

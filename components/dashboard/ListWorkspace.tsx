@@ -131,6 +131,27 @@ const listAccessLabelMap = (
   expired: labels.accessExpired,
 })
 
+type ErrorWithCode = {
+  code: string
+}
+
+const isErrorWithCode = (error: unknown): error is ErrorWithCode => {
+  return (
+    typeof error === 'object'
+    && error !== null
+    && 'code' in error
+    && typeof (error as { code?: unknown }).code === 'string'
+  )
+}
+
+const withErrorCode = (fallbackMessage: string, error: unknown) => {
+  if (!isErrorWithCode(error)) {
+    return fallbackMessage
+  }
+
+  return `${fallbackMessage} (${error.code})`
+}
+
 export default function ListWorkspace({
   locale,
   ownerId,
@@ -731,6 +752,7 @@ export default function ListWorkspace({
         setIsUploadingIntroMedia(true)
         uploadedMedia = await uploadListIntroMedia({
           listId: selectedList.id,
+          ownerId,
           file: introMediaFile,
         })
       }
@@ -770,7 +792,7 @@ export default function ListWorkspace({
           setIntroError(labels.errorMediaTooLarge)
         }
       } else {
-        setIntroError(labels.errorSaveHero)
+        setIntroError(withErrorCode(labels.errorSaveHero, rawError))
       }
     } finally {
       setIsSavingIntro(false)
@@ -840,6 +862,7 @@ export default function ListWorkspace({
         setIsUploadingMedia(true)
         mediaPayload = await uploadItemMedia({
           listId: selectedListId,
+          ownerId,
           file: itemMediaFile,
         })
       }
@@ -868,7 +891,7 @@ export default function ListWorkspace({
           setItemError(labels.errorMediaTooLarge)
         }
       } else {
-        setItemError(labels.errorAddItem)
+        setItemError(withErrorCode(labels.errorAddItem, rawError))
       }
     } finally {
       setIsUploadingMedia(false)
@@ -955,6 +978,7 @@ export default function ListWorkspace({
         setIsUploadingStoryMedia(true)
         mediaPayload = await uploadStoryMedia({
           listId: selectedListId,
+          ownerId,
           file: storyMediaFile,
         })
       }
@@ -981,7 +1005,7 @@ export default function ListWorkspace({
           setStoryError(labels.errorMediaTooLarge)
         }
       } else {
-        setStoryError(labels.errorAddStory)
+        setStoryError(withErrorCode(labels.errorAddStory, rawError))
       }
     } finally {
       setIsUploadingStoryMedia(false)
@@ -1040,6 +1064,7 @@ export default function ListWorkspace({
         setIsUploadingWheelAudio(true)
         answerAudioPayload = await uploadWheelAnswerAudio({
           listId: selectedListId,
+          ownerId,
           file: wheelAnswerAudioFile,
         })
       }
@@ -1066,7 +1091,7 @@ export default function ListWorkspace({
           setWheelError(labels.errorMediaTooLarge)
         }
       } else {
-        setWheelError(labels.errorAddWheelEntry)
+        setWheelError(withErrorCode(labels.errorAddWheelEntry, rawError))
       }
     } finally {
       setIsUploadingWheelAudio(false)
