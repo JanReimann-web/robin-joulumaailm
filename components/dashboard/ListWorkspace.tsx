@@ -1420,8 +1420,21 @@ export default function ListWorkspace({
                     const nextFile = event.target.files?.[0] ?? null
                     setIntroMediaFile(nextFile)
                   }}
-                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                  className="sr-only"
                 />
+                <div className="flex min-h-[42px] items-center gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => introMediaInputRef.current?.click()}
+                    disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia || isUploadingIntroMedia}
+                    className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {labels.fileChooseAction}
+                  </button>
+                  <span className="truncate text-sm text-slate-200">
+                    {introMediaFile?.name ?? labels.noFileSelected}
+                  </span>
+                </div>
                 <span className="text-xs text-slate-400">{labels.heroMediaHint}</span>
                 {introMediaFile && (
                   <span className="text-xs text-emerald-200">
@@ -1535,8 +1548,21 @@ export default function ListWorkspace({
                   const nextFile = event.target.files?.[0] ?? null
                   setItemMediaFile(nextFile)
                 }}
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                className="sr-only"
               />
+              <div className="flex min-h-[42px] items-center gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => itemMediaInputRef.current?.click()}
+                  disabled={isItemActionsDisabled || isUploadingMedia}
+                  className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {labels.fileChooseAction}
+                </button>
+                <span className="truncate text-sm text-slate-200">
+                  {itemMediaFile?.name ?? labels.noFileSelected}
+                </span>
+              </div>
               <span className="text-xs text-slate-400">{labels.itemMediaHint}</span>
               {itemMediaFile && (
                 <span className="text-xs text-emerald-200">
@@ -1709,8 +1735,21 @@ export default function ListWorkspace({
                   const nextFile = event.target.files?.[0] ?? null
                   setStoryMediaFile(nextFile)
                 }}
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                className="sr-only"
               />
+              <div className="flex min-h-[42px] items-center gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => storyMediaInputRef.current?.click()}
+                  disabled={isItemActionsDisabled || isUploadingStoryMedia}
+                  className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {labels.fileChooseAction}
+                </button>
+                <span className="truncate text-sm text-slate-200">
+                  {storyMediaFile?.name ?? labels.noFileSelected}
+                </span>
+              </div>
               <span className="text-xs text-slate-400">{labels.storyMediaHint}</span>
               {storyMediaFile && (
                 <span className="text-xs text-emerald-200">
@@ -1817,8 +1856,21 @@ export default function ListWorkspace({
                   const nextFile = event.target.files?.[0] ?? null
                   setWheelAnswerAudioFile(nextFile)
                 }}
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white file:mr-3 file:rounded-full file:border-0 file:bg-emerald-400 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-black"
+                className="sr-only"
               />
+              <div className="flex min-h-[42px] items-center gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => wheelAnswerAudioInputRef.current?.click()}
+                  disabled={isItemActionsDisabled || isUploadingWheelAudio}
+                  className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {labels.fileChooseAction}
+                </button>
+                <span className="truncate text-sm text-slate-200">
+                  {wheelAnswerAudioFile?.name ?? labels.noFileSelected}
+                </span>
+              </div>
               <span className="text-xs text-slate-400">{labels.wheelAnswerAudioHint}</span>
               {wheelAnswerAudioFile && (
                 <span className="text-xs text-emerald-200">

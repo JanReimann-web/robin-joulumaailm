@@ -265,6 +265,8 @@ export interface Dictionary {
     wheelEntryDeleted: string
     deleteWheelEntryAction: string
     deletingWheelEntry: string
+    fileChooseAction: string
+    noFileSelected: string
     errorSelectList: string
     errorAddItem: string
     errorDeleteItem: string

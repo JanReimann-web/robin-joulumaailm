@@ -321,6 +321,8 @@ export const etDictionary: Dictionary = {
     wheelEntryDeleted: 'Ratta küsimus kustutatud.',
     deleteWheelEntryAction: 'Kustuta küsimus',
     deletingWheelEntry: 'Kustutan küsimust...',
+    fileChooseAction: 'Vali fail',
+    noFileSelected: 'Faili pole valitud',
     errorSelectList: 'Vali esmalt nimekiri.',
     errorAddItem: 'Kingituse lisamine ebaõnnestus.',
     errorDeleteItem: 'Kingituse kustutamine ebaõnnestus.',

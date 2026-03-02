@@ -56,6 +56,32 @@ describe('firestore rules', () => {
     )
   })
 
+  it('allows owner to update intro fields even if list was created without intro keys', async () => {
+    const ownerId = 'owner-intro'
+    const listId = 'list-intro-update'
+
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      visibility: 'public',
+      trialEndsAt: futureTimestamp(14),
+    })
+
+    const ownerDb = testEnv.authenticatedContext(ownerId).firestore()
+    const listRef = doc(ownerDb, 'lists', listId)
+
+    await assertSucceeds(
+      updateDoc(listRef, {
+        introTitle: 'Welcome to our event',
+        introBody: 'Please read this before choosing a gift.',
+        introMediaUrl: 'https://example.com/media.jpg',
+        introMediaPath: 'lists/list-intro-update/intro/media.jpg',
+        introMediaType: 'image/jpeg',
+        updatedAt: Timestamp.fromDate(new Date()),
+      })
+    )
+  })
+
   it('blocks public read for private list and allows owner read', async () => {
     await seedList(testEnv, {
       listId: 'list-private',
@@ -200,4 +226,3 @@ describe('firestore rules', () => {
     )
   })
 })
-

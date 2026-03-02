@@ -321,6 +321,8 @@ export const enDictionary: Dictionary = {
     wheelEntryDeleted: 'Wheel question deleted.',
     deleteWheelEntryAction: 'Delete question',
     deletingWheelEntry: 'Deleting question...',
+    fileChooseAction: 'Choose file',
+    noFileSelected: 'No file selected',
     errorSelectList: 'Please choose a list first.',
     errorAddItem: 'Failed to add item.',
     errorDeleteItem: 'Failed to delete item.',
