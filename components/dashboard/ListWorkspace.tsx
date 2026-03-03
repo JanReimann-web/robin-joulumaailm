@@ -231,6 +231,9 @@ export default function ListWorkspace({
   const [isQrLoading, setIsQrLoading] = useState(false)
   const [qrError, setQrError] = useState<string | null>(null)
   const [previewListId, setPreviewListId] = useState<string | null>(null)
+  const desktopPreviewSectionRef = useRef<HTMLElement | null>(null)
+  const desktopPreviewScrollRef = useRef<HTMLDivElement | null>(null)
+  const mobilePreviewScrollRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     // Clear transient UI messages when language changes to avoid mixed-locale state.
@@ -438,17 +441,27 @@ export default function ListWorkspace({
 
   const isSelectedListExpired = selectedList?.accessStatus === 'expired'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
-  const previewList = useMemo(
+  const mobilePreviewList = useMemo(
     () => lists.find((list) => list.id === previewListId) ?? null,
     [lists, previewListId]
   )
-  const isPreviewLoading = Boolean(previewListId) && (
+  const isMobilePreviewLoading = Boolean(previewListId) && (
     previewListId !== selectedListId || isItemsLoading || isStoriesLoading || isWheelLoading
   )
-  const previewItems = previewListId === selectedListId ? items : []
-  const previewStories = previewListId === selectedListId ? stories : []
-  const previewWheelEntries = previewListId === selectedListId ? wheelEntries : []
-  const previewTheme = previewList ? previewThemeClass(previewList.eventType) : null
+  const mobilePreviewItems = previewListId === selectedListId ? items : []
+  const mobilePreviewStories = previewListId === selectedListId ? stories : []
+  const mobilePreviewWheelEntries = previewListId === selectedListId ? wheelEntries : []
+  const mobilePreviewTheme = mobilePreviewList
+    ? previewThemeClass(mobilePreviewList.eventType)
+    : null
+
+  const desktopPreviewList = selectedList
+  const isDesktopPreviewLoading = Boolean(desktopPreviewList) && (
+    isItemsLoading || isStoriesLoading || isWheelLoading
+  )
+  const desktopPreviewTheme = desktopPreviewList
+    ? previewThemeClass(desktopPreviewList.eventType)
+    : null
 
   useEffect(() => {
     setIntroError(null)
@@ -681,11 +694,48 @@ export default function ListWorkspace({
 
   const handleOpenPreview = (list: GiftList) => {
     setSelectedListId(list.id)
+
+    if (
+      typeof window !== 'undefined'
+      && window.matchMedia('(min-width: 1024px)').matches
+    ) {
+      setPreviewListId(null)
+      window.requestAnimationFrame(() => {
+        desktopPreviewSectionRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+        desktopPreviewScrollRef.current?.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        })
+      })
+      return
+    }
+
     setPreviewListId(list.id)
   }
 
   const handleClosePreview = () => {
     setPreviewListId(null)
+  }
+
+  const handleScrollDesktopPreviewToHero = () => {
+    desktopPreviewSectionRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+    desktopPreviewScrollRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+
+  const handleScrollMobilePreviewToHero = () => {
+    mobilePreviewScrollRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
   }
 
   const handleActivatePass = async (listId: string) => {
@@ -1126,6 +1176,165 @@ export default function ListWorkspace({
     }
   }
 
+  const renderPreviewContent = (params: {
+    list: GiftList
+    isLoading: boolean
+    itemsToRender: GiftListItem[]
+    storiesToRender: ListStoryEntry[]
+    wheelEntriesToRender: WheelEntry[]
+    theme: ReturnType<typeof previewThemeClass> | null
+    scrollRef: { current: HTMLDivElement | null }
+  }) => {
+    const {
+      list,
+      isLoading,
+      itemsToRender,
+      storiesToRender,
+      wheelEntriesToRender,
+      theme,
+      scrollRef,
+    } = params
+
+    return (
+      <div
+        ref={scrollRef}
+        className="overflow-y-auto px-4 py-4 sm:px-6 sm:py-5"
+      >
+        {isLoading ? (
+          <p className="text-sm text-slate-300">{labels.previewLoading}</p>
+        ) : (
+          <>
+            <p className="text-xs text-slate-300">
+              {list.visibility === 'private'
+                ? labels.previewPrivateHint
+                : labels.previewPublicHint}
+            </p>
+
+            <div className={`mt-4 rounded-2xl border p-4 sm:p-5 ${theme?.panel ?? 'border-white/10 bg-white/5'}`}>
+              <h4 className="text-xl font-semibold text-white">
+                {list.introTitle || list.title}
+              </h4>
+              <p className="mt-2 text-sm text-slate-300">
+                {labels.eventTag}: {eventTypeLabels[list.eventType]} - {
+                  itemsToRender.filter((item) => item.status === 'available').length
+                } {labels.itemsTitle.toLowerCase()}
+              </p>
+              {list.introBody && (
+                <p className="mt-2 text-sm text-slate-200">{list.introBody}</p>
+              )}
+
+              {list.introMediaUrl && (
+                <div className="mt-3 overflow-hidden rounded-xl border border-white/20 bg-black/20">
+                  {list.introMediaType?.startsWith('video/') ? (
+                    <video
+                      src={list.introMediaUrl}
+                      controls
+                      preload="metadata"
+                      className="h-48 w-full object-cover"
+                    />
+                  ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={list.introMediaUrl}
+                      alt={list.title}
+                      className="h-48 w-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+              )}
+
+              <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              {itemsToRender.length === 0 && (
+                <p className="text-sm text-slate-300">{labels.itemsEmpty}</p>
+              )}
+
+              {itemsToRender.map((item) => (
+                <article
+                  key={`preview-${item.id}`}
+                  className={`rounded-xl border p-4 ${theme?.card ?? 'border-white/10 bg-slate-950/60'}`}
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h5 className="text-base font-semibold text-white">{item.name}</h5>
+                      <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+                      {renderItemMediaPreview(item)}
+                      {item.link && (
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-block break-all text-sm text-emerald-300 underline"
+                        >
+                          {item.link}
+                        </a>
+                      )}
+                    </div>
+                    <span className="inline-flex w-fit rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
+                      {itemStatusLabels[item.status]}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-8 border-t border-white/10 pt-5">
+              <h5 className="text-lg font-semibold text-white">{labels.storiesTitle}</h5>
+              <div className="mt-3 grid gap-3">
+                {storiesToRender.length === 0 && (
+                  <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
+                )}
+
+                {storiesToRender.map((story) => (
+                  <article
+                    key={`preview-story-${story.id}`}
+                    className={`rounded-xl border p-4 ${theme?.card ?? 'border-white/10 bg-slate-950/60'}`}
+                  >
+                    <h6 className="text-base font-semibold text-white">{story.title}</h6>
+                    <p className="mt-2 text-sm text-slate-300">{story.body}</p>
+                    {renderStoryMediaPreview(story)}
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 border-t border-white/10 pt-5">
+              <h5 className="text-lg font-semibold text-white">{labels.wheelTitle}</h5>
+              <div className="mt-3 grid gap-3">
+                {wheelEntriesToRender.length === 0 && (
+                  <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
+                )}
+
+                {wheelEntriesToRender.map((entry) => (
+                  <article
+                    key={`preview-wheel-${entry.id}`}
+                    className={`rounded-xl border p-4 ${theme?.card ?? 'border-white/10 bg-slate-950/60'}`}
+                  >
+                    <h6 className="text-base font-semibold text-white">{entry.question}</h6>
+                    {entry.answerText && (
+                      <p className="mt-2 text-sm text-slate-300">{entry.answerText}</p>
+                    )}
+                    {entry.answerAudioUrl && (
+                      <audio
+                        controls
+                        preload="metadata"
+                        className="mt-2 w-full max-w-xs"
+                        src={entry.answerAudioUrl}
+                      />
+                    )}
+                  </article>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="mt-6 grid min-w-0 gap-4 overflow-x-hidden lg:grid-cols-[1.2fr,1fr] lg:gap-6">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
@@ -1262,6 +1471,44 @@ export default function ListWorkspace({
             {listError}
           </p>
         )}
+
+        <section
+          ref={desktopPreviewSectionRef}
+          className="mt-8 hidden border-t border-white/10 pt-6 lg:block"
+        >
+          <header className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
+              {desktopPreviewList && (
+                <p className="mt-1 text-xs text-slate-300">/{desktopPreviewList.slug}</p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleScrollDesktopPreviewToHero}
+              disabled={!desktopPreviewList}
+              className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {labels.previewHeroAction}
+            </button>
+          </header>
+
+          {!desktopPreviewList ? (
+            <p className="mt-4 text-sm text-slate-300">{labels.emptyLists}</p>
+          ) : (
+            <div className="mt-4 max-h-[70vh] overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-xl">
+              {renderPreviewContent({
+                list: desktopPreviewList,
+                isLoading: isDesktopPreviewLoading,
+                itemsToRender: items,
+                storiesToRender: stories,
+                wheelEntriesToRender: wheelEntries,
+                theme: desktopPreviewTheme,
+                scrollRef: desktopPreviewScrollRef,
+              })}
+            </div>
+          )}
+        </section>
       </section>
 
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
@@ -1974,8 +2221,8 @@ export default function ListWorkspace({
         </div>
       </section>
 
-      {previewList && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {mobilePreviewList && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:hidden">
           <button
             type="button"
             aria-label={labels.closePreviewAction}
@@ -1987,128 +2234,35 @@ export default function ListWorkspace({
             <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6">
               <div>
                 <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
-                <p className="mt-1 text-xs text-slate-300">/{previewList.slug}</p>
+                <p className="mt-1 text-xs text-slate-300">/{mobilePreviewList.slug}</p>
               </div>
-              <button
-                type="button"
-                onClick={handleClosePreview}
-                className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white"
-              >
-                {labels.closePreviewAction}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleScrollMobilePreviewToHero}
+                  className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white"
+                >
+                  {labels.previewHeroAction}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClosePreview}
+                  className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white"
+                >
+                  {labels.closePreviewAction}
+                </button>
+              </div>
             </header>
 
-            <div className="overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
-              {isPreviewLoading ? (
-                <p className="text-sm text-slate-300">{labels.previewLoading}</p>
-              ) : (
-                <>
-                  <p className="text-xs text-slate-300">
-                    {previewList.visibility === 'private'
-                      ? labels.previewPrivateHint
-                      : labels.previewPublicHint}
-                  </p>
-
-                  <div className={`mt-4 rounded-2xl border p-4 sm:p-5 ${previewTheme?.panel ?? 'border-white/10 bg-white/5'}`}>
-                    <h4 className="text-xl font-semibold text-white">
-                      {previewList.introTitle || previewList.title}
-                    </h4>
-                    <p className="mt-2 text-sm text-slate-300">
-                      {labels.eventTag}: {eventTypeLabels[previewList.eventType]} - {
-                        previewItems.filter((item) => item.status === 'available').length
-                      } {labels.itemsTitle.toLowerCase()}
-                    </p>
-                    {previewList.introBody && (
-                      <p className="mt-2 text-sm text-slate-200">{previewList.introBody}</p>
-                    )}
-                    <p className="mt-1 text-xs text-slate-400">/{previewList.slug}</p>
-                  </div>
-
-                  <div className="mt-4 grid gap-3">
-                    {previewItems.length === 0 && (
-                      <p className="text-sm text-slate-300">{labels.itemsEmpty}</p>
-                    )}
-
-                    {previewItems.map((item) => (
-                        <article
-                          key={`preview-${item.id}`}
-                          className={`rounded-xl border p-4 ${previewTheme?.card ?? 'border-white/10 bg-slate-950/60'}`}
-                        >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <h5 className="text-base font-semibold text-white">{item.name}</h5>
-                            <p className="mt-2 text-sm text-slate-300">{item.description}</p>
-                            {renderItemMediaPreview(item)}
-                            {item.link && (
-                              <a
-                                href={item.link}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="mt-2 inline-block break-all text-sm text-emerald-300 underline"
-                              >
-                                {item.link}
-                              </a>
-                            )}
-                          </div>
-                          <span className="inline-flex w-fit rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
-                            {itemStatusLabels[item.status]}
-                          </span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 border-t border-white/10 pt-5">
-                    <h5 className="text-lg font-semibold text-white">{labels.storiesTitle}</h5>
-                    <div className="mt-3 grid gap-3">
-                      {previewStories.length === 0 && (
-                        <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
-                      )}
-
-                      {previewStories.map((story) => (
-                        <article
-                          key={`preview-story-${story.id}`}
-                          className={`rounded-xl border p-4 ${previewTheme?.card ?? 'border-white/10 bg-slate-950/60'}`}
-                        >
-                          <h6 className="text-base font-semibold text-white">{story.title}</h6>
-                          <p className="mt-2 text-sm text-slate-300">{story.body}</p>
-                          {renderStoryMediaPreview(story)}
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 border-t border-white/10 pt-5">
-                    <h5 className="text-lg font-semibold text-white">{labels.wheelTitle}</h5>
-                    <div className="mt-3 grid gap-3">
-                      {previewWheelEntries.length === 0 && (
-                        <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
-                      )}
-
-                      {previewWheelEntries.map((entry) => (
-                        <article
-                          key={`preview-wheel-${entry.id}`}
-                          className={`rounded-xl border p-4 ${previewTheme?.card ?? 'border-white/10 bg-slate-950/60'}`}
-                        >
-                          <h6 className="text-base font-semibold text-white">{entry.question}</h6>
-                          {entry.answerText && (
-                            <p className="mt-2 text-sm text-slate-300">{entry.answerText}</p>
-                          )}
-                          {entry.answerAudioUrl && (
-                            <audio
-                              controls
-                              preload="metadata"
-                              className="mt-2 w-full max-w-xs"
-                              src={entry.answerAudioUrl}
-                            />
-                          )}
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            {renderPreviewContent({
+              list: mobilePreviewList,
+              isLoading: isMobilePreviewLoading,
+              itemsToRender: mobilePreviewItems,
+              storiesToRender: mobilePreviewStories,
+              wheelEntriesToRender: mobilePreviewWheelEntries,
+              theme: mobilePreviewTheme,
+              scrollRef: mobilePreviewScrollRef,
+            })}
           </section>
         </div>
       )}

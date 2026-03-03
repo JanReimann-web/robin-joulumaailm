@@ -240,6 +240,7 @@ export const enDictionary: Dictionary = {
     previewPanelTitle: 'Live preview',
     previewPublicHint: 'This is how guests will see your public list page.',
     previewPrivateHint: 'Set visibility to Public to enable preview and sharing.',
+    previewHeroAction: 'Go to hero',
     closePreviewAction: 'Close preview',
     previewLoading: 'Loading preview...',
     activatePassAction: 'Activate 90-day pass',

@@ -184,6 +184,7 @@ export interface Dictionary {
     previewPanelTitle: string
     previewPublicHint: string
     previewPrivateHint: string
+    previewHeroAction: string
     closePreviewAction: string
     previewLoading: string
     activatePassAction: string
