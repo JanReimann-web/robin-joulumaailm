@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
@@ -231,6 +231,14 @@ export default function ListWorkspace({
   const [isQrLoading, setIsQrLoading] = useState(false)
   const [qrError, setQrError] = useState<string | null>(null)
   const [previewListId, setPreviewListId] = useState<string | null>(null)
+  const [isDesktopPreviewEntered, setIsDesktopPreviewEntered] = useState(false)
+  const [isDesktopPreviewPasswordPromptOpen, setIsDesktopPreviewPasswordPromptOpen] = useState(false)
+  const [desktopPreviewPassword, setDesktopPreviewPassword] = useState('')
+  const [isDesktopPreviewPasswordVisible, setIsDesktopPreviewPasswordVisible] = useState(false)
+  const [isMobilePreviewEntered, setIsMobilePreviewEntered] = useState(false)
+  const [isMobilePreviewPasswordPromptOpen, setIsMobilePreviewPasswordPromptOpen] = useState(false)
+  const [mobilePreviewPassword, setMobilePreviewPassword] = useState('')
+  const [isMobilePreviewPasswordVisible, setIsMobilePreviewPasswordVisible] = useState(false)
   const desktopPreviewSectionRef = useRef<HTMLElement | null>(null)
   const desktopPreviewScrollRef = useRef<HTMLDivElement | null>(null)
   const mobilePreviewScrollRef = useRef<HTMLDivElement | null>(null)
@@ -412,6 +420,28 @@ export default function ListWorkspace({
       cancelled = true
     }
   }, [])
+
+  const resetDesktopPreviewFlow = useCallback(() => {
+    setIsDesktopPreviewEntered(false)
+    setIsDesktopPreviewPasswordPromptOpen(false)
+    setDesktopPreviewPassword('')
+    setIsDesktopPreviewPasswordVisible(false)
+  }, [])
+
+  const resetMobilePreviewFlow = useCallback(() => {
+    setIsMobilePreviewEntered(false)
+    setIsMobilePreviewPasswordPromptOpen(false)
+    setMobilePreviewPassword('')
+    setIsMobilePreviewPasswordVisible(false)
+  }, [])
+
+  useEffect(() => {
+    resetDesktopPreviewFlow()
+  }, [resetDesktopPreviewFlow, selectedListId])
+
+  useEffect(() => {
+    resetMobilePreviewFlow()
+  }, [previewListId, resetMobilePreviewFlow])
 
   useEffect(() => {
     if (!previewListId) {
@@ -699,6 +729,7 @@ export default function ListWorkspace({
       typeof window !== 'undefined'
       && window.matchMedia('(min-width: 1024px)').matches
     ) {
+      resetDesktopPreviewFlow()
       setPreviewListId(null)
       window.requestAnimationFrame(() => {
         desktopPreviewSectionRef.current?.scrollIntoView({
@@ -713,14 +744,17 @@ export default function ListWorkspace({
       return
     }
 
+    resetMobilePreviewFlow()
     setPreviewListId(list.id)
   }
 
   const handleClosePreview = () => {
+    resetMobilePreviewFlow()
     setPreviewListId(null)
   }
 
   const handleScrollDesktopPreviewToHero = () => {
+    resetDesktopPreviewFlow()
     desktopPreviewSectionRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
@@ -732,10 +766,61 @@ export default function ListWorkspace({
   }
 
   const handleScrollMobilePreviewToHero = () => {
+    resetMobilePreviewFlow()
     mobilePreviewScrollRef.current?.scrollTo({
       top: 0,
       behavior: 'smooth',
     })
+  }
+
+  const handleContinueDesktopPreview = () => {
+    if (!desktopPreviewList) {
+      return
+    }
+
+    if (desktopPreviewList.visibility === 'public_password') {
+      setIsDesktopPreviewPasswordPromptOpen(true)
+      return
+    }
+
+    setIsDesktopPreviewPasswordPromptOpen(false)
+    setIsDesktopPreviewEntered(true)
+  }
+
+  const handleUnlockDesktopPreview = () => {
+    if (desktopPreviewPassword.trim().length < 6) {
+      return
+    }
+
+    setIsDesktopPreviewEntered(true)
+    setIsDesktopPreviewPasswordPromptOpen(false)
+    setDesktopPreviewPassword('')
+    setIsDesktopPreviewPasswordVisible(false)
+  }
+
+  const handleContinueMobilePreview = () => {
+    if (!mobilePreviewList) {
+      return
+    }
+
+    if (mobilePreviewList.visibility === 'public_password') {
+      setIsMobilePreviewPasswordPromptOpen(true)
+      return
+    }
+
+    setIsMobilePreviewPasswordPromptOpen(false)
+    setIsMobilePreviewEntered(true)
+  }
+
+  const handleUnlockMobilePreview = () => {
+    if (mobilePreviewPassword.trim().length < 6) {
+      return
+    }
+
+    setIsMobilePreviewEntered(true)
+    setIsMobilePreviewPasswordPromptOpen(false)
+    setMobilePreviewPassword('')
+    setIsMobilePreviewPasswordVisible(false)
   }
 
   const handleActivatePass = async (listId: string) => {
@@ -1179,21 +1264,87 @@ export default function ListWorkspace({
   const renderPreviewContent = (params: {
     list: GiftList
     isLoading: boolean
+    hasEntered: boolean
+    isPasswordPromptOpen: boolean
+    password: string
+    isPasswordVisible: boolean
     itemsToRender: GiftListItem[]
     storiesToRender: ListStoryEntry[]
     wheelEntriesToRender: WheelEntry[]
     theme: ReturnType<typeof previewThemeClass> | null
     scrollRef: { current: HTMLDivElement | null }
+    onContinue: () => void
+    onUnlock: () => void
+    onPasswordChange: (value: string) => void
+    onTogglePasswordVisibility: () => void
   }) => {
     const {
       list,
       isLoading,
+      hasEntered,
+      isPasswordPromptOpen,
+      password,
+      isPasswordVisible,
       itemsToRender,
       storiesToRender,
       wheelEntriesToRender,
       theme,
       scrollRef,
+      onContinue,
+      onUnlock,
+      onPasswordChange,
+      onTogglePasswordVisibility,
     } = params
+    const availableItemsCount = itemsToRender.filter((item) => item.status === 'available').length
+    const previewHeroMedia = (() => {
+      if (
+        typeof list.introMediaUrl === 'string'
+        && typeof list.introMediaType === 'string'
+        && (
+          list.introMediaType.startsWith('image/')
+          || list.introMediaType.startsWith('video/')
+        )
+      ) {
+        return {
+          url: list.introMediaUrl,
+          type: list.introMediaType,
+        }
+      }
+
+      const storyMedia = storiesToRender.find((story) => (
+        typeof story.mediaUrl === 'string'
+        && typeof story.mediaType === 'string'
+        && (
+          story.mediaType.startsWith('image/')
+          || story.mediaType.startsWith('video/')
+        )
+      ))
+
+      if (storyMedia?.mediaUrl && storyMedia.mediaType) {
+        return {
+          url: storyMedia.mediaUrl,
+          type: storyMedia.mediaType,
+        }
+      }
+
+      const itemMedia = itemsToRender.find((item) => (
+        typeof item.mediaUrl === 'string'
+        && typeof item.mediaType === 'string'
+        && (
+          item.mediaType.startsWith('image/')
+          || item.mediaType.startsWith('video/')
+        )
+      ))
+
+      if (itemMedia?.mediaUrl && itemMedia.mediaType) {
+        return {
+          url: itemMedia.mediaUrl,
+          type: itemMedia.mediaType,
+        }
+      }
+
+      return null
+    })()
 
     return (
       <div
@@ -1202,7 +1353,7 @@ export default function ListWorkspace({
       >
         {isLoading ? (
           <p className="text-sm text-slate-300">{labels.previewLoading}</p>
-        ) : (
+        ) : !hasEntered ? (
           <>
             <p className="text-xs text-slate-300">
               {list.visibility === 'private'
@@ -1210,42 +1361,104 @@ export default function ListWorkspace({
                 : labels.previewPublicHint}
             </p>
 
-            <div className={`mt-4 rounded-2xl border p-4 sm:p-5 ${theme?.panel ?? 'border-white/10 bg-white/5'}`}>
-              <h4 className="text-xl font-semibold text-white">
-                {list.introTitle || list.title}
-              </h4>
-              <p className="mt-2 text-sm text-slate-300">
-                {labels.eventTag}: {eventTypeLabels[list.eventType]} - {
-                  itemsToRender.filter((item) => item.status === 'available').length
-                } {labels.itemsTitle.toLowerCase()}
-              </p>
-              {list.introBody && (
-                <p className="mt-2 text-sm text-slate-200">{list.introBody}</p>
+            <section className={`mt-4 overflow-hidden rounded-2xl border ${theme?.panel ?? 'border-white/10 bg-white/5'}`}>
+              {previewHeroMedia?.url && previewHeroMedia.type.startsWith('image/') && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewHeroMedia.url}
+                  alt={list.title}
+                  className="h-44 w-full object-cover sm:h-56"
+                  loading="lazy"
+                />
               )}
 
-              {list.introMediaUrl && (
-                <div className="mt-3 overflow-hidden rounded-xl border border-white/20 bg-black/20">
-                  {list.introMediaType?.startsWith('video/') ? (
-                    <video
-                      src={list.introMediaUrl}
-                      controls
-                      preload="metadata"
-                      className="h-48 w-full object-cover"
-                    />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={list.introMediaUrl}
-                      alt={list.title}
-                      className="h-48 w-full object-cover"
-                      loading="lazy"
-                    />
-                  )}
+              {previewHeroMedia?.url && previewHeroMedia.type.startsWith('video/') && (
+                <video
+                  src={previewHeroMedia.url}
+                  className="h-44 w-full object-cover sm:h-56"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              )}
+
+              <div className="p-4 sm:p-5">
+                <h4 className="text-xl font-semibold text-white">
+                  {list.introTitle || list.title}
+                </h4>
+                <p className="mt-2 text-sm text-slate-300">
+                  {labels.eventTag}: {eventTypeLabels[list.eventType]}
+                </p>
+                <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
+
+                {(list.introBody || '').trim() && (
+                  <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
+                )}
+
+                {!(list.introBody || '').trim() && (
+                  <p className="mt-4 text-sm text-slate-200">{labels.previewContinueHint}</p>
+                )}
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={onContinue}
+                    className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black"
+                  >
+                    {labels.previewContinueAction}
+                  </button>
                 </div>
-              )}
 
+                {list.visibility === 'public_password' && isPasswordPromptOpen && (
+                  <div className="mt-5 rounded-xl border border-white/20 bg-slate-950/70 p-4">
+                    <p className="text-sm text-slate-200">{labels.previewPasswordPrompt}</p>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
+                      <label className="grid gap-1 text-sm text-slate-200">
+                        <span>{labels.visibilityPasswordLabel}</span>
+                        <div className="relative">
+                          <input
+                            type={isPasswordVisible ? 'text' : 'password'}
+                            value={password}
+                            onChange={(event) => onPasswordChange(event.target.value)}
+                            className="w-full rounded-lg border border-white/20 bg-slate-900 px-3 py-2 pr-11 text-white"
+                            minLength={6}
+                          />
+                          <button
+                            type="button"
+                            onClick={onTogglePasswordVisibility}
+                            aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                            className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
+                          >
+                            {isPasswordVisible
+                              ? <EyeOff size={16} />
+                              : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={onUnlock}
+                        disabled={password.trim().length < 6}
+                        className="rounded-full border border-emerald-300/50 px-5 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {labels.previewUnlockAction}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          </>
+        ) : (
+          <>
+            <header className={`rounded-2xl border p-4 sm:p-5 ${theme?.panel ?? 'border-white/10 bg-white/5'}`}>
+              <h4 className="text-2xl font-bold text-white">{list.title}</h4>
+              <p className="mt-2 text-sm text-slate-300">
+                {labels.eventTag}: {eventTypeLabels[list.eventType]} - {availableItemsCount} {labels.itemsTitle.toLowerCase()}
+              </p>
               <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
-            </div>
+            </header>
 
             <div className="mt-4 grid gap-3">
               {itemsToRender.length === 0 && (
@@ -1500,11 +1713,21 @@ export default function ListWorkspace({
               {renderPreviewContent({
                 list: desktopPreviewList,
                 isLoading: isDesktopPreviewLoading,
+                hasEntered: isDesktopPreviewEntered,
+                isPasswordPromptOpen: isDesktopPreviewPasswordPromptOpen,
+                password: desktopPreviewPassword,
+                isPasswordVisible: isDesktopPreviewPasswordVisible,
                 itemsToRender: items,
                 storiesToRender: stories,
                 wheelEntriesToRender: wheelEntries,
                 theme: desktopPreviewTheme,
                 scrollRef: desktopPreviewScrollRef,
+                onContinue: handleContinueDesktopPreview,
+                onUnlock: handleUnlockDesktopPreview,
+                onPasswordChange: setDesktopPreviewPassword,
+                onTogglePasswordVisibility: () => {
+                  setIsDesktopPreviewPasswordVisible((current) => !current)
+                },
               })}
             </div>
           )}
@@ -2257,11 +2480,21 @@ export default function ListWorkspace({
             {renderPreviewContent({
               list: mobilePreviewList,
               isLoading: isMobilePreviewLoading,
+              hasEntered: isMobilePreviewEntered,
+              isPasswordPromptOpen: isMobilePreviewPasswordPromptOpen,
+              password: mobilePreviewPassword,
+              isPasswordVisible: isMobilePreviewPasswordVisible,
               itemsToRender: mobilePreviewItems,
               storiesToRender: mobilePreviewStories,
               wheelEntriesToRender: mobilePreviewWheelEntries,
               theme: mobilePreviewTheme,
               scrollRef: mobilePreviewScrollRef,
+              onContinue: handleContinueMobilePreview,
+              onUnlock: handleUnlockMobilePreview,
+              onPasswordChange: setMobilePreviewPassword,
+              onTogglePasswordVisibility: () => {
+                setIsMobilePreviewPasswordVisible((current) => !current)
+              },
             })}
           </section>
         </div>

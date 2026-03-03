@@ -185,6 +185,10 @@ export interface Dictionary {
     previewPublicHint: string
     previewPrivateHint: string
     previewHeroAction: string
+    previewContinueAction: string
+    previewContinueHint: string
+    previewPasswordPrompt: string
+    previewUnlockAction: string
     closePreviewAction: string
     previewLoading: string
     activatePassAction: string
