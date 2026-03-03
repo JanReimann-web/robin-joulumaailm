@@ -50,3 +50,56 @@
     }
   }
 }
+
+@layer utilities {
+  @keyframes toast-success-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes toast-success-out {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+
+  .toast-success {
+    border: 1px solid rgba(110, 231, 183, 0.45);
+    background:
+      radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.16), transparent 55%),
+      rgba(15, 23, 42, 0.95);
+    border-radius: 1rem;
+    padding: 1rem 1.1rem;
+    box-shadow:
+      0 12px 32px rgba(2, 6, 23, 0.42),
+      0 0 0 1px rgba(16, 185, 129, 0.06) inset;
+    backdrop-filter: blur(3px);
+    transform-origin: bottom right;
+  }
+
+  .toast-success--enter {
+    animation: toast-success-in 220ms cubic-bezier(0.18, 0.84, 0.32, 1) both;
+  }
+
+  .toast-success--exit {
+    animation: toast-success-out 260ms ease-in both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast-success--enter,
+    .toast-success--exit {
+      animation: none;
+    }
+  }
+}
