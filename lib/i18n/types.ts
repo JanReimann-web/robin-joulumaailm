@@ -149,7 +149,12 @@ export interface Dictionary {
     templateModern: string
     templateMinimal: string
     templatePlayful: string
-    templateEditorial: string
+    templateKidsBoyTinyPilot: string
+    templateKidsBoyDinoRanger: string
+    templateKidsBoyGalaxyRacer: string
+    templateKidsGirlTinyBloom: string
+    templateKidsGirlFairyGarden: string
+    templateKidsGirlStarlightPop: string
     visibilityLabel: string
     visibilityPublic: string
     visibilityPublicPassword: string

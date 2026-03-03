@@ -101,6 +101,46 @@ service cloud.firestore {
       );
     }
 
+    function isKnownEventType(value) {
+      return (
+        value == 'wedding'
+        || value == 'birthday'
+        || value == 'kidsBirthday'
+        || value == 'babyShower'
+        || value == 'graduation'
+        || value == 'housewarming'
+        || value == 'christmas'
+      );
+    }
+
+    function isDefaultTemplateId(value) {
+      return (
+        value == 'classic'
+        || value == 'modern'
+        || value == 'minimal'
+        || value == 'playful'
+      );
+    }
+
+    function isKidsBirthdayTemplateId(value) {
+      return (
+        value == 'kidsBoyTinyPilot'
+        || value == 'kidsBoyDinoRanger'
+        || value == 'kidsBoyGalaxyRacer'
+        || value == 'kidsGirlTinyBloom'
+        || value == 'kidsGirlFairyGarden'
+        || value == 'kidsGirlStarlightPop'
+      );
+    }
+
+    function hasValidTemplateForEvent(eventType, templateId) {
+      return isKnownEventType(eventType)
+        && (
+          (eventType == 'kidsBirthday' && isKidsBirthdayTemplateId(templateId))
+          || (eventType != 'kidsBirthday' && isDefaultTemplateId(templateId))
+        );
+    }
+
     function isValidListCreate() {
       return request.resource.data.keys().hasOnly([
           'ownerId',
@@ -126,7 +166,12 @@ service cloud.firestore {
         && request.resource.data.title is string
         && request.resource.data.slug is string
         && request.resource.data.eventType is string
+        && isKnownEventType(request.resource.data.eventType)
         && request.resource.data.templateId is string
+        && hasValidTemplateForEvent(
+          request.resource.data.eventType,
+          request.resource.data.templateId
+        )
         && (
           request.resource.data.visibility == 'public'
           || request.resource.data.visibility == 'public_password'
@@ -231,6 +276,12 @@ service cloud.firestore {
         && request.resource.data.trialEndsAt == resource.data.trialEndsAt
         && request.resource.data.paidAccessEndsAt == resource.data.paidAccessEndsAt
         && request.resource.data.purgeAt == resource.data.purgeAt
+        && request.resource.data.eventType is string
+        && request.resource.data.templateId is string
+        && hasValidTemplateForEvent(
+          request.resource.data.eventType,
+          request.resource.data.templateId
+        )
         && (
           request.resource.data.visibility == 'public'
           || request.resource.data.visibility == 'public_password'

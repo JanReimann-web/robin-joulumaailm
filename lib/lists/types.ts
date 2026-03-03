@@ -11,14 +11,77 @@ export const EVENT_TYPES = [
 ] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
-export const TEMPLATE_IDS = [
+export const DEFAULT_TEMPLATE_IDS = [
   'classic',
   'modern',
   'minimal',
   'playful',
-  'editorial',
+] as const
+export type DefaultTemplateId = (typeof DEFAULT_TEMPLATE_IDS)[number]
+
+export const KIDS_BIRTHDAY_TEMPLATE_IDS = [
+  'kidsBoyTinyPilot',
+  'kidsBoyDinoRanger',
+  'kidsBoyGalaxyRacer',
+  'kidsGirlTinyBloom',
+  'kidsGirlFairyGarden',
+  'kidsGirlStarlightPop',
+] as const
+export type KidsBirthdayTemplateId = (typeof KIDS_BIRTHDAY_TEMPLATE_IDS)[number]
+
+export const TEMPLATE_IDS = [
+  ...DEFAULT_TEMPLATE_IDS,
+  ...KIDS_BIRTHDAY_TEMPLATE_IDS,
 ] as const
 export type TemplateId = (typeof TEMPLATE_IDS)[number]
+
+export const isEventType = (value: string): value is EventType => {
+  return EVENT_TYPES.includes(value as EventType)
+}
+
+export const isTemplateId = (value: string): value is TemplateId => {
+  return TEMPLATE_IDS.includes(value as TemplateId)
+}
+
+export const getTemplateIdsForEvent = (
+  eventType: EventType
+): readonly TemplateId[] => {
+  if (eventType === 'kidsBirthday') {
+    return KIDS_BIRTHDAY_TEMPLATE_IDS
+  }
+
+  return DEFAULT_TEMPLATE_IDS
+}
+
+export const isTemplateAllowedForEvent = (
+  eventType: EventType,
+  templateId: string
+): templateId is TemplateId => {
+  return getTemplateIdsForEvent(eventType).includes(templateId as TemplateId)
+}
+
+export const normalizeTemplateId = (
+  eventType: EventType,
+  value: unknown
+): TemplateId => {
+  if (typeof value !== 'string') {
+    return getTemplateIdsForEvent(eventType)[0]
+  }
+
+  if (value === 'editorial') {
+    return eventType === 'kidsBirthday' ? KIDS_BIRTHDAY_TEMPLATE_IDS[0] : 'modern'
+  }
+
+  if (isTemplateAllowedForEvent(eventType, value)) {
+    return value
+  }
+
+  if (isTemplateId(value)) {
+    return value
+  }
+
+  return getTemplateIdsForEvent(eventType)[0]
+}
 
 export const VISIBILITY_OPTIONS = ['public', 'public_password', 'private'] as const
 export type ListVisibility = (typeof VISIBILITY_OPTIONS)[number]

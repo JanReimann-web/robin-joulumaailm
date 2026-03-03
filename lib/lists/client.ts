@@ -37,6 +37,9 @@ import {
   ListStoryEntry,
   ReserveGiftItemInput,
   WheelEntry,
+  isEventType,
+  isTemplateAllowedForEvent,
+  normalizeTemplateId,
 } from '@/lib/lists/types'
 
 export class SlugTakenError extends Error {
@@ -93,6 +96,10 @@ const mapListDoc = (
   id: string,
   data: Record<string, unknown>
 ): GiftList => {
+  const eventType = typeof data.eventType === 'string' && isEventType(data.eventType)
+    ? data.eventType
+    : 'birthday'
+
   const createdAt = toMillis(data.createdAt)
   const trialEndsAtRaw = toMillis(data.trialEndsAt)
   const trialEndsAt = trialEndsAtRaw ?? (
@@ -105,8 +112,8 @@ const mapListDoc = (
     ownerId: String(data.ownerId ?? ''),
     title: String(data.title ?? ''),
     slug: String(data.slug ?? ''),
-    eventType: data.eventType as GiftList['eventType'],
-    templateId: data.templateId as GiftList['templateId'],
+    eventType,
+    templateId: normalizeTemplateId(eventType, data.templateId),
     visibility: data.visibility as GiftList['visibility'],
     status: (data.status as GiftList['status']) ?? 'draft',
     billingModel: (data.billingModel as GiftList['billingModel']) ?? 'one_time_90d',
@@ -194,6 +201,10 @@ export const createGiftList = async (
 
   if (isReservedSlug(normalizedSlug)) {
     throw new ReservedSlugError()
+  }
+
+  if (!isTemplateAllowedForEvent(input.eventType, input.templateId)) {
+    throw new Error('invalid_template_id')
   }
 
   if (input.idToken) {

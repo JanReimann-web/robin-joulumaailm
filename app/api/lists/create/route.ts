@@ -4,7 +4,12 @@ import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { addDays, TRIAL_DAYS } from '@/lib/lists/access'
 import { hashVisibilityPassword, isValidVisibilityPassword } from '@/lib/lists/password.server'
 import { isReservedSlug, isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
-import { EVENT_TYPES, TEMPLATE_IDS, VISIBILITY_OPTIONS } from '@/lib/lists/types'
+import {
+  TEMPLATE_IDS,
+  VISIBILITY_OPTIONS,
+  isEventType,
+  isTemplateAllowedForEvent,
+} from '@/lib/lists/types'
 
 export const runtime = 'nodejs'
 
@@ -25,10 +30,6 @@ const parseBearerToken = (request: NextRequest) => {
 
   const token = authHeader.slice('Bearer '.length).trim()
   return token.length > 0 ? token : null
-}
-
-const isEventType = (value: string): value is (typeof EVENT_TYPES)[number] => {
-  return EVENT_TYPES.includes(value as (typeof EVENT_TYPES)[number])
 }
 
 const isTemplateId = (
@@ -86,6 +87,10 @@ export async function POST(request: NextRequest) {
   }
 
   if (!isTemplateId(templateId)) {
+    return NextResponse.json({ error: 'invalid_template_id' }, { status: 400 })
+  }
+
+  if (!isTemplateAllowedForEvent(eventType, templateId)) {
     return NextResponse.json({ error: 'invalid_template_id' }, { status: 400 })
   }
 

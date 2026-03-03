@@ -106,6 +106,7 @@ export async function GET(
         title: list.title,
         slug: list.slug,
         eventType: list.eventType,
+        templateId: list.templateId,
         visibility: list.visibility,
         accessStatus: list.accessStatus,
         introTitle: list.introTitle,

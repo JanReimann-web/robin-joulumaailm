@@ -3,7 +3,14 @@ import { Timestamp } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
 import { addDays, resolveListAccessStatus, TRIAL_DAYS } from '@/lib/lists/access'
 import { isReservedSlug, isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
-import { GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
+import {
+  GiftList,
+  GiftListItem,
+  ListStoryEntry,
+  WheelEntry,
+  isEventType,
+  normalizeTemplateId,
+} from '@/lib/lists/types'
 
 type PublicVisibility = 'public' | 'public_password'
 
@@ -36,6 +43,10 @@ const mapListDoc = (
     return null
   }
 
+  const eventType = typeof data.eventType === 'string' && isEventType(data.eventType)
+    ? data.eventType
+    : 'birthday'
+
   const createdAt = toMillis(data.createdAt)
   const trialEndsAtRaw = toMillis(data.trialEndsAt)
   const trialEndsAt = trialEndsAtRaw ?? (
@@ -48,8 +59,8 @@ const mapListDoc = (
     ownerId: String(data.ownerId ?? ''),
     title: String(data.title ?? ''),
     slug: String(data.slug ?? ''),
-    eventType: data.eventType as GiftList['eventType'],
-    templateId: data.templateId as GiftList['templateId'],
+    eventType,
+    templateId: normalizeTemplateId(eventType, data.templateId),
     visibility: data.visibility,
     status: (data.status as GiftList['status']) ?? 'draft',
     billingModel: (data.billingModel as GiftList['billingModel']) ?? 'one_time_90d',
