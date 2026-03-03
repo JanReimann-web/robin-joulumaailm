@@ -300,6 +300,75 @@ export const createGiftList = async (
   }
 }
 
+export const updateGiftListSettings = async (input: {
+  listId: string
+  eventType: CreateGiftListInput['eventType']
+  templateId: CreateGiftListInput['templateId']
+  visibility: CreateGiftListInput['visibility']
+  visibilityPassword?: string
+  idToken: string
+}) => {
+  if (!isTemplateAllowedForEvent(input.eventType, input.templateId)) {
+    throw new Error('invalid_template_id')
+  }
+
+  if (input.visibility === 'public_password') {
+    const normalizedPassword = input.visibilityPassword?.trim() ?? ''
+    if (normalizedPassword.length > 0 && normalizedPassword.length < 6) {
+      throw new VisibilityPasswordRequiredError()
+    }
+  }
+
+  const response = await fetch(`/api/lists/${encodeURIComponent(input.listId)}/settings`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${input.idToken}`,
+    },
+    body: JSON.stringify({
+      eventType: input.eventType,
+      templateId: input.templateId,
+      visibility: input.visibility,
+      visibilityPassword: input.visibilityPassword,
+    }),
+  })
+
+  if (response.ok) {
+    return
+  }
+
+  const payload = await response
+    .json()
+    .catch(() => ({ error: 'update_failed' })) as { error?: string }
+
+  if (payload.error === 'invalid_visibility_password') {
+    throw new VisibilityPasswordRequiredError()
+  }
+
+  throw new Error(payload.error ?? 'update_failed')
+}
+
+export const deleteGiftList = async (input: {
+  listId: string
+  idToken: string
+}) => {
+  const response = await fetch(`/api/lists/${encodeURIComponent(input.listId)}/delete`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${input.idToken}`,
+    },
+  })
+
+  if (response.ok) {
+    return
+  }
+
+  const payload = await response
+    .json()
+    .catch(() => ({ error: 'delete_failed' })) as { error?: string }
+  throw new Error(payload.error ?? 'delete_failed')
+}
+
 export const subscribeToUserLists = (
   userId: string,
   onChange: (lists: GiftList[]) => void,

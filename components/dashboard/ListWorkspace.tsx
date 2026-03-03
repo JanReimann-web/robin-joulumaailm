@@ -22,6 +22,7 @@ import {
   createGiftList,
   createListStory,
   createWheelEntry,
+  deleteGiftList,
   deleteGiftItem,
   deleteListStory,
   deleteWheelEntry,
@@ -31,6 +32,7 @@ import {
   subscribeToUserLists,
   subscribeToWheelEntries,
   updateGiftListIntro,
+  updateGiftListSettings,
 } from '@/lib/lists/client'
 import {
   deleteMediaByPath,
@@ -41,7 +43,8 @@ import {
   uploadStoryMedia,
   uploadWheelAnswerAudio,
 } from '@/lib/lists/media'
-import { sanitizeSlug } from '@/lib/lists/slug'
+import { buildPublicSlug, generatePublicUrlCode } from '@/lib/lists/public-link'
+import { isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
 import {
   EVENT_TYPES,
   EventType,
@@ -169,11 +172,15 @@ export default function ListWorkspace({
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [isSlugTouched, setIsSlugTouched] = useState(false)
+  const [publicUrlCode, setPublicUrlCode] = useState(() => generatePublicUrlCode())
   const [eventType, setEventType] = useState<EventType>('birthday')
   const [templateId, setTemplateId] = useState<TemplateId>('classic')
   const [visibility, setVisibility] = useState<ListVisibility>('public')
   const [visibilityPassword, setVisibilityPassword] = useState('')
   const [isVisibilityPasswordVisible, setIsVisibilityPasswordVisible] = useState(false)
+  const [isSavingListSettings, setIsSavingListSettings] = useState(false)
+  const [isDeleteListConfirmOpen, setIsDeleteListConfirmOpen] = useState(false)
+  const [isDeletingList, setIsDeletingList] = useState(false)
   const [introTitle, setIntroTitle] = useState('')
   const [introBody, setIntroBody] = useState('')
   const [introMediaFile, setIntroMediaFile] = useState<File | null>(null)
@@ -467,6 +474,23 @@ export default function ListWorkspace({
     [lists, selectedListId]
   )
 
+  useEffect(() => {
+    if (!selectedList) {
+      setEventType('birthday')
+      setTemplateId('classic')
+      setVisibility('public')
+      setVisibilityPassword('')
+      setIsVisibilityPasswordVisible(false)
+      return
+    }
+
+    setEventType(selectedList.eventType)
+    setTemplateId(selectedList.templateId)
+    setVisibility(selectedList.visibility)
+    setVisibilityPassword('')
+    setIsVisibilityPasswordVisible(false)
+  }, [selectedList])
+
   const isSelectedListExpired = selectedList?.accessStatus === 'expired'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
   const mobilePreviewList = useMemo(
@@ -518,6 +542,14 @@ export default function ListWorkspace({
     return `${siteUrl}/${slug}`
   }
 
+  const composedCreateSlug = useMemo(() => {
+    return buildPublicSlug(publicUrlCode, slug)
+  }, [publicUrlCode, slug])
+
+  const composedCreateUrl = useMemo(() => {
+    return getPublicListUrl(composedCreateSlug)
+  }, [composedCreateSlug])
+
   const handleTitleChange = (value: string) => {
     setTitle(value)
 
@@ -529,6 +561,10 @@ export default function ListWorkspace({
   const handleSlugChange = (value: string) => {
     setIsSlugTouched(true)
     setSlug(sanitizeSlug(value))
+  }
+
+  const handleRegeneratePublicUrlCode = () => {
+    setPublicUrlCode(generatePublicUrlCode())
   }
 
   const getListDaysLeft = (list: GiftList) => {
@@ -623,8 +659,9 @@ export default function ListWorkspace({
     setListError(null)
     setListSuccess(null)
 
-    if (visibility === 'public_password' && visibilityPassword.trim().length < 6) {
-      setListError(labels.errorVisibilityPasswordRequired)
+    const normalizedUrlName = sanitizeSlug(slug)
+    if (!isValidSlug(normalizedUrlName)) {
+      setListError(labels.errorInvalidSlug)
       return
     }
 
@@ -641,26 +678,18 @@ export default function ListWorkspace({
       const result = await createGiftList({
         ownerId,
         title,
-        slug,
-        eventType,
-        templateId,
-        visibility,
-        visibilityPassword:
-          visibility === 'public_password'
-            ? visibilityPassword
-            : undefined,
+        slug: composedCreateSlug,
+        eventType: 'birthday',
+        templateId: 'classic',
+        visibility: 'public',
         idToken,
       })
 
-      setListSuccess(`${labels.listCreated} /${result.slug}`)
+      setListSuccess(`${labels.listCreated} ${getPublicListUrl(result.slug)}`)
       setTitle('')
       setSlug('')
       setIsSlugTouched(false)
-      setEventType('birthday')
-      setTemplateId('classic')
-      setVisibility('public')
-      setVisibilityPassword('')
-      setIsVisibilityPasswordVisible(false)
+      setPublicUrlCode(generatePublicUrlCode())
       setSelectedListId(result.listId)
     } catch (rawError) {
       if (rawError instanceof InvalidSlugError) {
@@ -676,6 +705,93 @@ export default function ListWorkspace({
       }
     } finally {
       setIsCreatingList(false)
+    }
+  }
+
+  const handleSaveListSettings = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setListError(null)
+    setListSuccess(null)
+
+    if (!selectedList) {
+      setListError(labels.errorSelectList)
+      return
+    }
+
+    const normalizedPassword = visibilityPassword.trim()
+    if (visibility === 'public_password' && normalizedPassword.length > 0 && normalizedPassword.length < 6) {
+      setListError(labels.errorVisibilityPasswordRequired)
+      return
+    }
+
+    setIsSavingListSettings(true)
+
+    try {
+      const user = auth.currentUser
+      if (!user) {
+        setListError(labels.errorSessionExpired)
+        return
+      }
+
+      const idToken = await user.getIdToken()
+      await updateGiftListSettings({
+        listId: selectedList.id,
+        eventType,
+        templateId,
+        visibility,
+        visibilityPassword: normalizedPassword || undefined,
+        idToken,
+      })
+
+      setVisibilityPassword('')
+      setIsVisibilityPasswordVisible(false)
+      setListSuccess(labels.listSettingsSaved)
+    } catch (rawError) {
+      if (rawError instanceof VisibilityPasswordRequiredError) {
+        setListError(labels.errorVisibilityPasswordRequired)
+      } else {
+        setListError(withErrorCode(labels.errorListSettingsUpdate, rawError))
+      }
+    } finally {
+      setIsSavingListSettings(false)
+    }
+  }
+
+  const handleDeleteList = async () => {
+    if (!selectedList) {
+      setListError(labels.errorSelectList)
+      return
+    }
+
+    setListError(null)
+    setListSuccess(null)
+    setIsDeletingList(true)
+
+    try {
+      const user = auth.currentUser
+      if (!user) {
+        setListError(labels.errorSessionExpired)
+        return
+      }
+
+      const idToken = await user.getIdToken()
+      await deleteGiftList({
+        listId: selectedList.id,
+        idToken,
+      })
+
+      if (previewListId === selectedList.id) {
+        setPreviewListId(null)
+      }
+      setQrTargetListId((current) => (current === selectedList.id ? null : current))
+      setQrDataUrl(null)
+      setCopiedListId((current) => (current === selectedList.id ? null : current))
+      setIsDeleteListConfirmOpen(false)
+      setListSuccess(labels.listDeleted)
+    } catch (rawError) {
+      setListError(withErrorCode(labels.errorDeleteList, rawError))
+    } finally {
+      setIsDeletingList(false)
     }
   }
 
@@ -1588,100 +1704,28 @@ export default function ListWorkspace({
 
           <label className="grid gap-1 text-sm text-slate-200">
             <span>{labels.slugLabel}</span>
+            <div className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-emerald-200">
+              {composedCreateUrl}
+            </div>
+            <span>{labels.urlNameLabel}</span>
             <input
               required
               value={slug}
               onChange={(entry) => handleSlugChange(entry.target.value)}
+              placeholder={labels.urlNamePlaceholder}
               className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
             />
-            <span className="text-xs text-slate-400">{labels.slugHint}</span>
-          </label>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-1 text-sm text-slate-200">
-              <span>{labels.eventTypeLabel}</span>
-              <select
-                value={eventType}
-                onChange={(entry) => setEventType(entry.target.value as EventType)}
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-slate-400">{labels.slugHint}</span>
+              <button
+                type="button"
+                onClick={handleRegeneratePublicUrlCode}
+                className="rounded-full border border-white/30 px-3 py-1 text-xs font-semibold text-white"
               >
-                {EVENT_TYPES.map((item) => (
-                  <option key={item} value={item}>
-                    {eventTypeLabels[item]}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-1 text-sm text-slate-200">
-              <span>{labels.templateLabel}</span>
-              <select
-                value={templateId}
-                onChange={(entry) => setTemplateId(entry.target.value as TemplateId)}
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-              >
-                {availableTemplateIds.map((item) => (
-                  <option key={item} value={item}>
-                    {templateLabels[item]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <label className="grid gap-1 text-sm text-slate-200">
-            <span>{labels.visibilityLabel}</span>
-            <select
-              value={visibility}
-              onChange={(entry) =>
-                setVisibility(entry.target.value as ListVisibility)
-              }
-              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-            >
-              {VISIBILITY_OPTIONS.map((item) => (
-                <option key={item} value={item}>
-                  {visibilityLabels[item]}
-                </option>
-              ))}
-            </select>
-            <span className="text-xs text-slate-400">
-              {visibility === 'public'
-                ? labels.visibilityHelpPublic
-                : (
-                  visibility === 'public_password'
-                    ? labels.visibilityHelpPublicPassword
-                    : labels.visibilityHelpPrivate
-                )}
-            </span>
+                {labels.regenerateUrlCodeAction}
+              </button>
+            </div>
           </label>
-
-          {visibility === 'public_password' && (
-            <label className="grid gap-1 text-sm text-slate-200">
-              <span>{labels.visibilityPasswordLabel}</span>
-              <div className="relative">
-                <input
-                  required
-                  minLength={6}
-                  type={isVisibilityPasswordVisible ? 'text' : 'password'}
-                  value={visibilityPassword}
-                  onChange={(entry) => setVisibilityPassword(entry.target.value)}
-                  placeholder={labels.visibilityPasswordPlaceholder}
-                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 pr-11 text-white"
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsVisibilityPasswordVisible((current) => !current)}
-                  aria-label={isVisibilityPasswordVisible ? 'Hide password' : 'Show password'}
-                  className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
-                >
-                  {isVisibilityPasswordVisible
-                    ? <EyeOff size={16} />
-                    : <Eye size={16} />}
-                </button>
-              </div>
-              <span className="text-xs text-slate-400">{labels.visibilityPasswordHint}</span>
-            </label>
-          )}
 
           <button
             type="submit"
@@ -1799,7 +1843,7 @@ export default function ListWorkspace({
               }`}
             >
               <h3 className="text-base font-semibold text-white">{list.title}</h3>
-              <p className="mt-1 break-all text-xs text-slate-400">/{list.slug} ({locale})</p>
+              <p className="mt-1 break-all text-xs text-slate-400">{getPublicListUrl(list.slug)} ({locale})</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.eventTag}: {eventTypeLabels[list.eventType]}
@@ -1811,7 +1855,7 @@ export default function ListWorkspace({
                   {labels.slugTag}: {list.slug}
                 </span>
                 <span className="rounded-full border border-white/20 px-2 py-1 break-all">
-                  {labels.listLinkTag}: /{list.slug}
+                  {labels.listLinkTag}: {getPublicListUrl(list.slug)}
                 </span>
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.accessStatusTag}: {accessStatusLabels[list.accessStatus]}
@@ -1903,6 +1947,121 @@ export default function ListWorkspace({
               ))}
             </select>
           </label>
+
+          <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
+            <h3 className="text-lg font-semibold text-white">{labels.listSettingsTitle}</h3>
+            <p className="mt-2 text-sm text-slate-300">{labels.listSettingsSubtitle}</p>
+
+            <form onSubmit={handleSaveListSettings} className="mt-4 grid gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.eventTypeLabel}</span>
+                  <select
+                    value={eventType}
+                    disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                    onChange={(entry) => setEventType(entry.target.value as EventType)}
+                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {EVENT_TYPES.map((item) => (
+                      <option key={item} value={item}>
+                        {eventTypeLabels[item]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.templateLabel}</span>
+                  <select
+                    value={templateId}
+                    disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                    onChange={(entry) => setTemplateId(entry.target.value as TemplateId)}
+                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {availableTemplateIds.map((item) => (
+                      <option key={item} value={item}>
+                        {templateLabels[item]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <label className="grid gap-1 text-sm text-slate-200">
+                <span>{labels.visibilityLabel}</span>
+                <select
+                  value={visibility}
+                  disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                  onChange={(entry) => setVisibility(entry.target.value as ListVisibility)}
+                  className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {VISIBILITY_OPTIONS.map((item) => (
+                    <option key={item} value={item}>
+                      {visibilityLabels[item]}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xs text-slate-400">
+                  {visibility === 'public'
+                    ? labels.visibilityHelpPublic
+                    : (
+                      visibility === 'public_password'
+                        ? labels.visibilityHelpPublicPassword
+                        : labels.visibilityHelpPrivate
+                    )}
+                </span>
+              </label>
+
+              {visibility === 'public_password' && (
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.visibilityPasswordLabel}</span>
+                  <div className="relative">
+                    <input
+                      minLength={6}
+                      type={isVisibilityPasswordVisible ? 'text' : 'password'}
+                      value={visibilityPassword}
+                      disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                      onChange={(entry) => setVisibilityPassword(entry.target.value)}
+                      placeholder={labels.visibilityPasswordPlaceholder}
+                      className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 pr-11 text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsVisibilityPasswordVisible((current) => !current)}
+                      aria-label={isVisibilityPasswordVisible ? 'Hide password' : 'Show password'}
+                      disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                      className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isVisibilityPasswordVisible
+                        ? <EyeOff size={16} />
+                        : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <span className="text-xs text-slate-400">{labels.visibilityPasswordHint}</span>
+                </label>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="submit"
+                  disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                  className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSavingListSettings
+                    ? labels.listSettingsSaving
+                    : labels.listSettingsSaveAction}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteListConfirmOpen(true)}
+                  disabled={!selectedList || isDeletingList}
+                  className="rounded-full border border-red-300/40 px-5 py-2 text-sm font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isDeletingList ? labels.listDeleting : labels.deleteListAction}
+                </button>
+              </div>
+            </form>
+          </div>
 
           <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
             <h3 className="text-lg font-semibold text-white">{labels.heroEditorTitle}</h3>
@@ -2470,6 +2629,47 @@ export default function ListWorkspace({
           </div>
         </div>
       </section>
+
+      {isDeleteListConfirmOpen && selectedList && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label={labels.deleteListCancelAction}
+            onClick={() => {
+              if (isDeletingList) {
+                return
+              }
+              setIsDeleteListConfirmOpen(false)
+            }}
+            className="absolute inset-0 bg-slate-950/85"
+          />
+
+          <section className="relative z-10 w-full max-w-md rounded-2xl border border-red-300/30 bg-slate-950 p-5 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white">{labels.deleteListModalTitle}</h3>
+            <p className="mt-3 text-sm text-slate-300">{labels.deleteListModalBody}</p>
+            <p className="mt-2 text-xs text-red-200">{selectedList.title}</p>
+
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setIsDeleteListConfirmOpen(false)}
+                disabled={isDeletingList}
+                className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {labels.deleteListCancelAction}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteList}
+                disabled={isDeletingList}
+                className="rounded-full border border-red-300/50 bg-red-500/20 px-4 py-2 text-sm font-semibold text-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeletingList ? labels.listDeleting : labels.deleteListConfirmAction}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {mobilePreviewList && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:hidden">

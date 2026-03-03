@@ -1,6 +1,6 @@
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const SLUG_MIN_LEN = 3
-const SLUG_MAX_LEN = 32
+const SLUG_MAX_LEN = 64
 
 const RESERVED_SLUGS = new Set([
   'en',

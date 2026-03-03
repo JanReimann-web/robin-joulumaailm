@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb, adminStorage } from '@/lib/firebase/admin'
-import { DocumentReference, Timestamp } from 'firebase-admin/firestore'
+import { Timestamp } from 'firebase-admin/firestore'
+import { adminDb } from '@/lib/firebase/admin'
+import { deleteListWithAssets } from '@/lib/lists/delete.server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -43,62 +44,6 @@ const isAuthorized = (request: NextRequest) => {
   return bearerToken === cronSecret || headerSecret === cronSecret
 }
 
-const deleteSubcollection = async (listRef: DocumentReference, collectionName: string) => {
-  let deletedCount = 0
-
-  while (true) {
-    const snapshot = await listRef.collection(collectionName).limit(300).get()
-    if (snapshot.empty) {
-      break
-    }
-
-    const batch = adminDb.batch()
-    snapshot.docs.forEach((entry) => batch.delete(entry.ref))
-    await batch.commit()
-
-    deletedCount += snapshot.size
-  }
-
-  return deletedCount
-}
-
-const deleteSlugClaimsForList = async (listId: string, slug: string | null) => {
-  let deletedCount = 0
-
-  if (slug) {
-    const slugRef = adminDb.collection('slugClaims').doc(slug)
-    const slugSnapshot = await slugRef.get()
-    if (slugSnapshot.exists) {
-      await slugRef.delete()
-      deletedCount += 1
-    }
-  }
-
-  const claimSnapshot = await adminDb
-    .collection('slugClaims')
-    .where('listId', '==', listId)
-    .get()
-
-  if (!claimSnapshot.empty) {
-    const batch = adminDb.batch()
-    claimSnapshot.docs.forEach((entry) => batch.delete(entry.ref))
-    await batch.commit()
-    deletedCount += claimSnapshot.size
-  }
-
-  return deletedCount
-}
-
-const deleteListStorage = async (listId: string) => {
-  try {
-    const bucket = adminStorage.bucket()
-    await bucket.deleteFiles({ prefix: `lists/${listId}/`, force: true })
-    return true
-  } catch {
-    return false
-  }
-}
-
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -126,7 +71,10 @@ export async function GET(request: NextRequest) {
       deletedLists: 0,
       deletedItems: 0,
       deletedReservations: 0,
+      deletedStories: 0,
+      deletedWheelEntries: 0,
       deletedSlugClaims: 0,
+      deletedSecrets: 0,
       deletedStorageFolders: 0,
     })
   }
@@ -134,7 +82,10 @@ export async function GET(request: NextRequest) {
   let deletedLists = 0
   let deletedItems = 0
   let deletedReservations = 0
+  let deletedStories = 0
+  let deletedWheelEntries = 0
   let deletedSlugClaims = 0
+  let deletedSecrets = 0
   let deletedStorageFolders = 0
 
   const preview = dueLists.docs.map((entry) => {
@@ -142,6 +93,7 @@ export async function GET(request: NextRequest) {
     return {
       listId: entry.id,
       slug: typeof payload.slug === 'string' ? payload.slug : null,
+      ownerId: typeof payload.ownerId === 'string' ? payload.ownerId : null,
     }
   })
 
@@ -153,7 +105,10 @@ export async function GET(request: NextRequest) {
       deletedLists,
       deletedItems,
       deletedReservations,
+      deletedStories,
+      deletedWheelEntries,
       deletedSlugClaims,
+      deletedSecrets,
       deletedStorageFolders,
       preview,
     })
@@ -162,21 +117,22 @@ export async function GET(request: NextRequest) {
   for (const entry of dueLists.docs) {
     const payload = entry.data() as Record<string, unknown>
     const slug = typeof payload.slug === 'string' ? payload.slug : null
+    const ownerId = typeof payload.ownerId === 'string' ? payload.ownerId : null
 
-    const removedItems = await deleteSubcollection(entry.ref, 'items')
-    const removedReservations = await deleteSubcollection(entry.ref, 'reservations')
-    const removedSlugClaims = await deleteSlugClaimsForList(entry.id, slug)
-    const removedStorage = await deleteListStorage(entry.id)
+    const removed = await deleteListWithAssets({
+      listId: entry.id,
+      slug,
+      ownerId,
+    })
 
-    await entry.ref.delete()
-
-    deletedLists += 1
-    deletedItems += removedItems
-    deletedReservations += removedReservations
-    deletedSlugClaims += removedSlugClaims
-    if (removedStorage) {
-      deletedStorageFolders += 1
-    }
+    deletedLists += removed.deletedList
+    deletedItems += removed.deletedItems
+    deletedReservations += removed.deletedReservations
+    deletedStories += removed.deletedStories
+    deletedWheelEntries += removed.deletedWheelEntries
+    deletedSlugClaims += removed.deletedSlugClaims
+    deletedSecrets += removed.deletedSecrets
+    deletedStorageFolders += removed.deletedStoragePrefixes
   }
 
   return NextResponse.json({
@@ -186,8 +142,12 @@ export async function GET(request: NextRequest) {
     deletedLists,
     deletedItems,
     deletedReservations,
+    deletedStories,
+    deletedWheelEntries,
     deletedSlugClaims,
+    deletedSecrets,
     deletedStorageFolders,
     preview,
   })
 }
+

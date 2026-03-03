@@ -142,7 +142,10 @@ export interface Dictionary {
     listNameLabel: string
     listNamePlaceholder: string
     slugLabel: string
+    urlNameLabel: string
+    urlNamePlaceholder: string
     slugHint: string
+    regenerateUrlCodeAction: string
     eventTypeLabel: string
     templateLabel: string
     templateClassic: string
@@ -210,6 +213,20 @@ export interface Dictionary {
     errorSessionExpired: string
     errorActivatePass: string
     listSelectorLabel: string
+    listSettingsTitle: string
+    listSettingsSubtitle: string
+    listSettingsSaveAction: string
+    listSettingsSaving: string
+    listSettingsSaved: string
+    deleteListAction: string
+    listDeleting: string
+    deleteListModalTitle: string
+    deleteListModalBody: string
+    deleteListCancelAction: string
+    deleteListConfirmAction: string
+    listDeleted: string
+    errorListSettingsUpdate: string
+    errorDeleteList: string
     heroEditorTitle: string
     heroEditorSubtitle: string
     heroTitleLabel: string
