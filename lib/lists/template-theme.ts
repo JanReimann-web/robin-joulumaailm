@@ -29,6 +29,81 @@ const baseTheme = (
   wheelPalette,
 })
 
+const svgPattern = (svg: string) => {
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+}
+
+const GRAIN_OVERLAY = svgPattern(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'><g fill='rgba(255,255,255,0.06)'><circle cx='8' cy='10' r='0.7'/><circle cx='34' cy='22' r='0.8'/><circle cx='69' cy='14' r='0.7'/><circle cx='108' cy='26' r='0.8'/><circle cx='19' cy='57' r='0.8'/><circle cx='55' cy='46' r='0.7'/><circle cx='86' cy='60' r='0.8'/><circle cx='121' cy='48' r='0.7'/><circle cx='12' cy='97' r='0.8'/><circle cx='42' cy='88' r='0.7'/><circle cx='78' cy='102' r='0.8'/><circle cx='114' cy='94' r='0.7'/><circle cx='22' cy='128' r='0.8'/><circle cx='61' cy='121' r='0.7'/><circle cx='96' cy='132' r='0.8'/><circle cx='129' cy='120' r='0.7'/></g><g fill='rgba(0,0,0,0.05)'><circle cx='25' cy='6' r='0.7'/><circle cx='48' cy='30' r='0.6'/><circle cx='95' cy='20' r='0.7'/><circle cx='129' cy='37' r='0.6'/><circle cx='7' cy='70' r='0.6'/><circle cx='38' cy='64' r='0.7'/><circle cx='73' cy='77' r='0.6'/><circle cx='107' cy='69' r='0.7'/><circle cx='133' cy='82' r='0.6'/><circle cx='30' cy='109' r='0.7'/><circle cx='66' cy='98' r='0.6'/><circle cx='101' cy='112' r='0.7'/><circle cx='10' cy='123' r='0.6'/><circle cx='51' cy='133' r='0.7'/><circle cx='85' cy='126' r='0.6'/><circle cx='117' cy='137' r='0.7'/></g></svg>"
+)
+
+const WEDDING_CLASSIC_PATTERN = svgPattern(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='168' height='168' viewBox='0 0 168 168'><g fill='none' stroke='rgba(120,95,56,0.24)' stroke-width='0.7'><path d='M0 42h168M0 126h168M42 0v168M126 0v168'/></g><g fill='rgba(120,95,56,0.26)'><circle cx='42' cy='42' r='1.3'/><circle cx='126' cy='42' r='1.3'/><circle cx='42' cy='126' r='1.3'/><circle cx='126' cy='126' r='1.3'/></g></svg>"
+)
+
+const WEDDING_MODERN_PATTERN = svgPattern(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='176' height='176' viewBox='0 0 176 176'><g fill='none' stroke='rgba(246,236,213,0.2)' stroke-width='0.8'><path d='M88 0L176 88 88 176 0 88Z'/><path d='M44 44L132 44 132 132 44 132Z'/><path d='M88 0V176M0 88H176'/></g></svg>"
+)
+
+const WEDDING_MINIMAL_PATTERN = svgPattern(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><path d='M0 0.5H28M0.5 0V28' stroke='rgba(134,120,103,0.18)' stroke-width='0.6'/><path d='M14 0V28M0 14H28' stroke='rgba(170,156,136,0.12)' stroke-width='0.5'/></svg>"
+)
+
+const WEDDING_PLAYFUL_PATTERN = svgPattern(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><g fill='rgba(173,123,136,0.2)'><circle cx='22' cy='26' r='1.1'/><circle cx='68' cy='20' r='1.2'/><circle cx='114' cy='32' r='1.1'/><circle cx='158' cy='26' r='1.2'/><circle cx='34' cy='76' r='1.1'/><circle cx='84' cy='70' r='1.2'/><circle cx='142' cy='84' r='1.1'/><circle cx='22' cy='126' r='1.1'/><circle cx='70' cy='132' r='1.2'/><circle cx='118' cy='122' r='1.1'/><circle cx='160' cy='136' r='1.2'/></g><path d='M0 94C28 82 54 82 82 94S138 106 180 92' stroke='rgba(255,255,255,0.18)' stroke-width='0.8' fill='none'/></svg>"
+)
+
+const WEDDING_TEMPLATE_THEMES: Record<DefaultTemplateId, ListTemplateTheme> = {
+  classic: baseTheme(
+    `${GRAIN_OVERLAY}, ${WEDDING_CLASSIC_PATTERN}, radial-gradient(circle at 12% 10%, rgba(255,255,255,0.72), transparent 42%), radial-gradient(circle at 84% 8%, rgba(198,167,94,0.22), transparent 40%), radial-gradient(circle at 50% 76%, rgba(222,207,185,0.34), transparent 62%), radial-gradient(circle at 0% 0%, rgba(198,167,94,0.16), transparent 24%), radial-gradient(circle at 100% 100%, rgba(198,167,94,0.14), transparent 26%), linear-gradient(160deg, #F8F5F0 0%, #EFE7DC 100%)`,
+    {
+      background: `${GRAIN_OVERLAY}, radial-gradient(circle at 0% 0%, rgba(198,167,94,0.16), transparent 32%), radial-gradient(circle at 100% 100%, rgba(198,167,94,0.12), transparent 34%), linear-gradient(145deg, rgba(55, 44, 32, 0.8), rgba(74, 59, 44, 0.72))`,
+      borderColor: 'rgba(198, 167, 94, 0.46)',
+    },
+    {
+      background: `${GRAIN_OVERLAY}, linear-gradient(148deg, rgba(43, 33, 24, 0.82), rgba(66, 51, 38, 0.7))`,
+      borderColor: 'rgba(198, 167, 94, 0.34)',
+    },
+    ['#C6A75E', '#D4B978', '#F1E3B3', '#B58F4A', '#D9C8A1', '#A57A3A']
+  ),
+  modern: baseTheme(
+    `${GRAIN_OVERLAY}, ${WEDDING_MODERN_PATTERN}, radial-gradient(circle at 50% 18%, rgba(255,255,255,0.14), transparent 36%), radial-gradient(circle at 50% 44%, rgba(241,225,178,0.18), transparent 52%), radial-gradient(circle at 0% 0%, rgba(212,175,55,0.08), transparent 24%), radial-gradient(circle at 100% 100%, rgba(212,175,55,0.08), transparent 24%), linear-gradient(164deg, #0F2027 0%, #1E3A34 52%, #1C2A39 100%)`,
+    {
+      background: `${GRAIN_OVERLAY}, radial-gradient(circle at 52% 10%, rgba(212,175,55,0.14), transparent 36%), linear-gradient(150deg, rgba(16, 31, 39, 0.88), rgba(29, 54, 66, 0.74))`,
+      borderColor: 'rgba(212, 175, 55, 0.44)',
+    },
+    {
+      background: `${GRAIN_OVERLAY}, linear-gradient(145deg, rgba(12, 24, 32, 0.84), rgba(24, 43, 54, 0.7))`,
+      borderColor: 'rgba(233, 214, 171, 0.28)',
+    },
+    ['#D4AF37', '#E8D8A9', '#F5ECD2', '#B08A2D', '#C89F3D', '#E9C76A']
+  ),
+  minimal: baseTheme(
+    `${GRAIN_OVERLAY}, ${WEDDING_MINIMAL_PATTERN}, radial-gradient(circle at 50% 0%, rgba(255,255,255,0.58), transparent 34%), radial-gradient(circle at 50% 88%, rgba(199,181,160,0.2), transparent 56%), linear-gradient(168deg, #FBF9F6 0%, #F4EEE6 100%)`,
+    {
+      background: `${GRAIN_OVERLAY}, linear-gradient(152deg, rgba(44, 39, 33, 0.76), rgba(60, 54, 46, 0.68))`,
+      borderColor: 'rgba(199, 181, 160, 0.42)',
+    },
+    {
+      background: `${GRAIN_OVERLAY}, linear-gradient(150deg, rgba(39, 34, 29, 0.74), rgba(57, 51, 44, 0.64))`,
+      borderColor: 'rgba(199, 181, 160, 0.3)',
+    },
+    ['#D8C6AE', '#BFA989', '#A69176', '#E8DBC9', '#CDBA9F', '#99836A']
+  ),
+  playful: baseTheme(
+    `${GRAIN_OVERLAY}, ${WEDDING_PLAYFUL_PATTERN}, radial-gradient(circle at 22% 14%, rgba(255,255,255,0.46), transparent 38%), radial-gradient(circle at 76% 8%, rgba(232,199,199,0.34), transparent 42%), radial-gradient(circle at 50% 72%, rgba(252,227,220,0.36), transparent 54%), linear-gradient(160deg, #FDF6F2 0%, #F7E7E2 52%, #F2DFDB 100%)`,
+    {
+      background: `${GRAIN_OVERLAY}, radial-gradient(circle at 100% 0%, rgba(232,199,199,0.18), transparent 34%), linear-gradient(148deg, rgba(73, 47, 56, 0.74), rgba(99, 67, 80, 0.66))`,
+      borderColor: 'rgba(232, 199, 199, 0.44)',
+    },
+    {
+      background: `${GRAIN_OVERLAY}, linear-gradient(150deg, rgba(67, 42, 50, 0.72), rgba(89, 58, 70, 0.62))`,
+      borderColor: 'rgba(232, 199, 199, 0.34)',
+    },
+    ['#E8C7C7', '#D9AFAF', '#F2DADA', '#C99595', '#E6B9B9', '#B57E89']
+  ),
+}
+
 const BASE_TEMPLATE_THEMES: Record<DefaultTemplateId, ListTemplateTheme> = {
   classic: baseTheme(
     'radial-gradient(circle at 18% 8%, rgba(56, 189, 248, 0.2), transparent 42%), radial-gradient(circle at 82% 2%, rgba(148, 163, 184, 0.18), transparent 36%), linear-gradient(155deg, #020617 0%, #0f172a 56%, #111827 100%)',
@@ -181,6 +256,10 @@ export const getListTemplateTheme = (
 ): ListTemplateTheme => {
   if (eventType === 'kidsBirthday') {
     return resolveKidsTheme(templateId)
+  }
+
+  if (eventType === 'wedding' && templateId in WEDDING_TEMPLATE_THEMES) {
+    return WEDDING_TEMPLATE_THEMES[templateId as DefaultTemplateId]
   }
 
   return resolveNonKidsTheme(templateId)
