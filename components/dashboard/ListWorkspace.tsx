@@ -58,7 +58,7 @@ import {
   VISIBILITY_OPTIONS,
   WheelEntry,
 } from '@/lib/lists/types'
-import { getListTemplateTheme, ListTemplateTheme } from '@/lib/lists/template-theme'
+import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
 type ListWorkspaceProps = {
   locale: Locale
@@ -503,17 +503,25 @@ export default function ListWorkspace({
   const mobilePreviewItems = previewListId === selectedListId ? items : []
   const mobilePreviewStories = previewListId === selectedListId ? stories : []
   const mobilePreviewWheelEntries = previewListId === selectedListId ? wheelEntries : []
-  const mobilePreviewTheme = mobilePreviewList
-    ? getListTemplateTheme(mobilePreviewList.eventType, mobilePreviewList.templateId)
-    : null
-
   const desktopPreviewList = selectedList
   const isDesktopPreviewLoading = Boolean(desktopPreviewList) && (
     isItemsLoading || isStoriesLoading || isWheelLoading
   )
-  const desktopPreviewTheme = desktopPreviewList
-    ? getListTemplateTheme(desktopPreviewList.eventType, desktopPreviewList.templateId)
-    : null
+  const resolvePreviewTheme = (previewList: GiftList | null) => {
+    if (!previewList) {
+      return 'default-dark'
+    }
+
+    const usesEditingState = previewList.id === selectedListId
+    return resolveEventThemeId(
+      usesEditingState ? eventType : previewList.eventType,
+      usesEditingState ? templateId : previewList.templateId
+    )
+  }
+  const mobilePreviewThemeId = resolvePreviewTheme(mobilePreviewList)
+  const desktopPreviewThemeId = desktopPreviewList
+    ? resolvePreviewTheme(desktopPreviewList)
+    : 'default-dark'
 
   useEffect(() => {
     setIntroError(null)
@@ -1385,7 +1393,6 @@ export default function ListWorkspace({
     itemsToRender: GiftListItem[]
     storiesToRender: ListStoryEntry[]
     wheelEntriesToRender: WheelEntry[]
-    theme: ListTemplateTheme | null
     scrollRef: { current: HTMLDivElement | null }
     onContinue: () => void
     onUnlock: () => void
@@ -1402,7 +1409,6 @@ export default function ListWorkspace({
       itemsToRender,
       storiesToRender,
       wheelEntriesToRender,
-      theme,
       scrollRef,
       onContinue,
       onUnlock,
@@ -1410,18 +1416,6 @@ export default function ListWorkspace({
       onTogglePasswordVisibility,
     } = params
     const availableItemsCount = itemsToRender.filter((item) => item.status === 'available').length
-    const panelStyle = theme
-      ? {
-          background: theme.panel.background,
-          borderColor: theme.panel.borderColor,
-        }
-      : undefined
-    const cardStyle = theme
-      ? {
-          background: theme.card.background,
-          borderColor: theme.card.borderColor,
-        }
-      : undefined
     const previewHeroMedia = (() => {
       if (
         typeof list.introMediaUrl === 'string'
@@ -1488,8 +1482,7 @@ export default function ListWorkspace({
             </p>
 
             <section
-              className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/5"
-              style={panelStyle}
+              className="event-surface-panel mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/5"
             >
               {previewHeroMedia?.url && previewHeroMedia.type.startsWith('image/') && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -1533,7 +1526,7 @@ export default function ListWorkspace({
                   <button
                     type="button"
                     onClick={onContinue}
-                    className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black"
+                    className="event-accent-button rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black"
                   >
                     {labels.previewContinueAction}
                   </button>
@@ -1582,8 +1575,7 @@ export default function ListWorkspace({
         ) : (
           <>
             <header
-              className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5"
-              style={panelStyle}
+              className="event-surface-panel rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5"
             >
               <h4 className="text-2xl font-bold text-white">{list.title}</h4>
               <p className="mt-2 text-sm text-slate-300">
@@ -1600,8 +1592,7 @@ export default function ListWorkspace({
               {itemsToRender.map((item) => (
                 <article
                   key={`preview-${item.id}`}
-                  className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
-                  style={cardStyle}
+                  className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -1613,7 +1604,7 @@ export default function ListWorkspace({
                           href={item.link}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-2 inline-block break-all text-sm text-emerald-300 underline"
+                          className="event-accent-link mt-2 inline-block break-all text-sm text-emerald-300 underline"
                         >
                           {item.link}
                         </a>
@@ -1637,8 +1628,7 @@ export default function ListWorkspace({
                 {storiesToRender.map((story) => (
                   <article
                     key={`preview-story-${story.id}`}
-                    className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
-                    style={cardStyle}
+                    className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
                   >
                     <h6 className="text-base font-semibold text-white">{story.title}</h6>
                     <p className="mt-2 text-sm text-slate-300">{story.body}</p>
@@ -1658,8 +1648,7 @@ export default function ListWorkspace({
                 {wheelEntriesToRender.map((entry) => (
                   <article
                     key={`preview-wheel-${entry.id}`}
-                    className="rounded-xl border border-white/10 bg-slate-950/60 p-4"
-                    style={cardStyle}
+                    className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
                   >
                     <h6 className="text-base font-semibold text-white">{entry.question}</h6>
                     {entry.answerText && (
@@ -1773,13 +1762,8 @@ export default function ListWorkspace({
             <p className="mt-4 text-sm text-slate-300">{labels.emptyLists}</p>
           ) : (
             <div
-              className="mt-4 max-h-[70vh] overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-xl"
-              style={desktopPreviewTheme
-                ? {
-                    backgroundImage: desktopPreviewTheme.shellBackground,
-                    borderColor: desktopPreviewTheme.panel.borderColor,
-                  }
-                : undefined}
+              className="event-canvas mt-4 max-h-[70vh] overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-xl"
+              data-event-theme={desktopPreviewThemeId}
             >
               {renderPreviewContent({
                 list: desktopPreviewList,
@@ -1791,7 +1775,6 @@ export default function ListWorkspace({
                 itemsToRender: items,
                 storiesToRender: stories,
                 wheelEntriesToRender: wheelEntries,
-                theme: desktopPreviewTheme,
                 scrollRef: desktopPreviewScrollRef,
                 onContinue: handleContinueDesktopPreview,
                 onUnlock: handleUnlockDesktopPreview,
@@ -2681,13 +2664,8 @@ export default function ListWorkspace({
           />
 
           <section
-            className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-2xl"
-            style={mobilePreviewTheme
-              ? {
-                  backgroundImage: mobilePreviewTheme.shellBackground,
-                  borderColor: mobilePreviewTheme.panel.borderColor,
-                }
-              : undefined}
+            className="event-canvas relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-2xl"
+            data-event-theme={mobilePreviewThemeId}
           >
             <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6">
               <div>
@@ -2722,7 +2700,6 @@ export default function ListWorkspace({
               itemsToRender: mobilePreviewItems,
               storiesToRender: mobilePreviewStories,
               wheelEntriesToRender: mobilePreviewWheelEntries,
-              theme: mobilePreviewTheme,
               scrollRef: mobilePreviewScrollRef,
               onContinue: handleContinueMobilePreview,
               onUnlock: handleUnlockMobilePreview,

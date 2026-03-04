@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
-import { getListTemplateTheme } from '@/lib/lists/template-theme'
+import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
 type PublicGiftListProps = {
   slug: string
@@ -531,9 +531,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   )
   const activeEventType = list?.eventType ?? meta?.list.eventType
   const activeTemplateId = list?.templateId ?? meta?.list.templateId
-  const templateTheme = activeEventType && activeTemplateId
-    ? getListTemplateTheme(activeEventType, activeTemplateId)
-    : null
+  const eventThemeId = resolveEventThemeId(activeEventType, activeTemplateId)
   const eventSectionCopy = activeEventType ? getEventSectionCopy(activeEventType, locale) : null
   const isListExpired = (list ?? meta?.list)?.accessStatus === 'expired'
   const selectedWheelEntry = useMemo(
@@ -546,7 +544,14 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       return 'conic-gradient(#0f172a 0% 100%)'
     }
 
-    const palette = templateTheme?.wheelPalette ?? ['#10b981', '#22d3ee', '#38bdf8', '#6366f1', '#14b8a6', '#0ea5e9']
+    const palette = [
+      'var(--event-wheel-1)',
+      'var(--event-wheel-2)',
+      'var(--event-wheel-3)',
+      'var(--event-wheel-4)',
+      'var(--event-wheel-5)',
+      'var(--event-wheel-6)',
+    ]
 
     return `conic-gradient(${wheelEntries
       .map((entry, index) => {
@@ -555,7 +560,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         return `${palette[index % palette.length]} ${start}% ${end}%`
       })
       .join(', ')})`
-  }, [templateTheme, wheelEntries])
+  }, [wheelEntries])
 
   const showThankYouCard = () => {
     setIsThankYouVisible(true)
@@ -787,7 +792,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   if (metaLoading) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+      <main
+        className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-10 sm:py-16"
+        data-event-theme="default-dark"
+      >
         <div className="mb-4 flex justify-end">{languageSwitcher}</div>
         <p className="text-slate-200">{copy.loadingList}</p>
       </main>
@@ -796,7 +804,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   if (notFound || !meta) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+      <main
+        className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-10 sm:py-16"
+        data-event-theme="default-dark"
+      >
         <div className="mb-4 flex justify-end">{languageSwitcher}</div>
         <h1 className="text-2xl font-bold text-white sm:text-3xl">{copy.listNotFoundTitle}</h1>
         <p className="mt-3 text-slate-300">{copy.listNotFoundBody}</p>
@@ -804,32 +815,15 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     )
   }
 
-  const shellStyle = templateTheme
-    ? { backgroundImage: templateTheme.shellBackground }
-    : undefined
-  const panelStyle = templateTheme
-    ? {
-        background: templateTheme.panel.background,
-        borderColor: templateTheme.panel.borderColor,
-      }
-    : undefined
-  const cardStyle = templateTheme
-    ? {
-        background: templateTheme.card.background,
-        borderColor: templateTheme.card.borderColor,
-      }
-    : undefined
-
   if (!hasEntered) {
     return (
       <main
-        className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-14"
-        style={shellStyle}
+        className="event-canvas mx-auto w-full max-w-4xl rounded-2xl px-4 py-8 sm:py-14"
+        data-event-theme={eventThemeId}
       >
         <div className="mb-4 flex justify-end">{languageSwitcher}</div>
         <section
-          className="overflow-hidden rounded-2xl border border-white/10 bg-white/5"
-          style={panelStyle}
+          className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
         >
           {previewMedia?.url && previewMedia.type.startsWith('image/') && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -876,7 +870,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                 type="button"
                 onClick={handleContinue}
                 disabled={contentLoading}
-                className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                className="event-accent-button rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {contentLoading ? copy.opening : copy.continueAction}
               </button>
@@ -935,7 +929,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   if (contentLoading || !list) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
+      <main
+        className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-10 sm:py-16"
+        data-event-theme={eventThemeId}
+      >
         <div className="mb-4 flex justify-end">{languageSwitcher}</div>
         <p className="text-slate-200">{copy.loadingContent}</p>
       </main>
@@ -944,13 +941,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   return (
     <main
-      className="mx-auto w-full max-w-6xl px-4 py-8 sm:py-14"
-      style={shellStyle}
+      className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-8 sm:py-14"
+      data-event-theme={eventThemeId}
     >
       <div className="mb-4 flex justify-end">{languageSwitcher}</div>
       <header
-        className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
-        style={panelStyle}
+        className="event-surface-panel rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
       >
         <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
         <p className="mt-2 text-sm text-slate-300">
@@ -978,8 +974,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
       {stories.length > 0 && (
         <section
-          className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
-          style={panelStyle}
+          className="event-surface-panel mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
         >
           <h2 className="text-xl font-semibold text-white">
             {eventSectionCopy?.storyTitle ?? copy.storyTitleDefault}
@@ -990,8 +985,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             {stories.map((story) => (
               <article
                 key={story.id}
-                className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
-                style={cardStyle}
+                className="event-surface-card rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
               >
                 <h3 className="text-lg font-semibold text-white">{story.title}</h3>
                 <p className="mt-2 text-sm text-slate-300">{story.body}</p>
@@ -1004,8 +998,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
       {wheelEntries.length > 0 && (
         <section
-          className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
-          style={panelStyle}
+          className="event-surface-panel mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
         >
           <h2 className="text-xl font-semibold text-white">
             {eventSectionCopy?.wheelTitle ?? copy.wheelTitleDefault}
@@ -1036,15 +1029,14 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                 type="button"
                 onClick={handleSpinWheel}
                 disabled={isSpinningWheel}
-                className="mt-5 w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                className="event-accent-button mt-5 w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSpinningWheel ? copy.spinning : copy.spinAction}
               </button>
             </div>
 
             <div
-              className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
-              style={cardStyle}
+              className="event-surface-card rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
             >
               {!selectedWheelEntry && (
                 <p className="text-sm text-slate-300">{copy.wheelIntro}</p>
@@ -1102,8 +1094,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           return (
             <article
               key={item.id}
-              className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
-              style={cardStyle}
+              className="event-surface-card rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -1115,7 +1106,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                       href={item.link}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-3 inline-block text-sm text-emerald-300 underline"
+                      className="event-accent-link mt-3 inline-block text-sm text-emerald-300 underline"
                     >
                       {copy.productLinkAction}
                     </a>
@@ -1132,7 +1123,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                   type="button"
                   disabled={Boolean(isListExpired) || !isAvailable || reservingItemId === item.id}
                   onClick={() => handleReserve(item.id)}
-                  className="w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                  className="event-accent-button w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                   {reservingItemId === item.id ? copy.reserving : copy.reserveAction}
                 </button>
@@ -1151,8 +1142,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             className="absolute inset-0 bg-slate-950/85"
           />
           <section
-            className="relative z-10 w-full max-w-lg rounded-2xl border border-white/20 bg-slate-950 p-5 shadow-2xl"
-            style={panelStyle}
+            className="event-surface-panel relative z-10 w-full max-w-lg rounded-2xl border border-white/20 bg-slate-950 p-5 shadow-2xl"
           >
             <h2 className="text-lg font-semibold text-white">{copy.yourDetailsTitle}</h2>
             <p className="mt-2 text-sm text-slate-300">{copy.yourDetailsSubtitle}</p>
@@ -1197,7 +1187,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                 type="button"
                 onClick={handleSaveReservationDetails}
                 disabled={isSavingDetails}
-                className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                className="event-accent-button rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSavingDetails ? copy.detailsSaving : copy.detailsSaveAction}
               </button>
