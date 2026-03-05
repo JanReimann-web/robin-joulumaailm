@@ -349,11 +349,117 @@
     --event-wheel-6: #a57a3a;
   }
 
-  /* Placeholders for future wedding themes. */
-  .event-canvas[data-event-theme='wedding-modern'],
-  .event-canvas[data-event-theme='wedding-minimal'],
+  .event-canvas[data-event-theme='wedding-modern'] {
+    --event-bg-base: linear-gradient(156deg, #0f2027 0%, #1c2a39 48%, #1e3a34 100%);
+    --event-depth: radial-gradient(circle at 50% 22%, rgba(247, 235, 214, 0.16), transparent 44%), radial-gradient(circle at 82% 8%, rgba(212, 175, 55, 0.12), transparent 35%), radial-gradient(circle at 12% 84%, rgba(34, 102, 90, 0.18), transparent 48%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 50%, rgba(5, 9, 14, 0.54) 100%);
+    --event-pattern-image: repeating-linear-gradient(45deg, rgba(245, 236, 218, 0.18) 0 1px, transparent 1px 26px), repeating-linear-gradient(-45deg, rgba(245, 236, 218, 0.12) 0 1px, transparent 1px 26px);
+    --event-pattern-opacity: 0.08;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.24)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.18)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.17;
+    --event-surface-panel: linear-gradient(150deg, rgba(18, 35, 44, 0.88), rgba(30, 58, 52, 0.78));
+    --event-surface-card: linear-gradient(148deg, rgba(14, 27, 36, 0.9), rgba(24, 48, 43, 0.8));
+    --event-border-panel: rgba(212, 175, 55, 0.34);
+    --event-border-card: rgba(212, 175, 55, 0.26);
+    --event-panel-shadow: 0 24px 58px rgba(1, 5, 9, 0.45);
+    --event-card-shadow: 0 16px 38px rgba(1, 5, 9, 0.36);
+    --event-text-strong: #f7f3ea;
+    --event-text-base: #ddd2bf;
+    --event-text-muted: #b9a98e;
+    --event-text-soft: #8f7f67;
+    --event-field-bg: rgba(6, 12, 18, 0.82);
+    --event-field-border: rgba(212, 175, 55, 0.34);
+    --event-field-placeholder: #93836b;
+    --event-chip-bg: linear-gradient(150deg, rgba(10, 20, 30, 0.82), rgba(18, 34, 43, 0.76));
+    --event-chip-border: rgba(212, 175, 55, 0.36);
+    --event-chip-label: #bdaa84;
+    --event-chip-text: #efe3cb;
+    --event-chip-hover-bg: rgba(212, 175, 55, 0.2);
+    --event-chip-active-shadow: 0 12px 24px rgba(0, 0, 0, 0.32);
+    --event-accent: #d4af37;
+    --event-accent-text: #1b1408;
+    --event-link: #e8d6a8;
+    --event-wheel-1: #d4af37;
+    --event-wheel-2: #c8b079;
+    --event-wheel-3: #f1e2b6;
+    --event-wheel-4: #2e6f66;
+    --event-wheel-5: #1e3a34;
+    --event-wheel-6: #0f2027;
+  }
+
+  .event-canvas[data-event-theme='wedding-minimal'] {
+    --event-bg-base: linear-gradient(160deg, #fbf9f6 0%, #f4efe7 100%);
+    --event-depth: radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.72), transparent 46%), radial-gradient(circle at 20% 78%, rgba(208, 188, 152, 0.12), transparent 52%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 56%, rgba(92, 74, 48, 0.1) 100%);
+    --event-pattern-image: repeating-linear-gradient(0deg, rgba(101, 86, 66, 0.14) 0 1px, transparent 1px 34px), repeating-linear-gradient(90deg, rgba(101, 86, 66, 0.1) 0 1px, transparent 1px 34px);
+    --event-pattern-opacity: 0.05;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.24)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.18)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.1;
+    --event-surface-panel: linear-gradient(154deg, rgba(255, 255, 252, 0.94), rgba(247, 241, 231, 0.9));
+    --event-surface-card: linear-gradient(154deg, rgba(255, 254, 250, 0.96), rgba(244, 237, 225, 0.9));
+    --event-border-panel: rgba(159, 134, 95, 0.28);
+    --event-border-card: rgba(159, 134, 95, 0.22);
+    --event-panel-shadow: 0 20px 50px rgba(92, 74, 48, 0.1);
+    --event-card-shadow: 0 14px 34px rgba(92, 74, 48, 0.08);
+    --event-text-strong: #2a2118;
+    --event-text-base: #4f4030;
+    --event-text-muted: #6d5b46;
+    --event-text-soft: #8a7862;
+    --event-field-bg: rgba(255, 255, 252, 0.96);
+    --event-field-border: rgba(159, 134, 95, 0.28);
+    --event-field-placeholder: #8c7861;
+    --event-chip-bg: linear-gradient(160deg, rgba(255, 255, 252, 0.95), rgba(245, 237, 224, 0.92));
+    --event-chip-border: rgba(159, 134, 95, 0.28);
+    --event-chip-label: #7f6a4f;
+    --event-chip-text: #4f4030;
+    --event-chip-hover-bg: rgba(176, 138, 74, 0.14);
+    --event-chip-active-shadow: 0 10px 20px rgba(92, 74, 48, 0.14);
+    --event-accent: #b08a4a;
+    --event-accent-text: #1d1408;
+    --event-link: #6d502a;
+    --event-wheel-1: #b08a4a;
+    --event-wheel-2: #d5be95;
+    --event-wheel-3: #f2ece2;
+    --event-wheel-4: #8b7458;
+    --event-wheel-5: #2a2118;
+    --event-wheel-6: #65523b;
+  }
+
   .event-canvas[data-event-theme='wedding-playful'] {
-    --event-pattern-opacity: 0;
-    --event-grain-opacity: 0;
+    --event-bg-base: linear-gradient(150deg, #fdf6f2 0%, #f8ebe7 54%, #f4dfdf 100%);
+    --event-depth: radial-gradient(circle at 20% 12%, rgba(232, 199, 199, 0.5), transparent 38%), radial-gradient(circle at 82% 22%, rgba(249, 220, 201, 0.42), transparent 40%), radial-gradient(circle at 48% 78%, rgba(215, 225, 206, 0.34), transparent 46%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 56%, rgba(108, 72, 72, 0.14) 100%);
+    --event-pattern-image: repeating-radial-gradient(circle at 20% 20%, rgba(156, 92, 92, 0.16) 0 1px, transparent 1px 24px), repeating-radial-gradient(circle at 80% 70%, rgba(201, 164, 106, 0.14) 0 1px, transparent 1px 26px);
+    --event-pattern-opacity: 0.1;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.24)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.18)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.19;
+    --event-surface-panel: linear-gradient(152deg, rgba(255, 249, 246, 0.9), rgba(247, 233, 228, 0.85));
+    --event-surface-card: linear-gradient(152deg, rgba(255, 248, 245, 0.93), rgba(245, 227, 223, 0.86));
+    --event-border-panel: rgba(201, 164, 106, 0.34);
+    --event-border-card: rgba(201, 164, 106, 0.28);
+    --event-panel-shadow: 0 22px 52px rgba(118, 82, 82, 0.12);
+    --event-card-shadow: 0 14px 34px rgba(118, 82, 82, 0.1);
+    --event-text-strong: #3b2a24;
+    --event-text-base: #5a3e37;
+    --event-text-muted: #7a5a52;
+    --event-text-soft: #9a746b;
+    --event-field-bg: rgba(255, 250, 247, 0.95);
+    --event-field-border: rgba(201, 164, 106, 0.34);
+    --event-field-placeholder: #9a746b;
+    --event-chip-bg: linear-gradient(160deg, rgba(255, 248, 245, 0.93), rgba(244, 230, 227, 0.9));
+    --event-chip-border: rgba(201, 164, 106, 0.34);
+    --event-chip-label: #8a645a;
+    --event-chip-text: #5a3e37;
+    --event-chip-hover-bg: rgba(232, 199, 199, 0.4);
+    --event-chip-active-shadow: 0 10px 20px rgba(118, 82, 82, 0.16);
+    --event-accent: #e8c7c7;
+    --event-accent-text: #3b2a24;
+    --event-link: #9c5c5c;
+    --event-wheel-1: #c9a46a;
+    --event-wheel-2: #e8c7c7;
+    --event-wheel-3: #f3d7d0;
+    --event-wheel-4: #a7b7a1;
+    --event-wheel-5: #9c5c5c;
+    --event-wheel-6: #3b2a24;
   }
 }
