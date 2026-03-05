@@ -2,6 +2,10 @@ import { EventType, TemplateId } from '@/lib/lists/types'
 
 export type EventThemeId =
   | 'default-dark'
+  | 'birthday-classic'
+  | 'birthday-modern'
+  | 'birthday-minimal'
+  | 'birthday-playful'
   | 'wedding-classic'
   | 'wedding-modern'
   | 'wedding-minimal'
@@ -33,8 +37,13 @@ const EVENT_THEME_MAP: EventThemeMap = {
     kidsGirlFairyGarden: 'kids-girl-fairy-garden',
     kidsGirlStarlightPop: 'kids-girl-starlight-pop',
   },
+  birthday: {
+    classic: 'birthday-classic',
+    modern: 'birthday-modern',
+    minimal: 'birthday-minimal',
+    playful: 'birthday-playful',
+  },
   // Placeholders for future event-specific themes.
-  birthday: {},
   babyShower: {},
   graduation: {},
   housewarming: {},

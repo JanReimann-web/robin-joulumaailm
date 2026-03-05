@@ -690,4 +690,156 @@
     --event-wheel-5: #ffc4e7;
     --event-wheel-6: #c49fff;
   }
+
+  .event-canvas[data-event-theme='birthday-classic'] {
+    --event-bg-base: linear-gradient(156deg, #2b1f4a 0%, #45256a 48%, #1f1534 100%);
+    --event-depth: radial-gradient(circle at 18% 14%, rgba(255, 207, 150, 0.3), transparent 38%), radial-gradient(circle at 82% 20%, rgba(255, 120, 170, 0.24), transparent 42%), radial-gradient(circle at 52% 84%, rgba(116, 98, 201, 0.22), transparent 46%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 52%, rgba(11, 8, 18, 0.5) 100%);
+    --event-pattern-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='rgba(255,222,165,0.34)'%3E%3Ccircle cx='46' cy='44' r='4'/%3E%3Ccircle cx='78' cy='68' r='3.2'/%3E%3Ccircle cx='128' cy='36' r='3.8'/%3E%3Ccircle cx='194' cy='30' r='3.4'/%3E%3Ccircle cx='252' cy='58' r='4'/%3E%3Ccircle cx='274' cy='96' r='3.2'/%3E%3Ccircle cx='58' cy='164' r='4'/%3E%3Ccircle cx='152' cy='182' r='3.4'/%3E%3Ccircle cx='286' cy='170' r='4'/%3E%3C/g%3E%3Cg fill='rgba(255,136,189,0.34)'%3E%3Crect x='108' y='56' width='10' height='10' rx='2' transform='rotate(22 113 61)'/%3E%3Crect x='222' y='124' width='10' height='10' rx='2' transform='rotate(-18 227 129)'/%3E%3Crect x='90' y='138' width='10' height='10' rx='2' transform='rotate(-22 95 143)'/%3E%3C/g%3E%3Cg fill='none' stroke='rgba(160,132,255,0.36)' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M32 106c20-8 30-10 48-8'/%3E%3Cpath d='M174 76c18-8 30-10 48-8'/%3E%3Cpath d='M226 172c18-8 30-10 48-8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-pattern-opacity: 0.32;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.22)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.2;
+    --event-surface-panel: linear-gradient(152deg, rgba(55, 32, 90, 0.9), rgba(81, 43, 122, 0.84));
+    --event-surface-card: linear-gradient(150deg, rgba(45, 25, 77, 0.92), rgba(69, 36, 111, 0.86));
+    --event-border-panel: rgba(255, 207, 150, 0.5);
+    --event-border-card: rgba(255, 207, 150, 0.4);
+    --event-panel-shadow: 0 24px 56px rgba(10, 6, 21, 0.38);
+    --event-card-shadow: 0 16px 36px rgba(10, 6, 21, 0.3);
+    --event-text-strong: #fff3dc;
+    --event-text-base: #ffe2bd;
+    --event-text-muted: #e6c39f;
+    --event-text-soft: #c7a77f;
+    --event-field-bg: rgba(30, 16, 54, 0.84);
+    --event-field-border: rgba(255, 207, 150, 0.48);
+    --event-field-placeholder: #ddba92;
+    --event-chip-bg: linear-gradient(150deg, rgba(34, 20, 60, 0.9), rgba(63, 33, 100, 0.84));
+    --event-chip-border: rgba(255, 207, 150, 0.5);
+    --event-chip-label: #ffe6c3;
+    --event-chip-text: #fff1d8;
+    --event-chip-hover-bg: rgba(255, 170, 120, 0.24);
+    --event-chip-active-shadow: 0 10px 20px rgba(24, 12, 44, 0.32);
+    --event-accent: #ffb454;
+    --event-accent-text: #321a00;
+    --event-link: #ffd89a;
+    --event-wheel-1: #ffb454;
+    --event-wheel-2: #ff78aa;
+    --event-wheel-3: #a084ff;
+    --event-wheel-4: #6b3fa7;
+    --event-wheel-5: #ffd6a6;
+    --event-wheel-6: #41205f;
+  }
+
+  .event-canvas[data-event-theme='birthday-modern'] {
+    --event-bg-base: linear-gradient(160deg, #15171f 0%, #2b1936 48%, #11141d 100%);
+    --event-depth: radial-gradient(circle at 16% 14%, rgba(0, 255, 214, 0.24), transparent 38%), radial-gradient(circle at 84% 20%, rgba(255, 77, 196, 0.26), transparent 40%), radial-gradient(circle at 52% 84%, rgba(99, 149, 255, 0.22), transparent 46%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 50%, rgba(3, 5, 10, 0.58) 100%);
+    --event-pattern-image: repeating-linear-gradient(60deg, rgba(0, 255, 214, 0.18) 0 2px, transparent 2px 30px), repeating-linear-gradient(-60deg, rgba(255, 77, 196, 0.14) 0 2px, transparent 2px 30px);
+    --event-pattern-opacity: 0.26;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.2)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.22;
+    --event-surface-panel: linear-gradient(152deg, rgba(26, 27, 41, 0.9), rgba(48, 31, 66, 0.84));
+    --event-surface-card: linear-gradient(150deg, rgba(20, 23, 35, 0.92), rgba(39, 27, 56, 0.86));
+    --event-border-panel: rgba(105, 247, 255, 0.42);
+    --event-border-card: rgba(105, 247, 255, 0.34);
+    --event-panel-shadow: 0 24px 56px rgba(4, 6, 12, 0.46);
+    --event-card-shadow: 0 16px 36px rgba(4, 6, 12, 0.36);
+    --event-text-strong: #f2f7ff;
+    --event-text-base: #ced8ea;
+    --event-text-muted: #a8b4cc;
+    --event-text-soft: #8593b1;
+    --event-field-bg: rgba(12, 16, 28, 0.86);
+    --event-field-border: rgba(105, 247, 255, 0.38);
+    --event-field-placeholder: #8f9ebf;
+    --event-chip-bg: linear-gradient(150deg, rgba(14, 18, 32, 0.9), rgba(31, 24, 49, 0.84));
+    --event-chip-border: rgba(105, 247, 255, 0.4);
+    --event-chip-label: #c7d4eb;
+    --event-chip-text: #edf4ff;
+    --event-chip-hover-bg: rgba(130, 255, 236, 0.18);
+    --event-chip-active-shadow: 0 10px 20px rgba(7, 11, 21, 0.34);
+    --event-accent: #00ffd6;
+    --event-accent-text: #002f28;
+    --event-link: #79fff0;
+    --event-wheel-1: #00ffd6;
+    --event-wheel-2: #ff4dc4;
+    --event-wheel-3: #6395ff;
+    --event-wheel-4: #9b7bff;
+    --event-wheel-5: #1d253a;
+    --event-wheel-6: #3a224c;
+  }
+
+  .event-canvas[data-event-theme='birthday-minimal'] {
+    --event-bg-base: linear-gradient(162deg, #f8f9fc 0%, #eef2f8 100%);
+    --event-depth: radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.78), transparent 46%), radial-gradient(circle at 18% 82%, rgba(163, 175, 199, 0.16), transparent 50%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 58%, rgba(34, 42, 59, 0.08) 100%);
+    --event-pattern-image: repeating-linear-gradient(0deg, rgba(76, 88, 110, 0.12) 0 1px, transparent 1px 36px), repeating-linear-gradient(90deg, rgba(76, 88, 110, 0.12) 0 1px, transparent 1px 36px), linear-gradient(45deg, rgba(255, 142, 85, 0.12) 0 2px, transparent 2px 34px);
+    --event-pattern-opacity: 0.22;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.2)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.12;
+    --event-surface-panel: linear-gradient(156deg, rgba(255, 255, 255, 0.95), rgba(244, 247, 252, 0.92));
+    --event-surface-card: linear-gradient(156deg, rgba(255, 255, 255, 0.97), rgba(241, 245, 250, 0.93));
+    --event-border-panel: rgba(87, 101, 128, 0.26);
+    --event-border-card: rgba(87, 101, 128, 0.2);
+    --event-panel-shadow: 0 20px 50px rgba(33, 41, 59, 0.1);
+    --event-card-shadow: 0 14px 34px rgba(33, 41, 59, 0.08);
+    --event-text-strong: #1f2735;
+    --event-text-base: #3b475d;
+    --event-text-muted: #5a6781;
+    --event-text-soft: #7b88a2;
+    --event-field-bg: rgba(255, 255, 255, 0.97);
+    --event-field-border: rgba(87, 101, 128, 0.24);
+    --event-field-placeholder: #8a96ad;
+    --event-chip-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 251, 0.93));
+    --event-chip-border: rgba(87, 101, 128, 0.24);
+    --event-chip-label: #66748f;
+    --event-chip-text: #3b475d;
+    --event-chip-hover-bg: rgba(98, 123, 170, 0.14);
+    --event-chip-active-shadow: 0 10px 20px rgba(34, 43, 63, 0.14);
+    --event-accent: #ff8e55;
+    --event-accent-text: #2f1404;
+    --event-link: #c15b2e;
+    --event-wheel-1: #ff8e55;
+    --event-wheel-2: #ffb07d;
+    --event-wheel-3: #d8e0ec;
+    --event-wheel-4: #8e9ebb;
+    --event-wheel-5: #44506b;
+    --event-wheel-6: #2a3348;
+  }
+
+  .event-canvas[data-event-theme='birthday-playful'] {
+    --event-bg-base: linear-gradient(152deg, #ff8b8b 0%, #ffb75e 36%, #52c7ff 72%, #7f7bff 100%);
+    --event-depth: radial-gradient(circle at 18% 12%, rgba(255, 243, 196, 0.3), transparent 38%), radial-gradient(circle at 82% 20%, rgba(255, 193, 224, 0.26), transparent 40%), radial-gradient(circle at 52% 84%, rgba(128, 216, 255, 0.24), transparent 46%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 54%, rgba(31, 35, 85, 0.28) 100%);
+    --event-pattern-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='rgba(255,255,255,0.34)'%3E%3Ccircle cx='40' cy='46' r='4'/%3E%3Ccircle cx='78' cy='66' r='3.2'/%3E%3Ccircle cx='122' cy='34' r='3.8'/%3E%3Ccircle cx='188' cy='30' r='3.4'/%3E%3Ccircle cx='252' cy='54' r='4'/%3E%3Ccircle cx='274' cy='94' r='3.2'/%3E%3Ccircle cx='54' cy='168' r='4'/%3E%3Ccircle cx='150' cy='184' r='3.4'/%3E%3Ccircle cx='286' cy='166' r='4'/%3E%3C/g%3E%3Cg fill='rgba(255,255,255,0.26)'%3E%3Crect x='106' y='58' width='10' height='10' rx='2' transform='rotate(22 111 63)'/%3E%3Crect x='220' y='126' width='10' height='10' rx='2' transform='rotate(-18 225 131)'/%3E%3Crect x='88' y='140' width='10' height='10' rx='2' transform='rotate(-22 93 145)'/%3E%3C/g%3E%3Cg fill='none' stroke='rgba(255,255,255,0.28)' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M26 108c18-6 32-6 46 0'/%3E%3Cpath d='M164 78c18-6 32-6 46 0'/%3E%3Cpath d='M218 174c18-6 32-6 46 0'/%3E%3C/g%3E%3C/svg%3E");
+    --event-pattern-opacity: 0.34;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.22)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.2;
+    --event-surface-panel: linear-gradient(152deg, rgba(52, 75, 156, 0.9), rgba(89, 57, 143, 0.84));
+    --event-surface-card: linear-gradient(150deg, rgba(43, 62, 133, 0.92), rgba(73, 48, 122, 0.86));
+    --event-border-panel: rgba(235, 244, 255, 0.54);
+    --event-border-card: rgba(235, 244, 255, 0.44);
+    --event-panel-shadow: 0 24px 56px rgba(21, 25, 74, 0.32);
+    --event-card-shadow: 0 16px 36px rgba(21, 25, 74, 0.26);
+    --event-text-strong: #f6f9ff;
+    --event-text-base: #dce7ff;
+    --event-text-muted: #b8c9f4;
+    --event-text-soft: #95aadb;
+    --event-field-bg: rgba(30, 42, 102, 0.84);
+    --event-field-border: rgba(235, 244, 255, 0.5);
+    --event-field-placeholder: #bccbf0;
+    --event-chip-bg: linear-gradient(150deg, rgba(31, 46, 110, 0.9), rgba(61, 42, 108, 0.84));
+    --event-chip-border: rgba(235, 244, 255, 0.52);
+    --event-chip-label: #deebff;
+    --event-chip-text: #eff5ff;
+    --event-chip-hover-bg: rgba(198, 221, 255, 0.24);
+    --event-chip-active-shadow: 0 10px 20px rgba(22, 30, 84, 0.3);
+    --event-accent: #ffe166;
+    --event-accent-text: #302300;
+    --event-link: #fff0aa;
+    --event-wheel-1: #ff8b8b;
+    --event-wheel-2: #ffb75e;
+    --event-wheel-3: #52c7ff;
+    --event-wheel-4: #7f7bff;
+    --event-wheel-5: #ffe166;
+    --event-wheel-6: #9f5cff;
+  }
 }
