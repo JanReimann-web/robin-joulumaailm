@@ -124,6 +124,12 @@
     --event-field-bg: rgba(2, 6, 23, 0.84);
     --event-field-border: rgba(255, 255, 255, 0.2);
     --event-field-placeholder: #93a4ba;
+    --event-chip-bg: rgba(2, 6, 23, 0.58);
+    --event-chip-border: rgba(255, 255, 255, 0.2);
+    --event-chip-label: #94a3b8;
+    --event-chip-text: #cbd5e1;
+    --event-chip-hover-bg: rgba(255, 255, 255, 0.1);
+    --event-chip-active-shadow: 0 10px 22px rgba(2, 6, 23, 0.22);
     --event-accent: #34d399;
     --event-accent-text: #00130b;
     --event-link: #6ee7b7;
@@ -209,6 +215,59 @@
     color: var(--event-link) !important;
   }
 
+  .event-chip-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 9999px;
+    border: 1px solid var(--event-chip-border);
+    background: var(--event-chip-bg);
+    padding: 0.3rem;
+    box-shadow: var(--event-card-shadow);
+    backdrop-filter: blur(2px);
+  }
+
+  .event-chip-label {
+    padding-left: 0.55rem;
+    padding-right: 0.35rem;
+    font-size: 0.69rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--event-chip-label);
+  }
+
+  .event-chip-button {
+    min-width: 2.35rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0.32rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--event-chip-text);
+    transition:
+      background-color 220ms ease,
+      color 220ms ease,
+      transform 140ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .event-chip-button:hover {
+    background: var(--event-chip-hover-bg);
+    color: var(--event-text-strong);
+  }
+
+  .event-chip-button:active {
+    transform: scale(0.98);
+  }
+
+  .event-chip-button.is-active {
+    background: var(--event-accent);
+    color: var(--event-accent-text);
+    box-shadow: var(--event-chip-active-shadow);
+  }
+
   .event-canvas .text-white {
     color: var(--event-text-strong) !important;
   }
@@ -257,7 +316,7 @@
     --event-depth: radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.68), transparent 42%), radial-gradient(circle at 48% 78%, rgba(205, 183, 145, 0.28), transparent 62%);
     --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 52%, rgba(91, 64, 35, 0.16) 100%);
     --event-pattern-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='rgba(129,98,55,0.26)' stroke-width='0.8'%3E%3Cpath d='M110 10c10 18 25 30 44 34-19 4-34 16-44 34-10-18-25-30-44-34 19-4 34-16 44-34Z'/%3E%3Cpath d='M110 76c7 12 16 20 28 23-12 3-21 11-28 23-7-12-16-20-28-23 12-3 21-11 28-23Z'/%3E%3Cpath d='M22 110h176M110 22v176' stroke='rgba(129,98,55,0.14)'/%3E%3C/g%3E%3Cg fill='rgba(129,98,55,0.22)'%3E%3Ccircle cx='44' cy='44' r='1.3'/%3E%3Ccircle cx='176' cy='44' r='1.3'/%3E%3Ccircle cx='44' cy='176' r='1.3'/%3E%3Ccircle cx='176' cy='176' r='1.3'/%3E%3C/g%3E%3C/svg%3E");
-    --event-pattern-opacity: 0.1;
+    --event-pattern-opacity: 0.14;
     --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='rgba(255,255,255,0.28)'%3E%3Ccircle cx='8' cy='10' r='0.7'/%3E%3Ccircle cx='34' cy='22' r='0.8'/%3E%3Ccircle cx='69' cy='14' r='0.7'/%3E%3Ccircle cx='108' cy='26' r='0.8'/%3E%3Ccircle cx='19' cy='57' r='0.8'/%3E%3Ccircle cx='55' cy='46' r='0.7'/%3E%3Ccircle cx='86' cy='60' r='0.8'/%3E%3Ccircle cx='121' cy='48' r='0.7'/%3E%3Ccircle cx='12' cy='97' r='0.8'/%3E%3Ccircle cx='42' cy='88' r='0.7'/%3E%3Ccircle cx='78' cy='102' r='0.8'/%3E%3Ccircle cx='114' cy='94' r='0.7'/%3E%3Ccircle cx='22' cy='128' r='0.8'/%3E%3Ccircle cx='61' cy='121' r='0.7'/%3E%3Ccircle cx='96' cy='132' r='0.8'/%3E%3Ccircle cx='129' cy='120' r='0.7'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='25' cy='6' r='0.7'/%3E%3Ccircle cx='48' cy='30' r='0.6'/%3E%3Ccircle cx='95' cy='20' r='0.7'/%3E%3Ccircle cx='129' cy='37' r='0.6'/%3E%3Ccircle cx='7' cy='70' r='0.6'/%3E%3Ccircle cx='38' cy='64' r='0.7'/%3E%3Ccircle cx='73' cy='77' r='0.6'/%3E%3Ccircle cx='107' cy='69' r='0.7'/%3E%3Ccircle cx='133' cy='82' r='0.6'/%3E%3Ccircle cx='30' cy='109' r='0.7'/%3E%3Ccircle cx='66' cy='98' r='0.6'/%3E%3Ccircle cx='101' cy='112' r='0.7'/%3E%3Ccircle cx='10' cy='123' r='0.6'/%3E%3Ccircle cx='51' cy='133' r='0.7'/%3E%3Ccircle cx='85' cy='126' r='0.6'/%3E%3Ccircle cx='117' cy='137' r='0.7'/%3E%3C/g%3E%3C/svg%3E");
     --event-grain-opacity: 0.24;
     --event-surface-panel: linear-gradient(150deg, rgba(255, 253, 248, 0.9), rgba(247, 238, 224, 0.86));
@@ -273,6 +332,12 @@
     --event-field-bg: rgba(255, 251, 244, 0.96);
     --event-field-border: rgba(174, 142, 83, 0.35);
     --event-field-placeholder: #9b8469;
+    --event-chip-bg: linear-gradient(150deg, rgba(255, 252, 246, 0.93), rgba(248, 239, 225, 0.9));
+    --event-chip-border: rgba(174, 142, 83, 0.4);
+    --event-chip-label: #8c7658;
+    --event-chip-text: #5a4832;
+    --event-chip-hover-bg: rgba(198, 167, 94, 0.18);
+    --event-chip-active-shadow: 0 10px 20px rgba(98, 72, 38, 0.18);
     --event-accent: #c6a75e;
     --event-accent-text: #1c1408;
     --event-link: #8f6c34;

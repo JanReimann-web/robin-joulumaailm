@@ -767,13 +767,13 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }
 
   const languageSwitcher = (
-    <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-950/70 p-1 text-xs">
-      <span className="px-2 text-slate-300">{copy.languageLabel}</span>
+    <div className="event-chip-group">
+      <span className="event-chip-label">{copy.languageLabel}</span>
       <button
         type="button"
         onClick={() => setLocale('en')}
-        className={`rounded-full px-3 py-1 font-semibold transition ${
-          locale === 'en' ? 'bg-emerald-400 text-black' : 'text-slate-200'
+        className={`event-chip-button ${
+          locale === 'en' ? 'is-active' : ''
         }`}
       >
         EN
@@ -781,8 +781,8 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       <button
         type="button"
         onClick={() => setLocale('et')}
-        className={`rounded-full px-3 py-1 font-semibold transition ${
-          locale === 'et' ? 'bg-emerald-400 text-black' : 'text-slate-200'
+        className={`event-chip-button ${
+          locale === 'et' ? 'is-active' : ''
         }`}
       >
         ET
@@ -792,39 +792,44 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
   if (metaLoading) {
     return (
-      <main
-        className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-10 sm:py-16"
+      <div
+        className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
         data-event-theme="default-dark"
       >
-        <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-        <p className="text-slate-200">{copy.loadingList}</p>
-      </main>
+        <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
+          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          <p className="text-slate-200">{copy.loadingList}</p>
+        </main>
+      </div>
     )
   }
 
   if (notFound || !meta) {
     return (
-      <main
-        className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-10 sm:py-16"
+      <div
+        className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
         data-event-theme="default-dark"
       >
-        <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">{copy.listNotFoundTitle}</h1>
-        <p className="mt-3 text-slate-300">{copy.listNotFoundBody}</p>
-      </main>
+        <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
+          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">{copy.listNotFoundTitle}</h1>
+          <p className="mt-3 text-slate-300">{copy.listNotFoundBody}</p>
+        </main>
+      </div>
     )
   }
 
   if (!hasEntered) {
     return (
-      <main
-        className="event-canvas mx-auto w-full max-w-4xl rounded-2xl px-4 py-8 sm:py-14"
+      <div
+        className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
         data-event-theme={eventThemeId}
       >
-        <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-        <section
-          className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
-        >
+        <main className="mx-auto w-full max-w-4xl py-4 sm:py-8">
+          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          <section
+            className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+          >
           {previewMedia?.url && previewMedia.type.startsWith('image/') && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -922,32 +927,36 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               </p>
             )}
           </div>
-        </section>
-      </main>
+          </section>
+        </main>
+      </div>
     )
   }
 
   if (contentLoading || !list) {
     return (
-      <main
-        className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-10 sm:py-16"
+      <div
+        className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
         data-event-theme={eventThemeId}
       >
-        <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-        <p className="text-slate-200">{copy.loadingContent}</p>
-      </main>
+        <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
+          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          <p className="text-slate-200">{copy.loadingContent}</p>
+        </main>
+      </div>
     )
   }
 
   return (
-    <main
-      className="event-canvas mx-auto w-full max-w-6xl rounded-2xl px-4 py-8 sm:py-14"
+    <div
+      className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
       data-event-theme={eventThemeId}
     >
-      <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-      <header
-        className="event-surface-panel rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
-      >
+      <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
+        <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+        <header
+          className="event-surface-panel rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
+        >
         <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
         <p className="mt-2 text-sm text-slate-300">
           {copy.eventLabel}: {eventLabel(list.eventType, locale)} - {availableCount} {copy.giftsAvailable}
@@ -958,21 +967,21 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             {copy.listExpired}
           </p>
         )}
-      </header>
+        </header>
 
-      {success && (
+        {success && (
         <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
           {success}
         </p>
-      )}
+        )}
 
-      {error && (
+        {error && (
         <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
           {error}
         </p>
-      )}
+        )}
 
-      {stories.length > 0 && (
+        {stories.length > 0 && (
         <section
           className="event-surface-panel mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
         >
@@ -994,9 +1003,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             ))}
           </div>
         </section>
-      )}
+        )}
 
-      {wheelEntries.length > 0 && (
+        {wheelEntries.length > 0 && (
         <section
           className="event-surface-panel mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
         >
@@ -1081,9 +1090,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             </div>
           </div>
         </section>
-      )}
+        )}
 
-      <section className="mt-6 grid gap-4">
+        <section className="mt-6 grid gap-4">
         {items.length === 0 && (
           <p className="text-sm text-slate-300">{copy.noGiftItems}</p>
         )}
@@ -1131,9 +1140,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             </article>
           )
         })}
-      </section>
+        </section>
 
-      {isDetailsModalOpen && (
+        {isDetailsModalOpen && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
           <button
             type="button"
@@ -1194,9 +1203,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             </div>
           </section>
         </div>
-      )}
+        )}
 
-      {isThankYouVisible && (
+        {isThankYouVisible && (
         <div className="pointer-events-none fixed bottom-4 right-4 z-30 w-full max-w-md px-4 sm:px-0">
           <section
             className={`pointer-events-auto toast-success ${
@@ -1212,7 +1221,8 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             </div>
           </section>
         </div>
-      )}
-    </main>
+        )}
+      </main>
+    </div>
   )
 }
