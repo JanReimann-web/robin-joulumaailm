@@ -96,6 +96,26 @@ const eventLabelMap = (
   christmas: labels.christmas,
 })
 
+const KIDS_BIRTHDAY_TEMPLATE_SET = new Set<TemplateId>([
+  'kidsBoyTinyPilot',
+  'kidsBoyDinoRanger',
+  'kidsBoyGalaxyRacer',
+  'kidsGirlTinyBloom',
+  'kidsGirlFairyGarden',
+  'kidsGirlStarlightPop',
+])
+
+const getDisplayEventType = (
+  eventType: EventType,
+  templateId: TemplateId
+): EventType => {
+  if (eventType === 'kidsBirthday' && !KIDS_BIRTHDAY_TEMPLATE_SET.has(templateId)) {
+    return 'birthday'
+  }
+
+  return eventType
+}
+
 const visibilityLabelMap = (
   labels: Dictionary['dashboard']
 ): Record<ListVisibility, string> => ({
@@ -1510,7 +1530,7 @@ export default function ListWorkspace({
                   {list.introTitle || list.title}
                 </h4>
                 <p className="mt-2 text-sm text-slate-300">
-                  {labels.eventTag}: {eventTypeLabels[list.eventType]}
+                  {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]}
                 </p>
                 <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
 
@@ -1579,7 +1599,7 @@ export default function ListWorkspace({
             >
               <h4 className="text-2xl font-bold text-white">{list.title}</h4>
               <p className="mt-2 text-sm text-slate-300">
-                {labels.eventTag}: {eventTypeLabels[list.eventType]} - {availableItemsCount} {labels.itemsTitle.toLowerCase()}
+                {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]} - {availableItemsCount} {labels.itemsTitle.toLowerCase()}
               </p>
               <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
             </header>
@@ -1829,7 +1849,7 @@ export default function ListWorkspace({
               <p className="mt-1 break-all text-xs text-slate-400">{getPublicListUrl(list.slug)} ({locale})</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <span className="rounded-full border border-white/20 px-2 py-1">
-                  {labels.eventTag}: {eventTypeLabels[list.eventType]}
+                  {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]}
                 </span>
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.visibilityTag}: {visibilityLabels[list.visibility]}

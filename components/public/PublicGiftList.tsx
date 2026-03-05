@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, Eye, EyeOff } from 'lucide-react'
-import { EventType, GiftList, GiftListItem, ListStoryEntry, WheelEntry } from '@/lib/lists/types'
+import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
 type PublicGiftListProps = {
@@ -197,14 +197,39 @@ const detectInitialLocale = (): PublicLocale => {
   return navigator.language.toLowerCase().startsWith('et') ? 'et' : 'en'
 }
 
-const eventLabel = (eventType: EventType, locale: PublicLocale) => {
+const KIDS_BIRTHDAY_TEMPLATE_SET = new Set<TemplateId>([
+  'kidsBoyTinyPilot',
+  'kidsBoyDinoRanger',
+  'kidsBoyGalaxyRacer',
+  'kidsGirlTinyBloom',
+  'kidsGirlFairyGarden',
+  'kidsGirlStarlightPop',
+])
+
+const getDisplayEventType = (
+  eventType: EventType,
+  templateId: TemplateId
+): EventType => {
+  if (eventType === 'kidsBirthday' && !KIDS_BIRTHDAY_TEMPLATE_SET.has(templateId)) {
+    return 'birthday'
+  }
+
+  return eventType
+}
+
+const eventLabel = (
+  eventType: EventType,
+  templateId: TemplateId,
+  locale: PublicLocale
+) => {
   const copy = PUBLIC_COPY[locale]
-  if (eventType === 'wedding') return copy.eventWedding
-  if (eventType === 'birthday') return copy.eventBirthday
-  if (eventType === 'kidsBirthday') return copy.eventKidsBirthday
-  if (eventType === 'babyShower') return copy.eventBabyShower
-  if (eventType === 'graduation') return copy.eventGraduation
-  if (eventType === 'housewarming') return copy.eventHousewarming
+  const displayEventType = getDisplayEventType(eventType, templateId)
+  if (displayEventType === 'wedding') return copy.eventWedding
+  if (displayEventType === 'birthday') return copy.eventBirthday
+  if (displayEventType === 'kidsBirthday') return copy.eventKidsBirthday
+  if (displayEventType === 'babyShower') return copy.eventBabyShower
+  if (displayEventType === 'graduation') return copy.eventGraduation
+  if (displayEventType === 'housewarming') return copy.eventHousewarming
   return copy.eventChristmas
 }
 
@@ -298,17 +323,20 @@ type EventSectionCopy = {
 
 const getEventSectionCopy = (
   eventType: EventType,
+  templateId: TemplateId,
   locale: PublicLocale
 ): EventSectionCopy => {
   const copy = PUBLIC_COPY[locale]
-  if (eventType === 'kidsBirthday') {
+  const displayEventType = getDisplayEventType(eventType, templateId)
+
+  if (displayEventType === 'kidsBirthday') {
     return {
       storyTitle: copy.kidsStoryTitle,
       wheelTitle: copy.kidsWheelTitle,
     }
   }
 
-  if (eventType === 'birthday') {
+  if (displayEventType === 'birthday') {
     return {
       storyTitle: copy.birthdayStoryTitle,
       wheelTitle: copy.birthdayWheelTitle,
@@ -532,7 +560,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const activeEventType = list?.eventType ?? meta?.list.eventType
   const activeTemplateId = list?.templateId ?? meta?.list.templateId
   const eventThemeId = resolveEventThemeId(activeEventType, activeTemplateId)
-  const eventSectionCopy = activeEventType ? getEventSectionCopy(activeEventType, locale) : null
+  const eventSectionCopy = activeEventType && activeTemplateId
+    ? getEventSectionCopy(activeEventType, activeTemplateId, locale)
+    : null
   const isListExpired = (list ?? meta?.list)?.accessStatus === 'expired'
   const selectedWheelEntry = useMemo(
     () => wheelEntries.find((entry) => entry.id === selectedWheelEntryId) ?? null,
@@ -854,7 +884,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               {meta.list.introTitle || meta.list.title}
             </h1>
             <p className="mt-2 text-sm text-slate-300">
-              {copy.eventLabel}: {eventLabel(meta.list.eventType, locale)}
+              {copy.eventLabel}: {eventLabel(meta.list.eventType, meta.list.templateId, locale)}
             </p>
             <p className="mt-1 text-xs text-slate-400">/{meta.list.slug}</p>
 
@@ -959,7 +989,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         >
         <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
         <p className="mt-2 text-sm text-slate-300">
-          {copy.eventLabel}: {eventLabel(list.eventType, locale)} - {availableCount} {copy.giftsAvailable}
+          {copy.eventLabel}: {eventLabel(list.eventType, list.templateId, locale)} - {availableCount} {copy.giftsAvailable}
         </p>
         <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
         {isListExpired && (
