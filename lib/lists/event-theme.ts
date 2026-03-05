@@ -9,6 +9,9 @@ export type EventThemeId =
   | 'kids-boy-tiny-pilot'
   | 'kids-boy-dino-ranger'
   | 'kids-boy-galaxy-racer'
+  | 'kids-girl-tiny-bloom'
+  | 'kids-girl-fairy-garden'
+  | 'kids-girl-starlight-pop'
 
 type EventThemeMap = {
   [K in EventType]?: Partial<Record<TemplateId, EventThemeId>>
@@ -26,10 +29,9 @@ const EVENT_THEME_MAP: EventThemeMap = {
     kidsBoyTinyPilot: 'kids-boy-tiny-pilot',
     kidsBoyDinoRanger: 'kids-boy-dino-ranger',
     kidsBoyGalaxyRacer: 'kids-boy-galaxy-racer',
-    // Placeholders for girls themes.
-    kidsGirlTinyBloom: 'default-dark',
-    kidsGirlFairyGarden: 'default-dark',
-    kidsGirlStarlightPop: 'default-dark',
+    kidsGirlTinyBloom: 'kids-girl-tiny-bloom',
+    kidsGirlFairyGarden: 'kids-girl-fairy-garden',
+    kidsGirlStarlightPop: 'kids-girl-starlight-pop',
   },
   // Placeholders for future event-specific themes.
   birthday: {},
