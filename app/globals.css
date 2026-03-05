@@ -462,4 +462,118 @@
     --event-wheel-5: #6b79d6;
     --event-wheel-6: #3c436f;
   }
+
+  .event-canvas[data-event-theme='kids-boy-tiny-pilot'] {
+    --event-bg-base: linear-gradient(154deg, #75c8ff 0%, #4fa6ea 52%, #2f6fbe 100%);
+    --event-depth: radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.42), transparent 38%), radial-gradient(circle at 80% 18%, rgba(196, 233, 255, 0.36), transparent 40%), radial-gradient(circle at 52% 80%, rgba(17, 77, 149, 0.28), transparent 48%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 54%, rgba(10, 41, 82, 0.28) 100%);
+    --event-pattern-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='rgba(255,255,255,0.32)'%3E%3Cellipse cx='56' cy='48' rx='24' ry='12'/%3E%3Cellipse cx='78' cy='50' rx='18' ry='10'/%3E%3Cellipse cx='40' cy='52' rx='14' ry='9'/%3E%3Cellipse cx='252' cy='136' rx='30' ry='14'/%3E%3Cellipse cx='280' cy='138' rx='18' ry='10'/%3E%3Cellipse cx='232' cy='140' rx='15' ry='9'/%3E%3Cellipse cx='138' cy='172' rx='23' ry='11'/%3E%3Cellipse cx='162' cy='174' rx='16' ry='9'/%3E%3Cellipse cx='121' cy='176' rx='13' ry='8'/%3E%3C/g%3E%3Cg fill='rgba(20,92,175,0.3)'%3E%3Cpath d='M188 56l36 10-36 10 8-10-8-10Z'/%3E%3Ccircle cx='185' cy='66' r='2.6'/%3E%3Cpath d='M82 132l30 8-30 8 7-8-7-8Z'/%3E%3Ccircle cx='80' cy='140' r='2.2'/%3E%3Cpath d='M242 36l24 7-24 7 6-7-6-7Z'/%3E%3Ccircle cx='240' cy='43' r='2'/%3E%3C/g%3E%3Cg fill='none' stroke='rgba(255,255,255,0.22)' stroke-width='2' stroke-linecap='round' stroke-dasharray='5 7'%3E%3Cpath d='M156 68c-26 2-42 8-56 18'/%3E%3Cpath d='M64 146c-18 2-28 8-40 18'/%3E%3Cpath d='M216 43c-16 1-28 6-40 14'/%3E%3C/g%3E%3C/svg%3E");
+    --event-pattern-opacity: 0.22;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.22)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.14;
+    --event-surface-panel: linear-gradient(152deg, rgba(20, 73, 140, 0.9), rgba(52, 127, 201, 0.82));
+    --event-surface-card: linear-gradient(150deg, rgba(16, 63, 124, 0.92), rgba(47, 111, 190, 0.84));
+    --event-border-panel: rgba(163, 220, 255, 0.5);
+    --event-border-card: rgba(163, 220, 255, 0.4);
+    --event-panel-shadow: 0 24px 56px rgba(6, 30, 67, 0.3);
+    --event-card-shadow: 0 16px 36px rgba(6, 30, 67, 0.24);
+    --event-text-strong: #f4fbff;
+    --event-text-base: #d6edff;
+    --event-text-muted: #aed5f4;
+    --event-text-soft: #8cb7df;
+    --event-field-bg: rgba(7, 39, 80, 0.82);
+    --event-field-border: rgba(163, 220, 255, 0.5);
+    --event-field-placeholder: #9ec5e8;
+    --event-chip-bg: linear-gradient(150deg, rgba(9, 46, 93, 0.88), rgba(30, 90, 160, 0.82));
+    --event-chip-border: rgba(163, 220, 255, 0.52);
+    --event-chip-label: #d0ebff;
+    --event-chip-text: #e8f6ff;
+    --event-chip-hover-bg: rgba(156, 212, 255, 0.24);
+    --event-chip-active-shadow: 0 10px 20px rgba(8, 43, 87, 0.28);
+    --event-accent: #ffd166;
+    --event-accent-text: #2a1b00;
+    --event-link: #fff1b5;
+    --event-wheel-1: #75c8ff;
+    --event-wheel-2: #4fa6ea;
+    --event-wheel-3: #2f6fbe;
+    --event-wheel-4: #ffd166;
+    --event-wheel-5: #8fd9ff;
+    --event-wheel-6: #1e4d93;
+  }
+
+  .event-canvas[data-event-theme='kids-boy-dino-ranger'] {
+    --event-bg-base: linear-gradient(154deg, #86d968 0%, #46ab4d 48%, #2a6e3f 100%);
+    --event-depth: radial-gradient(circle at 18% 12%, rgba(221, 255, 188, 0.42), transparent 40%), radial-gradient(circle at 84% 18%, rgba(188, 240, 150, 0.3), transparent 42%), radial-gradient(circle at 48% 82%, rgba(26, 80, 51, 0.28), transparent 48%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 54%, rgba(17, 56, 35, 0.28) 100%);
+    --event-pattern-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='rgba(126,201,84,0.24)'%3E%3Cpath d='M48 84c0-18 14-30 34-30h22c14 0 25 11 25 25v7h10v12h-10v9h-11v-7H80v7H69v-9H58V84h-10z'/%3E%3Cpath d='M220 162c0-16 13-27 30-27h20c13 0 23 10 23 23v7h9v11h-9v8h-10v-6h-34v6h-10v-8h-9v-14z'/%3E%3C/g%3E%3Cg fill='rgba(171,236,120,0.28)'%3E%3Cpath d='M93 50l8-13 8 13z'/%3E%3Cpath d='M108 49l7-12 7 12z'/%3E%3Cpath d='M123 50l8-13 8 13z'/%3E%3Cpath d='M256 130l7-11 7 11z'/%3E%3Cpath d='M270 130l7-11 7 11z'/%3E%3Cpath d='M284 130l7-11 7 11z'/%3E%3C/g%3E%3Cg fill='rgba(245,214,120,0.2)'%3E%3Ccircle cx='166' cy='62' r='5'/%3E%3Ccircle cx='174' cy='52' r='4'/%3E%3Ccircle cx='182' cy='62' r='5'/%3E%3Ccircle cx='150' cy='160' r='5'/%3E%3Ccircle cx='158' cy='150' r='4'/%3E%3Ccircle cx='166' cy='160' r='5'/%3E%3C/g%3E%3C/svg%3E");
+    --event-pattern-opacity: 0.2;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.2)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.14;
+    --event-surface-panel: linear-gradient(152deg, rgba(33, 92, 49, 0.9), rgba(53, 128, 62, 0.82));
+    --event-surface-card: linear-gradient(150deg, rgba(26, 80, 43, 0.92), rgba(46, 111, 56, 0.84));
+    --event-border-panel: rgba(214, 248, 164, 0.48);
+    --event-border-card: rgba(214, 248, 164, 0.38);
+    --event-panel-shadow: 0 24px 56px rgba(12, 42, 24, 0.3);
+    --event-card-shadow: 0 16px 36px rgba(12, 42, 24, 0.24);
+    --event-text-strong: #f5ffea;
+    --event-text-base: #daf4b8;
+    --event-text-muted: #b8de8f;
+    --event-text-soft: #9cc476;
+    --event-field-bg: rgba(17, 57, 30, 0.82);
+    --event-field-border: rgba(214, 248, 164, 0.48);
+    --event-field-placeholder: #afd787;
+    --event-chip-bg: linear-gradient(150deg, rgba(19, 61, 31, 0.88), rgba(37, 93, 43, 0.82));
+    --event-chip-border: rgba(214, 248, 164, 0.48);
+    --event-chip-label: #dbf6b8;
+    --event-chip-text: #edfddb;
+    --event-chip-hover-bg: rgba(188, 235, 131, 0.24);
+    --event-chip-active-shadow: 0 10px 20px rgba(15, 52, 27, 0.28);
+    --event-accent: #f7b733;
+    --event-accent-text: #2d1d00;
+    --event-link: #ffe4a3;
+    --event-wheel-1: #86d968;
+    --event-wheel-2: #46ab4d;
+    --event-wheel-3: #2a6e3f;
+    --event-wheel-4: #f7b733;
+    --event-wheel-5: #b8e18b;
+    --event-wheel-6: #184b2f;
+  }
+
+  .event-canvas[data-event-theme='kids-boy-galaxy-racer'] {
+    --event-bg-base: linear-gradient(156deg, #0d1f4c 0%, #2b2f77 50%, #11243f 100%);
+    --event-depth: radial-gradient(circle at 18% 14%, rgba(138, 178, 239, 0.34), transparent 40%), radial-gradient(circle at 82% 20%, rgba(173, 137, 255, 0.32), transparent 42%), radial-gradient(circle at 52% 84%, rgba(124, 243, 255, 0.22), transparent 46%);
+    --event-vignette: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 52%, rgba(4, 11, 28, 0.45) 100%);
+    --event-pattern-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='rgba(199,220,255,0.3)'%3E%3Ccircle cx='48' cy='42' r='2.2'/%3E%3Ccircle cx='86' cy='66' r='1.8'/%3E%3Ccircle cx='132' cy='38' r='2.1'/%3E%3Ccircle cx='192' cy='26' r='1.9'/%3E%3Ccircle cx='274' cy='48' r='2.2'/%3E%3Ccircle cx='256' cy='98' r='1.9'/%3E%3Ccircle cx='58' cy='168' r='2.1'/%3E%3Ccircle cx='148' cy='186' r='1.8'/%3E%3Ccircle cx='284' cy='172' r='2.1'/%3E%3C/g%3E%3Cg fill='none' stroke='rgba(151,202,255,0.32)' stroke-width='2'%3E%3Ccircle cx='244' cy='58' r='16'/%3E%3Cellipse cx='244' cy='58' rx='26' ry='9'/%3E%3Ccircle cx='104' cy='154' r='12'/%3E%3Cellipse cx='104' cy='154' rx='20' ry='7'/%3E%3C/g%3E%3Cg fill='rgba(170,130,255,0.28)'%3E%3Cpath d='M176 112l10-22 10 22 12 5-12 5-10 22-10-22-12-5z'/%3E%3C/g%3E%3Cg fill='rgba(124,243,255,0.3)'%3E%3Cpath d='M58 122l8-19 8 19 8 4-8 4-8 19-8-19-8-4z'/%3E%3C/g%3E%3Cg fill='rgba(149,183,255,0.26)'%3E%3Cpath d='M270 142l18 8-18 8 6-8-6-8Z'/%3E%3Crect x='262' y='147' width='8' height='6' rx='2'/%3E%3C/g%3E%3C/svg%3E");
+    --event-pattern-opacity: 0.22;
+    --event-grain-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='rgba(255,255,255,0.2)'%3E%3Ccircle cx='7' cy='11' r='0.8'/%3E%3Ccircle cx='25' cy='29' r='0.7'/%3E%3Ccircle cx='41' cy='9' r='0.8'/%3E%3Ccircle cx='61' cy='21' r='0.7'/%3E%3Ccircle cx='73' cy='39' r='0.8'/%3E%3Ccircle cx='17' cy='53' r='0.7'/%3E%3Ccircle cx='33' cy='69' r='0.8'/%3E%3Ccircle cx='57' cy='61' r='0.7'/%3E%3Ccircle cx='77' cy='75' r='0.8'/%3E%3C/g%3E%3Cg fill='rgba(0,0,0,0.16)'%3E%3Ccircle cx='14' cy='4' r='0.7'/%3E%3Ccircle cx='35' cy='18' r='0.8'/%3E%3Ccircle cx='52' cy='33' r='0.7'/%3E%3Ccircle cx='68' cy='7' r='0.8'/%3E%3Ccircle cx='4' cy='35' r='0.7'/%3E%3Ccircle cx='22' cy='46' r='0.8'/%3E%3Ccircle cx='46' cy='54' r='0.7'/%3E%3Ccircle cx='65' cy='49' r='0.8'/%3E%3Ccircle cx='11' cy='71' r='0.7'/%3E%3Ccircle cx='49' cy='78' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+    --event-grain-opacity: 0.16;
+    --event-surface-panel: linear-gradient(152deg, rgba(24, 35, 86, 0.9), rgba(39, 51, 117, 0.82));
+    --event-surface-card: linear-gradient(150deg, rgba(18, 29, 73, 0.92), rgba(33, 45, 102, 0.84));
+    --event-border-panel: rgba(150, 190, 255, 0.48);
+    --event-border-card: rgba(150, 190, 255, 0.38);
+    --event-panel-shadow: 0 24px 56px rgba(4, 11, 28, 0.38);
+    --event-card-shadow: 0 16px 36px rgba(4, 11, 28, 0.3);
+    --event-text-strong: #f0f4ff;
+    --event-text-base: #cfdaff;
+    --event-text-muted: #a6b9ef;
+    --event-text-soft: #8397cf;
+    --event-field-bg: rgba(10, 18, 51, 0.84);
+    --event-field-border: rgba(150, 190, 255, 0.44);
+    --event-field-placeholder: #9cb0e3;
+    --event-chip-bg: linear-gradient(150deg, rgba(10, 19, 54, 0.9), rgba(24, 38, 92, 0.84));
+    --event-chip-border: rgba(150, 190, 255, 0.46);
+    --event-chip-label: #c8d8ff;
+    --event-chip-text: #e4ecff;
+    --event-chip-hover-bg: rgba(145, 179, 255, 0.24);
+    --event-chip-active-shadow: 0 10px 20px rgba(10, 20, 56, 0.3);
+    --event-accent: #7cf3ff;
+    --event-accent-text: #03242b;
+    --event-link: #b9f5ff;
+    --event-wheel-1: #7cf3ff;
+    --event-wheel-2: #8ab2ef;
+    --event-wheel-3: #ad89ff;
+    --event-wheel-4: #4d7dff;
+    --event-wheel-5: #2b2f77;
+    --event-wheel-6: #11243f;
+  }
 }

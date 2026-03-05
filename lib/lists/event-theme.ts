@@ -6,6 +6,9 @@ export type EventThemeId =
   | 'wedding-modern'
   | 'wedding-minimal'
   | 'wedding-playful'
+  | 'kids-boy-tiny-pilot'
+  | 'kids-boy-dino-ranger'
+  | 'kids-boy-galaxy-racer'
 
 type EventThemeMap = {
   [K in EventType]?: Partial<Record<TemplateId, EventThemeId>>
@@ -19,9 +22,17 @@ const EVENT_THEME_MAP: EventThemeMap = {
     minimal: 'wedding-minimal',
     playful: 'wedding-playful',
   },
+  kidsBirthday: {
+    kidsBoyTinyPilot: 'kids-boy-tiny-pilot',
+    kidsBoyDinoRanger: 'kids-boy-dino-ranger',
+    kidsBoyGalaxyRacer: 'kids-boy-galaxy-racer',
+    // Placeholders for girls themes.
+    kidsGirlTinyBloom: 'default-dark',
+    kidsGirlFairyGarden: 'default-dark',
+    kidsGirlStarlightPop: 'default-dark',
+  },
   // Placeholders for future event-specific themes.
   birthday: {},
-  kidsBirthday: {},
   babyShower: {},
   graduation: {},
   housewarming: {},
@@ -43,4 +54,3 @@ export const resolveEventThemeId = (
 
   return byEventType[templateId] ?? 'default-dark'
 }
-
