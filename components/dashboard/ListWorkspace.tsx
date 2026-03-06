@@ -1414,6 +1414,7 @@ export default function ListWorkspace({
     storiesToRender: ListStoryEntry[]
     wheelEntriesToRender: WheelEntry[]
     scrollRef: { current: HTMLDivElement | null }
+    contentClassName: string
     onContinue: () => void
     onUnlock: () => void
     onPasswordChange: (value: string) => void
@@ -1430,6 +1431,7 @@ export default function ListWorkspace({
       storiesToRender,
       wheelEntriesToRender,
       scrollRef,
+      contentClassName,
       onContinue,
       onUnlock,
       onPasswordChange,
@@ -1489,7 +1491,7 @@ export default function ListWorkspace({
     return (
       <div
         ref={scrollRef}
-        className="overflow-y-auto px-4 py-4 sm:px-6 sm:py-5"
+        className={contentClassName}
       >
         {isLoading ? (
           <p className="text-sm text-slate-300">{labels.previewLoading}</p>
@@ -1604,7 +1606,52 @@ export default function ListWorkspace({
               <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
             </header>
 
-            <div className="mt-4 grid gap-3">
+            {storiesToRender.length > 0 && (
+              <div className="mt-8 border-t border-white/10 pt-5">
+                <h5 className="text-lg font-semibold text-white">{labels.storiesTitle}</h5>
+                <div className="mt-3 grid gap-3">
+                  {storiesToRender.map((story) => (
+                    <article
+                      key={`preview-story-${story.id}`}
+                      className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                    >
+                      <h6 className="text-base font-semibold text-white">{story.title}</h6>
+                      <p className="mt-2 text-sm text-slate-300">{story.body}</p>
+                      {renderStoryMediaPreview(story)}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {wheelEntriesToRender.length > 0 && (
+              <div className="mt-8 border-t border-white/10 pt-5">
+                <h5 className="text-lg font-semibold text-white">{labels.wheelTitle}</h5>
+                <div className="mt-3 grid gap-3">
+                  {wheelEntriesToRender.map((entry) => (
+                    <article
+                      key={`preview-wheel-${entry.id}`}
+                      className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                    >
+                      <h6 className="text-base font-semibold text-white">{entry.question}</h6>
+                      {entry.answerText && (
+                        <p className="mt-2 text-sm text-slate-300">{entry.answerText}</p>
+                      )}
+                      {entry.answerAudioUrl && (
+                        <audio
+                          controls
+                          preload="metadata"
+                          className="mt-2 w-full max-w-xs"
+                          src={entry.answerAudioUrl}
+                        />
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-6 grid gap-3">
               {itemsToRender.length === 0 && (
                 <p className="text-sm text-slate-300">{labels.itemsEmpty}</p>
               )}
@@ -1636,55 +1683,6 @@ export default function ListWorkspace({
                   </div>
                 </article>
               ))}
-            </div>
-
-            <div className="mt-8 border-t border-white/10 pt-5">
-              <h5 className="text-lg font-semibold text-white">{labels.storiesTitle}</h5>
-              <div className="mt-3 grid gap-3">
-                {storiesToRender.length === 0 && (
-                  <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
-                )}
-
-                {storiesToRender.map((story) => (
-                  <article
-                    key={`preview-story-${story.id}`}
-                    className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
-                  >
-                    <h6 className="text-base font-semibold text-white">{story.title}</h6>
-                    <p className="mt-2 text-sm text-slate-300">{story.body}</p>
-                    {renderStoryMediaPreview(story)}
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8 border-t border-white/10 pt-5">
-              <h5 className="text-lg font-semibold text-white">{labels.wheelTitle}</h5>
-              <div className="mt-3 grid gap-3">
-                {wheelEntriesToRender.length === 0 && (
-                  <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
-                )}
-
-                {wheelEntriesToRender.map((entry) => (
-                  <article
-                    key={`preview-wheel-${entry.id}`}
-                    className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
-                  >
-                    <h6 className="text-base font-semibold text-white">{entry.question}</h6>
-                    {entry.answerText && (
-                      <p className="mt-2 text-sm text-slate-300">{entry.answerText}</p>
-                    )}
-                    {entry.answerAudioUrl && (
-                      <audio
-                        controls
-                        preload="metadata"
-                        className="mt-2 w-full max-w-xs"
-                        src={entry.answerAudioUrl}
-                      />
-                    )}
-                  </article>
-                ))}
-              </div>
             </div>
           </>
         )}
@@ -1782,7 +1780,7 @@ export default function ListWorkspace({
             <p className="mt-4 text-sm text-slate-300">{labels.emptyLists}</p>
           ) : (
             <div
-              className="event-canvas mt-4 max-h-[70vh] overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-xl"
+              className="event-canvas mt-4 rounded-2xl border border-white/15 bg-slate-900 shadow-xl"
               data-event-theme={desktopPreviewThemeId}
             >
               {renderPreviewContent({
@@ -1796,6 +1794,7 @@ export default function ListWorkspace({
                 storiesToRender: stories,
                 wheelEntriesToRender: wheelEntries,
                 scrollRef: desktopPreviewScrollRef,
+                contentClassName: 'px-4 py-4 sm:px-6 sm:py-5',
                 onContinue: handleContinueDesktopPreview,
                 onUnlock: handleUnlockDesktopPreview,
                 onPasswordChange: setDesktopPreviewPassword,
@@ -2721,6 +2720,7 @@ export default function ListWorkspace({
               storiesToRender: mobilePreviewStories,
               wheelEntriesToRender: mobilePreviewWheelEntries,
               scrollRef: mobilePreviewScrollRef,
+              contentClassName: 'flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5',
               onContinue: handleContinueMobilePreview,
               onUnlock: handleUnlockMobilePreview,
               onPasswordChange: setMobilePreviewPassword,
