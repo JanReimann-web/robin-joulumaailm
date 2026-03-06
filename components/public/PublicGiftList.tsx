@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CheckCircle2, Eye, EyeOff } from 'lucide-react'
+import { CheckCircle2, Eye, EyeOff, X } from 'lucide-react'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
@@ -44,6 +44,10 @@ type PublicListContentResponse = {
 }
 
 type PublicLocale = 'en' | 'et'
+type LightboxMedia = {
+  url: string
+  alt: string
+} | null
 
 const GUEST_MESSAGE_MAX_LENGTH = 240
 const GUEST_NAME_MAX_LENGTH = 80
@@ -117,6 +121,8 @@ const PUBLIC_COPY = {
     eventHousewarming: 'Housewarming',
     eventChristmas: 'Christmas',
     languageLabel: 'Language',
+    expandImageAria: 'Open image',
+    closeImageAction: 'Close',
   },
   et: {
     loadingList: 'Laen nimekirja...',
@@ -186,6 +192,8 @@ const PUBLIC_COPY = {
     eventHousewarming: 'Soolaleib',
     eventChristmas: 'Jõulud',
     languageLabel: 'Keel',
+    expandImageAria: 'Ava pilt',
+    closeImageAction: 'Sulge',
   },
 } as const
 
@@ -217,22 +225,6 @@ const getDisplayEventType = (
   return eventType
 }
 
-const eventLabel = (
-  eventType: EventType,
-  templateId: TemplateId,
-  locale: PublicLocale
-) => {
-  const copy = PUBLIC_COPY[locale]
-  const displayEventType = getDisplayEventType(eventType, templateId)
-  if (displayEventType === 'wedding') return copy.eventWedding
-  if (displayEventType === 'birthday') return copy.eventBirthday
-  if (displayEventType === 'kidsBirthday') return copy.eventKidsBirthday
-  if (displayEventType === 'babyShower') return copy.eventBabyShower
-  if (displayEventType === 'graduation') return copy.eventGraduation
-  if (displayEventType === 'housewarming') return copy.eventHousewarming
-  return copy.eventChristmas
-}
-
 const statusLabel = (
   status: GiftListItem['status'],
   locale: PublicLocale
@@ -243,77 +235,18 @@ const statusLabel = (
   return copy.statusGifted
 }
 
-const renderItemMedia = (item: GiftListItem) => {
-  if (!item.mediaUrl || !item.mediaType) {
-    return null
-  }
-
-  if (item.mediaType.startsWith('image/')) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={item.mediaUrl}
-        alt={item.name}
-        className="mt-3 h-48 w-full rounded-xl border border-white/20 object-cover sm:h-56"
-        loading="lazy"
-      />
+const hasVisualMedia = (
+  mediaUrl: string | null,
+  mediaType: string | null
+) => {
+  return Boolean(
+    mediaUrl
+    && mediaType
+    && (
+      mediaType.startsWith('image/')
+      || mediaType.startsWith('video/')
     )
-  }
-
-  if (item.mediaType.startsWith('video/')) {
-    return (
-      <video
-        src={item.mediaUrl}
-        controls
-        preload="metadata"
-        className="mt-3 h-48 w-full rounded-xl border border-white/20 object-cover sm:h-56"
-      />
-    )
-  }
-
-  if (item.mediaType.startsWith('audio/')) {
-    return (
-      <audio
-        controls
-        preload="metadata"
-        className="mt-3 w-full"
-        src={item.mediaUrl}
-      />
-    )
-  }
-
-  return null
-}
-
-const renderStoryMedia = (story: ListStoryEntry) => {
-  if (!story.mediaUrl || !story.mediaType) {
-    return null
-  }
-
-  if (story.mediaType.startsWith('image/')) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={story.mediaUrl}
-        alt={story.title}
-        className="mt-3 h-56 w-full rounded-xl border border-white/20 object-cover sm:h-64"
-        loading="lazy"
-      />
-    )
-  }
-
-  if (story.mediaType.startsWith('video/')) {
-    return (
-      <video
-        src={story.mediaUrl}
-        controls
-        preload="metadata"
-        className="mt-3 h-56 w-full rounded-xl border border-white/20 object-cover sm:h-64"
-      />
-    )
-  }
-
-  return null
+  )
 }
 
 type EventSectionCopy = {
@@ -380,6 +313,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
+  const [lightboxMedia, setLightboxMedia] = useState<LightboxMedia>(null)
   const thankYouTimeoutRef = useRef<number | null>(null)
   const thankYouCloseTimeoutRef = useRef<number | null>(null)
   const copy = PUBLIC_COPY[locale]
@@ -398,6 +332,23 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (!lightboxMedia) {
+      return
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setLightboxMedia(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [lightboxMedia])
 
   useEffect(() => {
     let cancelled = false
@@ -553,10 +504,6 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     }
   }
 
-  const availableCount = useMemo(
-    () => items.filter((item) => item.status === 'available').length,
-    [items]
-  )
   const activeEventType = list?.eventType ?? meta?.list.eventType
   const activeTemplateId = list?.templateId ?? meta?.list.templateId
   const eventThemeId = resolveEventThemeId(activeEventType, activeTemplateId)
@@ -591,6 +538,96 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       })
       .join(', ')})`
   }, [wheelEntries])
+
+  const renderHeroMedia = (media: PreviewMedia, alt: string) => {
+    if (!media?.url || !media.type) {
+      return null
+    }
+
+    const heroMediaClassName = 'h-[17rem] w-full object-cover sm:h-[21rem] lg:h-[24rem]'
+
+    if (media.type.startsWith('image/')) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={media.url}
+          alt={alt}
+          className={heroMediaClassName}
+          loading="lazy"
+        />
+      )
+    }
+
+    if (media.type.startsWith('video/')) {
+      return (
+        <video
+          src={media.url}
+          className={heroMediaClassName}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )
+    }
+
+    return null
+  }
+
+  const renderSquareMedia = (
+    mediaUrl: string | null,
+    mediaType: string | null,
+    alt: string
+  ) => {
+    if (!mediaUrl || !mediaType) {
+      return null
+    }
+
+    if (mediaType.startsWith('image/')) {
+      return (
+        <button
+          type="button"
+          onClick={() => setLightboxMedia({ url: mediaUrl, alt })}
+          aria-label={copy.expandImageAria}
+          className="group relative block aspect-square w-full overflow-hidden rounded-2xl border border-white/15 bg-black/10 text-left shadow-lg"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={mediaUrl}
+            alt={alt}
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+        </button>
+      )
+    }
+
+    if (mediaType.startsWith('video/')) {
+      return (
+        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-white/15 bg-black/10 shadow-lg">
+          <video
+            src={mediaUrl}
+            controls
+            preload="metadata"
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )
+    }
+
+    if (mediaType.startsWith('audio/')) {
+      return (
+        <audio
+          controls
+          preload="metadata"
+          className="w-full"
+          src={mediaUrl}
+        />
+      )
+    }
+
+    return null
+  }
 
   const showThankYouCard = () => {
     setIsThankYouVisible(true)
@@ -860,33 +897,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <section
             className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
           >
-          {previewMedia?.url && previewMedia.type.startsWith('image/') && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={previewMedia.url}
-              alt={meta.list.title}
-              className="h-52 w-full object-cover sm:h-64"
-            />
-          )}
-          {previewMedia?.url && previewMedia.type.startsWith('video/') && (
-            <video
-              src={previewMedia.url}
-              className="h-52 w-full object-cover sm:h-64"
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-          )}
+          {renderHeroMedia(previewMedia, meta.list.title)}
 
           <div className="p-5 sm:p-7">
             <h1 className="text-2xl font-bold text-white sm:text-3xl">
               {meta.list.introTitle || meta.list.title}
             </h1>
-            <p className="mt-2 text-sm text-slate-300">
-              {copy.eventLabel}: {eventLabel(meta.list.eventType, meta.list.templateId, locale)}
-            </p>
-            <p className="mt-1 text-xs text-slate-400">/{meta.list.slug}</p>
 
             {(meta.list.introBody || '').trim() && (
               <p className="mt-5 text-sm text-slate-200">
@@ -985,18 +1001,33 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
         <div className="mb-4 flex justify-end">{languageSwitcher}</div>
         <header
-          className="event-surface-panel rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
+          className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
         >
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">{list.title}</h1>
-        <p className="mt-2 text-sm text-slate-300">
-          {copy.eventLabel}: {eventLabel(list.eventType, list.templateId, locale)} - {availableCount} {copy.giftsAvailable}
-        </p>
-        <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
-        {isListExpired && (
-          <p className="mt-3 rounded-xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
-            {copy.listExpired}
-          </p>
-        )}
+          {renderHeroMedia(previewMedia, list.title)}
+
+          <div className="p-5 sm:p-7">
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">
+              {list.introTitle || list.title}
+            </h1>
+
+            {(list.introBody || '').trim() && (
+              <p className="mt-5 text-sm text-slate-200">
+                {list.introBody}
+              </p>
+            )}
+
+            {!(list.introBody || '').trim() && (
+              <p className="mt-5 text-sm text-slate-200">
+                {copy.continueFallbackText}
+              </p>
+            )}
+
+            {isListExpired && (
+              <p className="mt-5 rounded-xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
+                {copy.listExpired}
+              </p>
+            )}
+          </div>
         </header>
 
         {success && (
@@ -1021,16 +1052,34 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <p className="mt-2 text-sm text-slate-300">{copy.storySubtitle}</p>
 
           <div className="mt-4 grid gap-4">
-            {stories.map((story) => (
+            {stories.map((story, index) => {
+              const hasStoryMedia = hasVisualMedia(story.mediaUrl, story.mediaType)
+              const isReversed = index % 2 === 1
+
+              return (
               <article
                 key={story.id}
                 className="event-surface-card rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
               >
-                <h3 className="text-lg font-semibold text-white">{story.title}</h3>
-                <p className="mt-2 text-sm text-slate-300">{story.body}</p>
-                {renderStoryMedia(story)}
+                <div
+                  className={`grid gap-5 lg:items-start ${
+                    hasStoryMedia ? 'lg:grid-cols-[minmax(0,1fr),minmax(240px,320px)]' : ''
+                  }`}
+                >
+                  <div className={hasStoryMedia && isReversed ? 'lg:order-2' : ''}>
+                    <h3 className="text-lg font-semibold text-white">{story.title}</h3>
+                    <p className="mt-2 text-sm text-slate-300">{story.body}</p>
+                  </div>
+
+                  {hasStoryMedia && (
+                    <div className={isReversed ? 'lg:order-1 lg:justify-self-start' : 'lg:order-2 lg:justify-self-end'}>
+                      {renderSquareMedia(story.mediaUrl, story.mediaType, story.title)}
+                    </div>
+                  )}
+                </div>
               </article>
-            ))}
+              )
+            })}
           </div>
         </section>
         )}
@@ -1127,50 +1176,105 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <p className="text-sm text-slate-300">{copy.noGiftItems}</p>
         )}
 
-        {items.map((item) => {
+        {items.map((item, index) => {
           const isAvailable = item.status === 'available'
+          const hasItemVisualMedia = hasVisualMedia(item.mediaUrl, item.mediaType)
+          const hasAudioOnlyMedia = Boolean(item.mediaUrl && item.mediaType?.startsWith('audio/'))
+          const isReversed = index % 2 === 1
 
           return (
             <article
               key={item.id}
               className="event-surface-card rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5"
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">{item.name}</h3>
+              <div
+                className={`grid gap-5 lg:items-start ${
+                  hasItemVisualMedia ? 'lg:grid-cols-[minmax(0,1fr),minmax(240px,320px)]' : ''
+                }`}
+              >
+                <div className={hasItemVisualMedia && isReversed ? 'lg:order-2' : ''}>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold text-white">{item.name}</h3>
+                    </div>
+                    <span className="inline-flex w-fit rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
+                      {statusLabel(item.status, locale)}
+                    </span>
+                  </div>
+
                   <p className="mt-2 text-sm text-slate-300">{item.description}</p>
-                  {renderItemMedia(item)}
+
+                  {hasAudioOnlyMedia && (
+                    <div className="mt-4">
+                      {renderSquareMedia(item.mediaUrl, item.mediaType, item.name)}
+                    </div>
+                  )}
+
                   {item.link && (
                     <a
                       href={item.link}
                       target="_blank"
                       rel="noreferrer"
-                      className="event-accent-link mt-3 inline-block text-sm text-emerald-300 underline"
+                      className="event-accent-link mt-4 inline-block text-sm text-emerald-300 underline"
                     >
                       {copy.productLinkAction}
                     </a>
                   )}
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      disabled={Boolean(isListExpired) || !isAvailable || reservingItemId === item.id}
+                      onClick={() => handleReserve(item.id)}
+                      className="event-accent-button w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                    >
+                      {reservingItemId === item.id ? copy.reserving : copy.reserveAction}
+                    </button>
+                  </div>
                 </div>
 
-                <span className="inline-flex w-fit rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
-                  {statusLabel(item.status, locale)}
-                </span>
-              </div>
-
-              <div className="mt-4">
-                <button
-                  type="button"
-                  disabled={Boolean(isListExpired) || !isAvailable || reservingItemId === item.id}
-                  onClick={() => handleReserve(item.id)}
-                  className="event-accent-button w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                >
-                  {reservingItemId === item.id ? copy.reserving : copy.reserveAction}
-                </button>
+                {hasItemVisualMedia && (
+                  <div className={isReversed ? 'lg:order-1 lg:justify-self-start' : 'lg:order-2 lg:justify-self-end'}>
+                    {renderSquareMedia(item.mediaUrl, item.mediaType, item.name)}
+                  </div>
+                )}
               </div>
             </article>
           )
         })}
         </section>
+
+        {lightboxMedia && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <button
+            type="button"
+            aria-label={copy.closeImageAction}
+            onClick={() => setLightboxMedia(null)}
+            className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm"
+          />
+          <section className="relative z-10 w-full max-w-6xl">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLightboxMedia(null)}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-slate-950/70 px-4 py-2 text-sm font-semibold text-white"
+              >
+                <X size={16} />
+                {copy.closeImageAction}
+              </button>
+            </div>
+
+            <div className="mt-3 overflow-hidden rounded-2xl border border-white/15 bg-black/70 p-2 shadow-2xl sm:p-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={lightboxMedia.url}
+                alt={lightboxMedia.alt}
+                className="max-h-[82vh] w-full object-contain"
+              />
+            </div>
+          </section>
+        </div>
+        )}
 
         {isDetailsModalOpen && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
