@@ -197,6 +197,12 @@ export interface Dictionary {
     previewContinueHint: string
     previewPasswordPrompt: string
     previewUnlockAction: string
+    previewOpenLinkAction: string
+    previewWheelSpinAction: string
+    previewWheelSpinning: string
+    previewWheelIntro: string
+    previewWheelRevealAction: string
+    previewWheelNoAnswer: string
     closePreviewAction: string
     previewLoading: string
     activatePassAction: string

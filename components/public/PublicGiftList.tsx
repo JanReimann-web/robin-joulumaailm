@@ -1245,26 +1245,29 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         </section>
 
         {lightboxMedia && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+        <div
+          className="event-canvas fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 sm:p-6"
+          data-event-theme={eventThemeId}
+        >
           <button
             type="button"
             aria-label={copy.closeImageAction}
             onClick={() => setLightboxMedia(null)}
-            className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/35 backdrop-blur-sm"
           />
           <section className="relative z-10 w-full max-w-6xl">
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setLightboxMedia(null)}
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-slate-950/70 px-4 py-2 text-sm font-semibold text-white"
+                className="event-surface-card inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white"
               >
                 <X size={16} />
                 {copy.closeImageAction}
               </button>
             </div>
 
-            <div className="mt-3 overflow-hidden rounded-2xl border border-white/15 bg-black/70 p-2 shadow-2xl sm:p-4">
+            <div className="event-surface-panel mt-3 overflow-hidden rounded-2xl border border-white/15 p-2 shadow-2xl sm:p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={lightboxMedia.url}

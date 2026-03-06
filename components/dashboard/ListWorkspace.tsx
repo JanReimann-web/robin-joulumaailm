@@ -252,6 +252,10 @@ export default function ListWorkspace({
   const [isMobilePreviewPasswordPromptOpen, setIsMobilePreviewPasswordPromptOpen] = useState(false)
   const [mobilePreviewPassword, setMobilePreviewPassword] = useState('')
   const [isMobilePreviewPasswordVisible, setIsMobilePreviewPasswordVisible] = useState(false)
+  const [previewWheelRotation, setPreviewWheelRotation] = useState(0)
+  const [isPreviewWheelSpinning, setIsPreviewWheelSpinning] = useState(false)
+  const [selectedPreviewWheelEntryId, setSelectedPreviewWheelEntryId] = useState<string | null>(null)
+  const [isPreviewWheelAnswerVisible, setIsPreviewWheelAnswerVisible] = useState(false)
   const desktopPreviewSectionRef = useRef<HTMLElement | null>(null)
   const desktopPreviewScrollRef = useRef<HTMLDivElement | null>(null)
   const mobilePreviewScrollRef = useRef<HTMLDivElement | null>(null)
@@ -447,6 +451,10 @@ export default function ListWorkspace({
     setIsDesktopPreviewPasswordPromptOpen(false)
     setDesktopPreviewPassword('')
     setIsDesktopPreviewPasswordVisible(false)
+    setPreviewWheelRotation(0)
+    setIsPreviewWheelSpinning(false)
+    setSelectedPreviewWheelEntryId(null)
+    setIsPreviewWheelAnswerVisible(false)
   }, [])
 
   const resetMobilePreviewFlow = useCallback(() => {
@@ -454,6 +462,10 @@ export default function ListWorkspace({
     setIsMobilePreviewPasswordPromptOpen(false)
     setMobilePreviewPassword('')
     setIsMobilePreviewPasswordVisible(false)
+    setPreviewWheelRotation(0)
+    setIsPreviewWheelSpinning(false)
+    setSelectedPreviewWheelEntryId(null)
+    setIsPreviewWheelAnswerVisible(false)
   }, [])
 
   useEffect(() => {
@@ -680,6 +692,65 @@ export default function ListWorkspace({
     }
 
     return null
+  }
+
+  const renderPreviewHeroMedia = (
+    previewMedia: { url: string; type: string } | null,
+    title: string
+  ) => {
+    if (!previewMedia?.url || !previewMedia.type) {
+      return null
+    }
+
+    const heroMediaClassName = 'h-[17rem] w-full object-cover sm:h-[21rem] lg:h-[24rem]'
+
+    if (previewMedia.type.startsWith('image/')) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={previewMedia.url}
+          alt={title}
+          className={heroMediaClassName}
+          loading="lazy"
+        />
+      )
+    }
+
+    if (previewMedia.type.startsWith('video/')) {
+      return (
+        <video
+          src={previewMedia.url}
+          className={heroMediaClassName}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )
+    }
+
+    return null
+  }
+
+  const handleSpinPreviewWheel = (entries: WheelEntry[]) => {
+    if (isPreviewWheelSpinning || entries.length === 0) {
+      return
+    }
+
+    const randomIndex = Math.floor(Math.random() * entries.length)
+    const selectedEntry = entries[randomIndex]
+    const baseTurns = 360 * 5
+    const randomOffset = Math.random() * 360
+
+    setIsPreviewWheelSpinning(true)
+    setIsPreviewWheelAnswerVisible(false)
+    setSelectedPreviewWheelEntryId(null)
+    setPreviewWheelRotation((previous) => previous + baseTurns + randomOffset)
+
+    window.setTimeout(() => {
+      setSelectedPreviewWheelEntryId(selectedEntry.id)
+      setIsPreviewWheelSpinning(false)
+    }, 3400)
   }
 
   const handleCreateList = async (event: FormEvent<HTMLFormElement>) => {
@@ -1437,7 +1508,27 @@ export default function ListWorkspace({
       onPasswordChange,
       onTogglePasswordVisibility,
     } = params
-    const availableItemsCount = itemsToRender.filter((item) => item.status === 'available').length
+    const selectedPreviewWheelEntry = wheelEntriesToRender.find(
+      (entry) => entry.id === selectedPreviewWheelEntryId
+    ) ?? null
+    const previewWheelGradient = wheelEntriesToRender.length === 0
+      ? 'conic-gradient(#0f172a 0% 100%)'
+      : `conic-gradient(${wheelEntriesToRender
+          .map((entry, index) => {
+            const start = (index / wheelEntriesToRender.length) * 100
+            const end = ((index + 1) / wheelEntriesToRender.length) * 100
+            const palette = [
+              'var(--event-wheel-1)',
+              'var(--event-wheel-2)',
+              'var(--event-wheel-3)',
+              'var(--event-wheel-4)',
+              'var(--event-wheel-5)',
+              'var(--event-wheel-6)',
+            ]
+
+            return `${palette[index % palette.length]} ${start}% ${end}%`
+          })
+          .join(', ')})`
     const previewHeroMedia = (() => {
       if (
         typeof list.introMediaUrl === 'string'
@@ -1506,35 +1597,12 @@ export default function ListWorkspace({
             <section
               className="event-surface-panel mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/5"
             >
-              {previewHeroMedia?.url && previewHeroMedia.type.startsWith('image/') && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={previewHeroMedia.url}
-                  alt={list.title}
-                  className="h-44 w-full object-cover sm:h-56"
-                  loading="lazy"
-                />
-              )}
-
-              {previewHeroMedia?.url && previewHeroMedia.type.startsWith('video/') && (
-                <video
-                  src={previewHeroMedia.url}
-                  className="h-44 w-full object-cover sm:h-56"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                />
-              )}
+              {renderPreviewHeroMedia(previewHeroMedia, list.title)}
 
               <div className="p-4 sm:p-5">
                 <h4 className="text-xl font-semibold text-white">
                   {list.introTitle || list.title}
                 </h4>
-                <p className="mt-2 text-sm text-slate-300">
-                  {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]}
-                </p>
-                <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
 
                 {(list.introBody || '').trim() && (
                   <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
@@ -1597,13 +1665,23 @@ export default function ListWorkspace({
         ) : (
           <>
             <header
-              className="event-surface-panel rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5"
+              className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
             >
-              <h4 className="text-2xl font-bold text-white">{list.title}</h4>
-              <p className="mt-2 text-sm text-slate-300">
-                {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]} - {availableItemsCount} {labels.itemsTitle.toLowerCase()}
-              </p>
-              <p className="mt-1 text-xs text-slate-400">/{list.slug}</p>
+              {renderPreviewHeroMedia(previewHeroMedia, list.title)}
+
+              <div className="p-4 sm:p-5">
+                <h4 className="text-2xl font-bold text-white">
+                  {list.introTitle || list.title}
+                </h4>
+
+                {(list.introBody || '').trim() && (
+                  <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
+                )}
+
+                {!(list.introBody || '').trim() && (
+                  <p className="mt-4 text-sm text-slate-200">{labels.previewContinueHint}</p>
+                )}
+              </div>
             </header>
 
             {storiesToRender.length > 0 && (
@@ -1627,26 +1705,80 @@ export default function ListWorkspace({
             {wheelEntriesToRender.length > 0 && (
               <div className="mt-8 border-t border-white/10 pt-5">
                 <h5 className="text-lg font-semibold text-white">{labels.wheelTitle}</h5>
-                <div className="mt-3 grid gap-3">
-                  {wheelEntriesToRender.map((entry) => (
-                    <article
-                      key={`preview-wheel-${entry.id}`}
-                      className="event-surface-card rounded-xl border border-white/10 bg-slate-950/60 p-4"
+                <div className="mt-5 grid gap-6 lg:grid-cols-[280px,minmax(0,1fr)] lg:items-start">
+                  <div className="mx-auto w-full max-w-[280px]">
+                    <div className="relative mx-auto h-64 w-64 sm:h-72 sm:w-72">
+                      <div className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
+                        <div className="h-0 w-0 border-x-[12px] border-b-[18px] border-x-transparent border-b-emerald-300" />
+                      </div>
+
+                      <div
+                        className="absolute inset-0 rounded-full border-4 border-white/30 shadow-xl transition-transform duration-[3400ms] ease-out"
+                        style={{
+                          backgroundImage: previewWheelGradient,
+                          transform: `rotate(${previewWheelRotation}deg)`,
+                        }}
+                      >
+                        <div className="absolute inset-4 rounded-full border border-white/20" />
+                      </div>
+
+                      <div className="absolute left-1/2 top-1/2 z-30 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/40 bg-slate-950" />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSpinPreviewWheel(wheelEntriesToRender)}
+                      disabled={isPreviewWheelSpinning}
+                      className="event-accent-button mt-5 w-full rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <h6 className="text-base font-semibold text-white">{entry.question}</h6>
-                      {entry.answerText && (
-                        <p className="mt-2 text-sm text-slate-300">{entry.answerText}</p>
-                      )}
-                      {entry.answerAudioUrl && (
-                        <audio
-                          controls
-                          preload="metadata"
-                          className="mt-2 w-full max-w-xs"
-                          src={entry.answerAudioUrl}
-                        />
-                      )}
-                    </article>
-                  ))}
+                      {isPreviewWheelSpinning
+                        ? labels.previewWheelSpinning
+                        : labels.previewWheelSpinAction}
+                    </button>
+                  </div>
+
+                  <div className="event-surface-card rounded-2xl border border-white/10 bg-slate-950/60 p-4 sm:p-5">
+                    {!selectedPreviewWheelEntry && (
+                      <p className="text-sm text-slate-300">{labels.previewWheelIntro}</p>
+                    )}
+
+                    {selectedPreviewWheelEntry && (
+                      <>
+                        <h6 className="text-base font-semibold text-white">
+                          {selectedPreviewWheelEntry.question}
+                        </h6>
+
+                        {!isPreviewWheelAnswerVisible && (
+                          <button
+                            type="button"
+                            onClick={() => setIsPreviewWheelAnswerVisible(true)}
+                            className="mt-4 rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white"
+                          >
+                            {labels.previewWheelRevealAction}
+                          </button>
+                        )}
+
+                        {isPreviewWheelAnswerVisible && (
+                          <div className="mt-4 space-y-3">
+                            {selectedPreviewWheelEntry.answerText && (
+                              <p className="text-sm text-slate-300">{selectedPreviewWheelEntry.answerText}</p>
+                            )}
+                            {selectedPreviewWheelEntry.answerAudioUrl && (
+                              <audio
+                                controls
+                                preload="metadata"
+                                className="w-full"
+                                src={selectedPreviewWheelEntry.answerAudioUrl}
+                              />
+                            )}
+                            {!selectedPreviewWheelEntry.answerText && !selectedPreviewWheelEntry.answerAudioUrl && (
+                              <p className="text-sm text-slate-300">{labels.previewWheelNoAnswer}</p>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -1671,9 +1803,9 @@ export default function ListWorkspace({
                           href={item.link}
                           target="_blank"
                           rel="noreferrer"
-                          className="event-accent-link mt-2 inline-block break-all text-sm text-emerald-300 underline"
+                          className="event-accent-link mt-2 inline-block text-sm text-emerald-300 underline"
                         >
-                          {item.link}
+                          {labels.previewOpenLinkAction}
                         </a>
                       )}
                     </div>
