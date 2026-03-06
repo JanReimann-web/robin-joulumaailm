@@ -1,4 +1,4 @@
-import { RulesTestEnvironment } from '@firebase/rules-unit-testing'
+﻿import { RulesTestEnvironment } from '@firebase/rules-unit-testing'
 import { Timestamp, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import {
   assertFails,
@@ -53,6 +53,7 @@ describe('e2e public list flow', () => {
     await assertSucceeds(
       setDoc(doc(ownerDb, 'lists', listId, 'items', itemId), {
         listId,
+        order: 0,
         name: 'Vaas',
         description: 'Sobib meile elutuppa',
         link: 'https://shop.example/item',
@@ -71,6 +72,7 @@ describe('e2e public list flow', () => {
     await assertSucceeds(
       setDoc(doc(ownerDb, 'lists', listId, 'stories', 'story-1'), {
         listId,
+        order: 0,
         title: 'Kuidas kohtusime',
         body: 'Kohvikus.',
         mediaUrl: null,
@@ -84,11 +86,9 @@ describe('e2e public list flow', () => {
     await assertSucceeds(
       setDoc(doc(ownerDb, 'lists', listId, 'wheelEntries', 'wheel-1'), {
         listId,
+        order: 0,
         question: 'Mis oli esimene reis?',
         answerText: 'Itaalia',
-        answerAudioUrl: null,
-        answerAudioPath: null,
-        answerAudioType: null,
         createdAt: now,
         updatedAt: now,
       })
@@ -131,3 +131,5 @@ describe('e2e public list flow', () => {
     )
   })
 })
+
+

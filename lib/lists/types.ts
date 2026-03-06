@@ -140,6 +140,7 @@ export type GiftItemStatus = 'available' | 'reserved' | 'gifted'
 export interface GiftListItem {
   id: string
   listId: string
+  order: number | null
   name: string
   description: string
   link: string | null
@@ -162,6 +163,16 @@ export interface GiftItemMediaInput {
 
 export interface CreateGiftItemInput {
   listId: string
+  order?: number
+  name: string
+  description: string
+  link?: string
+  media?: GiftItemMediaInput | null
+}
+
+export interface UpdateGiftItemInput {
+  listId: string
+  itemId: string
   name: string
   description: string
   link?: string
@@ -178,6 +189,7 @@ export interface ReserveGiftItemInput {
 export interface ListStoryEntry {
   id: string
   listId: string
+  order: number | null
   title: string
   body: string
   mediaUrl: string | null
@@ -189,6 +201,15 @@ export interface ListStoryEntry {
 
 export interface CreateListStoryInput {
   listId: string
+  order?: number
+  title: string
+  body: string
+  media?: GiftItemMediaInput | null
+}
+
+export interface UpdateListStoryInput {
+  listId: string
+  storyId: string
   title: string
   body: string
   media?: GiftItemMediaInput | null
@@ -197,6 +218,7 @@ export interface CreateListStoryInput {
 export interface WheelEntry {
   id: string
   listId: string
+  order: number | null
   question: string
   answerText: string | null
   answerAudioUrl: string | null
@@ -208,7 +230,14 @@ export interface WheelEntry {
 
 export interface CreateWheelEntryInput {
   listId: string
+  order?: number
   question: string
-  answerText?: string
-  answerAudio?: GiftItemMediaInput | null
+  answerText: string
+}
+
+export interface UpdateWheelEntryInput {
+  listId: string
+  entryId: string
+  question: string
+  answerText: string
 }

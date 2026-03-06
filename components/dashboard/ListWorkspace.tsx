@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { DragEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
@@ -26,13 +26,19 @@ import {
   deleteGiftItem,
   deleteListStory,
   deleteWheelEntry,
+  reorderGiftItems,
+  reorderListStories,
+  reorderWheelEntries,
   setGiftItemStatus,
   subscribeToListItems,
   subscribeToListStories,
   subscribeToUserLists,
   subscribeToWheelEntries,
+  updateGiftItem,
   updateGiftListIntro,
   updateGiftListSettings,
+  updateListStory,
+  updateWheelEntry,
 } from '@/lib/lists/client'
 import {
   deleteMediaByPath,
@@ -41,7 +47,6 @@ import {
   uploadItemMedia,
   uploadListIntroMedia,
   uploadStoryMedia,
-  uploadWheelAnswerAudio,
 } from '@/lib/lists/media'
 import { buildPublicSlug, generatePublicUrlCode } from '@/lib/lists/public-link'
 import { isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
@@ -161,6 +166,58 @@ const withErrorCode = (fallbackMessage: string, error: unknown) => {
   return `${fallbackMessage} (${error.code})`
 }
 
+
+type SortableDashboardSection = 'items' | 'stories' | 'wheel'
+
+type SortableDashboardEntry = {
+  id: string
+}
+
+const moveArrayEntry = <T extends SortableDashboardEntry>(
+  entries: T[],
+  fromIndex: number,
+  toIndex: number
+) => {
+  const nextEntries = [...entries]
+  const [movedEntry] = nextEntries.splice(fromIndex, 1)
+  nextEntries.splice(toIndex, 0, movedEntry)
+  return nextEntries
+}
+
+const reorderArrayEntryById = <T extends SortableDashboardEntry>(
+  entries: T[],
+  sourceId: string,
+  targetId: string
+) => {
+  const sourceIndex = entries.findIndex((entry) => entry.id === sourceId)
+  const targetIndex = entries.findIndex((entry) => entry.id === targetId)
+
+  if (
+    sourceIndex === -1
+    || targetIndex === -1
+    || sourceIndex === targetIndex
+  ) {
+    return entries
+  }
+
+  return moveArrayEntry(entries, sourceIndex, targetIndex)
+}
+
+const sortEntriesByIds = <T extends SortableDashboardEntry>(
+  entries: T[],
+  orderedIds: string[]
+) => {
+  const entryMap = new Map(entries.map((entry) => [entry.id, entry]))
+  const orderedIdSet = new Set(orderedIds)
+  const orderedEntries = orderedIds
+    .map((entryId) => entryMap.get(entryId))
+    .filter((entry): entry is T => Boolean(entry))
+
+  return [
+    ...orderedEntries,
+    ...entries.filter((entry) => !orderedIdSet.has(entry.id)),
+  ]
+}
 export default function ListWorkspace({
   locale,
   ownerId,
@@ -215,15 +272,22 @@ export default function ListWorkspace({
   const [itemDescription, setItemDescription] = useState('')
   const [itemLink, setItemLink] = useState('')
   const [itemMediaFile, setItemMediaFile] = useState<File | null>(null)
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [draggingItemId, setDraggingItemId] = useState<string | null>(null)
   const itemMediaInputRef = useRef<HTMLInputElement | null>(null)
+  const itemFormRef = useRef<HTMLFormElement | null>(null)
   const [storyTitle, setStoryTitle] = useState('')
   const [storyBody, setStoryBody] = useState('')
   const [storyMediaFile, setStoryMediaFile] = useState<File | null>(null)
+  const [editingStoryId, setEditingStoryId] = useState<string | null>(null)
+  const [draggingStoryId, setDraggingStoryId] = useState<string | null>(null)
   const storyMediaInputRef = useRef<HTMLInputElement | null>(null)
+  const storyFormRef = useRef<HTMLFormElement | null>(null)
   const [wheelQuestion, setWheelQuestion] = useState('')
   const [wheelAnswerText, setWheelAnswerText] = useState('')
-  const [wheelAnswerAudioFile, setWheelAnswerAudioFile] = useState<File | null>(null)
-  const wheelAnswerAudioInputRef = useRef<HTMLInputElement | null>(null)
+  const [editingWheelEntryId, setEditingWheelEntryId] = useState<string | null>(null)
+  const [draggingWheelEntryId, setDraggingWheelEntryId] = useState<string | null>(null)
+  const wheelFormRef = useRef<HTMLFormElement | null>(null)
 
   const [listError, setListError] = useState<string | null>(null)
   const [listSuccess, setListSuccess] = useState<string | null>(null)
@@ -237,7 +301,8 @@ export default function ListWorkspace({
   const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
   const [isUploadingStoryMedia, setIsUploadingStoryMedia] = useState(false)
-  const [isUploadingWheelAudio, setIsUploadingWheelAudio] = useState(false)
+  const [dragOverEntryId, setDragOverEntryId] = useState<string | null>(null)
+  const [reorderingSection, setReorderingSection] = useState<SortableDashboardSection | null>(null)
   const [copiedListId, setCopiedListId] = useState<string | null>(null)
   const [qrTargetListId, setQrTargetListId] = useState<string | null>(null)
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -505,6 +570,48 @@ export default function ListWorkspace({
     () => lists.find((list) => list.id === selectedListId) ?? null,
     [lists, selectedListId]
   )
+  const editingItem = useMemo(
+    () => items.find((item) => item.id === editingItemId) ?? null,
+    [editingItemId, items]
+  )
+  const editingStory = useMemo(
+    () => stories.find((story) => story.id === editingStoryId) ?? null,
+    [editingStoryId, stories]
+  )
+  const editingWheelEntry = useMemo(
+    () => wheelEntries.find((entry) => entry.id === editingWheelEntryId) ?? null,
+    [editingWheelEntryId, wheelEntries]
+  )
+  const resetItemForm = useCallback(() => {
+    setEditingItemId(null)
+    setItemName('')
+    setItemDescription('')
+    setItemLink('')
+    setItemMediaFile(null)
+    if (itemMediaInputRef.current) {
+      itemMediaInputRef.current.value = ''
+    }
+  }, [])
+  const resetStoryForm = useCallback(() => {
+    setEditingStoryId(null)
+    setStoryTitle('')
+    setStoryBody('')
+    setStoryMediaFile(null)
+    if (storyMediaInputRef.current) {
+      storyMediaInputRef.current.value = ''
+    }
+  }, [])
+  const resetWheelForm = useCallback(() => {
+    setEditingWheelEntryId(null)
+    setWheelQuestion('')
+    setWheelAnswerText('')
+  }, [])
+  const isItemFormBusy = isAddingItem || isUploadingMedia
+  const isStoryFormBusy = isAddingStory || isUploadingStoryMedia
+  const isWheelFormBusy = isAddingWheelEntry
+  const isItemsReordering = reorderingSection === 'items'
+  const isStoriesReordering = reorderingSection === 'stories'
+  const isWheelReordering = reorderingSection === 'wheel'
 
   useEffect(() => {
     if (!selectedList) {
@@ -522,6 +629,35 @@ export default function ListWorkspace({
     setVisibilityPassword('')
     setIsVisibilityPasswordVisible(false)
   }, [selectedList])
+
+  useEffect(() => {
+    resetItemForm()
+    resetStoryForm()
+    resetWheelForm()
+    setDragOverEntryId(null)
+    setDraggingItemId(null)
+    setDraggingStoryId(null)
+    setDraggingWheelEntryId(null)
+    setReorderingSection(null)
+  }, [resetItemForm, resetStoryForm, resetWheelForm, selectedListId])
+
+  useEffect(() => {
+    if (editingItemId && !editingItem) {
+      resetItemForm()
+    }
+  }, [editingItem, editingItemId, resetItemForm])
+
+  useEffect(() => {
+    if (editingStoryId && !editingStory) {
+      resetStoryForm()
+    }
+  }, [editingStory, editingStoryId, resetStoryForm])
+
+  useEffect(() => {
+    if (editingWheelEntryId && !editingWheelEntry) {
+      resetWheelForm()
+    }
+  }, [editingWheelEntry, editingWheelEntryId, resetWheelForm])
 
   const isSelectedListExpired = selectedList?.accessStatus === 'expired'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
@@ -1186,6 +1322,266 @@ export default function ListWorkspace({
     }
   }
 
+  const getNextOrder = async (
+    section: SortableDashboardSection
+  ) => {
+    if (!selectedListId) {
+      return 0
+    }
+
+    const currentEntries = section === 'items'
+      ? items
+      : (section === 'stories' ? stories : wheelEntries)
+    const hasMissingOrder = currentEntries.some((entry) => entry.order === null)
+
+    if (hasMissingOrder && currentEntries.length > 0) {
+      const orderedIds = currentEntries.map((entry) => entry.id)
+
+      if (section === 'items') {
+        await reorderGiftItems(selectedListId, orderedIds)
+      } else if (section === 'stories') {
+        await reorderListStories(selectedListId, orderedIds)
+      } else {
+        await reorderWheelEntries(selectedListId, orderedIds)
+      }
+
+      return currentEntries.length
+    }
+
+    const nextOrder = currentEntries.reduce((highestOrder, entry, index) => {
+      const currentOrder = entry.order ?? index
+      return Math.max(highestOrder, currentOrder)
+    }, -1)
+
+    return nextOrder + 1
+  }
+
+  const persistSectionReorder = async (
+    section: SortableDashboardSection,
+    orderedIds: string[]
+  ) => {
+    if (!selectedListId) {
+      return
+    }
+
+    const previousItems = items
+    const previousStories = stories
+    const previousWheelEntries = wheelEntries
+
+    if (section === 'items') {
+      setItems(sortEntriesByIds(items, orderedIds))
+    } else if (section === 'stories') {
+      setStories(sortEntriesByIds(stories, orderedIds))
+    } else {
+      setWheelEntries(sortEntriesByIds(wheelEntries, orderedIds))
+    }
+
+    setReorderingSection(section)
+
+    try {
+      if (section === 'items') {
+        await reorderGiftItems(selectedListId, orderedIds)
+      } else if (section === 'stories') {
+        await reorderListStories(selectedListId, orderedIds)
+      } else {
+        await reorderWheelEntries(selectedListId, orderedIds)
+      }
+    } catch {
+      if (section === 'items') {
+        setItems(previousItems)
+        setItemError(labels.errorUpdateItem)
+      } else if (section === 'stories') {
+        setStories(previousStories)
+        setStoryError(labels.errorUpdateStory)
+      } else {
+        setWheelEntries(previousWheelEntries)
+        setWheelError(labels.errorUpdateWheelEntry)
+      }
+    } finally {
+      setReorderingSection(null)
+      setDragOverEntryId(null)
+      setDraggingItemId(null)
+      setDraggingStoryId(null)
+      setDraggingWheelEntryId(null)
+    }
+  }
+
+  const handleMoveEntry = async (
+    section: SortableDashboardSection,
+    entryId: string,
+    direction: -1 | 1
+  ) => {
+    if (section === 'items') {
+      const fromIndex = items.findIndex((entry) => entry.id === entryId)
+      const targetIndex = fromIndex + direction
+
+      if (fromIndex === -1 || targetIndex < 0 || targetIndex >= items.length) {
+        return
+      }
+
+      await persistSectionReorder(
+        section,
+        moveArrayEntry(items, fromIndex, targetIndex).map((entry) => entry.id)
+      )
+      return
+    }
+
+    if (section === 'stories') {
+      const fromIndex = stories.findIndex((entry) => entry.id === entryId)
+      const targetIndex = fromIndex + direction
+
+      if (fromIndex === -1 || targetIndex < 0 || targetIndex >= stories.length) {
+        return
+      }
+
+      await persistSectionReorder(
+        section,
+        moveArrayEntry(stories, fromIndex, targetIndex).map((entry) => entry.id)
+      )
+      return
+    }
+
+    const fromIndex = wheelEntries.findIndex((entry) => entry.id === entryId)
+    const targetIndex = fromIndex + direction
+
+    if (fromIndex === -1 || targetIndex < 0 || targetIndex >= wheelEntries.length) {
+      return
+    }
+
+    await persistSectionReorder(
+      section,
+      moveArrayEntry(wheelEntries, fromIndex, targetIndex).map((entry) => entry.id)
+    )
+  }
+
+  const handleEntryDragStart = (
+    event: DragEvent<HTMLElement>,
+    section: SortableDashboardSection,
+    entryId: string
+  ) => {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', entryId)
+    setDragOverEntryId(entryId)
+
+    if (section === 'items') {
+      setDraggingItemId(entryId)
+    } else if (section === 'stories') {
+      setDraggingStoryId(entryId)
+    } else {
+      setDraggingWheelEntryId(entryId)
+    }
+  }
+
+  const handleEntryDragOver = (
+    event: DragEvent<HTMLElement>,
+    section: SortableDashboardSection,
+    entryId: string
+  ) => {
+    const activeDraggingEntryId = section === 'items'
+      ? draggingItemId
+      : (section === 'stories' ? draggingStoryId : draggingWheelEntryId)
+    const draggingEntryId = activeDraggingEntryId || event.dataTransfer.getData('text/plain')
+
+    if (!draggingEntryId || draggingEntryId === entryId) {
+      return
+    }
+
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+    setDragOverEntryId(entryId)
+  }
+
+  const handleEntryDragEnd = () => {
+    setDragOverEntryId(null)
+    setDraggingItemId(null)
+    setDraggingStoryId(null)
+    setDraggingWheelEntryId(null)
+  }
+
+  const handleEntryDrop = async (
+    event: DragEvent<HTMLElement>,
+    section: SortableDashboardSection,
+    targetId: string
+  ) => {
+    event.preventDefault()
+
+    const activeDraggingEntryId = section === 'items'
+      ? draggingItemId
+      : (section === 'stories' ? draggingStoryId : draggingWheelEntryId)
+    const draggingEntryId = activeDraggingEntryId || event.dataTransfer.getData('text/plain')
+
+    if (!draggingEntryId || draggingEntryId === targetId) {
+      handleEntryDragEnd()
+      return
+    }
+
+    if (section === 'items') {
+      const reorderedEntries = reorderArrayEntryById(items, draggingEntryId, targetId)
+      if (reorderedEntries === items) {
+        handleEntryDragEnd()
+        return
+      }
+
+      await persistSectionReorder(section, reorderedEntries.map((entry) => entry.id))
+      return
+    }
+
+    if (section === 'stories') {
+      const reorderedEntries = reorderArrayEntryById(stories, draggingEntryId, targetId)
+      if (reorderedEntries === stories) {
+        handleEntryDragEnd()
+        return
+      }
+
+      await persistSectionReorder(section, reorderedEntries.map((entry) => entry.id))
+      return
+    }
+
+    const reorderedEntries = reorderArrayEntryById(wheelEntries, draggingEntryId, targetId)
+    if (reorderedEntries === wheelEntries) {
+      handleEntryDragEnd()
+      return
+    }
+
+    await persistSectionReorder(section, reorderedEntries.map((entry) => entry.id))
+  }
+
+  const handleEditItem = (item: GiftListItem) => {
+    setItemError(null)
+    setItemSuccess(null)
+    setEditingItemId(item.id)
+    setItemName(item.name)
+    setItemDescription(item.description)
+    setItemLink(item.link ?? '')
+    setItemMediaFile(null)
+    if (itemMediaInputRef.current) {
+      itemMediaInputRef.current.value = ''
+    }
+    itemFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const handleEditStory = (story: ListStoryEntry) => {
+    setStoryError(null)
+    setStorySuccess(null)
+    setEditingStoryId(story.id)
+    setStoryTitle(story.title)
+    setStoryBody(story.body)
+    setStoryMediaFile(null)
+    if (storyMediaInputRef.current) {
+      storyMediaInputRef.current.value = ''
+    }
+    storyFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const handleEditWheelEntry = (entry: WheelEntry) => {
+    setWheelError(null)
+    setWheelSuccess(null)
+    setEditingWheelEntryId(entry.id)
+    setWheelQuestion(entry.question)
+    setWheelAnswerText(entry.answerText ?? '')
+    wheelFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   const handleAddItem = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setItemError(null)
@@ -1203,9 +1599,9 @@ export default function ListWorkspace({
 
     setIsAddingItem(true)
 
-    try {
-      let mediaPayload: { url: string; path: string; type: string } | null = null
+    let mediaPayload: { url: string; path: string; type: string } | null = null
 
+    try {
       if (itemMediaFile) {
         setIsUploadingMedia(true)
         mediaPayload = await uploadItemMedia({
@@ -1215,23 +1611,48 @@ export default function ListWorkspace({
         })
       }
 
-      await createGiftItem({
-        listId: selectedListId,
-        name: itemName,
-        description: itemDescription,
-        link: itemLink,
-        media: mediaPayload,
-      })
+      if (editingItemId) {
+        if (!editingItem) {
+          throw new Error('item_not_found')
+        }
 
-      setItemName('')
-      setItemDescription('')
-      setItemLink('')
-      setItemMediaFile(null)
-      if (itemMediaInputRef.current) {
-        itemMediaInputRef.current.value = ''
+        await updateGiftItem({
+          listId: selectedListId,
+          itemId: editingItemId,
+          name: itemName,
+          description: itemDescription,
+          link: itemLink,
+          media: mediaPayload ?? undefined,
+        })
+
+        if (
+          mediaPayload
+          && editingItem.mediaPath
+          && editingItem.mediaPath !== mediaPayload.path
+        ) {
+          await deleteItemMediaByPath(editingItem.mediaPath)
+        }
+
+        resetItemForm()
+        setItemSuccess(labels.itemUpdated)
+      } else {
+        await createGiftItem({
+          listId: selectedListId,
+          order: await getNextOrder('items'),
+          name: itemName,
+          description: itemDescription,
+          link: itemLink,
+          media: mediaPayload,
+        })
+
+        resetItemForm()
+        setItemSuccess(labels.itemAdded)
       }
-      setItemSuccess(labels.itemAdded)
     } catch (rawError) {
+      if (mediaPayload) {
+        await deleteItemMediaByPath(mediaPayload.path).catch(() => undefined)
+      }
+
       if (rawError instanceof MediaValidationError) {
         if (rawError.code === 'unsupported_type') {
           setItemError(labels.errorMediaUnsupportedType)
@@ -1239,7 +1660,10 @@ export default function ListWorkspace({
           setItemError(labels.errorMediaTooLarge)
         }
       } else {
-        setItemError(withErrorCode(labels.errorAddItem, rawError))
+        setItemError(withErrorCode(
+          editingItemId ? labels.errorUpdateItem : labels.errorAddItem,
+          rawError
+        ))
       }
     } finally {
       setIsUploadingMedia(false)
@@ -1266,6 +1690,9 @@ export default function ListWorkspace({
       const removal = await deleteGiftItem(selectedListId, itemId)
       await removal.removeItem()
       await deleteItemMediaByPath(removal.mediaPath)
+      if (editingItemId === itemId) {
+        resetItemForm()
+      }
       setItemSuccess(labels.itemDeleted)
     } catch {
       setItemError(labels.errorDeleteItem)
@@ -1319,9 +1746,9 @@ export default function ListWorkspace({
 
     setIsAddingStory(true)
 
-    try {
-      let mediaPayload: { url: string; path: string; type: string } | null = null
+    let mediaPayload: { url: string; path: string; type: string } | null = null
 
+    try {
       if (storyMediaFile) {
         setIsUploadingStoryMedia(true)
         mediaPayload = await uploadStoryMedia({
@@ -1331,21 +1758,46 @@ export default function ListWorkspace({
         })
       }
 
-      await createListStory({
-        listId: selectedListId,
-        title: storyTitle,
-        body: storyBody,
-        media: mediaPayload,
-      })
+      if (editingStoryId) {
+        if (!editingStory) {
+          throw new Error('story_not_found')
+        }
 
-      setStoryTitle('')
-      setStoryBody('')
-      setStoryMediaFile(null)
-      if (storyMediaInputRef.current) {
-        storyMediaInputRef.current.value = ''
+        await updateListStory({
+          listId: selectedListId,
+          storyId: editingStoryId,
+          title: storyTitle,
+          body: storyBody,
+          media: mediaPayload ?? undefined,
+        })
+
+        if (
+          mediaPayload
+          && editingStory.mediaPath
+          && editingStory.mediaPath !== mediaPayload.path
+        ) {
+          await deleteMediaByPath(editingStory.mediaPath)
+        }
+
+        resetStoryForm()
+        setStorySuccess(labels.storyUpdated)
+      } else {
+        await createListStory({
+          listId: selectedListId,
+          order: await getNextOrder('stories'),
+          title: storyTitle,
+          body: storyBody,
+          media: mediaPayload,
+        })
+
+        resetStoryForm()
+        setStorySuccess(labels.storyAdded)
       }
-      setStorySuccess(labels.storyAdded)
     } catch (rawError) {
+      if (mediaPayload) {
+        await deleteMediaByPath(mediaPayload.path).catch(() => undefined)
+      }
+
       if (rawError instanceof MediaValidationError) {
         if (rawError.code === 'unsupported_type') {
           setStoryError(labels.errorMediaUnsupportedType)
@@ -1353,7 +1805,10 @@ export default function ListWorkspace({
           setStoryError(labels.errorMediaTooLarge)
         }
       } else {
-        setStoryError(withErrorCode(labels.errorAddStory, rawError))
+        setStoryError(withErrorCode(
+          editingStoryId ? labels.errorUpdateStory : labels.errorAddStory,
+          rawError
+        ))
       }
     } finally {
       setIsUploadingStoryMedia(false)
@@ -1380,6 +1835,9 @@ export default function ListWorkspace({
       const removal = await deleteListStory(selectedListId, storyId)
       await removal.removeStory()
       await deleteMediaByPath(removal.mediaPath)
+      if (editingStoryId === storyId) {
+        resetStoryForm()
+      }
       setStorySuccess(labels.storyDeleted)
     } catch {
       setStoryError(labels.errorDeleteStory)
@@ -1403,46 +1861,45 @@ export default function ListWorkspace({
       return
     }
 
+    if (wheelAnswerText.trim().length === 0) {
+      setWheelError(labels.errorWheelAnswerRequired)
+      return
+    }
+
     setIsAddingWheelEntry(true)
 
     try {
-      let answerAudioPayload: { url: string; path: string; type: string } | null = null
-
-      if (wheelAnswerAudioFile) {
-        setIsUploadingWheelAudio(true)
-        answerAudioPayload = await uploadWheelAnswerAudio({
-          listId: selectedListId,
-          ownerId,
-          file: wheelAnswerAudioFile,
-        })
-      }
-
-      await createWheelEntry({
-        listId: selectedListId,
-        question: wheelQuestion,
-        answerText: wheelAnswerText,
-        answerAudio: answerAudioPayload,
-      })
-
-      setWheelQuestion('')
-      setWheelAnswerText('')
-      setWheelAnswerAudioFile(null)
-      if (wheelAnswerAudioInputRef.current) {
-        wheelAnswerAudioInputRef.current.value = ''
-      }
-      setWheelSuccess(labels.wheelEntryAdded)
-    } catch (rawError) {
-      if (rawError instanceof MediaValidationError) {
-        if (rawError.code === 'unsupported_type') {
-          setWheelError(labels.errorMediaUnsupportedType)
-        } else {
-          setWheelError(labels.errorMediaTooLarge)
+      if (editingWheelEntryId) {
+        if (!editingWheelEntry) {
+          throw new Error('wheel_entry_not_found')
         }
+
+        await updateWheelEntry({
+          listId: selectedListId,
+          entryId: editingWheelEntryId,
+          question: wheelQuestion,
+          answerText: wheelAnswerText,
+        })
+
+        resetWheelForm()
+        setWheelSuccess(labels.wheelEntryUpdated)
       } else {
-        setWheelError(withErrorCode(labels.errorAddWheelEntry, rawError))
+        await createWheelEntry({
+          listId: selectedListId,
+          order: await getNextOrder('wheel'),
+          question: wheelQuestion,
+          answerText: wheelAnswerText,
+        })
+
+        resetWheelForm()
+        setWheelSuccess(labels.wheelEntryAdded)
       }
+    } catch (rawError) {
+      setWheelError(withErrorCode(
+        editingWheelEntryId ? labels.errorUpdateWheelEntry : labels.errorAddWheelEntry,
+        rawError
+      ))
     } finally {
-      setIsUploadingWheelAudio(false)
       setIsAddingWheelEntry(false)
     }
   }
@@ -1466,6 +1923,9 @@ export default function ListWorkspace({
       const removal = await deleteWheelEntry(selectedListId, entryId)
       await removal.removeWheelEntry()
       await deleteMediaByPath(removal.answerAudioPath)
+      if (editingWheelEntryId === entryId) {
+        resetWheelForm()
+      }
       setWheelSuccess(labels.wheelEntryDeleted)
     } catch {
       setWheelError(labels.errorDeleteWheelEntry)
@@ -2316,7 +2776,7 @@ export default function ListWorkspace({
 
           <h3 className="mt-8 text-lg font-semibold text-white">{labels.itemsTitle}</h3>
 
-          <form onSubmit={handleAddItem} className="mt-4 grid gap-3">
+          <form ref={itemFormRef} onSubmit={handleAddItem} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.itemNameLabel}</span>
               <input
@@ -2386,15 +2846,37 @@ export default function ListWorkspace({
               )}
             </label>
 
-            <button
-              type="submit"
-              disabled={isAddingItem || isUploadingMedia || isItemActionsDisabled}
-              className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-            >
-              {isUploadingMedia
-                ? labels.uploadingMedia
-                : (isAddingItem ? labels.addingItem : labels.addItemAction)}
-            </button>
+            {editingItem?.mediaUrl && !itemMediaFile && (
+              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                <p className="text-xs text-slate-300">{labels.currentMediaLabel}</p>
+                {renderItemMediaPreview(editingItem)}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="submit"
+                disabled={isItemFormBusy || isItemActionsDisabled}
+                className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {isUploadingMedia
+                  ? labels.uploadingMedia
+                  : (isItemFormBusy
+                      ? labels.addingItem
+                      : (editingItem ? labels.saveItemChangesAction : labels.addItemAction))}
+              </button>
+
+              {editingItem && (
+                <button
+                  type="button"
+                  onClick={resetItemForm}
+                  disabled={isItemFormBusy}
+                  className="w-full rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  {labels.cancelItemEditAction}
+                </button>
+              )}
+            </div>
           </form>
 
           {isSelectedListExpired && (
@@ -2415,6 +2897,8 @@ export default function ListWorkspace({
             </p>
           )}
 
+          <p className="mt-4 text-xs text-slate-400">{labels.dragToReorderHint}</p>
+
           <div className="mt-4 grid gap-3">
             {isItemsLoading && (
               <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -2424,13 +2908,22 @@ export default function ListWorkspace({
               <p className="text-sm text-slate-300">{labels.itemsEmpty}</p>
             )}
 
-            {items.map((item) => (
+            {items.map((item, index) => (
               <article
                 key={item.id}
-                className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200"
+                draggable={!isItemActionsDisabled && !isItemsReordering}
+                onDragStart={(event) => handleEntryDragStart(event, 'items', item.id)}
+                onDragOver={(event) => handleEntryDragOver(event, 'items', item.id)}
+                onDragEnd={handleEntryDragEnd}
+                onDrop={(event) => handleEntryDrop(event, 'items', item.id)}
+                className={`rounded-xl border bg-slate-950/60 p-4 text-sm text-slate-200 transition ${
+                  dragOverEntryId === item.id
+                    ? 'border-emerald-300/60 ring-1 ring-emerald-300/40'
+                    : 'border-white/10'
+                }`}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <h4 className="font-semibold text-white">{item.name}</h4>
                     <p className="mt-1 text-xs text-slate-300">{item.description}</p>
                     {renderItemMediaPreview(item)}
@@ -2439,9 +2932,9 @@ export default function ListWorkspace({
                         href={item.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 inline-block break-all text-xs text-emerald-300 underline"
+                        className="mt-2 inline-block text-xs font-semibold text-emerald-300 underline"
                       >
-                        {item.link}
+                        {labels.previewOpenLinkAction}
                       </a>
                     )}
                     <p className="mt-2 text-xs text-slate-400">
@@ -2451,12 +2944,38 @@ export default function ListWorkspace({
                   </div>
 
                   <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
+                    <button
+                      type="button"
+                      aria-label={labels.moveUpAction}
+                      onClick={() => handleMoveEntry('items', item.id, -1)}
+                      disabled={index === 0 || isItemActionsDisabled || isItemsReordering}
+                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.moveUpAction}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={labels.moveDownAction}
+                      onClick={() => handleMoveEntry('items', item.id, 1)}
+                      disabled={index === items.length - 1 || isItemActionsDisabled || isItemsReordering}
+                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.moveDownAction}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEditItem(item)}
+                      disabled={isItemActionsDisabled || isItemsReordering}
+                      className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.editItemAction}
+                    </button>
                     {item.status === 'reserved' && (
                       <button
                         type="button"
                         onClick={() => handleUpdateItemStatus(item.id, 'available')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                        className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
@@ -2469,7 +2988,7 @@ export default function ListWorkspace({
                         type="button"
                         onClick={() => handleUpdateItemStatus(item.id, 'gifted')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="w-full rounded-full border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                        className="rounded-full border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
@@ -2482,7 +3001,7 @@ export default function ListWorkspace({
                         type="button"
                         onClick={() => handleUpdateItemStatus(item.id, 'available')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                        className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
@@ -2498,7 +3017,7 @@ export default function ListWorkspace({
                         statusUpdatingItemId === item.id ||
                         isItemActionsDisabled
                       }
-                      className="w-full rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                      className="rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {deletingItemId === item.id
                         ? labels.deletingItem
@@ -2515,7 +3034,7 @@ export default function ListWorkspace({
           <h3 className="text-lg font-semibold text-white">{labels.storiesTitle}</h3>
           <p className="mt-2 text-sm text-slate-300">{labels.storiesSubtitle}</p>
 
-          <form onSubmit={handleAddStory} className="mt-4 grid gap-3">
+          <form ref={storyFormRef} onSubmit={handleAddStory} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.storyTitleLabel}</span>
               <input
@@ -2573,15 +3092,37 @@ export default function ListWorkspace({
               )}
             </label>
 
-            <button
-              type="submit"
-              disabled={isAddingStory || isUploadingStoryMedia || isItemActionsDisabled}
-              className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-            >
-              {isUploadingStoryMedia
-                ? labels.uploadingMedia
-                : (isAddingStory ? labels.addingStory : labels.addStoryAction)}
-            </button>
+            {editingStory?.mediaUrl && !storyMediaFile && (
+              <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+                <p className="text-xs text-slate-300">{labels.currentMediaLabel}</p>
+                {renderStoryMediaPreview(editingStory)}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="submit"
+                disabled={isStoryFormBusy || isItemActionsDisabled}
+                className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {isUploadingStoryMedia
+                  ? labels.uploadingMedia
+                  : (isStoryFormBusy
+                      ? labels.addingStory
+                      : (editingStory ? labels.saveStoryChangesAction : labels.addStoryAction))}
+              </button>
+
+              {editingStory && (
+                <button
+                  type="button"
+                  onClick={resetStoryForm}
+                  disabled={isStoryFormBusy}
+                  className="w-full rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  {labels.cancelStoryEditAction}
+                </button>
+              )}
+            </div>
           </form>
 
           {storySuccess && (
@@ -2596,6 +3137,8 @@ export default function ListWorkspace({
             </p>
           )}
 
+          <p className="mt-4 text-xs text-slate-400">{labels.dragToReorderHint}</p>
+
           <div className="mt-4 grid gap-3">
             {isStoriesLoading && (
               <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -2605,28 +3148,65 @@ export default function ListWorkspace({
               <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
             )}
 
-            {stories.map((story) => (
+            {stories.map((story, index) => (
               <article
                 key={story.id}
-                className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200"
+                draggable={!isItemActionsDisabled && !isStoriesReordering}
+                onDragStart={(event) => handleEntryDragStart(event, 'stories', story.id)}
+                onDragOver={(event) => handleEntryDragOver(event, 'stories', story.id)}
+                onDragEnd={handleEntryDragEnd}
+                onDrop={(event) => handleEntryDrop(event, 'stories', story.id)}
+                className={`rounded-xl border bg-slate-950/60 p-4 text-sm text-slate-200 transition ${
+                  dragOverEntryId === story.id
+                    ? 'border-emerald-300/60 ring-1 ring-emerald-300/40'
+                    : 'border-white/10'
+                }`}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <h4 className="font-semibold text-white">{story.title}</h4>
                     <p className="mt-1 text-xs text-slate-300">{story.body}</p>
                     {renderStoryMediaPreview(story)}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteStory(story.id)}
-                    disabled={deletingStoryId === story.id || isItemActionsDisabled}
-                    className="w-full rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                  >
-                    {deletingStoryId === story.id
-                      ? labels.deletingStory
-                      : labels.deleteStoryAction}
-                  </button>
+                  <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
+                    <button
+                      type="button"
+                      aria-label={labels.moveUpAction}
+                      onClick={() => handleMoveEntry('stories', story.id, -1)}
+                      disabled={index === 0 || isItemActionsDisabled || isStoriesReordering}
+                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.moveUpAction}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={labels.moveDownAction}
+                      onClick={() => handleMoveEntry('stories', story.id, 1)}
+                      disabled={index === stories.length - 1 || isItemActionsDisabled || isStoriesReordering}
+                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.moveDownAction}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEditStory(story)}
+                      disabled={isItemActionsDisabled || isStoriesReordering}
+                      className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.editStoryAction}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteStory(story.id)}
+                      disabled={deletingStoryId === story.id || isItemActionsDisabled}
+                      className="rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {deletingStoryId === story.id
+                        ? labels.deletingStory
+                        : labels.deleteStoryAction}
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -2637,7 +3217,7 @@ export default function ListWorkspace({
           <h3 className="text-lg font-semibold text-white">{labels.wheelTitle}</h3>
           <p className="mt-2 text-sm text-slate-300">{labels.wheelSubtitle}</p>
 
-          <form onSubmit={handleAddWheelEntry} className="mt-4 grid gap-3">
+          <form ref={wheelFormRef} onSubmit={handleAddWheelEntry} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.wheelQuestionLabel}</span>
               <input
@@ -2652,6 +3232,7 @@ export default function ListWorkspace({
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.wheelAnswerTextLabel}</span>
               <textarea
+                required
                 disabled={isItemActionsDisabled}
                 value={wheelAnswerText}
                 onChange={(entry) => setWheelAnswerText(entry.target.value)}
@@ -2660,49 +3241,28 @@ export default function ListWorkspace({
               />
             </label>
 
-            <label className="grid gap-1 text-sm text-slate-200">
-              <span>{labels.wheelAnswerAudioLabel}</span>
-              <input
-                ref={wheelAnswerAudioInputRef}
-                type="file"
-                accept="audio/*"
-                disabled={isItemActionsDisabled || isUploadingWheelAudio}
-                onChange={(event) => {
-                  const nextFile = event.target.files?.[0] ?? null
-                  setWheelAnswerAudioFile(nextFile)
-                }}
-                className="sr-only"
-              />
-              <div className="flex min-h-[42px] items-center gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="submit"
+                disabled={isWheelFormBusy || isItemActionsDisabled}
+                className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {isWheelFormBusy
+                  ? labels.addingWheelEntry
+                  : (editingWheelEntry ? labels.saveWheelChangesAction : labels.addWheelEntryAction)}
+              </button>
+
+              {editingWheelEntry && (
                 <button
                   type="button"
-                  onClick={() => wheelAnswerAudioInputRef.current?.click()}
-                  disabled={isItemActionsDisabled || isUploadingWheelAudio}
-                  className="rounded-full bg-emerald-400 px-3 py-1 text-xs font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={resetWheelForm}
+                  disabled={isWheelFormBusy}
+                  className="w-full rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
-                  {labels.fileChooseAction}
+                  {labels.cancelWheelEditAction}
                 </button>
-                <span className="truncate text-sm text-slate-200">
-                  {wheelAnswerAudioFile?.name ?? labels.noFileSelected}
-                </span>
-              </div>
-              <span className="text-xs text-slate-400">{labels.wheelAnswerAudioHint}</span>
-              {wheelAnswerAudioFile && (
-                <span className="text-xs text-emerald-200">
-                  {labels.mediaSelected}: {wheelAnswerAudioFile.name}
-                </span>
               )}
-            </label>
-
-            <button
-              type="submit"
-              disabled={isAddingWheelEntry || isUploadingWheelAudio || isItemActionsDisabled}
-              className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-            >
-              {isUploadingWheelAudio
-                ? labels.uploadingMedia
-                : (isAddingWheelEntry ? labels.addingWheelEntry : labels.addWheelEntryAction)}
-            </button>
+            </div>
           </form>
 
           {wheelSuccess && (
@@ -2717,6 +3277,8 @@ export default function ListWorkspace({
             </p>
           )}
 
+          <p className="mt-4 text-xs text-slate-400">{labels.dragToReorderHint}</p>
+
           <div className="mt-4 grid gap-3">
             {isWheelLoading && (
               <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -2726,37 +3288,64 @@ export default function ListWorkspace({
               <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
             )}
 
-            {wheelEntries.map((entry) => (
+            {wheelEntries.map((entry, index) => (
               <article
                 key={entry.id}
-                className="rounded-xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-200"
+                draggable={!isItemActionsDisabled && !isWheelReordering}
+                onDragStart={(event) => handleEntryDragStart(event, 'wheel', entry.id)}
+                onDragOver={(event) => handleEntryDragOver(event, 'wheel', entry.id)}
+                onDragEnd={handleEntryDragEnd}
+                onDrop={(event) => handleEntryDrop(event, 'wheel', entry.id)}
+                className={`rounded-xl border bg-slate-950/60 p-4 text-sm text-slate-200 transition ${
+                  dragOverEntryId === entry.id
+                    ? 'border-emerald-300/60 ring-1 ring-emerald-300/40'
+                    : 'border-white/10'
+                }`}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <h4 className="font-semibold text-white">{entry.question}</h4>
-                    {entry.answerText && (
-                      <p className="mt-1 text-xs text-slate-300">{entry.answerText}</p>
-                    )}
-                    {entry.answerAudioUrl && (
-                      <audio
-                        controls
-                        preload="metadata"
-                        className="mt-2 w-full max-w-xs"
-                        src={entry.answerAudioUrl}
-                      />
-                    )}
+                    <p className="mt-1 text-xs text-slate-300">{entry.answerText}</p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteWheelEntry(entry.id)}
-                    disabled={deletingWheelEntryId === entry.id || isItemActionsDisabled}
-                    className="w-full rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                  >
-                    {deletingWheelEntryId === entry.id
-                      ? labels.deletingWheelEntry
-                      : labels.deleteWheelEntryAction}
-                  </button>
+                  <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
+                    <button
+                      type="button"
+                      aria-label={labels.moveUpAction}
+                      onClick={() => handleMoveEntry('wheel', entry.id, -1)}
+                      disabled={index === 0 || isItemActionsDisabled || isWheelReordering}
+                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.moveUpAction}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={labels.moveDownAction}
+                      onClick={() => handleMoveEntry('wheel', entry.id, 1)}
+                      disabled={index === wheelEntries.length - 1 || isItemActionsDisabled || isWheelReordering}
+                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.moveDownAction}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEditWheelEntry(entry)}
+                      disabled={isItemActionsDisabled || isWheelReordering}
+                      className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {labels.editWheelEntryAction}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteWheelEntry(entry.id)}
+                      disabled={deletingWheelEntryId === entry.id || isItemActionsDisabled}
+                      className="rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {deletingWheelEntryId === entry.id
+                        ? labels.deletingWheelEntry
+                        : labels.deleteWheelEntryAction}
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}
@@ -2866,4 +3455,3 @@ export default function ListWorkspace({
     </div>
   )
 }
-

@@ -230,6 +230,7 @@ service cloud.firestore {
     function isValidStoryCreate(listId) {
       return request.resource.data.keys().hasOnly([
           'listId',
+          'order',
           'title',
           'body',
           'mediaUrl',
@@ -239,6 +240,7 @@ service cloud.firestore {
           'updatedAt',
         ])
         && request.resource.data.listId == listId
+        && request.resource.data.order is int
         && request.resource.data.title is string
         && request.resource.data.body is string
         && isStringOrNull(request.resource.data.mediaUrl)
@@ -251,20 +253,18 @@ service cloud.firestore {
     function isValidWheelEntryCreate(listId) {
       return request.resource.data.keys().hasOnly([
           'listId',
+          'order',
           'question',
           'answerText',
-          'answerAudioUrl',
-          'answerAudioPath',
-          'answerAudioType',
           'createdAt',
           'updatedAt',
         ])
         && request.resource.data.listId == listId
+        && request.resource.data.order is int
         && request.resource.data.question is string
-        && isStringOrNull(request.resource.data.answerText)
-        && isStringOrNull(request.resource.data.answerAudioUrl)
-        && isStringOrNull(request.resource.data.answerAudioPath)
-        && isStringOrNull(request.resource.data.answerAudioType)
+        && request.resource.data.answerText is string
+        && request.resource.data.question.size() > 0
+        && request.resource.data.answerText.size() > 0
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
     }
@@ -373,3 +373,5 @@ service cloud.firestore {
     }
   }
 }
+
+

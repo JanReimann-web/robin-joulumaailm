@@ -13,6 +13,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import {
@@ -32,6 +33,9 @@ import {
   CreateGiftListInput,
   CreateGiftListResult,
   UpdateGiftListIntroInput,
+  UpdateGiftItemInput,
+  UpdateListStoryInput,
+  UpdateWheelEntryInput,
   GiftListItem,
   GiftList,
   ListStoryEntry,
@@ -141,6 +145,7 @@ const mapItemDoc = (
   return {
     id,
     listId: String(data.listId ?? ''),
+    order: typeof data.order === 'number' ? data.order : null,
     name: String(data.name ?? ''),
     description: String(data.description ?? ''),
     link: data.link ? String(data.link) : null,
@@ -163,6 +168,7 @@ const mapStoryDoc = (
   return {
     id,
     listId: String(data.listId ?? ''),
+    order: typeof data.order === 'number' ? data.order : null,
     title: String(data.title ?? ''),
     body: String(data.body ?? ''),
     mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
@@ -180,6 +186,7 @@ const mapWheelEntryDoc = (
   return {
     id,
     listId: String(data.listId ?? ''),
+    order: typeof data.order === 'number' ? data.order : null,
     question: String(data.question ?? ''),
     answerText: data.answerText ? String(data.answerText) : null,
     answerAudioUrl: data.answerAudioUrl ? String(data.answerAudioUrl) : null,
@@ -188,6 +195,51 @@ const mapWheelEntryDoc = (
     createdAt: toMillis(data.createdAt),
     updatedAt: toMillis(data.updatedAt),
   }
+}
+
+const compareOrderedEntries = (
+  leftOrder: number | null,
+  rightOrder: number | null,
+  leftFallback: number,
+  rightFallback: number,
+  fallbackDirection: 'asc' | 'desc'
+) => {
+  const leftHasOrder = typeof leftOrder === 'number'
+  const rightHasOrder = typeof rightOrder === 'number'
+
+  if (leftHasOrder && rightHasOrder) {
+    return leftOrder - rightOrder
+  }
+
+  if (leftHasOrder) {
+    return -1
+  }
+
+  if (rightHasOrder) {
+    return 1
+  }
+
+  return fallbackDirection === 'asc'
+    ? leftFallback - rightFallback
+    : rightFallback - leftFallback
+}
+
+const reorderCollectionDocs = async (
+  listId: string,
+  collectionName: 'items' | 'stories' | 'wheelEntries',
+  orderedIds: string[]
+) => {
+  const batch = writeBatch(db)
+
+  orderedIds.forEach((entryId, index) => {
+    const entryRef = doc(db, 'lists', listId, collectionName, entryId)
+    batch.update(entryRef, {
+      order: index,
+      updatedAt: serverTimestamp(),
+    })
+  })
+
+  await batch.commit()
 }
 
 export const createGiftList = async (
@@ -408,6 +460,7 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
 
   await addDoc(itemsCollection, {
     listId: input.listId,
+    order: input.order ?? Date.now(),
     name: input.name.trim(),
     description: input.description.trim(),
     link: input.link?.trim() || null,
@@ -421,6 +474,24 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
+}
+
+export const updateGiftItem = async (input: UpdateGiftItemInput) => {
+  const itemRef = doc(db, 'lists', input.listId, 'items', input.itemId)
+  const payload: Record<string, unknown> = {
+    name: input.name.trim(),
+    description: input.description.trim(),
+    link: input.link?.trim() || null,
+    updatedAt: serverTimestamp(),
+  }
+
+  if (input.media !== undefined) {
+    payload.mediaUrl = input.media?.url ?? null
+    payload.mediaPath = input.media?.path ?? null
+    payload.mediaType = input.media?.type ?? null
+  }
+
+  await updateDoc(itemRef, payload)
 }
 
 export const updateGiftListIntro = async (input: UpdateGiftListIntroInput) => {
@@ -492,7 +563,13 @@ export const subscribeToListItems = (
         .sort((left, right) => {
           const leftCreated = left.createdAt ?? 0
           const rightCreated = right.createdAt ?? 0
-          return rightCreated - leftCreated
+          return compareOrderedEntries(
+            left.order,
+            right.order,
+            leftCreated,
+            rightCreated,
+            'desc'
+          )
         })
 
       onChange(nextItems)
@@ -513,6 +590,7 @@ export const createListStory = async (input: CreateListStoryInput) => {
 
   await addDoc(storiesCollection, {
     listId: input.listId,
+    order: input.order ?? Date.now(),
     title: input.title.trim(),
     body: input.body.trim(),
     mediaUrl: input.media?.url ?? null,
@@ -521,6 +599,23 @@ export const createListStory = async (input: CreateListStoryInput) => {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
+}
+
+export const updateListStory = async (input: UpdateListStoryInput) => {
+  const storyRef = doc(db, 'lists', input.listId, 'stories', input.storyId)
+  const payload: Record<string, unknown> = {
+    title: input.title.trim(),
+    body: input.body.trim(),
+    updatedAt: serverTimestamp(),
+  }
+
+  if (input.media !== undefined) {
+    payload.mediaUrl = input.media?.url ?? null
+    payload.mediaPath = input.media?.path ?? null
+    payload.mediaType = input.media?.type ?? null
+  }
+
+  await updateDoc(storyRef, payload)
 }
 
 export const deleteListStory = async (listId: string, storyId: string) => {
@@ -553,7 +648,13 @@ export const subscribeToListStories = (
         .sort((left, right) => {
           const leftCreated = left.createdAt ?? 0
           const rightCreated = right.createdAt ?? 0
-          return leftCreated - rightCreated
+          return compareOrderedEntries(
+            left.order,
+            right.order,
+            leftCreated,
+            rightCreated,
+            'asc'
+          )
         })
 
       onChange(nextStories)
@@ -574,12 +675,26 @@ export const createWheelEntry = async (input: CreateWheelEntryInput) => {
 
   await addDoc(entriesCollection, {
     listId: input.listId,
+    order: input.order ?? Date.now(),
     question: input.question.trim(),
-    answerText: input.answerText?.trim() || null,
-    answerAudioUrl: input.answerAudio?.url ?? null,
-    answerAudioPath: input.answerAudio?.path ?? null,
-    answerAudioType: input.answerAudio?.type ?? null,
+    answerText: input.answerText.trim(),
+    answerAudioUrl: null,
+    answerAudioPath: null,
+    answerAudioType: null,
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+}
+
+export const updateWheelEntry = async (input: UpdateWheelEntryInput) => {
+  const entryRef = doc(db, 'lists', input.listId, 'wheelEntries', input.entryId)
+
+  await updateDoc(entryRef, {
+    question: input.question.trim(),
+    answerText: input.answerText.trim(),
+    answerAudioUrl: null,
+    answerAudioPath: null,
+    answerAudioType: null,
     updatedAt: serverTimestamp(),
   })
 }
@@ -614,7 +729,13 @@ export const subscribeToWheelEntries = (
         .sort((left, right) => {
           const leftCreated = left.createdAt ?? 0
           const rightCreated = right.createdAt ?? 0
-          return leftCreated - rightCreated
+          return compareOrderedEntries(
+            left.order,
+            right.order,
+            leftCreated,
+            rightCreated,
+            'asc'
+          )
         })
 
       onChange(nextEntries)
@@ -628,6 +749,18 @@ export const subscribeToWheelEntries = (
       onError(new Error('failed_to_subscribe_wheel_entries'))
     }
   )
+}
+
+export const reorderGiftItems = async (listId: string, orderedIds: string[]) => {
+  await reorderCollectionDocs(listId, 'items', orderedIds)
+}
+
+export const reorderListStories = async (listId: string, orderedIds: string[]) => {
+  await reorderCollectionDocs(listId, 'stories', orderedIds)
+}
+
+export const reorderWheelEntries = async (listId: string, orderedIds: string[]) => {
+  await reorderCollectionDocs(listId, 'wheelEntries', orderedIds)
 }
 
 export const subscribeToPublicListBySlug = (

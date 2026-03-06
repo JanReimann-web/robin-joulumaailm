@@ -256,10 +256,14 @@ export interface Dictionary {
     itemLinkPlaceholder: string
     itemMediaLabel: string
     itemMediaHint: string
+    currentMediaLabel: string
     mediaSelected: string
     uploadingMedia: string
     addItemAction: string
     addingItem: string
+    editItemAction: string
+    cancelItemEditAction: string
+    saveItemChangesAction: string
     deleteItemAction: string
     deletingItem: string
     statusAvailable: string
@@ -271,6 +275,7 @@ export interface Dictionary {
     updatingStatus: string
     statusUpdated: string
     itemAdded: string
+    itemUpdated: string
     itemDeleted: string
     storiesTitle: string
     storiesSubtitle: string
@@ -280,8 +285,12 @@ export interface Dictionary {
     storyMediaHint: string
     addStoryAction: string
     addingStory: string
+    editStoryAction: string
+    cancelStoryEditAction: string
+    saveStoryChangesAction: string
     storiesEmpty: string
     storyAdded: string
+    storyUpdated: string
     storyDeleted: string
     deleteStoryAction: string
     deletingStory: string
@@ -293,21 +302,32 @@ export interface Dictionary {
     wheelAnswerAudioHint: string
     addWheelEntryAction: string
     addingWheelEntry: string
+    editWheelEntryAction: string
+    cancelWheelEditAction: string
+    saveWheelChangesAction: string
     wheelEmpty: string
     wheelEntryAdded: string
+    wheelEntryUpdated: string
     wheelEntryDeleted: string
     deleteWheelEntryAction: string
     deletingWheelEntry: string
+    dragToReorderHint: string
+    moveUpAction: string
+    moveDownAction: string
     fileChooseAction: string
     noFileSelected: string
     errorSelectList: string
     errorAddItem: string
+    errorUpdateItem: string
     errorDeleteItem: string
     errorUpdateStatus: string
     errorAddStory: string
+    errorUpdateStory: string
     errorDeleteStory: string
     errorAddWheelEntry: string
+    errorUpdateWheelEntry: string
     errorDeleteWheelEntry: string
+    errorWheelAnswerRequired: string
     errorMediaUnsupportedType: string
     errorMediaTooLarge: string
     trialNotice: string
@@ -321,3 +341,5 @@ export interface Dictionary {
     copyright: string
   }
 }
+
+

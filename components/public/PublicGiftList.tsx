@@ -81,7 +81,7 @@ const PUBLIC_COPY = {
     spinning: 'Spinning...',
     wheelIntro: 'Spin the wheel to pick a random question.',
     revealAnswerAction: 'Reveal answer',
-    noAnswerForQuestion: 'No answer media has been added for this question yet.',
+    noAnswerForQuestion: 'No answer has been added for this question yet.',
     productLinkAction: 'Open product link',
     reserveAction: 'Reserve this gift',
     reserving: 'Reserving...',
@@ -1146,20 +1146,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
                   {isWheelAnswerVisible && (
                     <div className="mt-4 space-y-3">
-                      {selectedWheelEntry.answerText && (
+                      {selectedWheelEntry.answerText ? (
                         <p className="text-sm text-slate-200">{selectedWheelEntry.answerText}</p>
-                      )}
-
-                      {selectedWheelEntry.answerAudioUrl && (
-                        <audio
-                          controls
-                          preload="metadata"
-                          className="w-full"
-                          src={selectedWheelEntry.answerAudioUrl}
-                        />
-                      )}
-
-                      {!selectedWheelEntry.answerText && !selectedWheelEntry.answerAudioUrl && (
+                      ) : (
                         <p className="text-sm text-slate-300">{copy.noAnswerForQuestion}</p>
                       )}
                     </div>
@@ -1363,3 +1352,4 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     </div>
   )
 }
+

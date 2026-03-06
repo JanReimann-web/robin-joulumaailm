@@ -1,4 +1,4 @@
-import { RulesTestEnvironment } from '@firebase/rules-unit-testing'
+﻿import { RulesTestEnvironment } from '@firebase/rules-unit-testing'
 import {
   Timestamp,
   doc,
@@ -186,6 +186,7 @@ describe('firestore rules', () => {
     await assertSucceeds(
       setDoc(storyRef, {
         listId,
+        order: 0,
         title: 'How we met',
         body: 'At the cafe.',
         mediaUrl: null,
@@ -199,11 +200,9 @@ describe('firestore rules', () => {
     await assertSucceeds(
       setDoc(wheelRef, {
         listId,
+        order: 0,
         question: 'What is our song?',
         answerText: 'Song title',
-        answerAudioUrl: null,
-        answerAudioPath: null,
-        answerAudioType: null,
         createdAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
       })
@@ -226,3 +225,5 @@ describe('firestore rules', () => {
     )
   })
 })
+
+

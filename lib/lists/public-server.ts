@@ -88,6 +88,7 @@ const mapItemDoc = (
   return {
     id,
     listId: String(data.listId ?? ''),
+    order: typeof data.order === 'number' ? data.order : null,
     name: String(data.name ?? ''),
     description: String(data.description ?? ''),
     link: data.link ? String(data.link) : null,
@@ -110,6 +111,7 @@ const mapStoryDoc = (
   return {
     id,
     listId: String(data.listId ?? ''),
+    order: typeof data.order === 'number' ? data.order : null,
     title: String(data.title ?? ''),
     body: String(data.body ?? ''),
     mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
@@ -127,6 +129,7 @@ const mapWheelEntryDoc = (
   return {
     id,
     listId: String(data.listId ?? ''),
+    order: typeof data.order === 'number' ? data.order : null,
     question: String(data.question ?? ''),
     answerText: data.answerText ? String(data.answerText) : null,
     answerAudioUrl: data.answerAudioUrl ? String(data.answerAudioUrl) : null,
@@ -135,6 +138,33 @@ const mapWheelEntryDoc = (
     createdAt: toMillis(data.createdAt),
     updatedAt: toMillis(data.updatedAt),
   }
+}
+
+const compareOrderedEntries = (
+  leftOrder: number | null,
+  rightOrder: number | null,
+  leftFallback: number,
+  rightFallback: number,
+  fallbackDirection: 'asc' | 'desc'
+) => {
+  const leftHasOrder = typeof leftOrder === 'number'
+  const rightHasOrder = typeof rightOrder === 'number'
+
+  if (leftHasOrder && rightHasOrder) {
+    return leftOrder - rightOrder
+  }
+
+  if (leftHasOrder) {
+    return -1
+  }
+
+  if (rightHasOrder) {
+    return 1
+  }
+
+  return fallbackDirection === 'asc'
+    ? leftFallback - rightFallback
+    : rightFallback - leftFallback
 }
 
 const isPreviewMediaType = (mediaType: string | null) => {
@@ -185,7 +215,13 @@ export const getPublicListContent = async (listId: string) => {
     .sort((left, right) => {
       const leftCreated = left.createdAt ?? 0
       const rightCreated = right.createdAt ?? 0
-      return rightCreated - leftCreated
+      return compareOrderedEntries(
+        left.order,
+        right.order,
+        leftCreated,
+        rightCreated,
+        'desc'
+      )
     })
 
   const stories = storiesSnap.docs
@@ -193,7 +229,13 @@ export const getPublicListContent = async (listId: string) => {
     .sort((left, right) => {
       const leftCreated = left.createdAt ?? 0
       const rightCreated = right.createdAt ?? 0
-      return leftCreated - rightCreated
+      return compareOrderedEntries(
+        left.order,
+        right.order,
+        leftCreated,
+        rightCreated,
+        'asc'
+      )
     })
 
   const wheelEntries = wheelSnap.docs
@@ -201,7 +243,13 @@ export const getPublicListContent = async (listId: string) => {
     .sort((left, right) => {
       const leftCreated = left.createdAt ?? 0
       const rightCreated = right.createdAt ?? 0
-      return leftCreated - rightCreated
+      return compareOrderedEntries(
+        left.order,
+        right.order,
+        leftCreated,
+        rightCreated,
+        'asc'
+      )
     })
 
   return {
@@ -241,7 +289,13 @@ export const getPublicListPreviewMedia = async (
     .sort((left, right) => {
       const leftCreated = left.createdAt ?? 0
       const rightCreated = right.createdAt ?? 0
-      return leftCreated - rightCreated
+      return compareOrderedEntries(
+        left.order,
+        right.order,
+        leftCreated,
+        rightCreated,
+        'asc'
+      )
     })
 
   for (const story of stories) {
@@ -258,7 +312,13 @@ export const getPublicListPreviewMedia = async (
     .sort((left, right) => {
       const leftCreated = left.createdAt ?? 0
       const rightCreated = right.createdAt ?? 0
-      return leftCreated - rightCreated
+      return compareOrderedEntries(
+        left.order,
+        right.order,
+        leftCreated,
+        rightCreated,
+        'asc'
+      )
     })
 
   for (const item of items) {
@@ -272,3 +332,5 @@ export const getPublicListPreviewMedia = async (
 
   return null
 }
+
+
