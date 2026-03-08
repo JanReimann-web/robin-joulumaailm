@@ -321,6 +321,11 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const thankYouLaunchTimeoutRef = useRef<number | null>(null)
   const copy = PUBLIC_COPY[locale]
   const modalRoot = hasMounted ? document.body : null
+  const isPasswordProtected = Boolean(
+    meta?.requiresPassword
+    || meta?.list.visibility === 'public_password'
+    || list?.visibility === 'public_password'
+  )
 
   useEffect(() => {
     setLocale(detectInitialLocale())
@@ -405,7 +410,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           return
         }
 
-        setMeta(payload)
+        setMeta({
+          ...payload,
+          requiresPassword: payload.requiresPassword || payload.list.visibility === 'public_password',
+        })
         setPreviewMedia(payload.previewMedia)
       } catch {
         if (!cancelled) {
@@ -486,7 +494,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }, [selectedWheelEntryId, wheelEntries])
 
   const handleContinue = async () => {
-    if (meta?.requiresPassword || meta?.list.visibility === 'public_password') {
+    if (isPasswordProtected) {
       setError(null)
       setSuccess(null)
       setIsPasswordPromptOpen(true)
@@ -501,7 +509,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }
 
   const handleUnlock = async () => {
-    if (!meta || !meta.requiresPassword) {
+    if (!meta || !isPasswordProtected) {
       return
     }
 
@@ -937,13 +945,16 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const passwordPromptModal = (
     isPasswordPromptOpen
     && modalRoot
-    && meta?.requiresPassword
+    && isPasswordProtected
     && createPortal(
       <div
-        className="event-canvas fixed inset-0"
-        data-event-theme={eventThemeId}
+        className="fixed inset-0"
         style={{ zIndex: 960 }}
       >
+        <div
+          className="event-canvas absolute inset-0"
+          data-event-theme={eventThemeId}
+        />
         <button
           type="button"
           aria-label={copy.closeImageAction}
@@ -955,7 +966,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           className="absolute inset-0 bg-black/28 backdrop-blur-sm"
         />
 
-        <div className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-6">
+        <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
           <section className="event-surface-panel w-full max-w-lg rounded-2xl border border-white/15 p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -1367,10 +1378,13 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
         {lightboxMedia && modalRoot && createPortal(
           <div
-            className="event-canvas fixed inset-0 z-[70] overflow-y-auto"
-            data-event-theme={eventThemeId}
+            className="fixed inset-0 overflow-y-auto"
             style={{ zIndex: 980 }}
           >
+            <div
+              className="event-canvas absolute inset-0"
+              data-event-theme={eventThemeId}
+            />
             <button
               type="button"
               aria-label={copy.closeImageAction}
@@ -1378,7 +1392,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               className="absolute inset-0 bg-black/28 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-6">
+            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
               <section className="w-full max-w-6xl">
                 <div className="flex justify-end">
                   <button
@@ -1470,10 +1484,13 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
         {isThankYouVisible && modalRoot && createPortal(
           <div
-            className="event-canvas fixed inset-0 z-[80]"
-            data-event-theme={eventThemeId}
+            className="fixed inset-0"
             style={{ zIndex: 990 }}
           >
+            <div
+              className="event-canvas absolute inset-0"
+              data-event-theme={eventThemeId}
+            />
             <button
               type="button"
               aria-label={copy.closeImageAction}
@@ -1481,7 +1498,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               className="absolute inset-0 bg-black/24 backdrop-blur-sm"
             />
 
-            <div className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-6">
+            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
               <section
                 className={`event-surface-panel w-full max-w-md rounded-2xl border border-white/15 p-5 shadow-2xl ${
                   isThankYouClosing ? 'toast-success--exit' : 'toast-success--enter'
