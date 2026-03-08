@@ -318,6 +318,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [lightboxMedia, setLightboxMedia] = useState<LightboxMedia>(null)
   const thankYouTimeoutRef = useRef<number | null>(null)
   const thankYouCloseTimeoutRef = useRef<number | null>(null)
+  const thankYouLaunchTimeoutRef = useRef<number | null>(null)
   const copy = PUBLIC_COPY[locale]
   const modalRoot = hasMounted ? document.body : null
 
@@ -336,6 +337,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       }
       if (thankYouCloseTimeoutRef.current) {
         window.clearTimeout(thankYouCloseTimeoutRef.current)
+      }
+      if (thankYouLaunchTimeoutRef.current) {
+        window.clearTimeout(thankYouLaunchTimeoutRef.current)
       }
     }
   }, [])
@@ -362,7 +366,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       return
     }
 
-    if (!lightboxMedia && !isDetailsModalOpen && !isThankYouVisible) {
+    if (!lightboxMedia && !isDetailsModalOpen && !isThankYouVisible && !isPasswordPromptOpen) {
       return
     }
 
@@ -372,7 +376,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     return () => {
       document.body.style.overflow = previousOverflow
     }
-  }, [hasMounted, isDetailsModalOpen, isThankYouVisible, lightboxMedia])
+  }, [hasMounted, isDetailsModalOpen, isPasswordPromptOpen, isThankYouVisible, lightboxMedia])
 
   useEffect(() => {
     let cancelled = false
@@ -482,7 +486,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }, [selectedWheelEntryId, wheelEntries])
 
   const handleContinue = async () => {
-    if (meta?.requiresPassword) {
+    if (meta?.requiresPassword || meta?.list.visibility === 'public_password') {
       setError(null)
       setSuccess(null)
       setIsPasswordPromptOpen(true)
@@ -669,6 +673,11 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }
 
   const handleCloseThankYouCard = () => {
+    if (thankYouLaunchTimeoutRef.current) {
+      window.clearTimeout(thankYouLaunchTimeoutRef.current)
+      thankYouLaunchTimeoutRef.current = null
+    }
+
     if (thankYouCloseTimeoutRef.current) {
       window.clearTimeout(thankYouCloseTimeoutRef.current)
       thankYouCloseTimeoutRef.current = null
@@ -681,6 +690,17 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
     setIsThankYouVisible(false)
     setIsThankYouClosing(false)
+  }
+
+  const scheduleThankYouCard = () => {
+    if (thankYouLaunchTimeoutRef.current) {
+      window.clearTimeout(thankYouLaunchTimeoutRef.current)
+    }
+
+    thankYouLaunchTimeoutRef.current = window.setTimeout(() => {
+      showThankYouCard()
+      thankYouLaunchTimeoutRef.current = null
+    }, 90)
   }
 
   const showThankYouCard = () => {
@@ -778,7 +798,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       setDetailsItemId(null)
       setDetailsGuestName('')
       setDetailsGuestMessage('')
-      showThankYouCard()
+      scheduleThankYouCard()
     } catch {
       setDetailsError(copy.detailsSaveFailed)
     } finally {
@@ -793,7 +813,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     setDetailsGuestMessage('')
     setDetailsError(null)
     setSuccess(null)
-    showThankYouCard()
+    scheduleThankYouCard()
   }
 
   const handleReserve = async (itemId: string) => {
@@ -914,6 +934,97 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     </div>
   )
 
+  const passwordPromptModal = (
+    isPasswordPromptOpen
+    && modalRoot
+    && meta?.requiresPassword
+    && createPortal(
+      <div
+        className="event-canvas fixed inset-0"
+        data-event-theme={eventThemeId}
+        style={{ zIndex: 960 }}
+      >
+        <button
+          type="button"
+          aria-label={copy.closeImageAction}
+          onClick={() => {
+            setIsPasswordPromptOpen(false)
+            setIsPasswordVisible(false)
+            setError(null)
+          }}
+          className="absolute inset-0 bg-black/28 backdrop-blur-sm"
+        />
+
+        <div className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-6">
+          <section className="event-surface-panel w-full max-w-lg rounded-2xl border border-white/15 p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-white">{copy.passwordLabel}</h2>
+                <p className="mt-2 text-sm text-slate-200">
+                  {copy.passwordProtectedPrompt}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPasswordPromptOpen(false)
+                  setIsPasswordVisible(false)
+                  setError(null)
+                }}
+                aria-label={copy.closeImageAction}
+                className="rounded-full border border-white/20 p-2 text-white"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
+              <label className="grid gap-1 text-sm text-slate-200">
+                <span>{copy.passwordLabel}</span>
+                <div className="relative">
+                  <input
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="w-full rounded-lg border border-white/20 bg-slate-900 px-3 py-2 pr-11 text-white"
+                    minLength={6}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible((current) => !current)}
+                    aria-label={isPasswordVisible ? copy.hidePasswordAria : copy.showPasswordAria}
+                    className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
+                  >
+                    {isPasswordVisible
+                      ? <EyeOff size={16} />
+                      : <Eye size={16} />}
+                  </button>
+                </div>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleUnlock}
+                disabled={isUnlocking || password.trim().length < 6}
+                className="event-accent-button rounded-full px-5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isUnlocking ? copy.checkingPassword : copy.unlockAction}
+              </button>
+            </div>
+
+            {error && (
+              <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                {error}
+              </p>
+            )}
+          </section>
+        </div>
+      </div>,
+      modalRoot
+    )
+  )
+
   if (metaLoading) {
     return (
       <div
@@ -924,6 +1035,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <div className="mb-4 flex justify-end">{languageSwitcher}</div>
           <p className="text-slate-200">{copy.loadingList}</p>
         </main>
+        {passwordPromptModal}
       </div>
     )
   }
@@ -939,6 +1051,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <h1 className="text-2xl font-bold text-white sm:text-3xl">{copy.listNotFoundTitle}</h1>
           <p className="mt-3 text-slate-300">{copy.listNotFoundBody}</p>
         </main>
+        {passwordPromptModal}
       </div>
     )
   }
@@ -984,47 +1097,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               </button>
             </div>
 
-            {isPasswordPromptOpen && (
-              <div className="mt-5 rounded-xl border border-white/20 bg-slate-950/70 p-4">
-                <p className="text-sm text-slate-200">
-                  {copy.passwordProtectedPrompt}
-                </p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
-                  <label className="grid gap-1 text-sm text-slate-200">
-                    <span>{copy.passwordLabel}</span>
-                    <div className="relative">
-                      <input
-                        type={isPasswordVisible ? 'text' : 'password'}
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        className="w-full rounded-lg border border-white/20 bg-slate-900 px-3 py-2 pr-11 text-white"
-                        minLength={6}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setIsPasswordVisible((current) => !current)}
-                        aria-label={isPasswordVisible ? copy.hidePasswordAria : copy.showPasswordAria}
-                        className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
-                      >
-                        {isPasswordVisible
-                          ? <EyeOff size={16} />
-                          : <Eye size={16} />}
-                      </button>
-                    </div>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleUnlock}
-                    disabled={isUnlocking || password.trim().length < 6}
-                    className="rounded-full border border-emerald-300/50 px-5 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {isUnlocking ? copy.checkingPassword : copy.unlockAction}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {error && (
+            {error && !isPasswordPromptOpen && (
               <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                 {error}
               </p>
@@ -1032,6 +1105,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           </div>
           </section>
         </main>
+        {passwordPromptModal}
       </div>
     )
   }
@@ -1046,6 +1120,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <div className="mb-4 flex justify-end">{languageSwitcher}</div>
           <p className="text-slate-200">{copy.loadingContent}</p>
         </main>
+        {passwordPromptModal}
       </div>
     )
   }
@@ -1294,6 +1369,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <div
             className="event-canvas fixed inset-0 z-[70] overflow-y-auto"
             data-event-theme={eventThemeId}
+            style={{ zIndex: 980 }}
           >
             <button
               type="button"
@@ -1320,7 +1396,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                   <img
                     src={lightboxMedia.url}
                     alt={lightboxMedia.alt}
-                    className="max-h-[82vh] w-full object-contain"
+                    className="mx-auto max-h-[82vh] max-w-full object-contain"
                   />
                 </div>
               </section>
@@ -1330,7 +1406,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         )}
 
         {isDetailsModalOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+        <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 970 }}>
           <button
             type="button"
             aria-label={copy.detailsSkipAction}
@@ -1396,6 +1472,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           <div
             className="event-canvas fixed inset-0 z-[80]"
             data-event-theme={eventThemeId}
+            style={{ zIndex: 990 }}
           >
             <button
               type="button"
@@ -1431,6 +1508,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           modalRoot
         )}
       </main>
+      {passwordPromptModal}
     </div>
   )
 }
