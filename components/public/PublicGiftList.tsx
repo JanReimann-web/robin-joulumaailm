@@ -1373,44 +1373,41 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         })}
         </section>
 
-        {lightboxMedia && modalRoot && createPortal(
-          <div
-            className="event-canvas fixed inset-0 overflow-y-auto"
+        {lightboxMedia && (
+        <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 980 }}>
+          <button
+            type="button"
+            aria-label={copy.closeImageAction}
+            onClick={() => setLightboxMedia(null)}
+            className="absolute inset-0 bg-slate-950/82 backdrop-blur-sm"
+          />
+
+          <section
+            className="event-canvas relative z-10 w-full max-w-6xl"
             data-event-theme={eventThemeId}
-            style={{ zIndex: 980 }}
           >
-            <button
-              type="button"
-              aria-label={copy.closeImageAction}
-              onClick={() => setLightboxMedia(null)}
-              className="absolute inset-0 bg-black/28 backdrop-blur-sm"
-            />
-
-            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 2 }}>
-              <section className="w-full max-w-6xl">
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setLightboxMedia(null)}
-                    className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white shadow-lg"
-                  >
-                    <X size={16} />
-                    {copy.closeImageAction}
-                  </button>
-                </div>
-
-                <div className="event-surface-panel mt-3 overflow-hidden rounded-2xl border border-white/15 p-2 shadow-2xl sm:p-4">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={lightboxMedia.url}
-                    alt={lightboxMedia.alt}
-                    className="mx-auto max-h-[82vh] max-w-full object-contain"
-                  />
-                </div>
-              </section>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setLightboxMedia(null)}
+                className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white shadow-lg"
+                style={{ color: 'var(--event-text-strong)' }}
+              >
+                <X size={16} />
+                {copy.closeImageAction}
+              </button>
             </div>
-          </div>,
-          modalRoot
+
+            <div className="event-surface-panel mt-3 overflow-hidden rounded-2xl border border-white/15 p-2 shadow-2xl sm:p-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={lightboxMedia.url}
+                alt={lightboxMedia.alt}
+                className="mx-auto max-h-[82vh] max-w-full object-contain"
+              />
+            </div>
+          </section>
+        </div>
         )}
 
         {isDetailsModalOpen && (
@@ -1476,44 +1473,47 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         </div>
         )}
 
-        {isThankYouVisible && modalRoot && createPortal(
-          <div
-            className="event-canvas fixed inset-0"
-            data-event-theme={eventThemeId}
-            style={{ zIndex: 990 }}
-          >
-            <button
-              type="button"
-              aria-label={copy.closeImageAction}
-              onClick={handleCloseThankYouCard}
-              className="absolute inset-0 bg-black/24 backdrop-blur-sm"
-            />
+        {isThankYouVisible && (
+        <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 990 }}>
+          <button
+            type="button"
+            aria-label={copy.closeImageAction}
+            onClick={handleCloseThankYouCard}
+            className="absolute inset-0 bg-slate-950/82 backdrop-blur-sm"
+          />
 
-            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 2 }}>
-              <section
-                className={`event-surface-panel w-full max-w-md rounded-2xl border border-white/20 p-5 shadow-2xl ${
-                  isThankYouClosing ? 'toast-success--exit' : 'toast-success--enter'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-base font-semibold text-white">{copy.thankYouTitle}</h2>
-                    <p className="mt-1 text-sm text-slate-200">{copy.thankYouBody}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleCloseThankYouCard}
-                    aria-label={copy.closeImageAction}
-                    className="event-surface-card rounded-full border border-white/20 p-2 text-white"
-                  >
-                    <X size={14} />
-                  </button>
+          <section
+            className="event-canvas relative z-10 w-full max-w-md"
+            data-event-theme={eventThemeId}
+          >
+            <div
+              className={`event-surface-panel rounded-2xl border border-white/20 p-5 shadow-2xl ${
+                isThankYouClosing ? 'toast-success--exit' : 'toast-success--enter'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5" style={{ color: 'var(--event-accent)' }} />
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-base font-semibold text-white" style={{ color: 'var(--event-text-strong)' }}>
+                    {copy.thankYouTitle}
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-200" style={{ color: 'var(--event-text-base)' }}>
+                    {copy.thankYouBody}
+                  </p>
                 </div>
-              </section>
+                <button
+                  type="button"
+                  onClick={handleCloseThankYouCard}
+                  aria-label={copy.closeImageAction}
+                  className="event-surface-card rounded-full border border-white/20 p-2 text-white"
+                  style={{ color: 'var(--event-text-strong)' }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
             </div>
-          </div>,
-          modalRoot
+          </section>
+        </div>
         )}
       </main>
       {passwordPromptModal}

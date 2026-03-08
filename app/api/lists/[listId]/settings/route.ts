@@ -96,6 +96,21 @@ export async function POST(request: NextRequest, context: RouteContext) {
         throw new Error('forbidden')
       }
 
+      const secretSnap = visibility === 'public_password'
+        ? await transaction.get(secretRef)
+        : null
+
+      const needsNewPassword = visibility === 'public_password' && !(secretSnap?.exists ?? false)
+      const hasPasswordInput = visibilityPassword.length > 0
+
+      if (needsNewPassword && !hasPasswordInput) {
+        throw new Error('invalid_visibility_password')
+      }
+
+      if (hasPasswordInput && !isValidVisibilityPassword(visibilityPassword)) {
+        throw new Error('invalid_visibility_password')
+      }
+
       transaction.update(listRef, {
         eventType,
         templateId,
@@ -106,18 +121,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       if (visibility !== 'public_password') {
         transaction.delete(secretRef)
         return
-      }
-
-      const secretSnap = await transaction.get(secretRef)
-      const needsNewPassword = !secretSnap.exists
-      const hasPasswordInput = visibilityPassword.length > 0
-
-      if (needsNewPassword && !hasPasswordInput) {
-        throw new Error('invalid_visibility_password')
-      }
-
-      if (hasPasswordInput && !isValidVisibilityPassword(visibilityPassword)) {
-        throw new Error('invalid_visibility_password')
       }
 
       if (!hasPasswordInput) {
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         updatedAt: FieldValue.serverTimestamp(),
       }
 
-      if (!secretSnap.exists) {
+      if (!(secretSnap?.exists ?? false)) {
         payload.createdAt = FieldValue.serverTimestamp()
       }
 
@@ -156,4 +159,3 @@ export async function POST(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: 'update_failed' }, { status: 500 })
   }
 }
-
