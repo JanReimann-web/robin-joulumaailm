@@ -948,13 +948,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     && isPasswordProtected
     && createPortal(
       <div
-        className="fixed inset-0"
+        className="event-canvas fixed inset-0"
+        data-event-theme={eventThemeId}
         style={{ zIndex: 960 }}
       >
-        <div
-          className="event-canvas absolute inset-0"
-          data-event-theme={eventThemeId}
-        />
         <button
           type="button"
           aria-label={copy.closeImageAction}
@@ -966,7 +963,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
           className="absolute inset-0 bg-black/28 backdrop-blur-sm"
         />
 
-        <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
+        <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 2 }}>
           <section className="event-surface-panel w-full max-w-lg rounded-2xl border border-white/15 p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -975,18 +972,18 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                   {copy.passwordProtectedPrompt}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsPasswordPromptOpen(false)
-                  setIsPasswordVisible(false)
-                  setError(null)
-                }}
-                aria-label={copy.closeImageAction}
-                className="rounded-full border border-white/20 p-2 text-white"
-              >
-                <X size={14} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPasswordPromptOpen(false)
+                    setIsPasswordVisible(false)
+                    setError(null)
+                  }}
+                  aria-label={copy.closeImageAction}
+                  className="event-surface-card rounded-full border border-white/20 p-2 text-white"
+                >
+                  <X size={14} />
+                </button>
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
@@ -1378,13 +1375,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
         {lightboxMedia && modalRoot && createPortal(
           <div
-            className="fixed inset-0 overflow-y-auto"
+            className="event-canvas fixed inset-0 overflow-y-auto"
+            data-event-theme={eventThemeId}
             style={{ zIndex: 980 }}
           >
-            <div
-              className="event-canvas absolute inset-0"
-              data-event-theme={eventThemeId}
-            />
             <button
               type="button"
               aria-label={copy.closeImageAction}
@@ -1392,13 +1386,13 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               className="absolute inset-0 bg-black/28 backdrop-blur-sm"
             />
 
-            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
+            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 2 }}>
               <section className="w-full max-w-6xl">
                 <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => setLightboxMedia(null)}
-                    className="event-surface-card inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white"
+                    className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white shadow-lg"
                   >
                     <X size={16} />
                     {copy.closeImageAction}
@@ -1484,13 +1478,10 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
         {isThankYouVisible && modalRoot && createPortal(
           <div
-            className="fixed inset-0"
+            className="event-canvas fixed inset-0"
+            data-event-theme={eventThemeId}
             style={{ zIndex: 990 }}
           >
-            <div
-              className="event-canvas absolute inset-0"
-              data-event-theme={eventThemeId}
-            />
             <button
               type="button"
               aria-label={copy.closeImageAction}
@@ -1498,9 +1489,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               className="absolute inset-0 bg-black/24 backdrop-blur-sm"
             />
 
-            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
+            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 2 }}>
               <section
-                className={`event-surface-panel w-full max-w-md rounded-2xl border border-white/15 p-5 shadow-2xl ${
+                className={`event-surface-panel w-full max-w-md rounded-2xl border border-white/20 p-5 shadow-2xl ${
                   isThankYouClosing ? 'toast-success--exit' : 'toast-success--enter'
                 }`}
               >
@@ -1514,7 +1505,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
                     type="button"
                     onClick={handleCloseThankYouCard}
                     aria-label={copy.closeImageAction}
-                    className="rounded-full border border-white/20 p-2 text-white"
+                    className="event-surface-card rounded-full border border-white/20 p-2 text-white"
                   >
                     <X size={14} />
                   </button>

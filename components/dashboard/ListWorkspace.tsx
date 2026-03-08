@@ -661,6 +661,13 @@ export default function ListWorkspace({
 
   const isSelectedListExpired = selectedList?.accessStatus === 'expired'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
+  const isSwitchingToPasswordProtected = Boolean(
+    selectedList
+    && selectedList.visibility !== 'public_password'
+    && visibility === 'public_password'
+  )
+  const isVisibilityPasswordMissing = isSwitchingToPasswordProtected
+    && visibilityPassword.trim().length < 6
   const mobilePreviewList = useMemo(
     () => lists.find((list) => list.id === previewListId) ?? null,
     [lists, previewListId]
@@ -954,7 +961,17 @@ export default function ListWorkspace({
     }
 
     const normalizedPassword = visibilityPassword.trim()
-    if (visibility === 'public_password' && normalizedPassword.length > 0 && normalizedPassword.length < 6) {
+    if (isSwitchingToPasswordProtected && normalizedPassword.length < 6) {
+      setListError(labels.errorVisibilityPasswordRequired)
+      return
+    }
+
+    if (
+      visibility === 'public_password'
+      && !isSwitchingToPasswordProtected
+      && normalizedPassword.length > 0
+      && normalizedPassword.length < 6
+    ) {
       setListError(labels.errorVisibilityPasswordRequired)
       return
     }
@@ -978,11 +995,24 @@ export default function ListWorkspace({
         idToken,
       })
 
+      setLists((current) =>
+        current.map((entry) =>
+          entry.id === selectedList.id
+            ? {
+                ...entry,
+                eventType,
+                templateId,
+                visibility,
+              }
+            : entry
+        )
+      )
       setVisibilityPassword('')
       setIsVisibilityPasswordVisible(false)
       setListSuccess(labels.listSettingsSaved)
     } catch (rawError) {
       if (rawError instanceof VisibilityPasswordRequiredError) {
+        setVisibility(selectedList.visibility)
         setListError(labels.errorVisibilityPasswordRequired)
       } else {
         setListError(withErrorCode(labels.errorListSettingsUpdate, rawError))
@@ -2611,6 +2641,7 @@ export default function ListWorkspace({
                   <span>{labels.visibilityPasswordLabel}</span>
                   <div className="relative">
                     <input
+                      required={isSwitchingToPasswordProtected}
                       minLength={6}
                       type={isVisibilityPasswordVisible ? 'text' : 'password'}
                       value={visibilityPassword}
@@ -2632,13 +2663,16 @@ export default function ListWorkspace({
                     </button>
                   </div>
                   <span className="text-xs text-slate-400">{labels.visibilityPasswordHint}</span>
+                  {isVisibilityPasswordMissing && (
+                    <span className="text-xs text-red-200">{labels.errorVisibilityPasswordRequired}</span>
+                  )}
                 </label>
               )}
 
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="submit"
-                  disabled={!selectedList || isSavingListSettings || isSelectedListExpired}
+                  disabled={!selectedList || isSavingListSettings || isSelectedListExpired || isVisibilityPasswordMissing}
                   className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSavingListSettings
