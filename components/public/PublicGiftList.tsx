@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { CheckCircle2, Eye, EyeOff, X } from 'lucide-react'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
@@ -284,6 +285,7 @@ const getEventSectionCopy = (
 
 export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const [locale, setLocale] = useState<PublicLocale>(detectInitialLocale)
+  const [hasMounted, setHasMounted] = useState(false)
   const [meta, setMeta] = useState<PublicListMetaResponse | null>(null)
   const [list, setList] = useState<PublicListView | null>(null)
   const [items, setItems] = useState<GiftListItem[]>([])
@@ -317,9 +319,14 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const thankYouTimeoutRef = useRef<number | null>(null)
   const thankYouCloseTimeoutRef = useRef<number | null>(null)
   const copy = PUBLIC_COPY[locale]
+  const modalRoot = hasMounted ? document.body : null
 
   useEffect(() => {
     setLocale(detectInitialLocale())
+  }, [])
+
+  useEffect(() => {
+    setHasMounted(true)
   }, [])
 
   useEffect(() => {
@@ -349,6 +356,23 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [lightboxMedia])
+
+  useEffect(() => {
+    if (!hasMounted) {
+      return
+    }
+
+    if (!lightboxMedia && !isDetailsModalOpen && !isThankYouVisible) {
+      return
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [hasMounted, isDetailsModalOpen, isThankYouVisible, lightboxMedia])
 
   useEffect(() => {
     let cancelled = false
@@ -458,6 +482,14 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }, [selectedWheelEntryId, wheelEntries])
 
   const handleContinue = async () => {
+    if (meta?.requiresPassword) {
+      setError(null)
+      setSuccess(null)
+      setIsPasswordPromptOpen(true)
+      setIsPasswordVisible(false)
+      return
+    }
+
     const ok = await loadContent()
     if (ok) {
       setHasEntered(true)
@@ -548,13 +580,20 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
     if (media.type.startsWith('image/')) {
       return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={media.url}
-          alt={alt}
-          className={heroMediaClassName}
-          loading="lazy"
-        />
+        <button
+          type="button"
+          onClick={() => setLightboxMedia({ url: media.url, alt })}
+          aria-label={copy.expandImageAria}
+          className="block w-full overflow-hidden text-left"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={media.url}
+            alt={alt}
+            className={heroMediaClassName}
+            loading="lazy"
+          />
+        </button>
       )
     }
 
@@ -629,7 +668,24 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     return null
   }
 
+  const handleCloseThankYouCard = () => {
+    if (thankYouCloseTimeoutRef.current) {
+      window.clearTimeout(thankYouCloseTimeoutRef.current)
+      thankYouCloseTimeoutRef.current = null
+    }
+
+    if (thankYouTimeoutRef.current) {
+      window.clearTimeout(thankYouTimeoutRef.current)
+      thankYouTimeoutRef.current = null
+    }
+
+    setIsThankYouVisible(false)
+    setIsThankYouClosing(false)
+  }
+
   const showThankYouCard = () => {
+    setSuccess(null)
+    setError(null)
     setIsThankYouVisible(true)
     setIsThankYouClosing(false)
     if (thankYouCloseTimeoutRef.current) {
@@ -717,7 +773,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             : entry
         )
       )
-      setSuccess(copy.detailsSaved)
+      setSuccess(null)
       setIsDetailsModalOpen(false)
       setDetailsItemId(null)
       setDetailsGuestName('')
@@ -736,6 +792,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     setDetailsGuestName('')
     setDetailsGuestMessage('')
     setDetailsError(null)
+    setSuccess(null)
     showThankYouCard()
   }
 
@@ -799,7 +856,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             : entry
         )
       )
-      setSuccess(copy.reservationSaved)
+      setSuccess(null)
       setDetailsItemId(itemId)
       setDetailsGuestName('')
       setDetailsGuestMessage('')
@@ -1233,39 +1290,43 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         })}
         </section>
 
-        {lightboxMedia && (
-        <div
-          className="event-canvas fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 sm:p-6"
-          data-event-theme={eventThemeId}
-        >
-          <button
-            type="button"
-            aria-label={copy.closeImageAction}
-            onClick={() => setLightboxMedia(null)}
-            className="absolute inset-0 bg-black/35 backdrop-blur-sm"
-          />
-          <section className="relative z-10 w-full max-w-6xl">
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setLightboxMedia(null)}
-                className="event-surface-card inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white"
-              >
-                <X size={16} />
-                {copy.closeImageAction}
-              </button>
-            </div>
+        {lightboxMedia && modalRoot && createPortal(
+          <div
+            className="event-canvas fixed inset-0 z-[70] overflow-y-auto"
+            data-event-theme={eventThemeId}
+          >
+            <button
+              type="button"
+              aria-label={copy.closeImageAction}
+              onClick={() => setLightboxMedia(null)}
+              className="absolute inset-0 bg-black/28 backdrop-blur-sm"
+            />
 
-            <div className="event-surface-panel mt-3 overflow-hidden rounded-2xl border border-white/15 p-2 shadow-2xl sm:p-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={lightboxMedia.url}
-                alt={lightboxMedia.alt}
-                className="max-h-[82vh] w-full object-contain"
-              />
+            <div className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-6">
+              <section className="w-full max-w-6xl">
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setLightboxMedia(null)}
+                    className="event-surface-card inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    <X size={16} />
+                    {copy.closeImageAction}
+                  </button>
+                </div>
+
+                <div className="event-surface-panel mt-3 overflow-hidden rounded-2xl border border-white/15 p-2 shadow-2xl sm:p-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={lightboxMedia.url}
+                    alt={lightboxMedia.alt}
+                    className="max-h-[82vh] w-full object-contain"
+                  />
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          </div>,
+          modalRoot
         )}
 
         {isDetailsModalOpen && (
@@ -1331,25 +1392,45 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         </div>
         )}
 
-        {isThankYouVisible && (
-        <div className="pointer-events-none fixed bottom-4 right-4 z-30 w-full max-w-md px-4 sm:px-0">
-          <section
-            className={`pointer-events-auto toast-success ${
-              isThankYouClosing ? 'toast-success--exit' : 'toast-success--enter'
-            }`}
+        {isThankYouVisible && modalRoot && createPortal(
+          <div
+            className="event-canvas fixed inset-0 z-[80]"
+            data-event-theme={eventThemeId}
           >
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
-              <div>
-                <h2 className="text-base font-semibold text-white">{copy.thankYouTitle}</h2>
-                <p className="mt-1 text-sm text-emerald-100">{copy.thankYouBody}</p>
-              </div>
+            <button
+              type="button"
+              aria-label={copy.closeImageAction}
+              onClick={handleCloseThankYouCard}
+              className="absolute inset-0 bg-black/24 backdrop-blur-sm"
+            />
+
+            <div className="relative z-10 flex min-h-screen items-center justify-center p-4 sm:p-6">
+              <section
+                className={`event-surface-panel w-full max-w-md rounded-2xl border border-white/15 p-5 shadow-2xl ${
+                  isThankYouClosing ? 'toast-success--exit' : 'toast-success--enter'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-300" />
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-base font-semibold text-white">{copy.thankYouTitle}</h2>
+                    <p className="mt-1 text-sm text-slate-200">{copy.thankYouBody}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCloseThankYouCard}
+                    aria-label={copy.closeImageAction}
+                    className="rounded-full border border-white/20 p-2 text-white"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          </div>,
+          modalRoot
         )}
       </main>
     </div>
   )
 }
-
