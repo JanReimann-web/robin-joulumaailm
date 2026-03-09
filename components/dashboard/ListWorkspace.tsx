@@ -12,7 +12,6 @@ import {
   startBillingCheckout,
 } from '@/lib/billing/client'
 import { auth } from '@/lib/firebase'
-import { getRemainingDays, ListAccessStatus } from '@/lib/lists/access'
 import {
   InvalidSlugError,
   ReservedSlugError,
@@ -135,14 +134,6 @@ const itemStatusLabelMap = (
   available: labels.statusAvailable,
   reserved: labels.statusReserved,
   gifted: labels.statusGifted,
-})
-
-const listAccessLabelMap = (
-  labels: Dictionary['dashboard']
-): Record<ListAccessStatus, string> => ({
-  trial: labels.accessTrial,
-  active: labels.accessActive,
-  expired: labels.accessExpired,
 })
 
 type ErrorWithCode = {
@@ -564,7 +555,6 @@ export default function ListWorkspace({
   const eventTypeLabels = useMemo(() => eventLabelMap(eventLabels), [eventLabels])
   const visibilityLabels = useMemo(() => visibilityLabelMap(labels), [labels])
   const itemStatusLabels = useMemo(() => itemStatusLabelMap(labels), [labels])
-  const accessStatusLabels = useMemo(() => listAccessLabelMap(labels), [labels])
 
   const selectedList = useMemo(
     () => lists.find((list) => list.id === selectedListId) ?? null,
@@ -732,6 +722,8 @@ export default function ListWorkspace({
   const composedCreateUrl = useMemo(() => {
     return getPublicListUrl(composedCreateSlug)
   }, [composedCreateSlug])
+  const isListSettingsSuccessVisible = listSuccess === labels.listSettingsSaved
+  const globalListSuccess = isListSettingsSuccessVisible ? null : listSuccess
 
   const handleTitleChange = (value: string) => {
     setTitle(value)
@@ -744,22 +736,6 @@ export default function ListWorkspace({
   const handleSlugChange = (value: string) => {
     setIsSlugTouched(true)
     setSlug(sanitizeSlug(value))
-  }
-
-  const handleRegeneratePublicUrlCode = () => {
-    setPublicUrlCode(generatePublicUrlCode())
-  }
-
-  const getListDaysLeft = (list: GiftList) => {
-    if (list.accessStatus === 'active') {
-      return getRemainingDays(list.paidAccessEndsAt)
-    }
-
-    if (list.accessStatus === 'trial') {
-      return getRemainingDays(list.trialEndsAt)
-    }
-
-    return 0
   }
 
   const renderItemMediaPreview = (item: GiftListItem) => {
@@ -2344,16 +2320,7 @@ export default function ListWorkspace({
               placeholder={labels.urlNamePlaceholder}
               className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
             />
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs text-slate-400">{labels.slugHint}</span>
-              <button
-                type="button"
-                onClick={handleRegeneratePublicUrlCode}
-                className="rounded-full border border-white/30 px-3 py-1 text-xs font-semibold text-white"
-              >
-                {labels.regenerateUrlCodeAction}
-              </button>
-            </div>
+            <span className="text-xs text-slate-400">{labels.slugHint}</span>
           </label>
 
           <button
@@ -2365,9 +2332,9 @@ export default function ListWorkspace({
           </button>
         </form>
 
-        {listSuccess && (
+        {globalListSuccess && (
           <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
-            {listSuccess}
+            {globalListSuccess}
           </p>
         )}
 
@@ -2475,20 +2442,6 @@ export default function ListWorkspace({
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.visibilityTag}: {visibilityLabels[list.visibility]}
                 </span>
-                <span className="rounded-full border border-white/20 px-2 py-1 break-all">
-                  {labels.slugTag}: {list.slug}
-                </span>
-                <span className="rounded-full border border-white/20 px-2 py-1 break-all">
-                  {labels.listLinkTag}: {getPublicListUrl(list.slug)}
-                </span>
-                <span className="rounded-full border border-white/20 px-2 py-1">
-                  {labels.accessStatusTag}: {accessStatusLabels[list.accessStatus]}
-                </span>
-                {list.accessStatus !== 'expired' && (
-                  <span className="rounded-full border border-white/20 px-2 py-1">
-                    {labels.daysLeftTag}: {getListDaysLeft(list)}
-                  </span>
-                )}
               </div>
 
               {list.accessStatus !== 'active' && (
@@ -2688,6 +2641,12 @@ export default function ListWorkspace({
                   {isDeletingList ? labels.listDeleting : labels.deleteListAction}
                 </button>
               </div>
+
+              {isListSettingsSuccessVisible && (
+                <p className="rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+                  {listSuccess}
+                </p>
+              )}
             </form>
           </div>
 
