@@ -1,5 +1,6 @@
 import 'server-only'
 import Stripe from 'stripe'
+import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
 import { addDays, PAID_ACCESS_DAYS } from '@/lib/lists/access'
 import { adminDb } from '@/lib/firebase/admin'
@@ -187,6 +188,13 @@ export const startListCheckout = async (params: {
   }
 
   const { listData } = await validateListOwnership(params.listId, params.ownerId)
+  const hasComplimentaryAccess = await hasServerSideComplimentaryEntitlement(params.ownerId)
+  if (hasComplimentaryAccess) {
+    return {
+      mode: 'manual',
+      activated: true,
+    }
+  }
   const mediaUsage = await computeListMediaUsageSummary(params.listId)
   const mediaUsageIssue = getMediaUsageIssue(mediaUsage)
   if (mediaUsageIssue) {

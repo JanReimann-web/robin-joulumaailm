@@ -14,12 +14,24 @@ service cloud.firestore {
       return /databases/$(database)/documents/lists/$(listId);
     }
 
+    function entitlementPath(userId) {
+      return /databases/$(database)/documents/accountEntitlements/$(userId);
+    }
+
     function listExists(listId) {
       return exists(listPath(listId));
     }
 
+    function entitlementExists(userId) {
+      return exists(entitlementPath(userId));
+    }
+
     function listData(listId) {
       return get(listPath(listId)).data;
+    }
+
+    function entitlementData(userId) {
+      return get(entitlementPath(userId)).data;
     }
 
     function isListOwner(listId) {
@@ -28,44 +40,55 @@ service cloud.firestore {
         && listData(listId).ownerId == request.auth.uid;
     }
 
+    function hasActiveComplimentaryEntitlementForUser(userId) {
+      return userId is string
+        && userId.size() > 0
+        && entitlementExists(userId)
+        && entitlementData(userId).tier == 'complimentary_unlimited'
+        && entitlementData(userId).status == 'active'
+        && (
+          !entitlementData(userId).keys().hasAny(['expiresAt'])
+          || entitlementData(userId).expiresAt == null
+          || (
+            entitlementData(userId).expiresAt is timestamp
+            && entitlementData(userId).expiresAt > request.time
+          )
+        );
+    }
+
     function hasActiveListAccessData(data) {
       return (
-        (
-          data.paidAccessEndsAt is timestamp
-          && data.paidAccessEndsAt > request.time
-        )
+        hasActiveComplimentaryEntitlementForUser(data.ownerId)
         || (
-          data.paidAccessEndsAt == null
-          && data.trialEndsAt is timestamp
-          && data.trialEndsAt > request.time
+          (
+            data.paidAccessEndsAt is timestamp
+            && data.paidAccessEndsAt > request.time
+          )
+          || (
+            data.paidAccessEndsAt == null
+            && data.trialEndsAt is timestamp
+            && data.trialEndsAt > request.time
+          )
         )
       );
     }
 
     function hasPublishedListAccessData(data) {
-      return data.paidAccessEndsAt is timestamp
-        && data.paidAccessEndsAt > request.time;
+      return hasActiveComplimentaryEntitlementForUser(data.ownerId)
+        || (
+          data.paidAccessEndsAt is timestamp
+          && data.paidAccessEndsAt > request.time
+        );
     }
 
     function hasActiveListAccess(listId) {
       return listExists(listId)
-        && (
-          (
-            listData(listId).paidAccessEndsAt is timestamp
-            && listData(listId).paidAccessEndsAt > request.time
-          )
-          || (
-            listData(listId).paidAccessEndsAt == null
-            && listData(listId).trialEndsAt is timestamp
-            && listData(listId).trialEndsAt > request.time
-          )
-      );
+        && hasActiveListAccessData(listData(listId));
     }
 
     function hasPublishedListAccess(listId) {
       return listExists(listId)
-        && listData(listId).paidAccessEndsAt is timestamp
-        && listData(listId).paidAccessEndsAt > request.time;
+        && hasPublishedListAccessData(listData(listId));
     }
 
     function isListPublic(listId) {
@@ -368,6 +391,11 @@ service cloud.firestore {
     match /users/{userId} {
       allow create: if isUser(userId);
       allow read, update, delete: if isUser(userId);
+    }
+
+    match /accountEntitlements/{userId} {
+      allow read: if isUser(userId);
+      allow write: if false;
     }
 
     match /lists/{listId} {

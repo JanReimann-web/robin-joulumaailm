@@ -13,6 +13,7 @@ import {
   createTestEnvironment,
   futureTimestamp,
   pastTimestamp,
+  seedAccountEntitlement,
   seedList,
 } from '@/tests/helpers/firebase-test-env'
 
@@ -117,6 +118,38 @@ describe('firestore rules', () => {
 
     await assertSucceeds(getDoc(doc(anonDb, 'lists', 'list-public-active')))
     await assertFails(getDoc(doc(anonDb, 'lists', 'list-public-expired')))
+  })
+
+  it('allows public read for a complimentary owner even without paid access', async () => {
+    const ownerId = 'owner-complimentary'
+    const listId = 'list-public-complimentary'
+
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      visibility: 'public',
+      trialEndsAt: futureTimestamp(14),
+      paidAccessEndsAt: null,
+    })
+    await seedAccountEntitlement(testEnv, {
+      userId: ownerId,
+    })
+
+    const anonDb = testEnv.unauthenticatedContext().firestore()
+    await assertSucceeds(getDoc(doc(anonDb, 'lists', listId)))
+  })
+
+  it('allows users to read only their own account entitlement', async () => {
+    const userId = 'entitled-user'
+    await seedAccountEntitlement(testEnv, {
+      userId,
+    })
+
+    const ownDb = testEnv.authenticatedContext(userId).firestore()
+    const otherDb = testEnv.authenticatedContext('someone-else').firestore()
+
+    await assertSucceeds(getDoc(doc(ownDb, 'accountEntitlements', userId)))
+    await assertFails(getDoc(doc(otherDb, 'accountEntitlements', userId)))
   })
 
   it('allows only valid public reservation update for available items', async () => {

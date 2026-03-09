@@ -2,6 +2,11 @@
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Trash2 } from 'lucide-react'
+import {
+  AccountEntitlement,
+  hasActiveComplimentaryEntitlement,
+} from '@/lib/account-entitlements'
+import { subscribeToAccountEntitlement } from '@/lib/account-entitlements.client'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -317,8 +322,10 @@ export default function ListWorkspace({
   const [stories, setStories] = useState<ListStoryEntry[]>([])
   const [wheelEntries, setWheelEntries] = useState<WheelEntry[]>([])
   const [selectedListId, setSelectedListId] = useState('')
+  const [accountEntitlement, setAccountEntitlement] = useState<AccountEntitlement | null>(null)
 
   const [isListsLoading, setIsListsLoading] = useState(true)
+  const [isAccountEntitlementLoading, setIsAccountEntitlementLoading] = useState(true)
   const [isItemsLoading, setIsItemsLoading] = useState(false)
   const [isStoriesLoading, setIsStoriesLoading] = useState(false)
   const [isWheelLoading, setIsWheelLoading] = useState(false)
@@ -456,6 +463,22 @@ export default function ListWorkspace({
 
     return () => unsubscribe()
   }, [labels.errorCreateFailed, ownerId])
+
+  useEffect(() => {
+    const unsubscribe = subscribeToAccountEntitlement(
+      ownerId,
+      (nextEntitlement) => {
+        setAccountEntitlement(nextEntitlement)
+        setIsAccountEntitlementLoading(false)
+      },
+      () => {
+        setAccountEntitlement(null)
+        setIsAccountEntitlementLoading(false)
+      }
+    )
+
+    return () => unsubscribe()
+  }, [ownerId])
 
   useEffect(() => {
     if (lists.length === 0) {
@@ -685,6 +708,10 @@ export default function ListWorkspace({
     () => lists.find((list) => list.id === selectedListId) ?? null,
     [lists, selectedListId]
   )
+  const hasComplimentaryAccess = useMemo(
+    () => hasActiveComplimentaryEntitlement(accountEntitlement),
+    [accountEntitlement]
+  )
   const editingItem = useMemo(
     () => items.find((item) => item.id === editingItemId) ?? null,
     [editingItemId, items]
@@ -774,7 +801,10 @@ export default function ListWorkspace({
     }
   }, [editingWheelEntry, editingWheelEntryId, resetWheelForm])
 
-  const isSelectedListExpired = selectedList?.accessStatus === 'expired'
+  const isSelectedListExpired = (
+    selectedList?.accessStatus === 'expired'
+    && !hasComplimentaryAccess
+  )
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
   const isSwitchingToPasswordProtected = Boolean(
     selectedList
@@ -1433,6 +1463,11 @@ export default function ListWorkspace({
     setActivatingPlanTarget(`${listId}:${planId}`)
 
     try {
+      if (hasComplimentaryAccess) {
+        setListSuccess(labels.complimentaryAccessNotice)
+        return
+      }
+
       const user = auth.currentUser
       if (!user) {
         setListError(labels.errorSessionExpired)
@@ -1515,9 +1550,11 @@ export default function ListWorkspace({
           target: 'intro',
           uploadedMedia,
         })
-        const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
-        if (projectedMediaUsageIssue) {
-          throw new Error(projectedMediaUsageIssue)
+        if (!hasComplimentaryAccess) {
+          const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
+          if (projectedMediaUsageIssue) {
+            throw new Error(projectedMediaUsageIssue)
+          }
         }
       }
 
@@ -1895,9 +1932,11 @@ export default function ListWorkspace({
           uploadedMedia: mediaPayload,
           replacingId: editingItemId,
         })
-        const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
-        if (projectedMediaUsageIssue) {
-          throw new Error(projectedMediaUsageIssue)
+        if (!hasComplimentaryAccess) {
+          const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
+          if (projectedMediaUsageIssue) {
+            throw new Error(projectedMediaUsageIssue)
+          }
         }
       }
 
@@ -2052,9 +2091,11 @@ export default function ListWorkspace({
           uploadedMedia: mediaPayload,
           replacingId: editingStoryId,
         })
-        const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
-        if (projectedMediaUsageIssue) {
-          throw new Error(projectedMediaUsageIssue)
+        if (!hasComplimentaryAccess) {
+          const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
+          if (projectedMediaUsageIssue) {
+            throw new Error(projectedMediaUsageIssue)
+          }
         }
       }
 
@@ -2741,6 +2782,11 @@ export default function ListWorkspace({
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.visibilityTag}: {visibilityLabels[list.visibility]}
                 </span>
+                {hasComplimentaryAccess && (
+                  <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-2 py-1 text-amber-100">
+                    {labels.complimentaryAccessBadge}
+                  </span>
+                )}
                 {list.billingPlanId && (
                   <span className="rounded-full border border-white/20 px-2 py-1">
                     {labels.currentPlanTag}: {
@@ -2953,7 +2999,9 @@ export default function ListWorkspace({
             <h3 className="text-lg font-semibold text-white">{labels.billingPlanTitle}</h3>
             <p className="mt-2 text-sm text-slate-300">{labels.billingPlanSubtitle}</p>
 
-            {!selectedList ? (
+            {isAccountEntitlementLoading ? (
+              <p className="mt-4 text-sm text-slate-300">{labels.loadingAuth}</p>
+            ) : !selectedList ? (
               <p className="mt-4 text-sm text-slate-300">{labels.emptyLists}</p>
             ) : (
               <>
@@ -2961,22 +3009,28 @@ export default function ListWorkspace({
                   <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
                     {labels.billingUsageTag}: {selectedListUsageDisplay}
                   </span>
-                  <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
-                    {labels.billingRecommendedPlanTag}: {
-                      selectedListRequiredPlanId === 'base'
-                        ? labels.planBaseName
-                        : (
-                          selectedListRequiredPlanId === 'premium'
-                            ? labels.planPremiumName
-                            : (
-                              selectedListRequiredPlanId === 'platinum'
-                                ? labels.planPlatinumName
-                                : labels.billingCustomPlanRequired
-                            )
-                        )
-                    }
-                  </span>
-                  {selectedList.billingPlanId && (
+                  {hasComplimentaryAccess ? (
+                    <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-amber-100">
+                      {labels.complimentaryAccessBadge}
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
+                      {labels.billingRecommendedPlanTag}: {
+                        selectedListRequiredPlanId === 'base'
+                          ? labels.planBaseName
+                          : (
+                            selectedListRequiredPlanId === 'premium'
+                              ? labels.planPremiumName
+                              : (
+                                selectedListRequiredPlanId === 'platinum'
+                                  ? labels.planPlatinumName
+                                  : labels.billingCustomPlanRequired
+                              )
+                          )
+                      }
+                    </span>
+                  )}
+                  {!hasComplimentaryAccess && selectedList.billingPlanId && (
                     <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-emerald-100">
                       {labels.currentPlanTag}: {
                         selectedList.billingPlanId === 'base'
@@ -2995,83 +3049,96 @@ export default function ListWorkspace({
                   <p className="mt-3 text-xs text-amber-100">{labels.billingVideoNotice}</p>
                 )}
 
-                {selectedListMediaUsageIssue === 'media_limit_exceeded' && (
+                {!hasComplimentaryAccess && selectedListMediaUsageIssue === 'media_limit_exceeded' && (
                   <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                     {labels.errorMediaUsageLimitExceeded}
                   </p>
                 )}
 
-                {selectedListMediaUsageIssue === 'video_duration_exceeded' && (
+                {!hasComplimentaryAccess && selectedListMediaUsageIssue === 'video_duration_exceeded' && (
                   <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                     {labels.errorMediaVideoTooLong}
                   </p>
                 )}
 
-                <div className="mt-4 grid gap-3 xl:grid-cols-3">
-                  {billingPlans.map((plan) => {
-                    const isCurrentPlan = selectedList.billingPlanId === plan.id && selectedList.accessStatus === 'active'
-                    const isRecommendedPlan = selectedListRequiredPlanId === plan.id
-                    const isEligiblePlan = isBillingPlanEligible(plan.id, selectedListMediaUsage)
-                    const isPlanActionLoading = activatingPlanTarget === `${selectedList.id}:${plan.id}`
+                {hasComplimentaryAccess ? (
+                  <div className="mt-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="text-base font-semibold text-white">{labels.complimentaryAccessTitle}</h4>
+                      <span className="rounded-full border border-amber-300/40 px-2 py-0.5 text-[11px] font-semibold text-amber-100">
+                        {labels.complimentaryAccessBadge}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-100">{labels.complimentaryAccessSubtitle}</p>
+                    <p className="mt-3 text-xs text-slate-200">{labels.complimentaryAccessNotice}</p>
+                  </div>
+                ) : (
+                  <div className="mt-4 grid gap-3 xl:grid-cols-3">
+                    {billingPlans.map((plan) => {
+                      const isCurrentPlan = selectedList.billingPlanId === plan.id && selectedList.accessStatus === 'active'
+                      const isRecommendedPlan = selectedListRequiredPlanId === plan.id
+                      const isEligiblePlan = isBillingPlanEligible(plan.id, selectedListMediaUsage)
+                      const isPlanActionLoading = activatingPlanTarget === `${selectedList.id}:${plan.id}`
 
-                    return (
-                      <article
-                        key={plan.id}
-                        className={`rounded-2xl border p-4 ${
-                          isRecommendedPlan
-                            ? 'border-emerald-300/40 bg-emerald-300/10'
-                            : 'border-white/10 bg-white/5'
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="text-base font-semibold text-white">{plan.name}</h4>
-                          {isRecommendedPlan && (
-                            <span className="rounded-full border border-emerald-300/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-100">
-                              {labels.billingRecommendedBadge}
-                            </span>
-                          )}
-                          {isCurrentPlan && (
-                            <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
-                              {labels.billingCurrentPlanBadge}
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="mt-2 text-lg font-bold text-white">{plan.price}</p>
-
-                        <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                          {plan.features.map((feature) => (
-                            <li key={`${plan.id}-${feature}`}>- {feature}</li>
-                          ))}
-                        </ul>
-
-                        <button
-                          type="button"
-                          onClick={() => handleActivatePass(selectedList.id, plan.id)}
-                          disabled={
-                            isSelectedListExpired
-                            || isPlanActionLoading
-                            || Boolean(selectedListMediaUsageIssue)
-                            || !isEligiblePlan
-                          }
-                          className="mt-4 w-full rounded-full border border-emerald-300/40 px-4 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      return (
+                        <article
+                          key={plan.id}
+                          className={`rounded-2xl border p-4 ${
+                            isRecommendedPlan
+                              ? 'border-emerald-300/40 bg-emerald-300/10'
+                              : 'border-white/10 bg-white/5'
+                          }`}
                         >
-                          {isPlanActionLoading
-                            ? labels.activatingPass
-                            : (
-                              isCurrentPlan
-                                ? labels.extendPlanAction
-                                : labels.activatePlanAction
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="text-base font-semibold text-white">{plan.name}</h4>
+                            {isRecommendedPlan && (
+                              <span className="rounded-full border border-emerald-300/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-100">
+                                {labels.billingRecommendedBadge}
+                              </span>
                             )}
-                        </button>
+                            {isCurrentPlan && (
+                              <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
+                                {labels.billingCurrentPlanBadge}
+                              </span>
+                            )}
+                          </div>
 
-                        {!isEligiblePlan && (
-                          <p className="mt-3 text-xs text-amber-100">{labels.billingPlanTooSmallHint}</p>
-                        )}
-                      </article>
-                    )
-                  })}
-                </div>
+                          <p className="mt-2 text-lg font-bold text-white">{plan.price}</p>
+
+                          <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                            {plan.features.map((feature) => (
+                              <li key={`${plan.id}-${feature}`}>- {feature}</li>
+                            ))}
+                          </ul>
+
+                          <button
+                            type="button"
+                            onClick={() => handleActivatePass(selectedList.id, plan.id)}
+                            disabled={
+                              isSelectedListExpired
+                              || isPlanActionLoading
+                              || Boolean(selectedListMediaUsageIssue)
+                              || !isEligiblePlan
+                            }
+                            className="mt-4 w-full rounded-full border border-emerald-300/40 px-4 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isPlanActionLoading
+                              ? labels.activatingPass
+                              : (
+                                isCurrentPlan
+                                  ? labels.extendPlanAction
+                                  : labels.activatePlanAction
+                              )}
+                          </button>
+
+                          {!isEligiblePlan && (
+                            <p className="mt-3 text-xs text-amber-100">{labels.billingPlanTooSmallHint}</p>
+                          )}
+                        </article>
+                      )
+                    })}
+                  </div>
+                )}
               </>
             )}
           </div>

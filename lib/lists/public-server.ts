@@ -1,6 +1,7 @@
 import 'server-only'
 import { Timestamp } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
+import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { addDays, resolveListAccessStatus, TRIAL_DAYS } from '@/lib/lists/access'
 import { BILLING_PLAN_IDS, BillingPlanId } from '@/lib/lists/plans'
 import { isReservedSlug, isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
@@ -50,7 +51,8 @@ const toBillingPlanId = (value: unknown): BillingPlanId | null => {
 
 const mapListDoc = (
   id: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  hasComplimentaryAccess: boolean
 ): PublicListRecord | null => {
   if (!isPublicVisibility(data.visibility)) {
     return null
@@ -84,6 +86,7 @@ const mapListDoc = (
     accessStatus: resolveListAccessStatus({
       trialEndsAt,
       paidAccessEndsAt,
+      complimentaryAccess: hasComplimentaryAccess,
     }),
     introTitle: data.introTitle ? String(data.introTitle) : null,
     introBody: data.introBody ? String(data.introBody) : null,
@@ -216,9 +219,16 @@ export const getPublicListBySlug = async (
     return null
   }
 
+  const listData = listSnap.data() as Record<string, unknown>
+  const ownerId = typeof listData.ownerId === 'string' ? listData.ownerId : ''
+  const hasComplimentaryAccess = ownerId
+    ? await hasServerSideComplimentaryEntitlement(ownerId)
+    : false
+
   return mapListDoc(
     listSnap.id,
-    listSnap.data() as Record<string, unknown>
+    listData,
+    hasComplimentaryAccess
   )
 }
 

@@ -231,6 +231,10 @@ export interface Dictionary {
     billingRecommendedBadge: string
     billingCurrentPlanBadge: string
     currentPlanTag: string
+    complimentaryAccessBadge: string
+    complimentaryAccessTitle: string
+    complimentaryAccessSubtitle: string
+    complimentaryAccessNotice: string
     activatePlanAction: string
     extendPlanAction: string
     billingPlanTooSmallHint: string

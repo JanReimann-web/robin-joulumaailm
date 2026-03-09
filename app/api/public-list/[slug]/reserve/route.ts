@@ -31,6 +31,20 @@ const toMillis = (value: unknown): number | null => {
   return null
 }
 
+const hasActiveComplimentaryEntitlementData = (
+  data: Record<string, unknown> | undefined
+) => {
+  if (
+    data?.tier !== 'complimentary_unlimited'
+    || data.status !== 'active'
+  ) {
+    return false
+  }
+
+  const expiresAt = toMillis(data.expiresAt)
+  return expiresAt === null || expiresAt > Date.now()
+}
+
 export async function POST(
   request: NextRequest,
   context: RouteContext
@@ -80,7 +94,18 @@ export async function POST(
       }
 
       const listData = listSnap.data() as Record<string, unknown>
-      if (!hasPublishedListAccess(toMillis(listData.paidAccessEndsAt))) {
+      const ownerId = typeof listData.ownerId === 'string' ? listData.ownerId : ''
+      const entitlementSnap = ownerId
+        ? await transaction.get(adminDb.collection('accountEntitlements').doc(ownerId))
+        : null
+      const hasComplimentaryAccess = hasActiveComplimentaryEntitlementData(
+        entitlementSnap?.data() as Record<string, unknown> | undefined
+      )
+
+      if (!hasPublishedListAccess({
+        paidAccessEndsAt: toMillis(listData.paidAccessEndsAt),
+        complimentaryAccess: hasComplimentaryAccess,
+      })) {
         throw new Error('list_expired')
       }
 

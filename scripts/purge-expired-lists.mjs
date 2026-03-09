@@ -117,16 +117,75 @@ const deleteListStorage = async (listId) => {
   }
 }
 
+const hasComplimentaryEntitlement = async (userId) => {
+  if (!userId) {
+    return false
+  }
+
+  const entitlementSnapshot = await db
+    .collection('accountEntitlements')
+    .doc(userId)
+    .get()
+
+  if (!entitlementSnapshot.exists) {
+    return false
+  }
+
+  const payload = entitlementSnapshot.data()
+  return payload?.tier === 'complimentary_unlimited' && payload?.status === 'active'
+}
+
+const getDueListsBatch = async () => {
+  const dueEntries = []
+  let scanned = 0
+  let lastEntry = null
+
+  while (dueEntries.length < batchSize) {
+    let query = db
+      .collection('lists')
+      .where('purgeAt', '<=', nowTimestamp)
+      .orderBy('purgeAt')
+      .limit(batchSize)
+
+    if (lastEntry) {
+      query = query.startAfter(lastEntry)
+    }
+
+    const snapshot = await query.get()
+    if (snapshot.empty) {
+      break
+    }
+
+    scanned += snapshot.size
+
+    for (const entry of snapshot.docs) {
+      const payload = entry.data()
+      const ownerId = typeof payload.ownerId === 'string' ? payload.ownerId : null
+      if (await hasComplimentaryEntitlement(ownerId)) {
+        continue
+      }
+
+      dueEntries.push(entry)
+      if (dueEntries.length >= batchSize) {
+        break
+      }
+    }
+
+    lastEntry = snapshot.docs[snapshot.docs.length - 1] ?? null
+  }
+
+  return {
+    dueEntries,
+    scanned,
+  }
+}
+
 const run = async () => {
   log(`Starting purge job. Mode=${dryRun ? 'dry-run' : 'delete'} batchSize=${batchSize}`)
 
-  const dueListsSnapshot = await db
-    .collection('lists')
-    .where('purgeAt', '<=', nowTimestamp)
-    .limit(batchSize)
-    .get()
+  const { dueEntries, scanned } = await getDueListsBatch()
 
-  if (dueListsSnapshot.empty) {
+  if (dueEntries.length === 0) {
     log('No lists are due for purge.')
     return
   }
@@ -137,7 +196,7 @@ const run = async () => {
   let deletedSlugClaims = 0
   let deletedStorageFolders = 0
 
-  for (const entry of dueListsSnapshot.docs) {
+  for (const entry of dueEntries) {
     const listId = entry.id
     const payload = entry.data()
     const slug =
@@ -175,7 +234,7 @@ const run = async () => {
   }
 
   log(
-    `Finished purge. deletedLists=${deletedLists} deletedItems=${deletedItems} deletedReservations=${deletedReservations} deletedSlugClaims=${deletedSlugClaims} deletedStorageFolders=${deletedStorageFolders}`
+    `Finished purge. scanned=${scanned} deletedLists=${deletedLists} deletedItems=${deletedItems} deletedReservations=${deletedReservations} deletedSlugClaims=${deletedSlugClaims} deletedStorageFolders=${deletedStorageFolders}`
   )
 }
 

@@ -6,6 +6,7 @@ import {
   createTestEnvironment,
   futureTimestamp,
   pastTimestamp,
+  seedAccountEntitlement,
   seedList,
   TEST_STORAGE_BUCKET,
 } from '@/tests/helpers/firebase-test-env'
@@ -111,6 +112,35 @@ describe('storage rules', () => {
       .storage(`gs://${TEST_STORAGE_BUCKET}`)
     await assertSucceeds(guestStorage.ref(activePath).getMetadata())
     await assertFails(guestStorage.ref(expiredPath).getMetadata())
+  })
+
+  it('allows public read for complimentary owner list assets without paid access', async () => {
+    const ownerId = 'owner-complimentary'
+    const listId = 'list-storage-complimentary'
+    const path = `lists/${listId}/stories/photo.jpg`
+
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      visibility: 'public',
+      trialEndsAt: futureTimestamp(14),
+      paidAccessEndsAt: null,
+    })
+    await seedAccountEntitlement(testEnv, {
+      userId: ownerId,
+    })
+
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const adminStorage = context.storage(`gs://${TEST_STORAGE_BUCKET}`)
+      await adminStorage.ref(path).putString('complimentary-file', 'raw', {
+        contentType: 'image/jpeg',
+      })
+    })
+
+    const guestStorage = testEnv
+      .unauthenticatedContext()
+      .storage(`gs://${TEST_STORAGE_BUCKET}`)
+    await assertSucceeds(guestStorage.ref(path).getMetadata())
   })
 
   it('blocks non-owner writes to list assets', async () => {

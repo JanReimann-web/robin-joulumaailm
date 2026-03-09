@@ -99,4 +99,28 @@ export const seedList = async (
   })
 }
 
+export const seedAccountEntitlement = async (
+  testEnv: RulesTestEnvironment,
+  params: {
+    userId: string
+    grantedBy?: string
+    expiresAt?: Timestamp | null
+    status?: 'active' | 'revoked'
+  }
+) => {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore()
+    await setDoc(doc(db, 'accountEntitlements', params.userId), {
+      userId: params.userId,
+      tier: 'complimentary_unlimited',
+      status: params.status ?? 'active',
+      grantedBy: params.grantedBy ?? 'system',
+      note: null,
+      expiresAt: params.expiresAt ?? null,
+      createdAt: futureTimestamp(0),
+      updatedAt: futureTimestamp(0),
+    })
+  })
+}
+
 export { assertFails, assertSucceeds }

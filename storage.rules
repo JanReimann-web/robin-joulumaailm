@@ -14,12 +14,24 @@ service firebase.storage {
       return /databases/(default)/documents/lists/$(listId);
     }
 
+    function entitlementPath(userId) {
+      return /databases/(default)/documents/accountEntitlements/$(userId);
+    }
+
     function listExists(listId) {
       return firestore.exists(listPath(listId));
     }
 
+    function entitlementExists(userId) {
+      return firestore.exists(entitlementPath(userId));
+    }
+
     function listData(listId) {
       return firestore.get(listPath(listId)).data;
+    }
+
+    function entitlementData(userId) {
+      return firestore.get(entitlementPath(userId)).data;
     }
 
     function isListOwner(listId) {
@@ -28,25 +40,49 @@ service firebase.storage {
         && listData(listId).ownerId == request.auth.uid;
     }
 
+    function hasActiveComplimentaryEntitlementForUser(userId) {
+      return userId is string
+        && userId.size() > 0
+        && entitlementExists(userId)
+        && entitlementData(userId).tier == 'complimentary_unlimited'
+        && entitlementData(userId).status == 'active'
+        && (
+          !entitlementData(userId).keys().hasAny(['expiresAt'])
+          || entitlementData(userId).expiresAt == null
+          || (
+            entitlementData(userId).expiresAt is timestamp
+            && entitlementData(userId).expiresAt > request.time
+          )
+        );
+    }
+
     function hasActiveListAccess(listId) {
       return listExists(listId)
         && (
-          (
-            listData(listId).paidAccessEndsAt is timestamp
-            && listData(listId).paidAccessEndsAt > request.time
-          )
+          hasActiveComplimentaryEntitlementForUser(listData(listId).ownerId)
           || (
-            listData(listId).paidAccessEndsAt == null
-            && listData(listId).trialEndsAt is timestamp
-            && listData(listId).trialEndsAt > request.time
+            (
+              listData(listId).paidAccessEndsAt is timestamp
+              && listData(listId).paidAccessEndsAt > request.time
+            )
+            || (
+              listData(listId).paidAccessEndsAt == null
+              && listData(listId).trialEndsAt is timestamp
+              && listData(listId).trialEndsAt > request.time
+            )
           )
         );
     }
 
     function hasPublishedListAccess(listId) {
       return listExists(listId)
-        && listData(listId).paidAccessEndsAt is timestamp
-        && listData(listId).paidAccessEndsAt > request.time;
+        && (
+          hasActiveComplimentaryEntitlementForUser(listData(listId).ownerId)
+          || (
+            listData(listId).paidAccessEndsAt is timestamp
+            && listData(listId).paidAccessEndsAt > request.time
+          )
+        );
     }
 
     function isListPublic(listId) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Timestamp } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
+import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { deleteListWithAssets } from '@/lib/lists/delete.server'
 
 export const runtime = 'nodejs'
@@ -44,6 +45,57 @@ const isAuthorized = (request: NextRequest) => {
   return bearerToken === cronSecret || headerSecret === cronSecret
 }
 
+const getDueListsBatch = async (params: {
+  limit: number
+  now: Timestamp
+}) => {
+  const dueEntries: FirebaseFirestore.QueryDocumentSnapshot[] = []
+  let scanned = 0
+  let lastEntry: FirebaseFirestore.QueryDocumentSnapshot | null = null
+
+  while (dueEntries.length < params.limit) {
+    let query = adminDb
+      .collection('lists')
+      .where('purgeAt', '<=', params.now)
+      .orderBy('purgeAt')
+      .limit(params.limit)
+
+    if (lastEntry) {
+      query = query.startAfter(lastEntry)
+    }
+
+    const snapshot = await query.get()
+    if (snapshot.empty) {
+      break
+    }
+
+    scanned += snapshot.size
+
+    for (const entry of snapshot.docs) {
+      const payload = entry.data() as Record<string, unknown>
+      const ownerId = typeof payload.ownerId === 'string' ? payload.ownerId : null
+      const hasComplimentaryAccess = ownerId
+        ? await hasServerSideComplimentaryEntitlement(ownerId)
+        : false
+
+      if (!hasComplimentaryAccess) {
+        dueEntries.push(entry)
+      }
+
+      if (dueEntries.length >= params.limit) {
+        break
+      }
+    }
+
+    lastEntry = snapshot.docs[snapshot.docs.length - 1] ?? null
+  }
+
+  return {
+    dueEntries,
+    scanned,
+  }
+}
+
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -57,17 +109,16 @@ export async function GET(request: NextRequest) {
   )
 
   const now = Timestamp.fromDate(new Date())
-  const dueLists = await adminDb
-    .collection('lists')
-    .where('purgeAt', '<=', now)
-    .limit(batchSize)
-    .get()
+  const { dueEntries, scanned } = await getDueListsBatch({
+    limit: batchSize,
+    now,
+  })
 
-  if (dueLists.empty) {
+  if (dueEntries.length === 0) {
     return NextResponse.json({
       ok: true,
       mode: dryRun ? 'dry-run' : 'delete',
-      scanned: 0,
+      scanned,
       deletedLists: 0,
       deletedItems: 0,
       deletedReservations: 0,
@@ -88,7 +139,7 @@ export async function GET(request: NextRequest) {
   let deletedSecrets = 0
   let deletedStorageFolders = 0
 
-  const preview = dueLists.docs.map((entry) => {
+  const preview = dueEntries.map((entry) => {
     const payload = entry.data() as Record<string, unknown>
     return {
       listId: entry.id,
@@ -101,7 +152,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       mode: 'dry-run',
-      scanned: dueLists.size,
+      scanned,
       deletedLists,
       deletedItems,
       deletedReservations,
@@ -114,7 +165,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  for (const entry of dueLists.docs) {
+  for (const entry of dueEntries) {
     const payload = entry.data() as Record<string, unknown>
     const slug = typeof payload.slug === 'string' ? payload.slug : null
     const ownerId = typeof payload.ownerId === 'string' ? payload.ownerId : null
@@ -138,7 +189,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     ok: true,
     mode: 'delete',
-    scanned: dueLists.size,
+    scanned,
     deletedLists,
     deletedItems,
     deletedReservations,
@@ -150,4 +201,3 @@ export async function GET(request: NextRequest) {
     preview,
   })
 }
-

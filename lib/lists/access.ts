@@ -12,9 +12,14 @@ export const addDays = (base: Date, days: number) => {
 export const resolveListAccessStatus = (params: {
   trialEndsAt: number | null
   paidAccessEndsAt: number | null
+  complimentaryAccess?: boolean
   now?: number
 }): ListAccessStatus => {
   const now = params.now ?? Date.now()
+
+  if (params.complimentaryAccess) {
+    return 'active'
+  }
 
   if (params.paidAccessEndsAt && params.paidAccessEndsAt > now) {
     return 'active'
@@ -28,10 +33,19 @@ export const resolveListAccessStatus = (params: {
 }
 
 export const hasPublishedListAccess = (
-  paidAccessEndsAt: number | null,
-  now = Date.now()
+  params: {
+    paidAccessEndsAt: number | null
+    complimentaryAccess?: boolean
+    now?: number
+  }
 ) => {
-  return Boolean(paidAccessEndsAt && paidAccessEndsAt > now)
+  const now = params.now ?? Date.now()
+
+  if (params.complimentaryAccess) {
+    return true
+  }
+
+  return Boolean(params.paidAccessEndsAt && params.paidAccessEndsAt > now)
 }
 
 export const getRemainingDays = (
