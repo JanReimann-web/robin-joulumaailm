@@ -127,6 +127,7 @@ export async function POST(request: NextRequest) {
         visibility,
         status: 'draft',
         billingModel: 'one_time_90d',
+        billingPlanId: null,
         trialEndsAt,
         paidAccessEndsAt: null,
         purgeAt: trialEndsAt,
@@ -135,6 +136,8 @@ export async function POST(request: NextRequest) {
         introMediaUrl: null,
         introMediaPath: null,
         introMediaType: null,
+        introMediaSizeBytes: null,
+        introMediaDurationSeconds: null,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       })

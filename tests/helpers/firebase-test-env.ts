@@ -70,7 +70,7 @@ export const seedList = async (
   params: {
     listId: string
     ownerId: string
-    visibility?: 'public' | 'private'
+    visibility?: 'public' | 'public_password' | 'private'
     trialEndsAt?: Timestamp | null
     paidAccessEndsAt?: Timestamp | null
     slug?: string
@@ -87,9 +87,12 @@ export const seedList = async (
       visibility: params.visibility ?? 'public',
       status: 'draft',
       billingModel: 'one_time_90d',
+      billingPlanId: null,
       trialEndsAt: params.trialEndsAt ?? futureTimestamp(),
       paidAccessEndsAt: params.paidAccessEndsAt ?? null,
       purgeAt: params.trialEndsAt ?? futureTimestamp(),
+      introMediaSizeBytes: null,
+      introMediaDurationSeconds: null,
       createdAt: futureTimestamp(0),
       updatedAt: futureTimestamp(0),
     })

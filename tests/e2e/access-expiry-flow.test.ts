@@ -36,6 +36,7 @@ describe('e2e access lifecycle', () => {
       ownerId,
       visibility: 'public',
       trialEndsAt: futureTimestamp(14),
+      paidAccessEndsAt: futureTimestamp(90),
     })
 
     await testEnv.withSecurityRulesDisabled(async (context) => {
@@ -66,8 +67,8 @@ describe('e2e access lifecycle', () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       const db = context.firestore()
       await updateDoc(doc(db, 'lists', listId), {
-        trialEndsAt: pastTimestamp(2),
-        paidAccessEndsAt: null,
+        trialEndsAt: futureTimestamp(14),
+        paidAccessEndsAt: pastTimestamp(2),
         purgeAt: pastTimestamp(2),
         updatedAt: Timestamp.fromDate(new Date()),
       })

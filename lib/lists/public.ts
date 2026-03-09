@@ -104,7 +104,7 @@ export const getPublicListMetaBySlug = async (
     return null
   }
 
-  if (accessStatus === 'expired') {
+  if (accessStatus !== 'active') {
     return null
   }
 

@@ -98,13 +98,19 @@ export interface Dictionary {
   pricing: {
     title: string
     trialLine: string
+    draftOnlyLine: string
+    perListLine: string
+    extensionLine: string
     retentionLine: string
-    starterName: string
-    starterPrice: string
-    starterFeatures: string[]
-    proName: string
-    proPrice: string
-    proFeatures: string[]
+    baseName: string
+    basePrice: string
+    baseFeatures: string[]
+    premiumName: string
+    premiumPrice: string
+    premiumFeatures: string[]
+    platinumName: string
+    platinumPrice: string
+    platinumFeatures: string[]
   }
   login: {
     title: string
@@ -216,6 +222,27 @@ export interface Dictionary {
     billingModeStripeTitle: string
     billingModeStripeBody: string
     accessExpiredNotice: string
+    billingPlanTitle: string
+    billingPlanSubtitle: string
+    billingUsageTag: string
+    billingRecommendedPlanTag: string
+    billingCustomPlanRequired: string
+    billingVideoNotice: string
+    billingRecommendedBadge: string
+    billingCurrentPlanBadge: string
+    currentPlanTag: string
+    activatePlanAction: string
+    extendPlanAction: string
+    billingPlanTooSmallHint: string
+    planBaseName: string
+    planBasePrice: string
+    planBaseFeatures: string[]
+    planPremiumName: string
+    planPremiumPrice: string
+    planPremiumFeatures: string[]
+    planPlatinumName: string
+    planPlatinumPrice: string
+    planPlatinumFeatures: string[]
     errorSessionExpired: string
     errorActivatePass: string
     listSelectorLabel: string
@@ -332,6 +359,9 @@ export interface Dictionary {
     errorWheelLimitReached: string
     errorMediaUnsupportedType: string
     errorMediaTooLarge: string
+    errorMediaVideoTooLong: string
+    errorMediaUsageLimitExceeded: string
+    errorPlanTooSmall: string
     trialNotice: string
     errorInvalidSlug: string
     errorSlugReserved: string

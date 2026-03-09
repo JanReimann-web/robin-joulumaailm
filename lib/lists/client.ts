@@ -21,6 +21,7 @@ import {
   resolveListAccessStatus,
   TRIAL_DAYS,
 } from '@/lib/lists/access'
+import { BILLING_PLAN_IDS, BillingPlanId } from '@/lib/lists/plans'
 import {
   isReservedSlug,
   isValidSlug,
@@ -96,6 +97,18 @@ const toMillis = (value: unknown): number | null => {
   return null
 }
 
+const toNullableNumber = (value: unknown): number | null => {
+  return typeof value === 'number' && !Number.isNaN(value)
+    ? value
+    : null
+}
+
+const toBillingPlanId = (value: unknown): BillingPlanId | null => {
+  return typeof value === 'string' && BILLING_PLAN_IDS.includes(value as BillingPlanId)
+    ? value as BillingPlanId
+    : null
+}
+
 const mapListDoc = (
   id: string,
   data: Record<string, unknown>
@@ -121,6 +134,7 @@ const mapListDoc = (
     visibility: data.visibility as GiftList['visibility'],
     status: (data.status as GiftList['status']) ?? 'draft',
     billingModel: (data.billingModel as GiftList['billingModel']) ?? 'one_time_90d',
+    billingPlanId: toBillingPlanId(data.billingPlanId),
     trialEndsAt,
     paidAccessEndsAt,
     purgeAt: toMillis(data.purgeAt),
@@ -133,6 +147,8 @@ const mapListDoc = (
     introMediaUrl: data.introMediaUrl ? String(data.introMediaUrl) : null,
     introMediaPath: data.introMediaPath ? String(data.introMediaPath) : null,
     introMediaType: data.introMediaType ? String(data.introMediaType) : null,
+    introMediaSizeBytes: toNullableNumber(data.introMediaSizeBytes),
+    introMediaDurationSeconds: toNullableNumber(data.introMediaDurationSeconds),
     createdAt,
     updatedAt: toMillis(data.updatedAt),
   }
@@ -152,6 +168,8 @@ const mapItemDoc = (
     mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
     mediaPath: data.mediaPath ? String(data.mediaPath) : null,
     mediaType: data.mediaType ? String(data.mediaType) : null,
+    mediaSizeBytes: toNullableNumber(data.mediaSizeBytes),
+    mediaDurationSeconds: toNullableNumber(data.mediaDurationSeconds),
     status: (data.status as GiftListItem['status']) ?? 'available',
     reservedByName: data.reservedByName ? String(data.reservedByName) : null,
     reservedMessage: data.reservedMessage ? String(data.reservedMessage) : null,
@@ -174,6 +192,8 @@ const mapStoryDoc = (
     mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
     mediaPath: data.mediaPath ? String(data.mediaPath) : null,
     mediaType: data.mediaType ? String(data.mediaType) : null,
+    mediaSizeBytes: toNullableNumber(data.mediaSizeBytes),
+    mediaDurationSeconds: toNullableNumber(data.mediaDurationSeconds),
     createdAt: toMillis(data.createdAt),
     updatedAt: toMillis(data.updatedAt),
   }
@@ -326,6 +346,7 @@ export const createGiftList = async (
       visibility: input.visibility,
       status: 'draft',
       billingModel: 'one_time_90d',
+      billingPlanId: null,
       trialEndsAt,
       paidAccessEndsAt: null,
       purgeAt: trialEndsAt,
@@ -334,6 +355,8 @@ export const createGiftList = async (
       introMediaUrl: null,
       introMediaPath: null,
       introMediaType: null,
+      introMediaSizeBytes: null,
+      introMediaDurationSeconds: null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
@@ -467,6 +490,8 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
     mediaUrl: input.media?.url ?? null,
     mediaPath: input.media?.path ?? null,
     mediaType: input.media?.type ?? null,
+    mediaSizeBytes: input.media?.sizeBytes ?? null,
+    mediaDurationSeconds: input.media?.durationSeconds ?? null,
     status: 'available',
     reservedByName: null,
     reservedMessage: null,
@@ -489,6 +514,8 @@ export const updateGiftItem = async (input: UpdateGiftItemInput) => {
     payload.mediaUrl = input.media?.url ?? null
     payload.mediaPath = input.media?.path ?? null
     payload.mediaType = input.media?.type ?? null
+    payload.mediaSizeBytes = input.media?.sizeBytes ?? null
+    payload.mediaDurationSeconds = input.media?.durationSeconds ?? null
   }
 
   await updateDoc(itemRef, payload)
@@ -506,6 +533,8 @@ export const updateGiftListIntro = async (input: UpdateGiftListIntroInput) => {
     payload.introMediaUrl = input.introMedia?.url ?? null
     payload.introMediaPath = input.introMedia?.path ?? null
     payload.introMediaType = input.introMedia?.type ?? null
+    payload.introMediaSizeBytes = input.introMedia?.sizeBytes ?? null
+    payload.introMediaDurationSeconds = input.introMedia?.durationSeconds ?? null
   }
 
   await updateDoc(listRef, payload)
@@ -596,6 +625,8 @@ export const createListStory = async (input: CreateListStoryInput) => {
     mediaUrl: input.media?.url ?? null,
     mediaPath: input.media?.path ?? null,
     mediaType: input.media?.type ?? null,
+    mediaSizeBytes: input.media?.sizeBytes ?? null,
+    mediaDurationSeconds: input.media?.durationSeconds ?? null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -613,6 +644,8 @@ export const updateListStory = async (input: UpdateListStoryInput) => {
     payload.mediaUrl = input.media?.url ?? null
     payload.mediaPath = input.media?.path ?? null
     payload.mediaType = input.media?.type ?? null
+    payload.mediaSizeBytes = input.media?.sizeBytes ?? null
+    payload.mediaDurationSeconds = input.media?.durationSeconds ?? null
   }
 
   await updateDoc(storyRef, payload)
@@ -788,7 +821,7 @@ export const subscribeToPublicListBySlug = (
         onChange(null)
         return
       }
-      if (mapped.accessStatus === 'expired') {
+      if (mapped.accessStatus !== 'active') {
         onChange(null)
         return
       }
@@ -827,7 +860,7 @@ export const reserveGiftItem = async (input: ReserveGiftItemInput) => {
       paidAccessEndsAt: toMillis(listData.paidAccessEndsAt),
     })
 
-    if (listAccessStatus === 'expired') {
+    if (listAccessStatus !== 'active') {
       throw new ListExpiredError()
     }
 

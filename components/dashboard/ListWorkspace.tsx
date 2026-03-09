@@ -48,6 +48,16 @@ import {
   uploadStoryMedia,
 } from '@/lib/lists/media'
 import { buildPublicSlug, generatePublicUrlCode } from '@/lib/lists/public-link'
+import {
+  BillingPlanId,
+  UploadMediaMetadata,
+  calculateListMediaUsageSummary,
+  createPersistedMediaMetadata,
+  formatMediaUsageMegabytes,
+  getMediaUsageIssue,
+  isBillingPlanEligible,
+  resolveRequiredBillingPlanId,
+} from '@/lib/lists/plans'
 import { isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
 import {
   EVENT_TYPES,
@@ -257,6 +267,43 @@ const sortEntriesByIds = <T extends SortableDashboardEntry>(
     ...entries.filter((entry) => !orderedIdSet.has(entry.id)),
   ]
 }
+
+const toPersistedMediaEntry = (params: {
+  mediaType: string | null
+  mediaSizeBytes: number | null
+  mediaDurationSeconds: number | null
+}) => {
+  return createPersistedMediaMetadata({
+    mediaType: params.mediaType,
+    mediaSizeBytes: params.mediaSizeBytes,
+    mediaDurationSeconds: params.mediaDurationSeconds,
+  })
+}
+
+const resolveListMediaUsage = (params: {
+  list: GiftList | null
+  items: GiftListItem[]
+  stories: ListStoryEntry[]
+}) => {
+  return calculateListMediaUsageSummary([
+    toPersistedMediaEntry({
+      mediaType: params.list?.introMediaType ?? null,
+      mediaSizeBytes: params.list?.introMediaSizeBytes ?? null,
+      mediaDurationSeconds: params.list?.introMediaDurationSeconds ?? null,
+    }),
+    ...params.items.map((item) => toPersistedMediaEntry({
+      mediaType: item.mediaType,
+      mediaSizeBytes: item.mediaSizeBytes,
+      mediaDurationSeconds: item.mediaDurationSeconds,
+    })),
+    ...params.stories.map((story) => toPersistedMediaEntry({
+      mediaType: story.mediaType,
+      mediaSizeBytes: story.mediaSizeBytes,
+      mediaDurationSeconds: story.mediaDurationSeconds,
+    })),
+  ])
+}
+
 export default function ListWorkspace({
   locale,
   ownerId,
@@ -283,7 +330,7 @@ export default function ListWorkspace({
   const [deletingStoryId, setDeletingStoryId] = useState<string | null>(null)
   const [deletingWheelEntryId, setDeletingWheelEntryId] = useState<string | null>(null)
   const [statusUpdatingItemId, setStatusUpdatingItemId] = useState<string | null>(null)
-  const [activatingPassListId, setActivatingPassListId] = useState<string | null>(null)
+  const [activatingPlanTarget, setActivatingPlanTarget] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
@@ -603,6 +650,36 @@ export default function ListWorkspace({
   const eventTypeLabels = useMemo(() => eventLabelMap(eventLabels), [eventLabels])
   const visibilityLabels = useMemo(() => visibilityLabelMap(labels), [labels])
   const itemStatusLabels = useMemo(() => itemStatusLabelMap(labels), [labels])
+  const billingPlans = useMemo(() => ([
+    {
+      id: 'base' as BillingPlanId,
+      name: labels.planBaseName,
+      price: labels.planBasePrice,
+      features: labels.planBaseFeatures,
+    },
+    {
+      id: 'premium' as BillingPlanId,
+      name: labels.planPremiumName,
+      price: labels.planPremiumPrice,
+      features: labels.planPremiumFeatures,
+    },
+    {
+      id: 'platinum' as BillingPlanId,
+      name: labels.planPlatinumName,
+      price: labels.planPlatinumPrice,
+      features: labels.planPlatinumFeatures,
+    },
+  ]), [
+    labels.planBaseFeatures,
+    labels.planBaseName,
+    labels.planBasePrice,
+    labels.planPlatinumFeatures,
+    labels.planPlatinumName,
+    labels.planPlatinumPrice,
+    labels.planPremiumFeatures,
+    labels.planPremiumName,
+    labels.planPremiumPrice,
+  ])
 
   const selectedList = useMemo(
     () => lists.find((list) => list.id === selectedListId) ?? null,
@@ -706,6 +783,26 @@ export default function ListWorkspace({
   )
   const isVisibilityPasswordMissing = isSwitchingToPasswordProtected
     && visibilityPassword.trim().length < 6
+  const selectedListMediaUsage = useMemo(
+    () => resolveListMediaUsage({
+      list: selectedList,
+      items,
+      stories,
+    }),
+    [items, selectedList, stories]
+  )
+  const selectedListRequiredPlanId = useMemo(
+    () => resolveRequiredBillingPlanId(selectedListMediaUsage),
+    [selectedListMediaUsage]
+  )
+  const selectedListMediaUsageIssue = useMemo(
+    () => getMediaUsageIssue(selectedListMediaUsage),
+    [selectedListMediaUsage]
+  )
+  const selectedListUsageDisplay = useMemo(
+    () => formatMediaUsageMegabytes(selectedListMediaUsage.totalBytes),
+    [selectedListMediaUsage.totalBytes]
+  )
   const mobilePreviewList = useMemo(
     () => lists.find((list) => list.id === previewListId) ?? null,
     [lists, previewListId]
@@ -762,6 +859,110 @@ export default function ListWorkspace({
 
     return `${siteUrl}/${slug}`
   }
+
+  const buildProjectedMediaUsage = useCallback((params: {
+    target: 'intro' | 'item' | 'story'
+    uploadedMedia: UploadMediaMetadata
+    replacingId?: string | null
+  }) => {
+    const projectedList = params.target === 'intro' && selectedList
+      ? {
+          ...selectedList,
+          introMediaType: params.uploadedMedia.type,
+          introMediaSizeBytes: params.uploadedMedia.sizeBytes,
+          introMediaDurationSeconds: params.uploadedMedia.durationSeconds,
+        }
+      : selectedList
+
+    const projectedItems = params.target === 'item'
+      ? (
+        params.replacingId
+          ? items.map((item) => (
+            item.id === params.replacingId
+              ? {
+                  ...item,
+                  mediaType: params.uploadedMedia.type,
+                  mediaSizeBytes: params.uploadedMedia.sizeBytes,
+                  mediaDurationSeconds: params.uploadedMedia.durationSeconds,
+                }
+              : item
+          ))
+          : [
+              ...items,
+              {
+                id: '__preview__',
+                listId: selectedListId,
+                order: items.length,
+                name: '',
+                description: '',
+                link: null,
+                mediaUrl: params.uploadedMedia.url,
+                mediaPath: params.uploadedMedia.path,
+                mediaType: params.uploadedMedia.type,
+                mediaSizeBytes: params.uploadedMedia.sizeBytes,
+                mediaDurationSeconds: params.uploadedMedia.durationSeconds,
+                status: 'available' as const,
+                reservedByName: null,
+                reservedMessage: null,
+                reservedAt: null,
+                createdAt: null,
+                updatedAt: null,
+              },
+            ]
+      )
+      : items
+
+    const projectedStories = params.target === 'story'
+      ? (
+        params.replacingId
+          ? stories.map((story) => (
+            story.id === params.replacingId
+              ? {
+                  ...story,
+                  mediaType: params.uploadedMedia.type,
+                  mediaSizeBytes: params.uploadedMedia.sizeBytes,
+                  mediaDurationSeconds: params.uploadedMedia.durationSeconds,
+                }
+              : story
+          ))
+          : [
+              ...stories,
+              {
+                id: '__preview__',
+                listId: selectedListId,
+                order: stories.length,
+                title: '',
+                body: '',
+                mediaUrl: params.uploadedMedia.url,
+                mediaPath: params.uploadedMedia.path,
+                mediaType: params.uploadedMedia.type,
+                mediaSizeBytes: params.uploadedMedia.sizeBytes,
+                mediaDurationSeconds: params.uploadedMedia.durationSeconds,
+                createdAt: null,
+                updatedAt: null,
+              },
+            ]
+      )
+      : stories
+
+    return resolveListMediaUsage({
+      list: projectedList,
+      items: projectedItems,
+      stories: projectedStories,
+    })
+  }, [items, selectedList, selectedListId, stories])
+
+  const resolveMediaValidationMessage = useCallback((error: MediaValidationError) => {
+    if (error.code === 'unsupported_type') {
+      return labels.errorMediaUnsupportedType
+    }
+
+    if (error.code === 'video_too_long') {
+      return labels.errorMediaVideoTooLong
+    }
+
+    return labels.errorMediaTooLarge
+  }, [labels.errorMediaTooLarge, labels.errorMediaUnsupportedType, labels.errorMediaVideoTooLong])
 
   const composedCreateSlug = useMemo(() => {
     return buildPublicSlug(publicUrlCode, slug)
@@ -1226,10 +1427,10 @@ export default function ListWorkspace({
     setIsMobilePreviewPasswordVisible(false)
   }
 
-  const handleActivatePass = async (listId: string) => {
+  const handleActivatePass = async (listId: string, planId: BillingPlanId) => {
     setListError(null)
     setListSuccess(null)
-    setActivatingPassListId(listId)
+    setActivatingPlanTarget(`${listId}:${planId}`)
 
     try {
       const user = auth.currentUser
@@ -1241,6 +1442,7 @@ export default function ListWorkspace({
       const idToken = await user.getIdToken()
       const result = await startBillingCheckout({
         listId,
+        planId,
         locale,
         idToken,
       })
@@ -1258,11 +1460,26 @@ export default function ListWorkspace({
           setListError(labels.errorSessionExpired)
           return
         }
+
+        if (rawError.code === 'plan_too_small') {
+          setListError(labels.errorPlanTooSmall)
+          return
+        }
+
+        if (rawError.code === 'video_duration_exceeded') {
+          setListError(labels.errorMediaVideoTooLong)
+          return
+        }
+
+        if (rawError.code === 'media_limit_exceeded') {
+          setListError(labels.errorMediaUsageLimitExceeded)
+          return
+        }
       }
 
       setListError(labels.errorActivatePass)
     } finally {
-      setActivatingPassListId(null)
+      setActivatingPlanTarget(null)
     }
   }
 
@@ -1283,7 +1500,7 @@ export default function ListWorkspace({
 
     setIsSavingIntro(true)
 
-    let uploadedMedia: { url: string; path: string; type: string } | null = null
+    let uploadedMedia: UploadMediaMetadata | null = null
 
     try {
       if (introMediaFile) {
@@ -1293,6 +1510,15 @@ export default function ListWorkspace({
           ownerId,
           file: introMediaFile,
         })
+
+        const projectedMediaUsage = buildProjectedMediaUsage({
+          target: 'intro',
+          uploadedMedia,
+        })
+        const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
+        if (projectedMediaUsageIssue) {
+          throw new Error(projectedMediaUsageIssue)
+        }
       }
 
       await updateGiftListIntro({
@@ -1324,11 +1550,11 @@ export default function ListWorkspace({
       }
 
       if (rawError instanceof MediaValidationError) {
-        if (rawError.code === 'unsupported_type') {
-          setIntroError(labels.errorMediaUnsupportedType)
-        } else {
-          setIntroError(labels.errorMediaTooLarge)
-        }
+        setIntroError(resolveMediaValidationMessage(rawError))
+      } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
+        setIntroError(labels.errorMediaUsageLimitExceeded)
+      } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
+        setIntroError(labels.errorMediaVideoTooLong)
       } else {
         setIntroError(withErrorCode(labels.errorSaveHero, rawError))
       }
@@ -1653,7 +1879,7 @@ export default function ListWorkspace({
 
     setIsAddingItem(true)
 
-    let mediaPayload: { url: string; path: string; type: string } | null = null
+    let mediaPayload: UploadMediaMetadata | null = null
 
     try {
       if (itemMediaFile) {
@@ -1663,6 +1889,16 @@ export default function ListWorkspace({
           ownerId,
           file: itemMediaFile,
         })
+
+        const projectedMediaUsage = buildProjectedMediaUsage({
+          target: 'item',
+          uploadedMedia: mediaPayload,
+          replacingId: editingItemId,
+        })
+        const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
+        if (projectedMediaUsageIssue) {
+          throw new Error(projectedMediaUsageIssue)
+        }
       }
 
       if (editingItemId) {
@@ -1708,11 +1944,11 @@ export default function ListWorkspace({
       }
 
       if (rawError instanceof MediaValidationError) {
-        if (rawError.code === 'unsupported_type') {
-          setItemError(labels.errorMediaUnsupportedType)
-        } else {
-          setItemError(labels.errorMediaTooLarge)
-        }
+        setItemError(resolveMediaValidationMessage(rawError))
+      } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
+        setItemError(labels.errorMediaUsageLimitExceeded)
+      } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
+        setItemError(labels.errorMediaVideoTooLong)
       } else {
         setItemError(withErrorCode(
           editingItemId ? labels.errorUpdateItem : labels.errorAddItem,
@@ -1800,7 +2036,7 @@ export default function ListWorkspace({
 
     setIsAddingStory(true)
 
-    let mediaPayload: { url: string; path: string; type: string } | null = null
+    let mediaPayload: UploadMediaMetadata | null = null
 
     try {
       if (storyMediaFile) {
@@ -1810,6 +2046,16 @@ export default function ListWorkspace({
           ownerId,
           file: storyMediaFile,
         })
+
+        const projectedMediaUsage = buildProjectedMediaUsage({
+          target: 'story',
+          uploadedMedia: mediaPayload,
+          replacingId: editingStoryId,
+        })
+        const projectedMediaUsageIssue = getMediaUsageIssue(projectedMediaUsage)
+        if (projectedMediaUsageIssue) {
+          throw new Error(projectedMediaUsageIssue)
+        }
       }
 
       if (editingStoryId) {
@@ -1853,11 +2099,11 @@ export default function ListWorkspace({
       }
 
       if (rawError instanceof MediaValidationError) {
-        if (rawError.code === 'unsupported_type') {
-          setStoryError(labels.errorMediaUnsupportedType)
-        } else {
-          setStoryError(labels.errorMediaTooLarge)
-        }
+        setStoryError(resolveMediaValidationMessage(rawError))
+      } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
+        setStoryError(labels.errorMediaUsageLimitExceeded)
+      } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
+        setStoryError(labels.errorMediaVideoTooLong)
       } else {
         setStoryError(withErrorCode(
           editingStoryId ? labels.errorUpdateStory : labels.errorAddStory,
@@ -2495,20 +2741,20 @@ export default function ListWorkspace({
                 <span className="rounded-full border border-white/20 px-2 py-1">
                   {labels.visibilityTag}: {visibilityLabels[list.visibility]}
                 </span>
+                {list.billingPlanId && (
+                  <span className="rounded-full border border-white/20 px-2 py-1">
+                    {labels.currentPlanTag}: {
+                      list.billingPlanId === 'base'
+                        ? labels.planBaseName
+                        : (
+                          list.billingPlanId === 'premium'
+                            ? labels.planPremiumName
+                            : labels.planPlatinumName
+                        )
+                    }
+                  </span>
+                )}
               </div>
-
-              {list.accessStatus !== 'active' && (
-                <button
-                  type="button"
-                  onClick={() => handleActivatePass(list.id)}
-                  disabled={activatingPassListId === list.id}
-                  className="mt-3 w-full rounded-full border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                >
-                  {activatingPassListId === list.id
-                    ? labels.activatingPass
-                    : labels.activatePassAction}
-                </button>
-              )}
 
               <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
                 <button
@@ -2704,6 +2950,133 @@ export default function ListWorkspace({
           </div>
 
           <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
+            <h3 className="text-lg font-semibold text-white">{labels.billingPlanTitle}</h3>
+            <p className="mt-2 text-sm text-slate-300">{labels.billingPlanSubtitle}</p>
+
+            {!selectedList ? (
+              <p className="mt-4 text-sm text-slate-300">{labels.emptyLists}</p>
+            ) : (
+              <>
+                <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
+                    {labels.billingUsageTag}: {selectedListUsageDisplay}
+                  </span>
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
+                    {labels.billingRecommendedPlanTag}: {
+                      selectedListRequiredPlanId === 'base'
+                        ? labels.planBaseName
+                        : (
+                          selectedListRequiredPlanId === 'premium'
+                            ? labels.planPremiumName
+                            : (
+                              selectedListRequiredPlanId === 'platinum'
+                                ? labels.planPlatinumName
+                                : labels.billingCustomPlanRequired
+                            )
+                        )
+                    }
+                  </span>
+                  {selectedList.billingPlanId && (
+                    <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-emerald-100">
+                      {labels.currentPlanTag}: {
+                        selectedList.billingPlanId === 'base'
+                          ? labels.planBaseName
+                          : (
+                            selectedList.billingPlanId === 'premium'
+                              ? labels.planPremiumName
+                              : labels.planPlatinumName
+                          )
+                      }
+                    </span>
+                  )}
+                </div>
+
+                {selectedListMediaUsage.containsVideo && (
+                  <p className="mt-3 text-xs text-amber-100">{labels.billingVideoNotice}</p>
+                )}
+
+                {selectedListMediaUsageIssue === 'media_limit_exceeded' && (
+                  <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                    {labels.errorMediaUsageLimitExceeded}
+                  </p>
+                )}
+
+                {selectedListMediaUsageIssue === 'video_duration_exceeded' && (
+                  <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                    {labels.errorMediaVideoTooLong}
+                  </p>
+                )}
+
+                <div className="mt-4 grid gap-3 xl:grid-cols-3">
+                  {billingPlans.map((plan) => {
+                    const isCurrentPlan = selectedList.billingPlanId === plan.id && selectedList.accessStatus === 'active'
+                    const isRecommendedPlan = selectedListRequiredPlanId === plan.id
+                    const isEligiblePlan = isBillingPlanEligible(plan.id, selectedListMediaUsage)
+                    const isPlanActionLoading = activatingPlanTarget === `${selectedList.id}:${plan.id}`
+
+                    return (
+                      <article
+                        key={plan.id}
+                        className={`rounded-2xl border p-4 ${
+                          isRecommendedPlan
+                            ? 'border-emerald-300/40 bg-emerald-300/10'
+                            : 'border-white/10 bg-white/5'
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-semibold text-white">{plan.name}</h4>
+                          {isRecommendedPlan && (
+                            <span className="rounded-full border border-emerald-300/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-100">
+                              {labels.billingRecommendedBadge}
+                            </span>
+                          )}
+                          {isCurrentPlan && (
+                            <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
+                              {labels.billingCurrentPlanBadge}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-2 text-lg font-bold text-white">{plan.price}</p>
+
+                        <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                          {plan.features.map((feature) => (
+                            <li key={`${plan.id}-${feature}`}>- {feature}</li>
+                          ))}
+                        </ul>
+
+                        <button
+                          type="button"
+                          onClick={() => handleActivatePass(selectedList.id, plan.id)}
+                          disabled={
+                            isSelectedListExpired
+                            || isPlanActionLoading
+                            || Boolean(selectedListMediaUsageIssue)
+                            || !isEligiblePlan
+                          }
+                          className="mt-4 w-full rounded-full border border-emerald-300/40 px-4 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isPlanActionLoading
+                            ? labels.activatingPass
+                            : (
+                              isCurrentPlan
+                                ? labels.extendPlanAction
+                                : labels.activatePlanAction
+                            )}
+                        </button>
+
+                        {!isEligiblePlan && (
+                          <p className="mt-3 text-xs text-amber-100">{labels.billingPlanTooSmallHint}</p>
+                        )}
+                      </article>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
             <h3 className="text-lg font-semibold text-white">{labels.heroEditorTitle}</h3>
             <p className="mt-2 text-sm text-slate-300">{labels.heroEditorSubtitle}</p>
 
@@ -2860,11 +3233,11 @@ export default function ListWorkspace({
 
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.itemMediaLabel}</span>
-              <input
-                ref={itemMediaInputRef}
-                type="file"
-                accept="image/*,video/*,audio/*"
-                disabled={isItemActionsDisabled || isUploadingMedia}
+                <input
+                  ref={itemMediaInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  disabled={isItemActionsDisabled || isUploadingMedia}
                 onChange={(event) => {
                   const nextFile = event.target.files?.[0] ?? null
                   setItemMediaFile(nextFile)

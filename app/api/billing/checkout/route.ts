@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth } from '@/lib/firebase/admin'
 import { startListCheckout } from '@/lib/billing/server'
+import { BillingPlanId } from '@/lib/lists/plans'
 
 export const runtime = 'nodejs'
 
 type CheckoutBody = {
   listId?: string
+  planId?: string
   locale?: string
 }
 
@@ -44,10 +46,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'missing_list_id' }, { status: 400 })
   }
 
+  const planId = body.planId?.trim()
+  if (!planId) {
+    return NextResponse.json({ error: 'missing_plan_id' }, { status: 400 })
+  }
+
   try {
     const result = await startListCheckout({
       listId,
       ownerId: decodedToken.uid,
+      planId: planId as BillingPlanId,
       locale: body.locale,
     })
 
@@ -64,6 +72,16 @@ export async function POST(request: NextRequest) {
 
     if (message === 'billing_unavailable') {
       return NextResponse.json({ error: message }, { status: 503 })
+    }
+
+    if (
+      message === 'invalid_plan'
+      || message === 'missing_plan_id'
+      || message === 'plan_too_small'
+      || message === 'media_limit_exceeded'
+      || message === 'video_duration_exceeded'
+    ) {
+      return NextResponse.json({ error: message }, { status: 400 })
     }
 
     return NextResponse.json({ error: 'billing_failed' }, { status: 500 })

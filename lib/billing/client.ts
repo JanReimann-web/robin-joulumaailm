@@ -1,3 +1,4 @@
+import { BillingPlanId } from '@/lib/lists/plans'
 import { BillingCheckoutResult } from '@/lib/billing/types'
 
 export class BillingCheckoutError extends Error {
@@ -11,6 +12,7 @@ export class BillingCheckoutError extends Error {
 
 export const startBillingCheckout = async (params: {
   listId: string
+  planId: BillingPlanId
   locale: string
   idToken: string
 }): Promise<BillingCheckoutResult> => {
@@ -22,6 +24,7 @@ export const startBillingCheckout = async (params: {
     },
     body: JSON.stringify({
       listId: params.listId,
+      planId: params.planId,
       locale: params.locale,
     }),
   })

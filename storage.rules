@@ -43,10 +43,16 @@ service firebase.storage {
         );
     }
 
+    function hasPublishedListAccess(listId) {
+      return listExists(listId)
+        && listData(listId).paidAccessEndsAt is timestamp
+        && listData(listId).paidAccessEndsAt > request.time;
+    }
+
     function isListPublic(listId) {
       return listExists(listId)
         && listData(listId).visibility == 'public'
-        && hasActiveListAccess(listId);
+        && hasPublishedListAccess(listId);
     }
 
     function isSupportedMediaType() {
@@ -63,12 +69,26 @@ service firebase.storage {
         && request.resource.size <= (limitMb * 1024 * 1024);
     }
 
+    function isWithinUploadLimit() {
+      return request.resource != null
+        && (
+          (
+            request.resource.contentType.matches('video/.*')
+            && isWithinSizeLimit(250)
+          )
+          || (
+            !request.resource.contentType.matches('video/.*')
+            && isWithinSizeLimit(30)
+          )
+        );
+    }
+
     // Private user-level assets.
     match /users/{userId}/{allPaths=**} {
       allow read: if isUser(userId);
       allow write: if isUser(userId)
         && isSupportedMediaType()
-        && isWithinSizeLimit(30);
+        && isWithinUploadLimit();
     }
 
     // List assets. Ownership is validated against Firestore list document.
@@ -76,7 +96,7 @@ service firebase.storage {
       allow read: if isListOwner(listId) || isListPublic(listId);
       allow write: if isListOwner(listId)
         && isSupportedMediaType()
-        && isWithinSizeLimit(30);
+        && isWithinUploadLimit();
     }
 
     match /{allPaths=**} {

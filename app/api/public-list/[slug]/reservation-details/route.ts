@@ -33,7 +33,7 @@ export async function POST(
     return NextResponse.json({ error: 'not_found' }, { status: 404 })
   }
 
-  if (list.accessStatus === 'expired') {
+  if (list.accessStatus !== 'active') {
     return NextResponse.json({ error: 'list_expired' }, { status: 410 })
   }
 
@@ -100,4 +100,3 @@ export async function POST(
 
   return NextResponse.json({ ok: true })
 }
-

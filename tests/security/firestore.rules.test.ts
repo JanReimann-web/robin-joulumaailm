@@ -103,6 +103,7 @@ describe('firestore rules', () => {
       ownerId: 'owner-public',
       visibility: 'public',
       trialEndsAt: futureTimestamp(),
+      paidAccessEndsAt: futureTimestamp(90),
     })
     await seedList(testEnv, {
       listId: 'list-public-expired',
@@ -126,6 +127,7 @@ describe('firestore rules', () => {
       ownerId: 'owner-reservation',
       visibility: 'public',
       trialEndsAt: futureTimestamp(),
+      paidAccessEndsAt: futureTimestamp(90),
     })
 
     await testEnv.withSecurityRulesDisabled(async (context) => {
@@ -176,6 +178,7 @@ describe('firestore rules', () => {
       ownerId,
       visibility: 'public',
       trialEndsAt: futureTimestamp(),
+      paidAccessEndsAt: futureTimestamp(90),
     })
 
     const ownerDb = testEnv.authenticatedContext(ownerId).firestore()

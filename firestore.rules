@@ -42,6 +42,11 @@ service cloud.firestore {
       );
     }
 
+    function hasPublishedListAccessData(data) {
+      return data.paidAccessEndsAt is timestamp
+        && data.paidAccessEndsAt > request.time;
+    }
+
     function hasActiveListAccess(listId) {
       return listExists(listId)
         && (
@@ -54,13 +59,19 @@ service cloud.firestore {
             && listData(listId).trialEndsAt is timestamp
             && listData(listId).trialEndsAt > request.time
           )
-        );
+      );
+    }
+
+    function hasPublishedListAccess(listId) {
+      return listExists(listId)
+        && listData(listId).paidAccessEndsAt is timestamp
+        && listData(listId).paidAccessEndsAt > request.time;
     }
 
     function isListPublic(listId) {
       return listExists(listId)
         && listData(listId).visibility == 'public'
-        && hasActiveListAccess(listId);
+        && hasPublishedListAccess(listId);
     }
 
     function isCurrentListOwner() {
@@ -69,11 +80,29 @@ service cloud.firestore {
 
     function isCurrentListPublicWithAccess() {
       return resource.data.visibility == 'public'
-        && hasActiveListAccessData(resource.data);
+        && hasPublishedListAccessData(resource.data);
     }
 
     function isStringOrNull(value) {
       return value is string || value == null;
+    }
+
+    function hasUnchangedOptionalBillingPlanId() {
+      return (
+        (
+          !resource.data.keys().hasAny(['billingPlanId'])
+          && !request.resource.data.keys().hasAny(['billingPlanId'])
+        )
+        || (
+          resource.data.keys().hasAny(['billingPlanId'])
+          && request.resource.data.keys().hasAny(['billingPlanId'])
+          && request.resource.data.billingPlanId == resource.data.billingPlanId
+        )
+      );
+    }
+
+    function isNumberOrNull(value) {
+      return value is int || value is float || value == null;
     }
 
     function hasOptionalIntroFields(data) {
@@ -97,6 +126,14 @@ service cloud.firestore {
         && (
           !data.keys().hasAny(['introMediaType'])
           || isStringOrNull(data.introMediaType)
+        )
+        && (
+          !data.keys().hasAny(['introMediaSizeBytes'])
+          || isNumberOrNull(data.introMediaSizeBytes)
+        )
+        && (
+          !data.keys().hasAny(['introMediaDurationSeconds'])
+          || isNumberOrNull(data.introMediaDurationSeconds)
         )
       );
     }
@@ -151,6 +188,7 @@ service cloud.firestore {
           'visibility',
           'status',
           'billingModel',
+          'billingPlanId',
           'trialEndsAt',
           'paidAccessEndsAt',
           'purgeAt',
@@ -159,6 +197,8 @@ service cloud.firestore {
           'introMediaUrl',
           'introMediaPath',
           'introMediaType',
+          'introMediaSizeBytes',
+          'introMediaDurationSeconds',
           'createdAt',
           'updatedAt',
         ])
@@ -179,6 +219,10 @@ service cloud.firestore {
         )
         && request.resource.data.status == 'draft'
         && request.resource.data.billingModel == 'one_time_90d'
+        && (
+          !request.resource.data.keys().hasAny(['billingPlanId'])
+          || request.resource.data.billingPlanId == null
+        )
         && request.resource.data.trialEndsAt is timestamp
         && request.resource.data.paidAccessEndsAt == null
         && request.resource.data.purgeAt is timestamp
@@ -236,6 +280,8 @@ service cloud.firestore {
           'mediaUrl',
           'mediaPath',
           'mediaType',
+          'mediaSizeBytes',
+          'mediaDurationSeconds',
           'createdAt',
           'updatedAt',
         ])
@@ -246,6 +292,14 @@ service cloud.firestore {
         && isStringOrNull(request.resource.data.mediaUrl)
         && isStringOrNull(request.resource.data.mediaPath)
         && isStringOrNull(request.resource.data.mediaType)
+        && (
+          !request.resource.data.keys().hasAny(['mediaSizeBytes'])
+          || isNumberOrNull(request.resource.data.mediaSizeBytes)
+        )
+        && (
+          !request.resource.data.keys().hasAny(['mediaDurationSeconds'])
+          || isNumberOrNull(request.resource.data.mediaDurationSeconds)
+        )
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
     }
@@ -273,6 +327,7 @@ service cloud.firestore {
       return request.resource.data.ownerId == resource.data.ownerId
         && request.resource.data.slug == resource.data.slug
         && request.resource.data.billingModel == resource.data.billingModel
+        && hasUnchangedOptionalBillingPlanId()
         && request.resource.data.trialEndsAt == resource.data.trialEndsAt
         && request.resource.data.paidAccessEndsAt == resource.data.paidAccessEndsAt
         && request.resource.data.purgeAt == resource.data.purgeAt
@@ -303,6 +358,8 @@ service cloud.firestore {
             'introMediaUrl',
             'introMediaPath',
             'introMediaType',
+            'introMediaSizeBytes',
+            'introMediaDurationSeconds',
             'status',
             'updatedAt',
           ]);

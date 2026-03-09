@@ -2,6 +2,7 @@ import 'server-only'
 import { Timestamp } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
 import { addDays, resolveListAccessStatus, TRIAL_DAYS } from '@/lib/lists/access'
+import { BILLING_PLAN_IDS, BillingPlanId } from '@/lib/lists/plans'
 import { isReservedSlug, isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
 import {
   GiftList,
@@ -35,6 +36,18 @@ const toMillis = (value: unknown): number | null => {
   return null
 }
 
+const toNullableNumber = (value: unknown): number | null => {
+  return typeof value === 'number' && !Number.isNaN(value)
+    ? value
+    : null
+}
+
+const toBillingPlanId = (value: unknown): BillingPlanId | null => {
+  return typeof value === 'string' && BILLING_PLAN_IDS.includes(value as BillingPlanId)
+    ? value as BillingPlanId
+    : null
+}
+
 const mapListDoc = (
   id: string,
   data: Record<string, unknown>
@@ -64,6 +77,7 @@ const mapListDoc = (
     visibility: data.visibility,
     status: (data.status as GiftList['status']) ?? 'draft',
     billingModel: (data.billingModel as GiftList['billingModel']) ?? 'one_time_90d',
+    billingPlanId: toBillingPlanId(data.billingPlanId),
     trialEndsAt,
     paidAccessEndsAt,
     purgeAt: toMillis(data.purgeAt),
@@ -76,6 +90,8 @@ const mapListDoc = (
     introMediaUrl: data.introMediaUrl ? String(data.introMediaUrl) : null,
     introMediaPath: data.introMediaPath ? String(data.introMediaPath) : null,
     introMediaType: data.introMediaType ? String(data.introMediaType) : null,
+    introMediaSizeBytes: toNullableNumber(data.introMediaSizeBytes),
+    introMediaDurationSeconds: toNullableNumber(data.introMediaDurationSeconds),
     createdAt,
     updatedAt: toMillis(data.updatedAt),
   }
@@ -95,6 +111,8 @@ const mapItemDoc = (
     mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
     mediaPath: data.mediaPath ? String(data.mediaPath) : null,
     mediaType: data.mediaType ? String(data.mediaType) : null,
+    mediaSizeBytes: toNullableNumber(data.mediaSizeBytes),
+    mediaDurationSeconds: toNullableNumber(data.mediaDurationSeconds),
     status: (data.status as GiftListItem['status']) ?? 'available',
     reservedByName: data.reservedByName ? String(data.reservedByName) : null,
     reservedMessage: data.reservedMessage ? String(data.reservedMessage) : null,
@@ -117,6 +135,8 @@ const mapStoryDoc = (
     mediaUrl: data.mediaUrl ? String(data.mediaUrl) : null,
     mediaPath: data.mediaPath ? String(data.mediaPath) : null,
     mediaType: data.mediaType ? String(data.mediaType) : null,
+    mediaSizeBytes: toNullableNumber(data.mediaSizeBytes),
+    mediaDurationSeconds: toNullableNumber(data.mediaDurationSeconds),
     createdAt: toMillis(data.createdAt),
     updatedAt: toMillis(data.updatedAt),
   }

@@ -27,6 +27,13 @@ export const resolveListAccessStatus = (params: {
   return 'expired'
 }
 
+export const hasPublishedListAccess = (
+  paidAccessEndsAt: number | null,
+  now = Date.now()
+) => {
+  return Boolean(paidAccessEndsAt && paidAccessEndsAt > now)
+}
+
 export const getRemainingDays = (
   timestampMs: number | null,
   now = Date.now()

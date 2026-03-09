@@ -5,7 +5,7 @@ import {
   assertSucceeds,
   clearData,
   createTestEnvironment,
-  futureTimestamp,
+  seedList,
 } from '@/tests/helpers/firebase-test-env'
 
 describe('e2e public list flow', () => {
@@ -32,23 +32,15 @@ describe('e2e public list flow', () => {
     const ownerDb = testEnv.authenticatedContext(ownerId).firestore()
     const guestDb = testEnv.unauthenticatedContext().firestore()
 
-    await assertSucceeds(
-      setDoc(doc(ownerDb, 'lists', listId), {
-        ownerId,
-        title: 'Marju ja Kalev',
-        slug: 'marju-ja-kalev',
-        eventType: 'birthday',
-        templateId: 'classic',
-        visibility: 'public',
-        status: 'draft',
-        billingModel: 'one_time_90d',
-        trialEndsAt: futureTimestamp(14),
-        paidAccessEndsAt: null,
-        purgeAt: futureTimestamp(14),
-        createdAt: now,
-        updatedAt: now,
-      })
-    )
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      slug: 'marju-ja-kalev',
+      visibility: 'public',
+      paidAccessEndsAt: Timestamp.fromDate(
+        new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+      ),
+    })
 
     await assertSucceeds(
       setDoc(doc(ownerDb, 'lists', listId, 'items', itemId), {

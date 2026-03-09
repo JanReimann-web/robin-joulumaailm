@@ -86,6 +86,7 @@ describe('storage rules', () => {
       ownerId: 'owner-public',
       visibility: 'public',
       trialEndsAt: futureTimestamp(14),
+      paidAccessEndsAt: futureTimestamp(90),
     })
     await seedList(testEnv, {
       listId: expiredListId,
@@ -123,6 +124,7 @@ describe('storage rules', () => {
       ownerId,
       visibility: 'public',
       trialEndsAt: futureTimestamp(14),
+      paidAccessEndsAt: futureTimestamp(90),
     })
 
     const guestStorage = testEnv

@@ -25,7 +25,7 @@ export async function POST(
   context: RouteContext
 ) {
   const list = await getPublicListBySlug(context.params.slug)
-  if (!list || list.accessStatus === 'expired') {
+  if (!list || list.accessStatus !== 'active') {
     return NextResponse.json({ error: 'not_found' }, { status: 404 })
   }
 
@@ -84,4 +84,3 @@ export async function POST(
 
   return response
 }
-

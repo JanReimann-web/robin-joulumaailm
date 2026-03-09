@@ -15,7 +15,7 @@ export async function GET(
 ) {
   const list = await getPublicListBySlug(context.params.slug)
 
-  if (!list || list.accessStatus === 'expired') {
+  if (!list || list.accessStatus !== 'active') {
     return NextResponse.json({ error: 'not_found' }, { status: 404 })
   }
 

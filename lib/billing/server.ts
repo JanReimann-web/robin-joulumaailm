@@ -1,17 +1,29 @@
 import 'server-only'
 import Stripe from 'stripe'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
-import { addDays, PAID_ACCESS_DAYS, resolveListAccessStatus, TRIAL_DAYS } from '@/lib/lists/access'
+import { addDays, PAID_ACCESS_DAYS } from '@/lib/lists/access'
 import { adminDb } from '@/lib/firebase/admin'
 import {
   FieldValue,
   Timestamp,
 } from 'firebase-admin/firestore'
 import { BillingCheckoutResult } from '@/lib/billing/types'
+import {
+  BILLING_PLAN_DEFINITIONS,
+  BILLING_PLAN_IDS,
+  BillingPlanId,
+  getMediaUsageIssue,
+  isBillingPlanEligible,
+  resolveRequiredBillingPlanId,
+} from '@/lib/lists/plans'
+import { computeListMediaUsageSummary } from '@/lib/lists/media-usage.server'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY ?? ''
 const STRIPE_PRICE_ID_90D = process.env.STRIPE_PRICE_ID_90D ?? ''
+const STRIPE_PRICE_ID_BASE_90D = process.env.STRIPE_PRICE_ID_BASE_90D ?? STRIPE_PRICE_ID_90D
+const STRIPE_PRICE_ID_PREMIUM_90D = process.env.STRIPE_PRICE_ID_PREMIUM_90D ?? STRIPE_PRICE_ID_90D
+const STRIPE_PRICE_ID_PLATINUM_90D = process.env.STRIPE_PRICE_ID_PLATINUM_90D ?? STRIPE_PRICE_ID_90D
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? ''
 const MANUAL_FALLBACK_ENABLED = (process.env.BILLING_MANUAL_FALLBACK ?? 'true') === 'true'
 
@@ -37,6 +49,22 @@ const resolveLocale = (locale: string | undefined) => {
   return isLocale(locale) ? locale : defaultLocale
 }
 
+const resolveStripePriceId = (planId: BillingPlanId) => {
+  if (planId === 'base') {
+    return STRIPE_PRICE_ID_BASE_90D
+  }
+
+  if (planId === 'premium') {
+    return STRIPE_PRICE_ID_PREMIUM_90D
+  }
+
+  return STRIPE_PRICE_ID_PLATINUM_90D
+}
+
+const isBillingPlanId = (value: string): value is BillingPlanId => {
+  return BILLING_PLAN_IDS.includes(value as BillingPlanId)
+}
+
 const validateListOwnership = async (listId: string, ownerId: string) => {
   const listRef = adminDb.collection('lists').doc(listId)
   const listSnapshot = await listRef.get()
@@ -50,33 +78,22 @@ const validateListOwnership = async (listId: string, ownerId: string) => {
     throw new Error('forbidden')
   }
 
-  const createdAt = toMillis(payload.createdAt)
-  const trialEndsAtRaw = toMillis(payload.trialEndsAt)
-  const trialEndsAt = trialEndsAtRaw ?? (
-    createdAt ? addDays(new Date(createdAt), TRIAL_DAYS).getTime() : null
-  )
-
-  const accessStatus = resolveListAccessStatus({
-    trialEndsAt,
-    paidAccessEndsAt: toMillis(payload.paidAccessEndsAt),
-  })
-
   return {
     listRef,
-    accessStatus,
+    listData: payload,
   }
 }
 
 const grantListPass = async (params: {
   listId: string
   ownerId: string
+  planId: BillingPlanId
   provider: 'manual' | 'stripe'
   paymentRef: string
 }) => {
   const listRef = adminDb.collection('lists').doc(params.listId)
   const subscriptionRef = adminDb.collection('subscriptions').doc(params.ownerId)
   const paymentRef = adminDb.collection('billingPayments').doc()
-  const paidAccessEndsAt = Timestamp.fromDate(addDays(new Date(), PAID_ACCESS_DAYS))
 
   await adminDb.runTransaction(async (transaction) => {
     const listSnapshot = await transaction.get(listRef)
@@ -89,7 +106,14 @@ const grantListPass = async (params: {
       throw new Error('forbidden')
     }
 
+    const currentPaidAccessEndsAt = toMillis(payload.paidAccessEndsAt)
+    const accessBaseDate = currentPaidAccessEndsAt && currentPaidAccessEndsAt > Date.now()
+      ? new Date(currentPaidAccessEndsAt)
+      : new Date()
+    const paidAccessEndsAt = Timestamp.fromDate(addDays(accessBaseDate, PAID_ACCESS_DAYS))
+
     transaction.update(listRef, {
+      billingPlanId: params.planId,
       paidAccessEndsAt,
       purgeAt: paidAccessEndsAt,
       updatedAt: FieldValue.serverTimestamp(),
@@ -101,6 +125,7 @@ const grantListPass = async (params: {
     transaction.set(subscriptionRef, {
       userId: params.ownerId,
       billingModel: 'one_time_90d',
+      billingPlanId: params.planId,
       status: 'active',
       activeListIds: FieldValue.arrayUnion(params.listId),
       currentPeriodEndsAt: paidAccessEndsAt,
@@ -114,14 +139,24 @@ const grantListPass = async (params: {
       provider: params.provider,
       paymentRef: params.paymentRef,
       billingModel: 'one_time_90d',
+      billingPlanId: params.planId,
+      amountCents: BILLING_PLAN_DEFINITIONS[params.planId].priceCents,
       paidAccessEndsAt,
       createdAt: FieldValue.serverTimestamp(),
     })
   })
 }
 
-export const isStripeCheckoutConfigured = () => {
-  return Boolean(stripeClient && STRIPE_PRICE_ID_90D)
+export const isStripeCheckoutConfigured = (planId?: BillingPlanId) => {
+  if (!stripeClient) {
+    return false
+  }
+
+  if (!planId) {
+    return BILLING_PLAN_IDS.some((item) => resolveStripePriceId(item).length > 0)
+  }
+
+  return resolveStripePriceId(planId).length > 0
 }
 
 export const isStripeWebhookConfigured = () => {
@@ -144,17 +179,30 @@ export const getBillingRuntimeConfig = () => {
 export const startListCheckout = async (params: {
   listId: string
   ownerId: string
+  planId: BillingPlanId
   locale?: string
 }): Promise<BillingCheckoutResult> => {
-  const { accessStatus } = await validateListOwnership(params.listId, params.ownerId)
-  if (accessStatus === 'active') {
-    return {
-      mode: 'manual',
-      activated: true,
-    }
+  if (!isBillingPlanId(params.planId)) {
+    throw new Error('invalid_plan')
   }
 
-  if (!isStripeCheckoutConfigured()) {
+  const { listData } = await validateListOwnership(params.listId, params.ownerId)
+  const mediaUsage = await computeListMediaUsageSummary(params.listId)
+  const mediaUsageIssue = getMediaUsageIssue(mediaUsage)
+  if (mediaUsageIssue) {
+    throw new Error(mediaUsageIssue)
+  }
+
+  const requiredPlanId = resolveRequiredBillingPlanId(mediaUsage)
+  if (!requiredPlanId) {
+    throw new Error('media_limit_exceeded')
+  }
+
+  if (!isBillingPlanEligible(params.planId, mediaUsage)) {
+    throw new Error('plan_too_small')
+  }
+
+  if (!isStripeCheckoutConfigured(params.planId)) {
     if (!MANUAL_FALLBACK_ENABLED) {
       throw new Error('billing_unavailable')
     }
@@ -163,6 +211,7 @@ export const startListCheckout = async (params: {
     await grantListPass({
       listId: params.listId,
       ownerId: params.ownerId,
+      planId: params.planId,
       provider: 'manual',
       paymentRef,
     })
@@ -176,6 +225,7 @@ export const startListCheckout = async (params: {
   const locale = resolveLocale(params.locale)
   const successUrl = `${SITE_URL}/${locale}/dashboard?billing=success&list=${params.listId}&session_id={CHECKOUT_SESSION_ID}`
   const cancelUrl = `${SITE_URL}/${locale}/dashboard?billing=cancel&list=${params.listId}`
+  const priceId = resolveStripePriceId(params.planId)
 
   const session = await stripeClient!.checkout.sessions.create({
     mode: 'payment',
@@ -183,14 +233,18 @@ export const startListCheckout = async (params: {
     cancel_url: cancelUrl,
     line_items: [
       {
-        price: STRIPE_PRICE_ID_90D,
+        price: priceId,
         quantity: 1,
       },
     ],
     metadata: {
       listId: params.listId,
       ownerId: params.ownerId,
-      plan: 'one_time_90d',
+      plan: params.planId,
+      requiredPlanId,
+      currentBillingPlanId: typeof listData.billingPlanId === 'string'
+        ? listData.billingPlanId
+        : '',
     },
     client_reference_id: `${params.ownerId}:${params.listId}`,
     allow_promotion_codes: true,
@@ -205,8 +259,10 @@ export const startListCheckout = async (params: {
     listId: params.listId,
     ownerId: params.ownerId,
     provider: 'stripe',
+    billingPlanId: params.planId,
     status: 'created',
     amountTotal: session.amount_total ?? null,
+    amountCents: BILLING_PLAN_DEFINITIONS[params.planId].priceCents,
     currency: session.currency ?? null,
     createdAt: FieldValue.serverTimestamp(),
   }, { merge: true })
@@ -258,14 +314,16 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
       const session = event.data.object as Stripe.Checkout.Session
       const listId = session.metadata?.listId
       const ownerId = session.metadata?.ownerId
+      const planId = session.metadata?.plan
 
-      if (!listId || !ownerId) {
+      if (!listId || !ownerId || !planId || !isBillingPlanId(planId)) {
         throw new Error('missing_metadata')
       }
 
       await grantListPass({
         listId,
         ownerId,
+        planId,
         provider: 'stripe',
         paymentRef: session.id,
       })

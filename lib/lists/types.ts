@@ -1,4 +1,5 @@
 import { ListAccessStatus } from '@/lib/lists/access'
+import { BillingPlanId } from '@/lib/lists/plans'
 
 export const EVENT_TYPES = [
   'wedding',
@@ -99,6 +100,7 @@ export interface GiftList {
   visibility: ListVisibility
   status: GiftListStatus
   billingModel: BillingModel
+  billingPlanId: BillingPlanId | null
   trialEndsAt: number | null
   paidAccessEndsAt: number | null
   purgeAt: number | null
@@ -108,6 +110,8 @@ export interface GiftList {
   introMediaUrl: string | null
   introMediaPath: string | null
   introMediaType: string | null
+  introMediaSizeBytes: number | null
+  introMediaDurationSeconds: number | null
   createdAt: number | null
   updatedAt: number | null
 }
@@ -147,6 +151,8 @@ export interface GiftListItem {
   mediaUrl: string | null
   mediaPath: string | null
   mediaType: string | null
+  mediaSizeBytes: number | null
+  mediaDurationSeconds: number | null
   status: GiftItemStatus
   reservedByName: string | null
   reservedMessage: string | null
@@ -159,6 +165,8 @@ export interface GiftItemMediaInput {
   url: string
   path: string
   type: string
+  sizeBytes: number
+  durationSeconds: number | null
 }
 
 export interface CreateGiftItemInput {
@@ -195,6 +203,8 @@ export interface ListStoryEntry {
   mediaUrl: string | null
   mediaPath: string | null
   mediaType: string | null
+  mediaSizeBytes: number | null
+  mediaDurationSeconds: number | null
   createdAt: number | null
   updatedAt: number | null
 }

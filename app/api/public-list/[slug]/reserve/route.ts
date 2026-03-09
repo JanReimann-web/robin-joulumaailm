@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
-import { addDays, resolveListAccessStatus, TRIAL_DAYS } from '@/lib/lists/access'
+import { hasPublishedListAccess } from '@/lib/lists/access'
 import {
   getPublicAccessCookieName,
   verifyPublicAccessToken,
@@ -80,16 +80,7 @@ export async function POST(
       }
 
       const listData = listSnap.data() as Record<string, unknown>
-      const listCreatedAt = toMillis(listData.createdAt)
-      const listTrialEndsAtRaw = toMillis(listData.trialEndsAt)
-      const listAccessStatus = resolveListAccessStatus({
-        trialEndsAt: listTrialEndsAtRaw ?? (
-          listCreatedAt ? addDays(new Date(listCreatedAt), TRIAL_DAYS).getTime() : null
-        ),
-        paidAccessEndsAt: toMillis(listData.paidAccessEndsAt),
-      })
-
-      if (listAccessStatus === 'expired') {
+      if (!hasPublishedListAccess(toMillis(listData.paidAccessEndsAt))) {
         throw new Error('list_expired')
       }
 
@@ -142,4 +133,3 @@ export async function POST(
     return NextResponse.json({ error: 'reserve_failed' }, { status: 500 })
   }
 }
-

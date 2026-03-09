@@ -27,7 +27,7 @@ export async function generateMetadata({
   const slug = sanitizeSlug(params.slug)
   const list = await getPublicListBySlug(slug)
 
-  if (!list || list.accessStatus === 'expired') {
+  if (!list || list.accessStatus !== 'active') {
     return {
       title: 'Gift List',
       description: 'Gift list page',
