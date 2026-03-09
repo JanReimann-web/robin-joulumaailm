@@ -1,7 +1,7 @@
 'use client'
 
-import { DragEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDown, ArrowUp, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Trash2 } from 'lucide-react'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -162,6 +162,54 @@ type SortableDashboardSection = 'items' | 'stories' | 'wheel'
 
 type SortableDashboardEntry = {
   id: string
+}
+
+const MAX_WHEEL_ENTRIES = 12
+
+type DashboardActionButtonProps = {
+  children: ReactNode
+  icon?: ReactNode
+  onClick?: () => void
+  disabled?: boolean
+  type?: 'button' | 'submit'
+  variant?: 'secondary' | 'accent' | 'danger'
+  className?: string
+}
+
+const dashboardActionButtonClassName = (variant: DashboardActionButtonProps['variant'] = 'secondary') => {
+  const baseClassName = 'inline-flex min-h-[2.5rem] items-center justify-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60'
+
+  if (variant === 'accent') {
+    return `${baseClassName} border-emerald-300/40 bg-emerald-300/10 text-emerald-100 hover:border-emerald-300/60 hover:bg-emerald-300/16`
+  }
+
+  if (variant === 'danger') {
+    return `${baseClassName} border-red-300/40 bg-red-400/10 text-red-100 hover:border-red-300/60 hover:bg-red-400/16`
+  }
+
+  return `${baseClassName} border-white/20 bg-white/5 text-white hover:border-white/35 hover:bg-white/10`
+}
+
+const DashboardActionButton = ({
+  children,
+  icon,
+  onClick,
+  disabled,
+  type = 'button',
+  variant = 'secondary',
+  className = '',
+}: DashboardActionButtonProps) => {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`${dashboardActionButtonClassName(variant)} ${className}`.trim()}
+    >
+      {icon && <span className="shrink-0">{icon}</span>}
+      <span className="truncate">{children}</span>
+    </button>
+  )
 }
 
 const moveArrayEntry = <T extends SortableDashboardEntry>(
@@ -601,7 +649,7 @@ export default function ListWorkspace({
   const isWheelFormBusy = isAddingWheelEntry
   const isItemsReordering = reorderingSection === 'items'
   const isStoriesReordering = reorderingSection === 'stories'
-  const isWheelReordering = reorderingSection === 'wheel'
+  const hasReachedWheelEntryLimit = !editingWheelEntryId && wheelEntries.length >= MAX_WHEEL_ENTRIES
 
   useEffect(() => {
     if (!selectedList) {
@@ -1872,6 +1920,11 @@ export default function ListWorkspace({
       return
     }
 
+    if (!editingWheelEntryId && wheelEntries.length >= MAX_WHEEL_ENTRIES) {
+      setWheelError(labels.errorWheelLimitReached)
+      return
+    }
+
     setIsAddingWheelEntry(true)
 
     try {
@@ -2890,7 +2943,10 @@ export default function ListWorkspace({
             </p>
           )}
 
-          <p className="mt-4 text-xs text-slate-400">{labels.dragToReorderHint}</p>
+          <p className="mt-4 flex items-center gap-2 text-xs text-slate-400">
+            <GripVertical size={14} className="shrink-0" />
+            <span>{labels.dragToReorderHint}</span>
+          </p>
 
           <div className="mt-4 grid gap-3">
             {isItemsLoading && (
@@ -2915,7 +2971,7 @@ export default function ListWorkspace({
                     : 'border-white/10'
                 }`}
               >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),auto] lg:items-start">
                   <div className="min-w-0">
                     <h4 className="font-semibold text-white">{item.name}</h4>
                     <p className="mt-1 text-xs text-slate-300">{item.description}</p>
@@ -2936,86 +2992,79 @@ export default function ListWorkspace({
                     </p>
                   </div>
 
-                  <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
-                    <button
-                      type="button"
-                      aria-label={labels.moveUpAction}
+                  <div className="flex flex-wrap gap-2 lg:max-w-[17rem] lg:justify-end">
+                    <DashboardActionButton
                       onClick={() => handleMoveEntry('items', item.id, -1)}
                       disabled={index === 0 || isItemActionsDisabled || isItemsReordering}
-                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      icon={<ArrowUp size={14} />}
                     >
                       {labels.moveUpAction}
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={labels.moveDownAction}
+                    </DashboardActionButton>
+                    <DashboardActionButton
                       onClick={() => handleMoveEntry('items', item.id, 1)}
                       disabled={index === items.length - 1 || isItemActionsDisabled || isItemsReordering}
-                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      icon={<ArrowDown size={14} />}
                     >
                       {labels.moveDownAction}
-                    </button>
-                    <button
-                      type="button"
+                    </DashboardActionButton>
+                    <DashboardActionButton
                       onClick={() => handleEditItem(item)}
                       disabled={isItemActionsDisabled || isItemsReordering}
-                      className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      icon={<PencilLine size={14} />}
                     >
                       {labels.editItemAction}
-                    </button>
+                    </DashboardActionButton>
                     {item.status === 'reserved' && (
-                      <button
-                        type="button"
+                      <DashboardActionButton
                         onClick={() => handleUpdateItemStatus(item.id, 'available')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        icon={<RotateCcw size={14} />}
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
                           : labels.releaseReservationAction}
-                      </button>
+                      </DashboardActionButton>
                     )}
 
                     {item.status !== 'gifted' && (
-                      <button
-                        type="button"
+                      <DashboardActionButton
                         onClick={() => handleUpdateItemStatus(item.id, 'gifted')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="rounded-full border border-emerald-300/40 px-3 py-1.5 text-xs font-semibold text-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
+                        variant="accent"
+                        icon={<Gift size={14} />}
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
                           : labels.markGiftedAction}
-                      </button>
+                      </DashboardActionButton>
                     )}
 
                     {item.status === 'gifted' && (
-                      <button
-                        type="button"
+                      <DashboardActionButton
                         onClick={() => handleUpdateItemStatus(item.id, 'available')}
                         disabled={statusUpdatingItemId === item.id || isItemActionsDisabled}
-                        className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        icon={<RotateCcw size={14} />}
                       >
                         {statusUpdatingItemId === item.id
                           ? labels.updatingStatus
                           : labels.markAvailableAction}
-                      </button>
+                      </DashboardActionButton>
                     )}
 
-                    <button
-                      type="button"
+                    <DashboardActionButton
                       onClick={() => handleDeleteItem(item.id)}
                       disabled={
                         deletingItemId === item.id ||
                         statusUpdatingItemId === item.id ||
                         isItemActionsDisabled
                       }
-                      className="rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                      variant="danger"
+                      icon={<Trash2 size={14} />}
                     >
                       {deletingItemId === item.id
                         ? labels.deletingItem
                         : labels.deleteItemAction}
-                    </button>
+                    </DashboardActionButton>
                   </div>
                 </div>
               </article>
@@ -3130,7 +3179,10 @@ export default function ListWorkspace({
             </p>
           )}
 
-          <p className="mt-4 text-xs text-slate-400">{labels.dragToReorderHint}</p>
+          <p className="mt-4 flex items-center gap-2 text-xs text-slate-400">
+            <GripVertical size={14} className="shrink-0" />
+            <span>{labels.dragToReorderHint}</span>
+          </p>
 
           <div className="mt-4 grid gap-3">
             {isStoriesLoading && (
@@ -3155,50 +3207,45 @@ export default function ListWorkspace({
                     : 'border-white/10'
                 }`}
               >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),auto] lg:items-start">
                   <div className="min-w-0">
                     <h4 className="font-semibold text-white">{story.title}</h4>
                     <p className="mt-1 text-xs text-slate-300">{story.body}</p>
                     {renderStoryMediaPreview(story)}
                   </div>
 
-                  <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
-                    <button
-                      type="button"
-                      aria-label={labels.moveUpAction}
+                  <div className="flex flex-wrap gap-2 lg:max-w-[17rem] lg:justify-end">
+                    <DashboardActionButton
                       onClick={() => handleMoveEntry('stories', story.id, -1)}
                       disabled={index === 0 || isItemActionsDisabled || isStoriesReordering}
-                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      icon={<ArrowUp size={14} />}
                     >
                       {labels.moveUpAction}
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={labels.moveDownAction}
+                    </DashboardActionButton>
+                    <DashboardActionButton
                       onClick={() => handleMoveEntry('stories', story.id, 1)}
                       disabled={index === stories.length - 1 || isItemActionsDisabled || isStoriesReordering}
-                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      icon={<ArrowDown size={14} />}
                     >
                       {labels.moveDownAction}
-                    </button>
-                    <button
-                      type="button"
+                    </DashboardActionButton>
+                    <DashboardActionButton
                       onClick={() => handleEditStory(story)}
                       disabled={isItemActionsDisabled || isStoriesReordering}
-                      className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      icon={<PencilLine size={14} />}
                     >
                       {labels.editStoryAction}
-                    </button>
-                    <button
-                      type="button"
+                    </DashboardActionButton>
+                    <DashboardActionButton
                       onClick={() => handleDeleteStory(story.id)}
                       disabled={deletingStoryId === story.id || isItemActionsDisabled}
-                      className="rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                      variant="danger"
+                      icon={<Trash2 size={14} />}
                     >
                       {deletingStoryId === story.id
                         ? labels.deletingStory
                         : labels.deleteStoryAction}
-                    </button>
+                    </DashboardActionButton>
                   </div>
                 </div>
               </article>
@@ -3209,13 +3256,16 @@ export default function ListWorkspace({
         <div className="mt-8 border-t border-white/10 pt-6">
           <h3 className="text-lg font-semibold text-white">{labels.wheelTitle}</h3>
           <p className="mt-2 text-sm text-slate-300">{labels.wheelSubtitle}</p>
+          <p className="mt-3 text-xs text-slate-400">
+            {labels.wheelLimitHint.replace('{count}', String(wheelEntries.length)).replace('{max}', String(MAX_WHEEL_ENTRIES))}
+          </p>
 
           <form ref={wheelFormRef} onSubmit={handleAddWheelEntry} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
               <span>{labels.wheelQuestionLabel}</span>
               <input
                 required
-                disabled={isItemActionsDisabled}
+                disabled={isItemActionsDisabled || hasReachedWheelEntryLimit}
                 value={wheelQuestion}
                 onChange={(entry) => setWheelQuestion(entry.target.value)}
                 className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
@@ -3226,7 +3276,7 @@ export default function ListWorkspace({
               <span>{labels.wheelAnswerTextLabel}</span>
               <textarea
                 required
-                disabled={isItemActionsDisabled}
+                disabled={isItemActionsDisabled || hasReachedWheelEntryLimit}
                 value={wheelAnswerText}
                 onChange={(entry) => setWheelAnswerText(entry.target.value)}
                 rows={3}
@@ -3237,7 +3287,7 @@ export default function ListWorkspace({
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
-                disabled={isWheelFormBusy || isItemActionsDisabled}
+                disabled={isWheelFormBusy || isItemActionsDisabled || hasReachedWheelEntryLimit}
                 className="w-full rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {isWheelFormBusy
@@ -3270,8 +3320,6 @@ export default function ListWorkspace({
             </p>
           )}
 
-          <p className="mt-4 text-xs text-slate-400">{labels.dragToReorderHint}</p>
-
           <div className="mt-4 grid gap-3">
             {isWheelLoading && (
               <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -3281,63 +3329,39 @@ export default function ListWorkspace({
               <p className="text-sm text-slate-300">{labels.wheelEmpty}</p>
             )}
 
-            {wheelEntries.map((entry, index) => (
+            {wheelEntries.map((entry) => (
               <article
                 key={entry.id}
-                draggable={!isItemActionsDisabled && !isWheelReordering}
-                onDragStart={(event) => handleEntryDragStart(event, 'wheel', entry.id)}
-                onDragOver={(event) => handleEntryDragOver(event, 'wheel', entry.id)}
-                onDragEnd={handleEntryDragEnd}
-                onDrop={(event) => handleEntryDrop(event, 'wheel', entry.id)}
                 className={`rounded-xl border bg-slate-950/60 p-4 text-sm text-slate-200 transition ${
                   dragOverEntryId === entry.id
                     ? 'border-emerald-300/60 ring-1 ring-emerald-300/40'
                     : 'border-white/10'
                 }`}
               >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),auto] lg:items-start">
                   <div className="min-w-0">
                     <h4 className="font-semibold text-white">{entry.question}</h4>
                     <p className="mt-1 text-xs text-slate-300">{entry.answerText}</p>
                   </div>
 
-                  <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
-                    <button
-                      type="button"
-                      aria-label={labels.moveUpAction}
-                      onClick={() => handleMoveEntry('wheel', entry.id, -1)}
-                      disabled={index === 0 || isItemActionsDisabled || isWheelReordering}
-                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {labels.moveUpAction}
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={labels.moveDownAction}
-                      onClick={() => handleMoveEntry('wheel', entry.id, 1)}
-                      disabled={index === wheelEntries.length - 1 || isItemActionsDisabled || isWheelReordering}
-                      className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {labels.moveDownAction}
-                    </button>
-                    <button
-                      type="button"
+                  <div className="flex flex-wrap gap-2 lg:max-w-[17rem] lg:justify-end">
+                    <DashboardActionButton
                       onClick={() => handleEditWheelEntry(entry)}
-                      disabled={isItemActionsDisabled || isWheelReordering}
-                      className="rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={isItemActionsDisabled}
+                      icon={<PencilLine size={14} />}
                     >
                       {labels.editWheelEntryAction}
-                    </button>
-                    <button
-                      type="button"
+                    </DashboardActionButton>
+                    <DashboardActionButton
                       onClick={() => handleDeleteWheelEntry(entry.id)}
                       disabled={deletingWheelEntryId === entry.id || isItemActionsDisabled}
-                      className="rounded-full border border-red-300/40 px-3 py-1.5 text-xs font-semibold text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
+                      variant="danger"
+                      icon={<Trash2 size={14} />}
                     >
                       {deletingWheelEntryId === entry.id
                         ? labels.deletingWheelEntry
                         : labels.deleteWheelEntryAction}
-                    </button>
+                    </DashboardActionButton>
                   </div>
                 </div>
               </article>

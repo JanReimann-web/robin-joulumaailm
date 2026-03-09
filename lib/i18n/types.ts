@@ -306,6 +306,7 @@ export interface Dictionary {
     cancelWheelEditAction: string
     saveWheelChangesAction: string
     wheelEmpty: string
+    wheelLimitHint: string
     wheelEntryAdded: string
     wheelEntryUpdated: string
     wheelEntryDeleted: string
@@ -328,6 +329,7 @@ export interface Dictionary {
     errorUpdateWheelEntry: string
     errorDeleteWheelEntry: string
     errorWheelAnswerRequired: string
+    errorWheelLimitReached: string
     errorMediaUnsupportedType: string
     errorMediaTooLarge: string
     trialNotice: string
