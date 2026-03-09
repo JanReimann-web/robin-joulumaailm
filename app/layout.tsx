@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk } from 'next/font/google'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import './globals.css'
@@ -56,6 +56,10 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [SHARE_IMAGE],
   },
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'only light',
 }
 
 export default function RootLayout({

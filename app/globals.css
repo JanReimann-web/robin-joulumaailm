@@ -10,6 +10,11 @@
     --fg: #f8fafc;
     --press-scale: 0.98;
     --press-duration: 100ms;
+    color-scheme: only light;
+  }
+
+  html {
+    color-scheme: only light;
   }
 
   * {
