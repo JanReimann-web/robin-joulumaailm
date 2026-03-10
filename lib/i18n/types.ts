@@ -235,6 +235,31 @@ export interface Dictionary {
     complimentaryAccessTitle: string
     complimentaryAccessSubtitle: string
     complimentaryAccessNotice: string
+    referralTitle: string
+    referralSubtitle: string
+    referralLockedHint: string
+    referralComplimentaryHint: string
+    referralActiveCountLabel: string
+    referralRewardCreditsLabel: string
+    referralNextRewardLabel: string
+    referralRewardCreditsHint: string
+    referralGenerateAction: string
+    referralGenerating: string
+    referralGenerateSuccess: string
+    referralEmpty: string
+    referralCopyAction: string
+    referralCopied: string
+    referralStatusActive: string
+    referralStatusReserved: string
+    referralStatusRedeemed: string
+    referralCodeInputLabel: string
+    referralCodeInputPlaceholder: string
+    referralApplyAction: string
+    referralApplying: string
+    referralApplied: string
+    referralRewardSavedHint: string
+    referralClearAction: string
+    referralLoadFailed: string
     activatePlanAction: string
     extendPlanAction: string
     billingPlanTooSmallHint: string
@@ -367,6 +392,13 @@ export interface Dictionary {
     errorMediaVideoTooLong: string
     errorMediaUsageLimitExceeded: string
     errorPlanTooSmall: string
+    errorReferralInvalid: string
+    errorReferralSelf: string
+    errorReferralAlreadyUsed: string
+    errorReferralLocked: string
+    errorReferralMaxActiveReached: string
+    errorReferralNotAllowed: string
+    errorReferralUnavailable: string
     trialNotice: string
     errorInvalidSlug: string
     errorSlugReserved: string

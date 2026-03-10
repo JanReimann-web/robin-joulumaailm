@@ -18,6 +18,18 @@ import {
   resolveRequiredBillingPlanId,
 } from '@/lib/lists/plans'
 import { computeListMediaUsageSummary } from '@/lib/lists/media-usage.server'
+import {
+  applyPercentageDiscount,
+} from '@/lib/referrals'
+import {
+  getReferralAccountRef,
+  getReferralCodeRef,
+  prepareCheckoutDiscount,
+  PreparedCheckoutDiscount,
+  ReferralError,
+  releaseReferralCodeReservation,
+  reserveReferralCodeForCheckout,
+} from '@/lib/referrals.server'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY ?? ''
@@ -42,6 +54,12 @@ const toMillis = (value: unknown): number | null => {
   return null
 }
 
+const toCount = (value: unknown) => {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.max(0, Math.floor(value))
+    : 0
+}
+
 const resolveLocale = (locale: string | undefined) => {
   if (!locale) {
     return defaultLocale
@@ -60,6 +78,18 @@ const resolveStripePriceId = (planId: BillingPlanId) => {
   }
 
   return STRIPE_PRICE_ID_PLATINUM_90D
+}
+
+const resolvePlanDisplayName = (planId: BillingPlanId) => {
+  if (planId === 'base') {
+    return 'Base'
+  }
+
+  if (planId === 'premium') {
+    return 'Premium'
+  }
+
+  return 'Platinum'
 }
 
 const isBillingPlanId = (value: string): value is BillingPlanId => {
@@ -91,10 +121,19 @@ const grantListPass = async (params: {
   planId: BillingPlanId
   provider: 'manual' | 'stripe'
   paymentRef: string
+  amountCents: number
+  discount: PreparedCheckoutDiscount
 }) => {
   const listRef = adminDb.collection('lists').doc(params.listId)
   const subscriptionRef = adminDb.collection('subscriptions').doc(params.ownerId)
-  const paymentRef = adminDb.collection('billingPayments').doc()
+  const paymentRecordRef = adminDb.collection('billingPayments').doc()
+  const buyerReferralAccountRef = getReferralAccountRef(params.ownerId)
+  const referralCodeRef = params.discount.referralCodeId
+    ? getReferralCodeRef(params.discount.referralCodeId)
+    : null
+  const referralOwnerAccountRef = params.discount.referralOwnerUserId
+    ? getReferralAccountRef(params.discount.referralOwnerUserId)
+    : null
 
   await adminDb.runTransaction(async (transaction) => {
     const listSnapshot = await transaction.get(listRef)
@@ -112,6 +151,50 @@ const grantListPass = async (params: {
       ? new Date(currentPaidAccessEndsAt)
       : new Date()
     const paidAccessEndsAt = Timestamp.fromDate(addDays(accessBaseDate, PAID_ACCESS_DAYS))
+    const buyerReferralAccountSnapshot = await transaction.get(buyerReferralAccountRef)
+    const buyerReferralData = buyerReferralAccountSnapshot.exists
+      ? buyerReferralAccountSnapshot.data() as Record<string, unknown>
+      : {}
+    const rewardCreditsConsumed = Math.min(
+      params.discount.rewardCreditsToConsume,
+      toCount(buyerReferralData.pendingRewardCredits)
+    )
+
+    if (referralCodeRef) {
+      const referralCodeSnapshot = await transaction.get(referralCodeRef)
+      if (!referralCodeSnapshot.exists) {
+        throw new Error('referral_invalid')
+      }
+
+      const referralCodeData = referralCodeSnapshot.data() as Record<string, unknown>
+      const status = typeof referralCodeData.status === 'string'
+        ? referralCodeData.status
+        : 'active'
+      const reservedCheckoutSessionId = typeof referralCodeData.reservedCheckoutSessionId === 'string'
+        ? referralCodeData.reservedCheckoutSessionId
+        : null
+
+      if (status === 'reserved' && reservedCheckoutSessionId !== params.paymentRef) {
+        throw new Error('referral_invalid')
+      }
+
+      if (status !== 'active' && status !== 'reserved') {
+        throw new Error('referral_invalid')
+      }
+
+      transaction.update(referralCodeRef, {
+        status: 'redeemed',
+        redeemedAt: FieldValue.serverTimestamp(),
+        redeemedByUserId: params.ownerId,
+        redeemedListId: params.listId,
+        redeemedPaymentRef: params.paymentRef,
+        reservedAt: null,
+        reservedByUserId: null,
+        reservedListId: null,
+        reservedCheckoutSessionId: null,
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+    }
 
     transaction.update(listRef, {
       billingPlanId: params.planId,
@@ -134,17 +217,63 @@ const grantListPass = async (params: {
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true })
 
-    transaction.set(paymentRef, {
+    transaction.set(paymentRecordRef, {
       listId: params.listId,
       ownerId: params.ownerId,
       provider: params.provider,
       paymentRef: params.paymentRef,
       billingModel: 'one_time_90d',
       billingPlanId: params.planId,
-      amountCents: BILLING_PLAN_DEFINITIONS[params.planId].priceCents,
+      amountCents: params.amountCents,
+      originalAmountCents: BILLING_PLAN_DEFINITIONS[params.planId].priceCents,
+      discountType: params.discount.discountType,
+      discountPercent: params.discount.discountPercent,
+      rewardCreditsConsumed,
+      referralCodeId: params.discount.referralCodeId,
+      referralCode: params.discount.referralCode,
+      referralOwnerUserId: params.discount.referralOwnerUserId,
       paidAccessEndsAt,
       createdAt: FieldValue.serverTimestamp(),
     })
+
+    transaction.set(buyerReferralAccountRef, {
+      userId: params.ownerId,
+      pendingRewardCredits: Math.max(
+        0,
+        toCount(buyerReferralData.pendingRewardCredits) - rewardCreditsConsumed
+      ),
+      totalRewardCreditsEarned: toCount(buyerReferralData.totalRewardCreditsEarned),
+      totalRewardCreditsConsumed: toCount(buyerReferralData.totalRewardCreditsConsumed) + rewardCreditsConsumed,
+      totalSuccessfulPaidPurchases: toCount(buyerReferralData.totalSuccessfulPaidPurchases) + 1,
+      totalReferralPurchasesAsBuyer: toCount(buyerReferralData.totalReferralPurchasesAsBuyer)
+        + (params.discount.referralCodeId ? 1 : 0),
+      totalRedeemedCodesAsOwner: toCount(buyerReferralData.totalRedeemedCodesAsOwner),
+      createdAt: buyerReferralAccountSnapshot.exists
+        ? (buyerReferralData.createdAt ?? FieldValue.serverTimestamp())
+        : FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true })
+
+    if (referralOwnerAccountRef && params.discount.referralOwnerUserId) {
+      const referralOwnerSnapshot = await transaction.get(referralOwnerAccountRef)
+      const referralOwnerData = referralOwnerSnapshot.exists
+        ? referralOwnerSnapshot.data() as Record<string, unknown>
+        : {}
+
+      transaction.set(referralOwnerAccountRef, {
+        userId: params.discount.referralOwnerUserId,
+        pendingRewardCredits: toCount(referralOwnerData.pendingRewardCredits) + 1,
+        totalRewardCreditsEarned: toCount(referralOwnerData.totalRewardCreditsEarned) + 1,
+        totalRewardCreditsConsumed: toCount(referralOwnerData.totalRewardCreditsConsumed),
+        totalSuccessfulPaidPurchases: toCount(referralOwnerData.totalSuccessfulPaidPurchases),
+        totalReferralPurchasesAsBuyer: toCount(referralOwnerData.totalReferralPurchasesAsBuyer),
+        totalRedeemedCodesAsOwner: toCount(referralOwnerData.totalRedeemedCodesAsOwner) + 1,
+        createdAt: referralOwnerSnapshot.exists
+          ? (referralOwnerData.createdAt ?? FieldValue.serverTimestamp())
+          : FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true })
+    }
   })
 }
 
@@ -182,6 +311,7 @@ export const startListCheckout = async (params: {
   ownerId: string
   planId: BillingPlanId
   locale?: string
+  referralCode?: string | null
 }): Promise<BillingCheckoutResult> => {
   if (!isBillingPlanId(params.planId)) {
     throw new Error('invalid_plan')
@@ -210,6 +340,26 @@ export const startListCheckout = async (params: {
     throw new Error('plan_too_small')
   }
 
+  let preparedDiscount: PreparedCheckoutDiscount
+  try {
+    preparedDiscount = await prepareCheckoutDiscount({
+      buyerUserId: params.ownerId,
+      referralCode: params.referralCode,
+    })
+  } catch (error) {
+    if (error instanceof ReferralError) {
+      throw new Error(error.code)
+    }
+
+    throw error
+  }
+
+  const originalAmountCents = BILLING_PLAN_DEFINITIONS[params.planId].priceCents
+  const discountedAmountCents = applyPercentageDiscount(
+    originalAmountCents,
+    preparedDiscount.discountPercent
+  )
+
   if (!isStripeCheckoutConfigured(params.planId)) {
     if (!MANUAL_FALLBACK_ENABLED) {
       throw new Error('billing_unavailable')
@@ -222,6 +372,8 @@ export const startListCheckout = async (params: {
       planId: params.planId,
       provider: 'manual',
       paymentRef,
+      amountCents: discountedAmountCents,
+      discount: preparedDiscount,
     })
 
     return {
@@ -239,27 +391,66 @@ export const startListCheckout = async (params: {
     mode: 'payment',
     success_url: successUrl,
     cancel_url: cancelUrl,
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
+    line_items: preparedDiscount.discountType === 'none'
+      ? [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ]
+      : [
+          {
+            price_data: {
+              currency: 'eur',
+              unit_amount: discountedAmountCents,
+              product_data: {
+                name: `Giftlist Studio ${resolvePlanDisplayName(params.planId)} package`,
+                description: '90-day per-list package',
+              },
+            },
+            quantity: 1,
+          },
+        ],
     metadata: {
       listId: params.listId,
       ownerId: params.ownerId,
       plan: params.planId,
       requiredPlanId,
+      discountType: preparedDiscount.discountType,
+      discountPercent: String(preparedDiscount.discountPercent),
+      rewardCreditsToConsume: String(preparedDiscount.rewardCreditsToConsume),
+      referralCodeId: preparedDiscount.referralCodeId ?? '',
+      referralCode: preparedDiscount.referralCode ?? '',
+      referralOwnerUserId: preparedDiscount.referralOwnerUserId ?? '',
       currentBillingPlanId: typeof listData.billingPlanId === 'string'
         ? listData.billingPlanId
         : '',
     },
     client_reference_id: `${params.ownerId}:${params.listId}`,
-    allow_promotion_codes: true,
+    allow_promotion_codes: preparedDiscount.discountType === 'none',
   })
 
   if (!session.url) {
     throw new Error('checkout_url_missing')
+  }
+
+  if (preparedDiscount.referralCodeId) {
+    try {
+      await reserveReferralCodeForCheckout({
+        codeId: preparedDiscount.referralCodeId,
+        buyerUserId: params.ownerId,
+        listId: params.listId,
+        checkoutSessionId: session.id,
+      })
+    } catch (error) {
+      await stripeClient!.checkout.sessions.expire(session.id).catch(() => undefined)
+
+      if (error instanceof ReferralError) {
+        throw new Error(error.code)
+      }
+
+      throw error
+    }
   }
 
   await adminDb.collection('billingCheckoutSessions').doc(session.id).set({
@@ -270,7 +461,14 @@ export const startListCheckout = async (params: {
     billingPlanId: params.planId,
     status: 'created',
     amountTotal: session.amount_total ?? null,
-    amountCents: BILLING_PLAN_DEFINITIONS[params.planId].priceCents,
+    amountCents: discountedAmountCents,
+    originalAmountCents,
+    discountType: preparedDiscount.discountType,
+    discountPercent: preparedDiscount.discountPercent,
+    rewardCreditsToConsume: preparedDiscount.rewardCreditsToConsume,
+    referralCodeId: preparedDiscount.referralCodeId,
+    referralCode: preparedDiscount.referralCode,
+    referralOwnerUserId: preparedDiscount.referralOwnerUserId,
     currency: session.currency ?? null,
     createdAt: FieldValue.serverTimestamp(),
   }, { merge: true })
@@ -323,6 +521,12 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
       const listId = session.metadata?.listId
       const ownerId = session.metadata?.ownerId
       const planId = session.metadata?.plan
+      const discountType = session.metadata?.discountType
+      const discountPercent = Number.parseInt(session.metadata?.discountPercent ?? '0', 10)
+      const rewardCreditsToConsume = Number.parseInt(session.metadata?.rewardCreditsToConsume ?? '0', 10)
+      const referralCodeId = session.metadata?.referralCodeId?.trim() || null
+      const referralCode = session.metadata?.referralCode?.trim() || null
+      const referralOwnerUserId = session.metadata?.referralOwnerUserId?.trim() || null
 
       if (!listId || !ownerId || !planId || !isBillingPlanId(planId)) {
         throw new Error('missing_metadata')
@@ -334,11 +538,42 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
         planId,
         provider: 'stripe',
         paymentRef: session.id,
+        amountCents: session.amount_total ?? BILLING_PLAN_DEFINITIONS[planId].priceCents,
+        discount: {
+          discountType: discountType === 'referral' || discountType === 'reward'
+            ? discountType
+            : 'none',
+          discountPercent: Number.isFinite(discountPercent) ? Math.max(0, discountPercent) : 0,
+          rewardCreditsToConsume: Number.isFinite(rewardCreditsToConsume)
+            ? Math.max(0, rewardCreditsToConsume)
+            : 0,
+          referralCodeId,
+          referralCode,
+          referralOwnerUserId,
+        },
       })
 
       await markCheckoutSession(session.id, {
         status: 'completed',
         completedAt: FieldValue.serverTimestamp(),
+        webhookEventId: event.id,
+      })
+    }
+
+    if (event.type === 'checkout.session.expired') {
+      const session = event.data.object as Stripe.Checkout.Session
+      const referralCodeId = session.metadata?.referralCodeId?.trim() || null
+
+      if (referralCodeId) {
+        await releaseReferralCodeReservation({
+          codeId: referralCodeId,
+          checkoutSessionId: session.id,
+        })
+      }
+
+      await markCheckoutSession(session.id, {
+        status: 'expired',
+        expiredAt: FieldValue.serverTimestamp(),
         webhookEventId: event.id,
       })
     }

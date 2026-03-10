@@ -15,6 +15,7 @@ export const startBillingCheckout = async (params: {
   planId: BillingPlanId
   locale: string
   idToken: string
+  referralCode?: string | null
 }): Promise<BillingCheckoutResult> => {
   const response = await fetch('/api/billing/checkout', {
     method: 'POST',
@@ -26,6 +27,7 @@ export const startBillingCheckout = async (params: {
       listId: params.listId,
       planId: params.planId,
       locale: params.locale,
+      referralCode: params.referralCode ?? undefined,
     }),
   })
 

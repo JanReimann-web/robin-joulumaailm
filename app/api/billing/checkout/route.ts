@@ -9,6 +9,7 @@ type CheckoutBody = {
   listId?: string
   planId?: string
   locale?: string
+  referralCode?: string
 }
 
 const parseBearerToken = (request: NextRequest) => {
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       ownerId: decodedToken.uid,
       planId: planId as BillingPlanId,
       locale: body.locale,
+      referralCode: body.referralCode,
     })
 
     return NextResponse.json(result)
@@ -80,6 +82,11 @@ export async function POST(request: NextRequest) {
       || message === 'plan_too_small'
       || message === 'media_limit_exceeded'
       || message === 'video_duration_exceeded'
+      || message === 'referral_invalid'
+      || message === 'self_referral_not_allowed'
+      || message === 'referral_already_used'
+      || message === 'referral_not_allowed'
+      || message === 'referral_reservation_failed'
     ) {
       return NextResponse.json({ error: message }, { status: 400 })
     }

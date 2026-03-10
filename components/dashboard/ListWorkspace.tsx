@@ -1,7 +1,8 @@
 'use client'
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Trash2 } from 'lucide-react'
+import { onAuthStateChanged } from 'firebase/auth'
+import { ArrowDown, ArrowUp, Copy, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import {
   AccountEntitlement,
   hasActiveComplimentaryEntitlement,
@@ -17,6 +18,12 @@ import {
   startBillingCheckout,
 } from '@/lib/billing/client'
 import { auth } from '@/lib/firebase'
+import {
+  fetchReferralDashboardSummary,
+  generateReferralCode,
+  ReferralClientError,
+  validateReferralCode,
+} from '@/lib/referrals.client'
 import {
   InvalidSlugError,
   ReservedSlugError,
@@ -79,6 +86,10 @@ import {
   WheelEntry,
 } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
+import {
+  ReferralCodeStatus,
+  ReferralDashboardSummary,
+} from '@/lib/referrals'
 
 type ListWorkspaceProps = {
   locale: Locale
@@ -171,6 +182,15 @@ const withErrorCode = (fallbackMessage: string, error: unknown) => {
   }
 
   return `${fallbackMessage} (${error.code})`
+}
+
+const interpolateLabel = (
+  template: string,
+  replacements: Record<string, string | number>
+) => {
+  return Object.entries(replacements).reduce((nextTemplate, [key, value]) => {
+    return nextTemplate.replace(`{${key}}`, String(value))
+  }, template)
 }
 
 
@@ -339,6 +359,18 @@ export default function ListWorkspace({
   const [deletingWheelEntryId, setDeletingWheelEntryId] = useState<string | null>(null)
   const [statusUpdatingItemId, setStatusUpdatingItemId] = useState<string | null>(null)
   const [activatingPlanTarget, setActivatingPlanTarget] = useState<string | null>(null)
+  const [referralSummary, setReferralSummary] = useState<ReferralDashboardSummary | null>(null)
+  const [isReferralLoading, setIsReferralLoading] = useState(true)
+  const [referralError, setReferralError] = useState<string | null>(null)
+  const [referralSuccess, setReferralSuccess] = useState<string | null>(null)
+  const [referralCodeInput, setReferralCodeInput] = useState('')
+  const [appliedReferralCode, setAppliedReferralCode] = useState<{
+    code: string
+    discountPercent: number
+  } | null>(null)
+  const [isGeneratingReferralCode, setIsGeneratingReferralCode] = useState(false)
+  const [isApplyingReferralCode, setIsApplyingReferralCode] = useState(false)
+  const [copiedReferralCodeId, setCopiedReferralCodeId] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
@@ -423,6 +455,8 @@ export default function ListWorkspace({
     // Clear transient UI messages when language changes to avoid mixed-locale state.
     setListError(null)
     setListSuccess(null)
+    setReferralError(null)
+    setReferralSuccess(null)
     setItemError(null)
     setItemSuccess(null)
     setIntroError(null)
@@ -621,6 +655,118 @@ export default function ListWorkspace({
     }
   }, [])
 
+  const getCurrentUserIdToken = useCallback(async () => {
+    if (auth.currentUser) {
+      return await auth.currentUser.getIdToken()
+    }
+
+    return await new Promise<string>((resolve, reject) => {
+      const unsubscribe = onAuthStateChanged(
+        auth,
+        async (user) => {
+          unsubscribe()
+
+          if (!user) {
+            reject(new Error('missing_auth'))
+            return
+          }
+
+          try {
+            resolve(await user.getIdToken())
+          } catch {
+            reject(new Error('invalid_auth'))
+          }
+        },
+        () => {
+          unsubscribe()
+          reject(new Error('invalid_auth'))
+        }
+      )
+    })
+  }, [])
+
+  const getReferralErrorMessage = useCallback((code: string) => {
+    if (code === 'missing_auth' || code === 'invalid_auth') {
+      return labels.errorSessionExpired
+    }
+
+    if (code === 'referral_invalid') {
+      return labels.errorReferralInvalid
+    }
+
+    if (code === 'self_referral_not_allowed') {
+      return labels.errorReferralSelf
+    }
+
+    if (code === 'referral_already_used') {
+      return labels.errorReferralAlreadyUsed
+    }
+
+    if (code === 'referral_locked') {
+      return labels.errorReferralLocked
+    }
+
+    if (code === 'referral_max_active_reached') {
+      return labels.errorReferralMaxActiveReached
+    }
+
+    if (code === 'referral_not_allowed') {
+      return labels.errorReferralNotAllowed
+    }
+
+    if (code === 'referral_reservation_failed') {
+      return labels.errorReferralUnavailable
+    }
+
+    return labels.errorReferralUnavailable
+  }, [
+    labels.errorReferralAlreadyUsed,
+    labels.errorReferralInvalid,
+    labels.errorReferralLocked,
+    labels.errorReferralMaxActiveReached,
+    labels.errorReferralNotAllowed,
+    labels.errorReferralSelf,
+    labels.errorReferralUnavailable,
+    labels.errorSessionExpired,
+  ])
+
+  const loadReferralSummary = useCallback(async () => {
+    setIsReferralLoading(true)
+    setReferralError(null)
+
+    try {
+      const idToken = await getCurrentUserIdToken()
+      const summary = await fetchReferralDashboardSummary(idToken)
+      setReferralSummary(summary)
+    } catch (rawError) {
+      if (isErrorWithCode(rawError)) {
+        setReferralError(getReferralErrorMessage(rawError.code))
+      } else if (rawError instanceof Error) {
+        setReferralError(getReferralErrorMessage(rawError.message))
+      } else {
+        setReferralError(labels.referralLoadFailed)
+      }
+
+      setReferralSummary(null)
+    } finally {
+      setIsReferralLoading(false)
+    }
+  }, [
+    getCurrentUserIdToken,
+    getReferralErrorMessage,
+    labels.referralLoadFailed,
+  ])
+
+  useEffect(() => {
+    void loadReferralSummary()
+  }, [loadReferralSummary])
+
+  useEffect(() => {
+    if (billingStatus === 'success') {
+      void loadReferralSummary()
+    }
+  }, [billingStatus, loadReferralSummary])
+
   const resetDesktopPreviewFlow = useCallback(() => {
     setIsDesktopPreviewEntered(false)
     setIsDesktopPreviewPasswordPromptOpen(false)
@@ -674,6 +820,19 @@ export default function ListWorkspace({
   const eventTypeLabels = useMemo(() => eventLabelMap(eventLabels), [eventLabels])
   const visibilityLabels = useMemo(() => visibilityLabelMap(labels), [labels])
   const itemStatusLabels = useMemo(() => itemStatusLabelMap(labels), [labels])
+  const referralStatusLabels = useMemo(
+    () => ({
+      active: labels.referralStatusActive,
+      reserved: labels.referralStatusReserved,
+      redeemed: labels.referralStatusRedeemed,
+      revoked: labels.referralStatusRedeemed,
+    } satisfies Record<ReferralCodeStatus, string>),
+    [
+      labels.referralStatusActive,
+      labels.referralStatusRedeemed,
+      labels.referralStatusReserved,
+    ]
+  )
   const billingPlans = useMemo(() => ([
     {
       id: 'base' as BillingPlanId,
@@ -834,6 +993,37 @@ export default function ListWorkspace({
     () => formatMediaUsageMegabytes(selectedListMediaUsage.totalBytes),
     [selectedListMediaUsage.totalBytes]
   )
+  const referralActiveCountLabel = useMemo(() => {
+    return referralSummary
+      ? interpolateLabel(labels.referralActiveCountLabel, {
+          count: referralSummary.activeCodeCount,
+          max: referralSummary.maxActiveCodes,
+        })
+      : interpolateLabel(labels.referralActiveCountLabel, {
+          count: 0,
+          max: 3,
+        })
+  }, [labels.referralActiveCountLabel, referralSummary])
+  const referralRewardCreditsLabel = useMemo(() => {
+    return interpolateLabel(labels.referralRewardCreditsLabel, {
+      count: referralSummary?.pendingRewardCredits ?? 0,
+    })
+  }, [labels.referralRewardCreditsLabel, referralSummary?.pendingRewardCredits])
+  const referralNextRewardLabel = useMemo(() => {
+    return interpolateLabel(labels.referralNextRewardLabel, {
+      discount: referralSummary?.nextRewardDiscountPercent ?? 0,
+    })
+  }, [labels.referralNextRewardLabel, referralSummary?.nextRewardDiscountPercent])
+  const appliedReferralLabel = useMemo(() => {
+    if (!appliedReferralCode) {
+      return null
+    }
+
+    return interpolateLabel(labels.referralApplied, {
+      code: appliedReferralCode.code,
+      discount: appliedReferralCode.discountPercent,
+    })
+  }, [appliedReferralCode, labels.referralApplied])
   const mobilePreviewList = useMemo(
     () => lists.find((list) => list.id === previewListId) ?? null,
     [lists, previewListId]
@@ -1338,6 +1528,84 @@ export default function ListWorkspace({
     }
   }
 
+  const handleCopyReferralCode = async (codeId: string, code: string) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedReferralCodeId(codeId)
+      window.setTimeout(() => {
+        setCopiedReferralCodeId((current) => (current === codeId ? null : current))
+      }, 1500)
+    } catch {
+      setReferralError(labels.errorReferralUnavailable)
+    }
+  }
+
+  const handleGenerateReferralCode = async () => {
+    setReferralError(null)
+    setReferralSuccess(null)
+    setIsGeneratingReferralCode(true)
+
+    try {
+      const idToken = await getCurrentUserIdToken()
+      await generateReferralCode(idToken)
+      setReferralSuccess(labels.referralGenerateSuccess)
+      await loadReferralSummary()
+    } catch (rawError) {
+      if (rawError instanceof ReferralClientError) {
+        setReferralError(getReferralErrorMessage(rawError.code))
+      } else if (rawError instanceof Error) {
+        setReferralError(getReferralErrorMessage(rawError.message))
+      } else {
+        setReferralError(labels.referralLoadFailed)
+      }
+    } finally {
+      setIsGeneratingReferralCode(false)
+    }
+  }
+
+  const handleApplyReferralCode = async () => {
+    setReferralError(null)
+    setReferralSuccess(null)
+
+    const normalizedInput = referralCodeInput.trim()
+    if (!normalizedInput) {
+      setReferralError(labels.errorReferralInvalid)
+      return
+    }
+
+    setIsApplyingReferralCode(true)
+
+    try {
+      const idToken = await getCurrentUserIdToken()
+      const result = await validateReferralCode({
+        idToken,
+        code: normalizedInput,
+      })
+
+      setAppliedReferralCode(result)
+      setReferralCodeInput(result.code)
+    } catch (rawError) {
+      setAppliedReferralCode(null)
+
+      if (rawError instanceof ReferralClientError) {
+        setReferralError(getReferralErrorMessage(rawError.code))
+      } else if (rawError instanceof Error) {
+        setReferralError(getReferralErrorMessage(rawError.message))
+      } else {
+        setReferralError(labels.errorReferralInvalid)
+      }
+    } finally {
+      setIsApplyingReferralCode(false)
+    }
+  }
+
+  const handleClearReferralCode = () => {
+    setAppliedReferralCode(null)
+    setReferralCodeInput('')
+    setReferralError(null)
+    setReferralSuccess(null)
+  }
+
   const handleToggleQr = async (list: GiftList) => {
     if (qrTargetListId === list.id) {
       setQrTargetListId(null)
@@ -1469,6 +1737,7 @@ export default function ListWorkspace({
   const handleActivatePass = async (listId: string, planId: BillingPlanId) => {
     setListError(null)
     setListSuccess(null)
+    setReferralError(null)
     setActivatingPlanTarget(`${listId}:${planId}`)
 
     try {
@@ -1489,6 +1758,7 @@ export default function ListWorkspace({
         planId,
         locale,
         idToken,
+        referralCode: appliedReferralCode?.code ?? null,
       })
 
       if (result.mode === 'stripe') {
@@ -1498,6 +1768,9 @@ export default function ListWorkspace({
       }
 
       setListSuccess(labels.passActivated)
+      setAppliedReferralCode(null)
+      setReferralCodeInput('')
+      await loadReferralSummary()
     } catch (rawError) {
       if (rawError instanceof BillingCheckoutError) {
         if (rawError.code === 'missing_auth' || rawError.code === 'invalid_auth') {
@@ -1517,6 +1790,17 @@ export default function ListWorkspace({
 
         if (rawError.code === 'media_limit_exceeded') {
           setListError(labels.errorMediaUsageLimitExceeded)
+          return
+        }
+
+        if (
+          rawError.code === 'referral_invalid'
+          || rawError.code === 'self_referral_not_allowed'
+          || rawError.code === 'referral_already_used'
+          || rawError.code === 'referral_not_allowed'
+          || rawError.code === 'referral_reservation_failed'
+        ) {
+          setListError(getReferralErrorMessage(rawError.code))
           return
         }
       }
@@ -3075,6 +3359,184 @@ export default function ListWorkspace({
                     {labels.errorMediaVideoTooLong}
                   </p>
                 )}
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="text-base font-semibold text-white">{labels.referralTitle}</h4>
+                        {!hasComplimentaryAccess && (
+                          <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
+                            {referralActiveCountLabel}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-sm text-slate-300">{labels.referralSubtitle}</p>
+                    </div>
+
+                    {!hasComplimentaryAccess && (
+                      <DashboardActionButton
+                        onClick={handleGenerateReferralCode}
+                        disabled={
+                          isReferralLoading
+                          || isGeneratingReferralCode
+                          || !referralSummary?.canGenerate
+                        }
+                        icon={<Sparkles size={14} />}
+                      >
+                        {isGeneratingReferralCode
+                          ? labels.referralGenerating
+                          : labels.referralGenerateAction}
+                      </DashboardActionButton>
+                    )}
+                  </div>
+
+                  {!hasComplimentaryAccess && (
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
+                        {referralRewardCreditsLabel}
+                      </span>
+                      <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-emerald-100">
+                        {referralNextRewardLabel}
+                      </span>
+                    </div>
+                  )}
+
+                  {referralSuccess && (
+                    <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+                      {referralSuccess}
+                    </p>
+                  )}
+
+                  {referralError && (
+                    <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                      {referralError}
+                    </p>
+                  )}
+
+                  {hasComplimentaryAccess ? (
+                    <p className="mt-4 text-sm text-slate-300">{labels.referralComplimentaryHint}</p>
+                  ) : (
+                    <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr),minmax(0,1.15fr)]">
+                      <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
+                        <div className="flex items-center gap-2">
+                          <Sparkles size={16} className="text-emerald-200" />
+                          <h5 className="text-sm font-semibold text-white">{labels.referralCodeInputLabel}</h5>
+                        </div>
+
+                        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                          <input
+                            value={referralCodeInput}
+                            onChange={(event) => {
+                              const nextValue = event.target.value
+                              setReferralCodeInput(nextValue)
+
+                              if (
+                                appliedReferralCode
+                                && nextValue.trim().toUpperCase() !== appliedReferralCode.code
+                              ) {
+                                setAppliedReferralCode(null)
+                              }
+                            }}
+                            placeholder={labels.referralCodeInputPlaceholder}
+                            disabled={isApplyingReferralCode || isGeneratingReferralCode}
+                            className="min-w-0 flex-1 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white"
+                          />
+                          <DashboardActionButton
+                            onClick={handleApplyReferralCode}
+                            disabled={isApplyingReferralCode || referralCodeInput.trim().length === 0}
+                            icon={<Sparkles size={14} />}
+                          >
+                            {isApplyingReferralCode
+                              ? labels.referralApplying
+                              : labels.referralApplyAction}
+                          </DashboardActionButton>
+                          {appliedReferralCode && (
+                            <DashboardActionButton
+                              onClick={handleClearReferralCode}
+                              disabled={isApplyingReferralCode}
+                              icon={<RotateCcw size={14} />}
+                            >
+                              {labels.referralClearAction}
+                            </DashboardActionButton>
+                          )}
+                        </div>
+
+                        {appliedReferralLabel && (
+                          <p className="mt-3 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-3 py-2 text-sm text-emerald-200">
+                            {appliedReferralLabel}
+                          </p>
+                        )}
+
+                        {!appliedReferralCode && (referralSummary?.nextRewardDiscountPercent ?? 0) > 0 && (
+                          <p className="mt-3 text-xs text-slate-300">
+                            {referralNextRewardLabel}
+                          </p>
+                        )}
+
+                        {appliedReferralCode && (referralSummary?.pendingRewardCredits ?? 0) > 0 && (
+                          <p className="mt-3 text-xs text-slate-300">
+                            {labels.referralRewardSavedHint}
+                          </p>
+                        )}
+                      </section>
+
+                      <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
+                        <h5 className="text-sm font-semibold text-white">{labels.referralTitle}</h5>
+
+                        {isReferralLoading ? (
+                          <p className="mt-3 text-sm text-slate-300">{labels.loadingAuth}</p>
+                        ) : referralSummary ? (
+                          <>
+                            {!referralSummary.isEligible && (
+                              <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300">
+                                {labels.referralLockedHint}
+                              </p>
+                            )}
+
+                            <p className="mt-3 text-xs text-slate-400">{labels.referralRewardCreditsHint}</p>
+
+                            {referralSummary.codes.length === 0 ? (
+                              <p className="mt-4 text-sm text-slate-300">{labels.referralEmpty}</p>
+                            ) : (
+                              <div className="mt-4 grid gap-3">
+                                {referralSummary.codes.map((codeEntry) => (
+                                  <article
+                                    key={codeEntry.id}
+                                    className="rounded-xl border border-white/10 bg-white/5 p-3"
+                                  >
+                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                      <div className="min-w-0">
+                                        <p className="font-mono text-sm font-semibold tracking-[0.18em] text-white">
+                                          {codeEntry.code}
+                                        </p>
+                                        <p className="mt-2 text-xs text-slate-300">
+                                          {referralStatusLabels[codeEntry.status]}
+                                        </p>
+                                      </div>
+
+                                      <DashboardActionButton
+                                        onClick={() => handleCopyReferralCode(codeEntry.id, codeEntry.code)}
+                                        disabled={false}
+                                        icon={<Copy size={14} />}
+                                      >
+                                        {copiedReferralCodeId === codeEntry.id
+                                          ? labels.referralCopied
+                                          : labels.referralCopyAction}
+                                      </DashboardActionButton>
+                                    </div>
+                                  </article>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <p className="mt-3 text-sm text-slate-300">{labels.referralLoadFailed}</p>
+                        )}
+                      </section>
+                    </div>
+                  )}
+                </div>
 
                 {hasComplimentaryAccess ? (
                   <div className="mt-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4">
