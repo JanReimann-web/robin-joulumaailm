@@ -58,6 +58,9 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
             <Link href={`/${locale}`} className="hover:text-white">
               {dict.nav.home}
             </Link>
+            <Link href={`/${locale}/gallery`} className="hover:text-white">
+              {dict.nav.gallery}
+            </Link>
             <Link href={`/${locale}/pricing`} className="hover:text-white">
               {dict.nav.pricing}
             </Link>
@@ -89,6 +92,12 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
               className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
             >
               {dict.nav.home}
+            </Link>
+            <Link
+              href={`/${locale}/gallery`}
+              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
+            >
+              {dict.nav.gallery}
             </Link>
             <Link
               href={`/${locale}/pricing`}

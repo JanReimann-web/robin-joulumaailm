@@ -2,6 +2,7 @@ export interface Dictionary {
   brand: string
   nav: {
     home: string
+    gallery: string
     pricing: string
     login: string
     dashboard: string
@@ -111,6 +112,27 @@ export interface Dictionary {
     platinumName: string
     platinumPrice: string
     platinumFeatures: string[]
+  }
+  gallery: {
+    eyebrow: string
+    title: string
+    subtitle: string
+    themeHint: string
+    sectionSubtitle: string
+    entryBadge: string
+    placeholderBadge: string
+    themeLabel: string
+    previewPlaceholderMedia: string
+    placeholderTitle: string
+    placeholderBody: string
+    entryFallbackBody: string
+    openExampleAction: string
+    placeholderAction: string
+    cardCtaAction: string
+    ctaTitle: string
+    ctaBody: string
+    ctaAction: string
+    secondaryCtaAction: string
   }
   login: {
     title: string
@@ -235,6 +257,9 @@ export interface Dictionary {
     complimentaryAccessTitle: string
     complimentaryAccessSubtitle: string
     complimentaryAccessNotice: string
+    showcaseBadge: string
+    showcaseAddAction: string
+    showcaseRemoveAction: string
     referralTitle: string
     referralSubtitle: string
     referralLockedHint: string
@@ -399,6 +424,10 @@ export interface Dictionary {
     errorReferralMaxActiveReached: string
     errorReferralNotAllowed: string
     errorReferralUnavailable: string
+    errorShowcaseLoadFailed: string
+    errorShowcaseNotAllowed: string
+    errorShowcaseRequiresPublic: string
+    errorShowcaseUpdateFailed: string
     trialNotice: string
     errorInvalidSlug: string
     errorSlugReserved: string

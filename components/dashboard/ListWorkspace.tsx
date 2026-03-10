@@ -25,6 +25,11 @@ import {
   validateReferralCode,
 } from '@/lib/referrals.client'
 import {
+  fetchShowcaseListIds,
+  setShowcaseListState,
+  ShowcaseClientError,
+} from '@/lib/showcase.client'
+import {
   InvalidSlugError,
   ReservedSlugError,
   SlugTakenError,
@@ -371,6 +376,9 @@ export default function ListWorkspace({
   const [isGeneratingReferralCode, setIsGeneratingReferralCode] = useState(false)
   const [isApplyingReferralCode, setIsApplyingReferralCode] = useState(false)
   const [copiedReferralCodeId, setCopiedReferralCodeId] = useState<string | null>(null)
+  const [showcaseListIds, setShowcaseListIds] = useState<string[]>([])
+  const [isShowcaseLoading, setIsShowcaseLoading] = useState(false)
+  const [showcaseUpdatingListId, setShowcaseUpdatingListId] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
@@ -757,6 +765,58 @@ export default function ListWorkspace({
     labels.referralLoadFailed,
   ])
 
+  const getShowcaseErrorMessage = useCallback((code: string) => {
+    if (code === 'missing_auth' || code === 'invalid_auth') {
+      return labels.errorSessionExpired
+    }
+
+    if (code === 'showcase_not_allowed') {
+      return labels.errorShowcaseNotAllowed
+    }
+
+    if (code === 'showcase_requires_public') {
+      return labels.errorShowcaseRequiresPublic
+    }
+
+    if (code === 'list_not_found') {
+      return labels.errorSelectList
+    }
+
+    return labels.errorShowcaseUpdateFailed
+  }, [
+    labels.errorSelectList,
+    labels.errorSessionExpired,
+    labels.errorShowcaseNotAllowed,
+    labels.errorShowcaseRequiresPublic,
+    labels.errorShowcaseUpdateFailed,
+  ])
+
+  const loadShowcaseState = useCallback(async () => {
+    setIsShowcaseLoading(true)
+
+    try {
+      const idToken = await getCurrentUserIdToken()
+      const nextListIds = await fetchShowcaseListIds(idToken)
+      setShowcaseListIds(nextListIds)
+    } catch (rawError) {
+      setShowcaseListIds([])
+
+      if (rawError instanceof ShowcaseClientError) {
+        setListError(getShowcaseErrorMessage(rawError.code))
+      } else if (rawError instanceof Error) {
+        setListError(getShowcaseErrorMessage(rawError.message))
+      } else {
+        setListError(labels.errorShowcaseLoadFailed)
+      }
+    } finally {
+      setIsShowcaseLoading(false)
+    }
+  }, [
+    getCurrentUserIdToken,
+    getShowcaseErrorMessage,
+    labels.errorShowcaseLoadFailed,
+  ])
+
   useEffect(() => {
     void loadReferralSummary()
   }, [loadReferralSummary])
@@ -766,6 +826,16 @@ export default function ListWorkspace({
       void loadReferralSummary()
     }
   }, [billingStatus, loadReferralSummary])
+
+  useEffect(() => {
+    if (!hasActiveComplimentaryEntitlement(accountEntitlement)) {
+      setShowcaseListIds([])
+      setIsShowcaseLoading(false)
+      return
+    }
+
+    void loadShowcaseState()
+  }, [accountEntitlement, loadShowcaseState])
 
   const resetDesktopPreviewFlow = useCallback(() => {
     setIsDesktopPreviewEntered(false)
@@ -871,6 +941,10 @@ export default function ListWorkspace({
   const hasComplimentaryAccess = useMemo(
     () => hasActiveComplimentaryEntitlement(accountEntitlement),
     [accountEntitlement]
+  )
+  const showcasedListIdSet = useMemo(
+    () => new Set(showcaseListIds),
+    [showcaseListIds]
   )
   const editingItem = useMemo(
     () => items.find((item) => item.id === editingItemId) ?? null,
@@ -1525,6 +1599,52 @@ export default function ListWorkspace({
       }, 1500)
     } catch {
       setListError(labels.errorCreateFailed)
+    }
+  }
+
+  const handleToggleShowcase = async (list: GiftList) => {
+    setListError(null)
+
+    if (!hasComplimentaryAccess) {
+      setListError(labels.errorShowcaseNotAllowed)
+      return
+    }
+
+    const isCurrentlyShowcased = showcasedListIdSet.has(list.id)
+    if (!isCurrentlyShowcased && list.visibility !== 'public') {
+      setListError(labels.errorShowcaseRequiresPublic)
+      return
+    }
+
+    setShowcaseUpdatingListId(list.id)
+
+    try {
+      const idToken = await getCurrentUserIdToken()
+      const result = await setShowcaseListState({
+        idToken,
+        listId: list.id,
+        publish: !isCurrentlyShowcased,
+      })
+
+      setShowcaseListIds((current) => {
+        if (result.showcased) {
+          return current.includes(result.listId)
+            ? current
+            : [...current, result.listId]
+        }
+
+        return current.filter((entryId) => entryId !== result.listId)
+      })
+    } catch (rawError) {
+      if (rawError instanceof ShowcaseClientError) {
+        setListError(getShowcaseErrorMessage(rawError.code))
+      } else if (rawError instanceof Error) {
+        setListError(getShowcaseErrorMessage(rawError.message))
+      } else {
+        setListError(labels.errorShowcaseUpdateFailed)
+      }
+    } finally {
+      setShowcaseUpdatingListId(null)
     }
   }
 
@@ -3063,93 +3183,116 @@ export default function ListWorkspace({
             <p className="text-sm text-slate-300">{labels.emptyLists}</p>
           )}
 
-          {lists.map((list) => (
-            <article
-              key={list.id}
-              className={`min-w-0 rounded-xl border p-4 text-sm ${
-                selectedListId === list.id
-                  ? 'border-emerald-300/40 bg-emerald-300/10 text-slate-100'
-                  : 'border-white/10 bg-slate-950/50 text-slate-200'
-              }`}
-            >
-              <h3 className="text-base font-semibold text-white">{list.title}</h3>
-              <p className="mt-1 break-all text-xs text-slate-400">{getPublicListUrl(list.slug)} ({locale})</p>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full border border-white/20 px-2 py-1">
-                  {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]}
-                </span>
-                <span className="rounded-full border border-white/20 px-2 py-1">
-                  {labels.visibilityTag}: {visibilityLabels[list.visibility]}
-                </span>
-                {hasComplimentaryAccess && (
-                  <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-2 py-1 text-amber-100">
-                    {labels.complimentaryAccessBadge}
-                  </span>
-                )}
-                {list.billingPlanId && (
+          {lists.map((list) => {
+            const isShowcased = showcasedListIdSet.has(list.id)
+            const isShowcaseActionLoading = isShowcaseLoading || showcaseUpdatingListId === list.id
+
+            return (
+              <article
+                key={list.id}
+                className={`min-w-0 rounded-xl border p-4 text-sm ${
+                  selectedListId === list.id
+                    ? 'border-emerald-300/40 bg-emerald-300/10 text-slate-100'
+                    : 'border-white/10 bg-slate-950/50 text-slate-200'
+                }`}
+              >
+                <h3 className="text-base font-semibold text-white">{list.title}</h3>
+                <p className="mt-1 break-all text-xs text-slate-400">{getPublicListUrl(list.slug)} ({locale})</p>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   <span className="rounded-full border border-white/20 px-2 py-1">
-                    {labels.currentPlanTag}: {
-                      list.billingPlanId === 'base'
-                        ? labels.planBaseName
-                        : (
-                          list.billingPlanId === 'premium'
-                            ? labels.planPremiumName
-                            : labels.planPlatinumName
-                        )
-                    }
+                    {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]}
                   </span>
-                )}
-              </div>
-
-              <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => handleOpenPreview(list)}
-                  className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
-                >
-                  {labels.previewAction}
-                </button>
-
-                {list.visibility !== 'private' && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyPublicLink(list)}
-                      className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
-                    >
-                      {copiedListId === list.id ? labels.linkCopied : labels.copyLinkAction}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleQr(list)}
-                      className="w-full rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white sm:w-auto"
-                    >
-                      {qrTargetListId === list.id ? labels.hideQrAction : labels.showQrAction}
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {qrTargetListId === list.id && (
-                <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
-                  {isQrLoading && (
-                    <p className="text-xs text-slate-300">{labels.qrLoading}</p>
+                  <span className="rounded-full border border-white/20 px-2 py-1">
+                    {labels.visibilityTag}: {visibilityLabels[list.visibility]}
+                  </span>
+                  {hasComplimentaryAccess && (
+                    <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-2 py-1 text-amber-100">
+                      {labels.complimentaryAccessBadge}
+                    </span>
                   )}
-                  {qrError && (
-                    <p className="text-xs text-red-200">{qrError}</p>
+                  {isShowcased && (
+                    <span className="rounded-full border border-fuchsia-300/40 bg-fuchsia-300/10 px-2 py-1 text-fuchsia-100">
+                      {labels.showcaseBadge}
+                    </span>
                   )}
-                  {qrDataUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={qrDataUrl}
-                      alt={`QR ${list.slug}`}
-                      className="h-40 w-40 rounded-lg bg-white p-2"
-                    />
+                  {list.billingPlanId && (
+                    <span className="rounded-full border border-white/20 px-2 py-1">
+                      {labels.currentPlanTag}: {
+                        list.billingPlanId === 'base'
+                          ? labels.planBaseName
+                          : (
+                            list.billingPlanId === 'premium'
+                              ? labels.planPremiumName
+                              : labels.planPlatinumName
+                          )
+                      }
+                    </span>
                   )}
                 </div>
-              )}
-            </article>
-          ))}
+
+                <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
+                  <DashboardActionButton
+                    onClick={() => handleOpenPreview(list)}
+                    icon={<Eye size={14} />}
+                    className="w-full sm:w-auto"
+                  >
+                    {labels.previewAction}
+                  </DashboardActionButton>
+
+                  {list.visibility !== 'private' && (
+                    <>
+                      <DashboardActionButton
+                        onClick={() => handleCopyPublicLink(list)}
+                        icon={<Copy size={14} />}
+                        className="w-full sm:w-auto"
+                      >
+                        {copiedListId === list.id ? labels.linkCopied : labels.copyLinkAction}
+                      </DashboardActionButton>
+                      <DashboardActionButton
+                        onClick={() => handleToggleQr(list)}
+                        className="w-full sm:w-auto"
+                      >
+                        {qrTargetListId === list.id ? labels.hideQrAction : labels.showQrAction}
+                      </DashboardActionButton>
+                    </>
+                  )}
+
+                  {hasComplimentaryAccess && (
+                    <DashboardActionButton
+                      onClick={() => handleToggleShowcase(list)}
+                      icon={<Sparkles size={14} />}
+                      disabled={isShowcaseActionLoading}
+                      variant={isShowcased ? 'accent' : 'secondary'}
+                      className="w-full sm:w-auto"
+                    >
+                      {isShowcased
+                        ? labels.showcaseRemoveAction
+                        : labels.showcaseAddAction}
+                    </DashboardActionButton>
+                  )}
+                </div>
+
+                {qrTargetListId === list.id && (
+                  <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3">
+                    {isQrLoading && (
+                      <p className="text-xs text-slate-300">{labels.qrLoading}</p>
+                    )}
+                    {qrError && (
+                      <p className="text-xs text-red-200">{qrError}</p>
+                    )}
+                    {qrDataUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={qrDataUrl}
+                        alt={`QR ${list.slug}`}
+                        className="h-40 w-40 rounded-lg bg-white p-2"
+                      />
+                    )}
+                  </div>
+                )}
+              </article>
+            )
+          })}
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">
