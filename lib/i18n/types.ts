@@ -363,6 +363,7 @@ export interface Dictionary {
     errorWheelLimitReached: string
     errorMediaUnsupportedType: string
     errorMediaTooLarge: string
+    errorMediaProcessingFailed: string
     errorMediaVideoTooLong: string
     errorMediaUsageLimitExceeded: string
     errorPlanTooSmall: string

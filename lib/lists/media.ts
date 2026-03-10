@@ -179,6 +179,27 @@ export class MediaValidationError extends Error {
   }
 }
 
+export class MediaProcessingError extends Error {
+  code:
+    | 'missing_auth'
+    | 'video_processing_failed'
+    | 'video_processing_unavailable'
+    | 'invalid_source'
+    | 'invalid_section'
+
+  constructor(
+    code:
+      | 'missing_auth'
+      | 'video_processing_failed'
+      | 'video_processing_unavailable'
+      | 'invalid_source'
+      | 'invalid_section'
+  ) {
+    super(code)
+    this.code = code
+  }
+}
+
 export const validateMediaFile = async (
   file: File,
   allowedPrefixes: AllowedMediaPrefix[] = DEFAULT_ALLOWED_PREFIXES
@@ -273,10 +294,99 @@ const resolveOwnerId = (ownerId?: string) => {
   return null
 }
 
+const processUploadedVideo = async (params: UploadListMediaParams) => {
+  const prepared = await prepareUploadMedia(params.file, ['video/'])
+  const safeName = buildSafeFileName(prepared.file.name || 'video')
+  const objectId = createObjectId(safeName)
+  const ownerId = resolveOwnerId(params.ownerId)
+  if (!ownerId) {
+    throw new MediaProcessingError('missing_auth')
+  }
+
+  const incomingPath = `users/${ownerId}/lists/${params.listId}/_incoming/${params.sectionPath}/${objectId}`
+  const incomingRef = ref(storage, incomingPath)
+
+  await uploadBytes(incomingRef, prepared.file, {
+    contentType: prepared.file.type,
+    customMetadata: {
+      sizeBytes: String(prepared.file.size),
+      ...(prepared.durationSeconds
+        ? { durationSeconds: String(prepared.durationSeconds) }
+        : {}),
+      processingState: 'incoming',
+    },
+  })
+
+  try {
+    const idToken = await auth.currentUser?.getIdToken()
+    if (!idToken) {
+      throw new MediaProcessingError('missing_auth')
+    }
+
+    const response = await fetch('/api/lists/media/process-video', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({
+        listId: params.listId,
+        sectionPath: params.sectionPath,
+        incomingPath,
+      }),
+    })
+
+    const payload = await response
+      .json()
+      .catch(() => ({ error: 'video_processing_failed' })) as
+      | UploadMediaMetadata
+      | { error?: string }
+
+    if (!response.ok) {
+      if (payload && 'error' in payload) {
+        if (payload.error === 'video_too_long') {
+          throw new MediaValidationError('video_too_long')
+        }
+
+        if (payload.error === 'missing_auth') {
+          throw new MediaProcessingError('missing_auth')
+        }
+
+        if (payload.error === 'video_processing_unavailable') {
+          throw new MediaProcessingError('video_processing_unavailable')
+        }
+
+        if (payload.error === 'invalid_section') {
+          throw new MediaProcessingError('invalid_section')
+        }
+
+        if (payload.error === 'invalid_source') {
+          throw new MediaProcessingError('invalid_source')
+        }
+      }
+
+      throw new MediaProcessingError('video_processing_failed')
+    }
+
+    return payload as UploadMediaMetadata
+  } catch (error) {
+    await deleteObject(incomingRef).catch(() => undefined)
+    throw error
+  }
+}
+
 const uploadListMedia = async (
   params: UploadListMediaParams
 ): Promise<UploadMediaMetadata> => {
   const allowedPrefixes = params.allowedPrefixes ?? DEFAULT_ALLOWED_PREFIXES
+  if (!isSupportedMediaType(params.file.type, allowedPrefixes)) {
+    throw new MediaValidationError('unsupported_type')
+  }
+
+  if (params.file.type.startsWith('video/')) {
+    return processUploadedVideo(params)
+  }
+
   const prepared = await prepareUploadMedia(params.file, allowedPrefixes)
   const safeName = buildSafeFileName(prepared.file.name || 'media')
   const objectId = createObjectId(safeName)

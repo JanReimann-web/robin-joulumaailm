@@ -47,6 +47,7 @@ import {
 import {
   deleteMediaByPath,
   deleteItemMediaByPath,
+  MediaProcessingError,
   MediaValidationError,
   uploadItemMedia,
   uploadListIntroMedia,
@@ -994,6 +995,14 @@ export default function ListWorkspace({
     return labels.errorMediaTooLarge
   }, [labels.errorMediaTooLarge, labels.errorMediaUnsupportedType, labels.errorMediaVideoTooLong])
 
+  const resolveMediaProcessingMessage = useCallback((error: MediaProcessingError) => {
+    if (error.code === 'missing_auth') {
+      return labels.errorSessionExpired
+    }
+
+    return labels.errorMediaProcessingFailed
+  }, [labels.errorMediaProcessingFailed, labels.errorSessionExpired])
+
   const composedCreateSlug = useMemo(() => {
     return buildPublicSlug(publicUrlCode, slug)
   }, [publicUrlCode, slug])
@@ -1588,6 +1597,8 @@ export default function ListWorkspace({
 
       if (rawError instanceof MediaValidationError) {
         setIntroError(resolveMediaValidationMessage(rawError))
+      } else if (rawError instanceof MediaProcessingError) {
+        setIntroError(resolveMediaProcessingMessage(rawError))
       } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
         setIntroError(labels.errorMediaUsageLimitExceeded)
       } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
@@ -1984,6 +1995,8 @@ export default function ListWorkspace({
 
       if (rawError instanceof MediaValidationError) {
         setItemError(resolveMediaValidationMessage(rawError))
+      } else if (rawError instanceof MediaProcessingError) {
+        setItemError(resolveMediaProcessingMessage(rawError))
       } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
         setItemError(labels.errorMediaUsageLimitExceeded)
       } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
@@ -2141,6 +2154,8 @@ export default function ListWorkspace({
 
       if (rawError instanceof MediaValidationError) {
         setStoryError(resolveMediaValidationMessage(rawError))
+      } else if (rawError instanceof MediaProcessingError) {
+        setStoryError(resolveMediaProcessingMessage(rawError))
       } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
         setStoryError(labels.errorMediaUsageLimitExceeded)
       } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
