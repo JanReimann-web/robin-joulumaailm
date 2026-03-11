@@ -217,6 +217,12 @@ type DashboardActionButtonProps = {
   className?: string
 }
 
+type BillingFeedbackState = {
+  type: 'success' | 'error'
+  message: string
+  listId: string | null
+}
+
 const dashboardActionButtonClassName = (variant: DashboardActionButtonProps['variant'] = 'secondary') => {
   const baseClassName = 'inline-flex min-h-[2.5rem] items-center justify-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60'
 
@@ -431,6 +437,7 @@ export default function ListWorkspace({
   const [storySuccess, setStorySuccess] = useState<string | null>(null)
   const [wheelError, setWheelError] = useState<string | null>(null)
   const [wheelSuccess, setWheelSuccess] = useState<string | null>(null)
+  const [billingFeedback, setBillingFeedback] = useState<BillingFeedbackState | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
   const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
@@ -553,14 +560,25 @@ export default function ListWorkspace({
 
     if (billingStatus === 'success') {
       setListError(null)
-      setListSuccess(labels.billingSuccessReturn)
+      setListSuccess(null)
+      setBillingFeedback({
+        type: 'success',
+        message: labels.billingSuccessReturn,
+        listId: billingListId,
+      })
     } else {
       setListSuccess(null)
-      setListError(labels.billingCancelReturn)
+      setListError(null)
+      setBillingFeedback({
+        type: 'error',
+        message: labels.billingCancelReturn,
+        listId: billingListId,
+      })
     }
 
     setHasHandledBillingReturn(true)
   }, [
+    billingListId,
     billingStatus,
     hasHandledBillingReturn,
     labels.billingCancelReturn,
@@ -1067,6 +1085,17 @@ export default function ListWorkspace({
     () => formatMediaUsageMegabytes(selectedListMediaUsage.totalBytes),
     [selectedListMediaUsage.totalBytes]
   )
+  const visibleBillingFeedback = useMemo(() => {
+    if (!billingFeedback || !selectedList) {
+      return null
+    }
+
+    if (billingFeedback.listId && billingFeedback.listId !== selectedList.id) {
+      return null
+    }
+
+    return billingFeedback
+  }, [billingFeedback, selectedList])
   const referralActiveCountLabel = useMemo(() => {
     return referralSummary
       ? interpolateLabel(labels.referralActiveCountLabel, {
@@ -1857,18 +1886,27 @@ export default function ListWorkspace({
   const handleActivatePass = async (listId: string, planId: BillingPlanId) => {
     setListError(null)
     setListSuccess(null)
+    setBillingFeedback(null)
     setReferralError(null)
     setActivatingPlanTarget(`${listId}:${planId}`)
 
     try {
       if (hasComplimentaryAccess) {
-        setListSuccess(labels.complimentaryAccessNotice)
+        setBillingFeedback({
+          type: 'success',
+          message: labels.complimentaryAccessNotice,
+          listId,
+        })
         return
       }
 
       const user = auth.currentUser
       if (!user) {
-        setListError(labels.errorSessionExpired)
+        setBillingFeedback({
+          type: 'error',
+          message: labels.errorSessionExpired,
+          listId,
+        })
         return
       }
 
@@ -1882,34 +1920,58 @@ export default function ListWorkspace({
       })
 
       if (result.mode === 'stripe') {
-        setListSuccess(labels.redirectingToCheckout)
+        setBillingFeedback({
+          type: 'success',
+          message: labels.redirectingToCheckout,
+          listId,
+        })
         window.location.assign(result.checkoutUrl)
         return
       }
 
-      setListSuccess(labels.passActivated)
+      setBillingFeedback({
+        type: 'success',
+        message: labels.passActivated,
+        listId,
+      })
       setAppliedReferralCode(null)
       setReferralCodeInput('')
       await loadReferralSummary()
     } catch (rawError) {
       if (rawError instanceof BillingCheckoutError) {
         if (rawError.code === 'missing_auth' || rawError.code === 'invalid_auth') {
-          setListError(labels.errorSessionExpired)
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorSessionExpired,
+            listId,
+          })
           return
         }
 
         if (rawError.code === 'plan_too_small') {
-          setListError(labels.errorPlanTooSmall)
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorPlanTooSmall,
+            listId,
+          })
           return
         }
 
         if (rawError.code === 'video_duration_exceeded') {
-          setListError(labels.errorMediaVideoTooLong)
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorMediaVideoTooLong,
+            listId,
+          })
           return
         }
 
         if (rawError.code === 'media_limit_exceeded') {
-          setListError(labels.errorMediaUsageLimitExceeded)
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorMediaUsageLimitExceeded,
+            listId,
+          })
           return
         }
 
@@ -1920,12 +1982,20 @@ export default function ListWorkspace({
           || rawError.code === 'referral_not_allowed'
           || rawError.code === 'referral_reservation_failed'
         ) {
-          setListError(getReferralErrorMessage(rawError.code))
+          setBillingFeedback({
+            type: 'error',
+            message: getReferralErrorMessage(rawError.code),
+            listId,
+          })
           return
         }
       }
 
-      setListError(labels.errorActivatePass)
+      setBillingFeedback({
+        type: 'error',
+        message: labels.errorActivatePass,
+        listId,
+      })
     } finally {
       setActivatingPlanTarget(null)
     }
@@ -3758,6 +3828,18 @@ export default function ListWorkspace({
                       )
                     })}
                   </div>
+                )}
+
+                {visibleBillingFeedback && (
+                  <p
+                    className={`mt-4 rounded-xl px-4 py-3 text-sm ${
+                      visibleBillingFeedback.type === 'success'
+                        ? 'border border-emerald-300/40 bg-emerald-300/10 text-emerald-200'
+                        : 'border border-red-300/40 bg-red-300/10 text-red-100'
+                    }`}
+                  >
+                    {visibleBillingFeedback.message}
+                  </p>
                 )}
               </>
             )}
