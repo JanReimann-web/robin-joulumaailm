@@ -2,7 +2,7 @@
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { ArrowDown, ArrowUp, Copy, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { Copy, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import {
   AccountEntitlement,
   hasActiveComplimentaryEntitlement,
@@ -2208,54 +2208,6 @@ export default function ListWorkspace({
     }
   }
 
-  const handleMoveEntry = async (
-    section: SortableDashboardSection,
-    entryId: string,
-    direction: -1 | 1
-  ) => {
-    if (section === 'items') {
-      const fromIndex = items.findIndex((entry) => entry.id === entryId)
-      const targetIndex = fromIndex + direction
-
-      if (fromIndex === -1 || targetIndex < 0 || targetIndex >= items.length) {
-        return
-      }
-
-      await persistSectionReorder(
-        section,
-        moveArrayEntry(items, fromIndex, targetIndex).map((entry) => entry.id)
-      )
-      return
-    }
-
-    if (section === 'stories') {
-      const fromIndex = stories.findIndex((entry) => entry.id === entryId)
-      const targetIndex = fromIndex + direction
-
-      if (fromIndex === -1 || targetIndex < 0 || targetIndex >= stories.length) {
-        return
-      }
-
-      await persistSectionReorder(
-        section,
-        moveArrayEntry(stories, fromIndex, targetIndex).map((entry) => entry.id)
-      )
-      return
-    }
-
-    const fromIndex = wheelEntries.findIndex((entry) => entry.id === entryId)
-    const targetIndex = fromIndex + direction
-
-    if (fromIndex === -1 || targetIndex < 0 || targetIndex >= wheelEntries.length) {
-      return
-    }
-
-    await persistSectionReorder(
-      section,
-      moveArrayEntry(wheelEntries, fromIndex, targetIndex).map((entry) => entry.id)
-    )
-  }
-
   const handleEntryDragStart = (
     event: DragEvent<HTMLElement>,
     section: SortableDashboardSection,
@@ -3632,66 +3584,74 @@ export default function ListWorkspace({
                   ) : (
                     <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr),minmax(0,1.15fr)]">
                       <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                        <div className="flex items-center gap-2">
-                          <Sparkles size={16} className="text-emerald-200" />
-                          <h5 className="text-sm font-semibold text-white">{labels.referralCodeInputLabel}</h5>
+                        <div className="flex h-full flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr),minmax(0,20rem)] lg:gap-6">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <Sparkles size={16} className="text-emerald-200" />
+                              <h5 className="text-sm font-semibold text-white">{labels.referralCodeInputLabel}</h5>
+                            </div>
+
+                            {appliedReferralLabel && (
+                              <p className="mt-3 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-3 py-2 text-sm text-emerald-200">
+                                {appliedReferralLabel}
+                              </p>
+                            )}
+
+                            {!appliedReferralCode && (referralSummary?.nextRewardDiscountPercent ?? 0) > 0 && (
+                              <p className="mt-3 text-xs text-slate-300">
+                                {referralNextRewardLabel}
+                              </p>
+                            )}
+
+                            {appliedReferralCode && (referralSummary?.pendingRewardCredits ?? 0) > 0 && (
+                              <p className="mt-3 text-xs text-slate-300">
+                                {labels.referralRewardSavedHint}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex min-w-0 flex-col justify-end gap-2 lg:items-end">
+                            <input
+                              value={referralCodeInput}
+                              onChange={(event) => {
+                                const nextValue = event.target.value
+                                setReferralCodeInput(nextValue)
+
+                                if (
+                                  appliedReferralCode
+                                  && nextValue.trim().toUpperCase() !== appliedReferralCode.code
+                                ) {
+                                  setAppliedReferralCode(null)
+                                }
+                              }}
+                              placeholder={labels.referralCodeInputPlaceholder}
+                              disabled={isApplyingReferralCode || isGeneratingReferralCode}
+                              className="min-w-0 w-full rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white lg:max-w-[20rem]"
+                            />
+                            <div className="flex w-full flex-wrap gap-2 lg:justify-end">
+                              <DashboardActionButton
+                                onClick={handleApplyReferralCode}
+                                disabled={isApplyingReferralCode || referralCodeInput.trim().length === 0}
+                                icon={<Sparkles size={14} />}
+                                className="w-full sm:w-auto"
+                              >
+                                {isApplyingReferralCode
+                                  ? labels.referralApplying
+                                  : labels.referralApplyAction}
+                              </DashboardActionButton>
+                              {appliedReferralCode && (
+                                <DashboardActionButton
+                                  onClick={handleClearReferralCode}
+                                  disabled={isApplyingReferralCode}
+                                  icon={<RotateCcw size={14} />}
+                                  className="w-full sm:w-auto"
+                                >
+                                  {labels.referralClearAction}
+                                </DashboardActionButton>
+                              )}
+                            </div>
+                          </div>
                         </div>
-
-                        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                          <input
-                            value={referralCodeInput}
-                            onChange={(event) => {
-                              const nextValue = event.target.value
-                              setReferralCodeInput(nextValue)
-
-                              if (
-                                appliedReferralCode
-                                && nextValue.trim().toUpperCase() !== appliedReferralCode.code
-                              ) {
-                                setAppliedReferralCode(null)
-                              }
-                            }}
-                            placeholder={labels.referralCodeInputPlaceholder}
-                            disabled={isApplyingReferralCode || isGeneratingReferralCode}
-                            className="min-w-0 flex-1 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white"
-                          />
-                          <DashboardActionButton
-                            onClick={handleApplyReferralCode}
-                            disabled={isApplyingReferralCode || referralCodeInput.trim().length === 0}
-                            icon={<Sparkles size={14} />}
-                          >
-                            {isApplyingReferralCode
-                              ? labels.referralApplying
-                              : labels.referralApplyAction}
-                          </DashboardActionButton>
-                          {appliedReferralCode && (
-                            <DashboardActionButton
-                              onClick={handleClearReferralCode}
-                              disabled={isApplyingReferralCode}
-                              icon={<RotateCcw size={14} />}
-                            >
-                              {labels.referralClearAction}
-                            </DashboardActionButton>
-                          )}
-                        </div>
-
-                        {appliedReferralLabel && (
-                          <p className="mt-3 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-3 py-2 text-sm text-emerald-200">
-                            {appliedReferralLabel}
-                          </p>
-                        )}
-
-                        {!appliedReferralCode && (referralSummary?.nextRewardDiscountPercent ?? 0) > 0 && (
-                          <p className="mt-3 text-xs text-slate-300">
-                            {referralNextRewardLabel}
-                          </p>
-                        )}
-
-                        {appliedReferralCode && (referralSummary?.pendingRewardCredits ?? 0) > 0 && (
-                          <p className="mt-3 text-xs text-slate-300">
-                            {labels.referralRewardSavedHint}
-                          </p>
-                        )}
                       </section>
 
                       <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
@@ -3718,7 +3678,7 @@ export default function ListWorkspace({
                                     key={codeEntry.id}
                                     className="rounded-xl border border-white/10 bg-white/5 p-3"
                                   >
-                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1fr),auto] sm:gap-4">
                                       <div className="min-w-0">
                                         <p className="font-mono text-sm font-semibold tracking-[0.18em] text-white">
                                           {codeEntry.code}
@@ -3732,6 +3692,7 @@ export default function ListWorkspace({
                                         onClick={() => handleCopyReferralCode(codeEntry.id, codeEntry.code)}
                                         disabled={false}
                                         icon={<Copy size={14} />}
+                                        className="w-full sm:w-auto sm:self-end"
                                       >
                                         {copiedReferralCodeId === codeEntry.id
                                           ? labels.referralCopied
@@ -3763,7 +3724,7 @@ export default function ListWorkspace({
                     <p className="mt-3 text-xs text-slate-200">{labels.complimentaryAccessNotice}</p>
                   </div>
                 ) : (
-                  <div className="mt-4 grid gap-3 xl:grid-cols-3">
+                  <div className="mt-4 grid gap-3">
                     {billingPlans.map((plan) => {
                       const isCurrentPlan = selectedList.billingPlanId === plan.id && selectedList.accessStatus === 'active'
                       const isRecommendedPlan = selectedListRequiredPlanId === plan.id
@@ -3779,51 +3740,59 @@ export default function ListWorkspace({
                               : 'border-white/10 bg-white/5'
                           }`}
                         >
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="text-base font-semibold text-white">{plan.name}</h4>
-                            {isRecommendedPlan && (
-                              <span className="rounded-full border border-emerald-300/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-100">
-                                {labels.billingRecommendedBadge}
-                              </span>
-                            )}
-                            {isCurrentPlan && (
-                              <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
-                                {labels.billingCurrentPlanBadge}
-                              </span>
-                            )}
-                          </div>
+                          <div className="flex h-full flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr),minmax(11rem,auto)] lg:gap-6">
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h4 className="text-base font-semibold text-white">{plan.name}</h4>
+                                {isRecommendedPlan && (
+                                  <span className="rounded-full border border-emerald-300/40 px-2 py-0.5 text-[11px] font-semibold text-emerald-100">
+                                    {labels.billingRecommendedBadge}
+                                  </span>
+                                )}
+                                {isCurrentPlan && (
+                                  <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
+                                    {labels.billingCurrentPlanBadge}
+                                  </span>
+                                )}
+                              </div>
 
-                          <p className="mt-2 text-lg font-bold text-white">{plan.price}</p>
+                              <p className="mt-2 text-lg font-bold text-white">{plan.price}</p>
 
-                          <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                            {plan.features.map((feature) => (
-                              <li key={`${plan.id}-${feature}`}>- {feature}</li>
-                            ))}
-                          </ul>
+                              <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                                {plan.features.map((feature) => (
+                                  <li key={`${plan.id}-${feature}`}>- {feature}</li>
+                                ))}
+                              </ul>
+                            </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleActivatePass(selectedList.id, plan.id)}
-                            disabled={
-                              isSelectedListExpired
-                              || isPlanActionLoading
-                              || Boolean(selectedListMediaUsageIssue)
-                              || !isEligiblePlan
-                            }
-                            className="mt-4 w-full rounded-full border border-emerald-300/40 px-4 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isPlanActionLoading
-                              ? labels.activatingPass
-                              : (
-                                isCurrentPlan
-                                  ? labels.extendPlanAction
-                                  : labels.activatePlanAction
+                            <div className="flex min-w-0 flex-col justify-end gap-3 lg:items-end">
+                              <button
+                                type="button"
+                                onClick={() => handleActivatePass(selectedList.id, plan.id)}
+                                disabled={
+                                  isSelectedListExpired
+                                  || isPlanActionLoading
+                                  || Boolean(selectedListMediaUsageIssue)
+                                  || !isEligiblePlan
+                                }
+                                className="w-full rounded-full border border-emerald-300/40 px-4 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto lg:min-w-[11rem]"
+                              >
+                                {isPlanActionLoading
+                                  ? labels.activatingPass
+                                  : (
+                                    isCurrentPlan
+                                      ? labels.extendPlanAction
+                                      : labels.activatePlanAction
+                                  )}
+                              </button>
+
+                              {!isEligiblePlan && (
+                                <p className="text-xs text-amber-100 lg:max-w-[14rem] lg:text-right">
+                                  {labels.billingPlanTooSmallHint}
+                                </p>
                               )}
-                          </button>
-
-                          {!isEligiblePlan && (
-                            <p className="mt-3 text-xs text-amber-100">{labels.billingPlanTooSmallHint}</p>
-                          )}
+                            </div>
+                          </div>
                         </article>
                       )
                     })}
@@ -4099,7 +4068,7 @@ export default function ListWorkspace({
               <p className="text-sm text-slate-300">{labels.itemsEmpty}</p>
             )}
 
-            {items.map((item, index) => (
+            {items.map((item) => (
               <article
                 key={item.id}
                 draggable={!isItemActionsDisabled && !isItemsReordering}
@@ -4135,20 +4104,6 @@ export default function ListWorkspace({
                   </div>
 
                   <div className="flex flex-wrap gap-2 lg:max-w-[17rem] lg:justify-end">
-                    <DashboardActionButton
-                      onClick={() => handleMoveEntry('items', item.id, -1)}
-                      disabled={index === 0 || isItemActionsDisabled || isItemsReordering}
-                      icon={<ArrowUp size={14} />}
-                    >
-                      {labels.moveUpAction}
-                    </DashboardActionButton>
-                    <DashboardActionButton
-                      onClick={() => handleMoveEntry('items', item.id, 1)}
-                      disabled={index === items.length - 1 || isItemActionsDisabled || isItemsReordering}
-                      icon={<ArrowDown size={14} />}
-                    >
-                      {labels.moveDownAction}
-                    </DashboardActionButton>
                     <DashboardActionButton
                       onClick={() => handleEditItem(item)}
                       disabled={isItemActionsDisabled || isItemsReordering}
@@ -4335,7 +4290,7 @@ export default function ListWorkspace({
               <p className="text-sm text-slate-300">{labels.storiesEmpty}</p>
             )}
 
-            {stories.map((story, index) => (
+            {stories.map((story) => (
               <article
                 key={story.id}
                 draggable={!isItemActionsDisabled && !isStoriesReordering}
@@ -4357,20 +4312,6 @@ export default function ListWorkspace({
                   </div>
 
                   <div className="flex flex-wrap gap-2 lg:max-w-[17rem] lg:justify-end">
-                    <DashboardActionButton
-                      onClick={() => handleMoveEntry('stories', story.id, -1)}
-                      disabled={index === 0 || isItemActionsDisabled || isStoriesReordering}
-                      icon={<ArrowUp size={14} />}
-                    >
-                      {labels.moveUpAction}
-                    </DashboardActionButton>
-                    <DashboardActionButton
-                      onClick={() => handleMoveEntry('stories', story.id, 1)}
-                      disabled={index === stories.length - 1 || isItemActionsDisabled || isStoriesReordering}
-                      icon={<ArrowDown size={14} />}
-                    >
-                      {labels.moveDownAction}
-                    </DashboardActionButton>
                     <DashboardActionButton
                       onClick={() => handleEditStory(story)}
                       disabled={isItemActionsDisabled || isStoriesReordering}
