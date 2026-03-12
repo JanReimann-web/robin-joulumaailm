@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import LanguageSwitcher from '@/components/site/LanguageSwitcher'
+import SiteNavigation from '@/components/site/SiteNavigation'
 import { defaultLocale, isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 
@@ -54,26 +55,7 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
             {dict.brand}
           </Link>
 
-          <nav className="hidden items-center gap-5 text-sm text-white/80 md:flex">
-            <Link href={`/${locale}`} className="hover:text-white">
-              {dict.nav.home}
-            </Link>
-            <Link href={`/${locale}/gallery`} className="hover:text-white">
-              {dict.nav.gallery}
-            </Link>
-            <Link href={`/${locale}/pricing`} className="hover:text-white">
-              {dict.nav.pricing}
-            </Link>
-            <Link href={`/${locale}/dashboard`} className="hover:text-white">
-              {dict.nav.dashboard}
-            </Link>
-            <Link
-              href={`/${locale}/login`}
-              className="rounded-full bg-emerald-400 px-4 py-2 font-medium text-black hover:bg-emerald-300"
-            >
-              {dict.nav.login}
-            </Link>
-          </nav>
+          <SiteNavigation locale={locale} labels={dict.nav} mode="desktop" />
 
           <LanguageSwitcher
             currentLocale={locale}
@@ -85,40 +67,7 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
           />
         </div>
 
-        <nav className="border-t border-white/10 px-4 py-2 md:hidden">
-          <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto pb-1">
-            <Link
-              href={`/${locale}`}
-              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
-            >
-              {dict.nav.home}
-            </Link>
-            <Link
-              href={`/${locale}/gallery`}
-              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
-            >
-              {dict.nav.gallery}
-            </Link>
-            <Link
-              href={`/${locale}/pricing`}
-              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
-            >
-              {dict.nav.pricing}
-            </Link>
-            <Link
-              href={`/${locale}/dashboard`}
-              className="whitespace-nowrap rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/90"
-            >
-              {dict.nav.dashboard}
-            </Link>
-            <Link
-              href={`/${locale}/login`}
-              className="whitespace-nowrap rounded-full bg-emerald-400 px-3 py-1.5 text-xs font-semibold text-black"
-            >
-              {dict.nav.login}
-            </Link>
-          </div>
-        </nav>
+        <SiteNavigation locale={locale} labels={dict.nav} mode="mobile" />
       </header>
 
       <main>{children}</main>

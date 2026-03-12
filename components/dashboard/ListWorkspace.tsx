@@ -3,6 +3,7 @@
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { Copy, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import {
   AccountEntitlement,
   hasActiveComplimentaryEntitlement,
@@ -13,8 +14,6 @@ import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
 import {
   BillingCheckoutError,
-  BillingRuntimeMode,
-  fetchBillingRuntimeConfig,
   startBillingCheckout,
 } from '@/lib/billing/client'
 import { auth } from '@/lib/firebase'
@@ -439,7 +438,6 @@ export default function ListWorkspace({
   const [wheelSuccess, setWheelSuccess] = useState<string | null>(null)
   const [billingFeedback, setBillingFeedback] = useState<BillingFeedbackState | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
-  const [billingRuntimeMode, setBillingRuntimeMode] = useState<BillingRuntimeMode>('manual')
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
   const [isUploadingStoryMedia, setIsUploadingStoryMedia] = useState(false)
   const [dragOverEntryId, setDragOverEntryId] = useState<string | null>(null)
@@ -656,30 +654,6 @@ export default function ListWorkspace({
 
     return () => unsubscribe()
   }, [labels.errorAddWheelEntry, selectedListId])
-
-  useEffect(() => {
-    let cancelled = false
-
-    fetchBillingRuntimeConfig()
-      .then((config) => {
-        if (cancelled) {
-          return
-        }
-
-        setBillingRuntimeMode(config.mode)
-      })
-      .catch(() => {
-        if (cancelled) {
-          return
-        }
-
-        setBillingRuntimeMode('manual')
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const getCurrentUserIdToken = useCallback(async () => {
     if (auth.currentUser) {
@@ -2735,6 +2709,7 @@ export default function ListWorkspace({
     contentClassName: string
     onContinue: () => void
     onUnlock: () => void
+    onClosePasswordPrompt: () => void
     onPasswordChange: (value: string) => void
     onTogglePasswordVisibility: () => void
   }) => {
@@ -2752,6 +2727,7 @@ export default function ListWorkspace({
       contentClassName,
       onContinue,
       onUnlock,
+      onClosePasswordPrompt,
       onPasswordChange,
       onTogglePasswordVisibility,
     } = params
@@ -2842,7 +2818,7 @@ export default function ListWorkspace({
             </p>
 
             <section
-              className="event-surface-panel mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+              className="event-surface-panel relative mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white/5"
             >
               {renderPreviewHeroMedia(previewHeroMedia, list.title)}
 
@@ -2870,39 +2846,29 @@ export default function ListWorkspace({
                 </div>
 
                 {list.visibility === 'public_password' && isPasswordPromptOpen && (
-                  <div className="mt-5 rounded-xl border border-white/20 bg-slate-950/70 p-4">
-                    <p className="text-sm text-slate-200">{labels.previewPasswordPrompt}</p>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
-                      <label className="grid gap-1 text-sm text-slate-200">
-                        <span>{labels.visibilityPasswordLabel}</span>
-                        <div className="relative">
-                          <input
-                            type={isPasswordVisible ? 'text' : 'password'}
-                            value={password}
-                            onChange={(event) => onPasswordChange(event.target.value)}
-                            className="w-full rounded-lg border border-white/20 bg-slate-900 px-3 py-2 pr-11 text-white"
-                            minLength={6}
-                          />
-                          <button
-                            type="button"
-                            onClick={onTogglePasswordVisibility}
-                            aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
-                            className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
-                          >
-                            {isPasswordVisible
-                              ? <EyeOff size={16} />
-                              : <Eye size={16} />}
-                          </button>
-                        </div>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={onUnlock}
-                        disabled={password.trim().length < 6}
-                        className="rounded-full border border-emerald-300/50 px-5 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {labels.previewUnlockAction}
-                      </button>
+                  <div className="absolute inset-0 z-10 flex items-end justify-center p-4 sm:items-center sm:p-6">
+                    <button
+                      type="button"
+                      aria-label={labels.closePreviewAction}
+                      onClick={onClosePasswordPrompt}
+                      className="absolute inset-0 bg-black/28 backdrop-blur-sm"
+                    />
+                    <div className="relative z-10 w-full">
+                      <EventPasswordPrompt
+                        title={labels.visibilityPasswordLabel}
+                        description={labels.previewPasswordPrompt}
+                        label={labels.visibilityPasswordLabel}
+                        value={password}
+                        isPasswordVisible={isPasswordVisible}
+                        onPasswordChange={onPasswordChange}
+                        onTogglePasswordVisibility={onTogglePasswordVisibility}
+                        onSubmit={onUnlock}
+                        submitLabel={labels.previewUnlockAction}
+                        isSubmitDisabled={password.trim().length < 6}
+                        onClose={onClosePasswordPrompt}
+                        closeAriaLabel={labels.closePreviewAction}
+                        autoFocus
+                      />
                     </div>
                   </div>
                 )}
@@ -3073,7 +3039,6 @@ export default function ListWorkspace({
     <div className="mt-6 grid min-w-0 gap-4 overflow-x-hidden lg:grid-cols-[1.2fr,1fr] lg:gap-6">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
-        <p className="mt-2 text-sm text-slate-300">{labels.builderSubtitle}</p>
         <p className="mt-2 text-xs text-emerald-200">{labels.trialNotice}</p>
 
         <form onSubmit={handleCreateList} className="mt-6 grid gap-4">
@@ -3130,12 +3095,7 @@ export default function ListWorkspace({
           className="mt-8 hidden border-t border-white/10 pt-6 lg:block"
         >
           <header className="flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
-              {desktopPreviewList && (
-                <p className="mt-1 text-xs text-slate-300">/{desktopPreviewList.slug}</p>
-              )}
-            </div>
+            <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
             <button
               type="button"
               onClick={handleScrollDesktopPreviewToHero}
@@ -3167,6 +3127,10 @@ export default function ListWorkspace({
                 contentClassName: 'px-4 py-4 sm:px-6 sm:py-5',
                 onContinue: handleContinueDesktopPreview,
                 onUnlock: handleUnlockDesktopPreview,
+                onClosePasswordPrompt: () => {
+                  setIsDesktopPreviewPasswordPromptOpen(false)
+                  setIsDesktopPreviewPasswordVisible(false)
+                },
                 onPasswordChange: setDesktopPreviewPassword,
                 onTogglePasswordVisibility: () => {
                   setIsDesktopPreviewPasswordVisible((current) => !current)
@@ -3179,23 +3143,6 @@ export default function ListWorkspace({
 
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.myListsTitle}</h2>
-        <p
-          className={`mt-3 rounded-xl border px-3 py-2 text-xs ${
-            billingRuntimeMode === 'stripe'
-              ? 'border-emerald-300/40 bg-emerald-300/10 text-emerald-100'
-              : 'border-amber-300/40 bg-amber-300/10 text-amber-100'
-          }`}
-        >
-          <strong>
-            {billingRuntimeMode === 'stripe'
-              ? labels.billingModeStripeTitle
-              : labels.billingModeManualTitle}
-          </strong>{' '}
-          {billingRuntimeMode === 'stripe'
-            ? labels.billingModeStripeBody
-            : labels.billingModeManualBody}
-        </p>
-
         <div className="mt-4 grid gap-3">
           {isListsLoading && (
             <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -3219,7 +3166,6 @@ export default function ListWorkspace({
                 }`}
               >
                 <h3 className="text-base font-semibold text-white">{list.title}</h3>
-                <p className="mt-1 break-all text-xs text-slate-400">{getPublicListUrl(list.slug)} ({locale})</p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   <span className="rounded-full border border-white/20 px-2 py-1">
                     {labels.eventTag}: {eventTypeLabels[getDisplayEventType(list.eventType, list.templateId)]}
@@ -3303,12 +3249,18 @@ export default function ListWorkspace({
                       <p className="text-xs text-red-200">{qrError}</p>
                     )}
                     {qrDataUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={qrDataUrl}
-                        alt={`QR ${list.slug}`}
-                        className="h-40 w-40 rounded-lg bg-white p-2"
-                      />
+                      <div className="grid gap-4 md:grid-cols-[auto,minmax(0,1fr)] md:items-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={qrDataUrl}
+                          alt={`QR ${list.slug}`}
+                          className="h-40 w-40 rounded-lg bg-white p-2"
+                        />
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-semibold text-white">{labels.qrHelpTitle}</h4>
+                          <p className="mt-2 text-sm leading-6 text-slate-300">{labels.qrHelpBody}</p>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
@@ -3582,9 +3534,9 @@ export default function ListWorkspace({
                   {hasComplimentaryAccess ? (
                     <p className="mt-4 text-sm text-slate-300">{labels.referralComplimentaryHint}</p>
                   ) : (
-                    <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr),minmax(0,1.15fr)]">
+                    <div className="mt-4 grid gap-3">
                       <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                        <div className="flex h-full flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr),minmax(0,20rem)] lg:gap-6">
+                        <div className="flex h-full flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr),minmax(0,20rem)] md:items-center md:gap-6">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <Sparkles size={16} className="text-emerald-200" />
@@ -3610,7 +3562,7 @@ export default function ListWorkspace({
                             )}
                           </div>
 
-                          <div className="flex min-w-0 flex-col justify-end gap-2 lg:items-end">
+                          <div className="flex min-w-0 flex-col justify-end gap-2 md:items-end">
                             <input
                               value={referralCodeInput}
                               onChange={(event) => {
@@ -3626,9 +3578,9 @@ export default function ListWorkspace({
                               }}
                               placeholder={labels.referralCodeInputPlaceholder}
                               disabled={isApplyingReferralCode || isGeneratingReferralCode}
-                              className="min-w-0 w-full rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white lg:max-w-[20rem]"
+                              className="min-w-0 w-full rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white md:max-w-[20rem]"
                             />
-                            <div className="flex w-full flex-wrap gap-2 lg:justify-end">
+                            <div className="flex w-full flex-wrap gap-2 md:justify-end">
                               <DashboardActionButton
                                 onClick={handleApplyReferralCode}
                                 disabled={isApplyingReferralCode || referralCodeInput.trim().length === 0}
@@ -3655,58 +3607,64 @@ export default function ListWorkspace({
                       </section>
 
                       <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                        <h5 className="text-sm font-semibold text-white">{labels.referralTitle}</h5>
+                        <div className="flex h-full flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr),minmax(0,22rem)] md:items-start md:gap-6">
+                          <div className="min-w-0">
+                            <h5 className="text-sm font-semibold text-white">{labels.referralTitle}</h5>
 
-                        {isReferralLoading ? (
-                          <p className="mt-3 text-sm text-slate-300">{labels.loadingAuth}</p>
-                        ) : referralSummary ? (
-                          <>
-                            {!referralSummary.isEligible && (
+                            {!isReferralLoading && referralSummary && !referralSummary.isEligible && (
                               <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300">
                                 {labels.referralLockedHint}
                               </p>
                             )}
 
-                            <p className="mt-3 text-xs text-slate-400">{labels.referralRewardCreditsHint}</p>
-
-                            {referralSummary.codes.length === 0 ? (
-                              <p className="mt-4 text-sm text-slate-300">{labels.referralEmpty}</p>
-                            ) : (
-                              <div className="mt-4 grid gap-3">
-                                {referralSummary.codes.map((codeEntry) => (
-                                  <article
-                                    key={codeEntry.id}
-                                    className="rounded-xl border border-white/10 bg-white/5 p-3"
-                                  >
-                                    <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1fr),auto] sm:gap-4">
-                                      <div className="min-w-0">
-                                        <p className="font-mono text-sm font-semibold tracking-[0.18em] text-white">
-                                          {codeEntry.code}
-                                        </p>
-                                        <p className="mt-2 text-xs text-slate-300">
-                                          {referralStatusLabels[codeEntry.status]}
-                                        </p>
-                                      </div>
-
-                                      <DashboardActionButton
-                                        onClick={() => handleCopyReferralCode(codeEntry.id, codeEntry.code)}
-                                        disabled={false}
-                                        icon={<Copy size={14} />}
-                                        className="w-full sm:w-auto sm:self-end"
-                                      >
-                                        {copiedReferralCodeId === codeEntry.id
-                                          ? labels.referralCopied
-                                          : labels.referralCopyAction}
-                                      </DashboardActionButton>
-                                    </div>
-                                  </article>
-                                ))}
-                              </div>
+                            {!isReferralLoading && referralSummary && (
+                              <p className="mt-3 text-xs text-slate-400">{labels.referralRewardCreditsHint}</p>
                             )}
-                          </>
-                        ) : (
-                          <p className="mt-3 text-sm text-slate-300">{labels.referralLoadFailed}</p>
-                        )}
+                          </div>
+
+                          <div className="min-w-0">
+                            {isReferralLoading ? (
+                              <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
+                            ) : referralSummary ? (
+                              referralSummary.codes.length === 0 ? (
+                                <p className="text-sm text-slate-300">{labels.referralEmpty}</p>
+                              ) : (
+                                <div className="grid gap-3">
+                                  {referralSummary.codes.map((codeEntry) => (
+                                    <article
+                                      key={codeEntry.id}
+                                      className="rounded-xl border border-white/10 bg-white/5 p-3"
+                                    >
+                                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                                        <div className="min-w-0">
+                                          <p className="font-mono text-sm font-semibold tracking-[0.18em] text-white">
+                                            {codeEntry.code}
+                                          </p>
+                                          <p className="mt-2 text-xs text-slate-300">
+                                            {referralStatusLabels[codeEntry.status]}
+                                          </p>
+                                        </div>
+
+                                        <DashboardActionButton
+                                          onClick={() => handleCopyReferralCode(codeEntry.id, codeEntry.code)}
+                                          disabled={false}
+                                          icon={<Copy size={14} />}
+                                          className="w-full shrink-0 sm:w-auto"
+                                        >
+                                          {copiedReferralCodeId === codeEntry.id
+                                            ? labels.referralCopied
+                                            : labels.referralCopyAction}
+                                        </DashboardActionButton>
+                                      </div>
+                                    </article>
+                                  ))}
+                                </div>
+                              )
+                            ) : (
+                              <p className="text-sm text-slate-300">{labels.referralLoadFailed}</p>
+                            )}
+                          </div>
+                        </div>
                       </section>
                     </div>
                   )}
@@ -3775,7 +3733,11 @@ export default function ListWorkspace({
                                   || Boolean(selectedListMediaUsageIssue)
                                   || !isEligiblePlan
                                 }
-                                className="w-full rounded-full border border-emerald-300/40 px-4 py-2 text-sm font-semibold text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto lg:min-w-[11rem]"
+                                className={`w-full rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto lg:min-w-[11rem] ${
+                                  isCurrentPlan
+                                    ? 'border border-white/20 bg-white text-black'
+                                    : 'border border-emerald-300/40 text-emerald-100'
+                                }`}
                               >
                                 {isPlanActionLoading
                                   ? labels.activatingPass
@@ -4508,10 +4470,7 @@ export default function ListWorkspace({
             data-event-theme={mobilePreviewThemeId}
           >
             <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6">
-              <div>
-                <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
-                <p className="mt-1 text-xs text-slate-300">/{mobilePreviewList.slug}</p>
-              </div>
+              <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -4544,6 +4503,10 @@ export default function ListWorkspace({
               contentClassName: 'flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5',
               onContinue: handleContinueMobilePreview,
               onUnlock: handleUnlockMobilePreview,
+              onClosePasswordPrompt: () => {
+                setIsMobilePreviewPasswordPromptOpen(false)
+                setIsMobilePreviewPasswordVisible(false)
+              },
               onPasswordChange: setMobilePreviewPassword,
               onTogglePasswordVisibility: () => {
                 setIsMobilePreviewPasswordVisible((current) => !current)

@@ -217,6 +217,8 @@ export interface Dictionary {
     hideQrAction: string
     qrLoading: string
     qrError: string
+    qrHelpTitle: string
+    qrHelpBody: string
     previewPanelTitle: string
     previewPublicHint: string
     previewPrivateHint: string

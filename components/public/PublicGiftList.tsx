@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CheckCircle2, Eye, EyeOff, X } from 'lucide-react'
+import { CheckCircle2, X } from 'lucide-react'
+import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
@@ -371,7 +372,9 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
       return
     }
 
-    if (!lightboxMedia && !isDetailsModalOpen && !isThankYouVisible && !isPasswordPromptOpen) {
+    const isPasswordPromptModalOpen = isPasswordPromptOpen && hasEntered
+
+    if (!lightboxMedia && !isDetailsModalOpen && !isThankYouVisible && !isPasswordPromptModalOpen) {
       return
     }
 
@@ -381,7 +384,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     return () => {
       document.body.style.overflow = previousOverflow
     }
-  }, [hasMounted, isDetailsModalOpen, isPasswordPromptOpen, isThankYouVisible, lightboxMedia])
+  }, [hasEntered, hasMounted, isDetailsModalOpen, isPasswordPromptOpen, isThankYouVisible, lightboxMedia])
 
   useEffect(() => {
     let cancelled = false
@@ -551,6 +554,11 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   const activeEventType = list?.eventType ?? meta?.list.eventType
   const activeTemplateId = list?.templateId ?? meta?.list.templateId
   const eventThemeId = resolveEventThemeId(activeEventType, activeTemplateId)
+  const closePasswordPrompt = useCallback(() => {
+    setIsPasswordPromptOpen(false)
+    setIsPasswordVisible(false)
+    setError(null)
+  }, [])
   const eventSectionCopy = activeEventType && activeTemplateId
     ? getEventSectionCopy(activeEventType, activeTemplateId, locale)
     : null
@@ -942,8 +950,11 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
     </div>
   )
 
+  const shouldShowInlinePasswordPrompt = !hasEntered && isPasswordPromptOpen && isPasswordProtected
+
   const passwordPromptModal = (
-    isPasswordPromptOpen
+    !shouldShowInlinePasswordPrompt
+    && isPasswordPromptOpen
     && modalRoot
     && isPasswordProtected
     && createPortal(
@@ -955,78 +966,31 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         <button
           type="button"
           aria-label={copy.closeImageAction}
-          onClick={() => {
-            setIsPasswordPromptOpen(false)
-            setIsPasswordVisible(false)
-            setError(null)
-          }}
+          onClick={closePasswordPrompt}
           className="absolute inset-0 bg-black/28 backdrop-blur-sm"
         />
 
         <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6" style={{ zIndex: 2 }}>
-          <section className="event-surface-panel w-full max-w-lg rounded-2xl border border-white/15 p-5 shadow-2xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-white">{copy.passwordLabel}</h2>
-                <p className="mt-2 text-sm text-slate-200">
-                  {copy.passwordProtectedPrompt}
-                </p>
-              </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsPasswordPromptOpen(false)
-                    setIsPasswordVisible(false)
-                    setError(null)
-                  }}
-                  aria-label={copy.closeImageAction}
-                  className="event-surface-card rounded-full border border-white/20 p-2 text-white"
-                >
-                  <X size={14} />
-                </button>
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
-              <label className="grid gap-1 text-sm text-slate-200">
-                <span>{copy.passwordLabel}</span>
-                <div className="relative">
-                  <input
-                    type={isPasswordVisible ? 'text' : 'password'}
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    className="w-full rounded-lg border border-white/20 bg-slate-900 px-3 py-2 pr-11 text-white"
-                    minLength={6}
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsPasswordVisible((current) => !current)}
-                    aria-label={isPasswordVisible ? copy.hidePasswordAria : copy.showPasswordAria}
-                    className="absolute inset-y-0 right-0 inline-flex w-10 items-center justify-center text-slate-300 transition hover:text-white"
-                  >
-                    {isPasswordVisible
-                      ? <EyeOff size={16} />
-                      : <Eye size={16} />}
-                  </button>
-                </div>
-              </label>
-
-              <button
-                type="button"
-                onClick={handleUnlock}
-                disabled={isUnlocking || password.trim().length < 6}
-                className="event-accent-button rounded-full px-5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isUnlocking ? copy.checkingPassword : copy.unlockAction}
-              </button>
-            </div>
-
-            {error && (
-              <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
-                {error}
-              </p>
-            )}
-          </section>
+          <EventPasswordPrompt
+            title={copy.passwordLabel}
+            description={copy.passwordProtectedPrompt}
+            label={copy.passwordLabel}
+            value={password}
+            showPasswordAria={copy.showPasswordAria}
+            hidePasswordAria={copy.hidePasswordAria}
+            isPasswordVisible={isPasswordVisible}
+            onPasswordChange={setPassword}
+            onTogglePasswordVisibility={() => setIsPasswordVisible((current) => !current)}
+            onSubmit={handleUnlock}
+            submitLabel={copy.unlockAction}
+            isSubmitDisabled={password.trim().length < 6}
+            isBusy={isUnlocking}
+            busyLabel={copy.checkingPassword}
+            error={error}
+            onClose={closePasswordPrompt}
+            closeAriaLabel={copy.closeImageAction}
+            autoFocus
+          />
         </div>
       </div>,
       modalRoot
@@ -1073,7 +1037,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
         <main className="mx-auto w-full max-w-4xl py-4 sm:py-8">
           <div className="mb-4 flex justify-end">{languageSwitcher}</div>
           <section
-            className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+            className="event-surface-panel relative overflow-hidden rounded-2xl border border-white/10 bg-white/5"
           >
           {renderHeroMedia(previewMedia, meta.list.title)}
 
@@ -1111,6 +1075,39 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               </p>
             )}
           </div>
+
+          {shouldShowInlinePasswordPrompt && (
+            <div className="absolute inset-0 z-10 flex items-end justify-center p-4 sm:items-center sm:p-6">
+              <button
+                type="button"
+                aria-label={copy.closeImageAction}
+                onClick={closePasswordPrompt}
+                className="absolute inset-0 bg-black/28 backdrop-blur-sm"
+              />
+              <div className="relative z-10 w-full">
+                <EventPasswordPrompt
+                  title={copy.passwordLabel}
+                  description={copy.passwordProtectedPrompt}
+                  label={copy.passwordLabel}
+                  value={password}
+                  showPasswordAria={copy.showPasswordAria}
+                  hidePasswordAria={copy.hidePasswordAria}
+                  isPasswordVisible={isPasswordVisible}
+                  onPasswordChange={setPassword}
+                  onTogglePasswordVisibility={() => setIsPasswordVisible((current) => !current)}
+                  onSubmit={handleUnlock}
+                  submitLabel={copy.unlockAction}
+                  isSubmitDisabled={password.trim().length < 6}
+                  isBusy={isUnlocking}
+                  busyLabel={copy.checkingPassword}
+                  error={error}
+                  onClose={closePasswordPrompt}
+                  closeAriaLabel={copy.closeImageAction}
+                  autoFocus
+                />
+              </div>
+            </div>
+          )}
           </section>
         </main>
         {passwordPromptModal}
