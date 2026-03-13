@@ -1035,6 +1035,8 @@ export default function ListWorkspace({
     && !hasComplimentaryAccess
   )
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
+  const isIntroEditorDisabled = !selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia
+  const formattedIntroEventDate = formatHeroEventDate(introEventDate || null, locale)
   const isSwitchingToPasswordProtected = Boolean(
     selectedList
     && selectedList.visibility !== 'public_password'
@@ -3850,24 +3852,59 @@ export default function ListWorkspace({
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-1 text-sm text-slate-200">
                   <span>{labels.heroDateLabel}</span>
-                  <input
-                    type="date"
-                    value={introEventDate}
-                    disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
-                    onChange={(entry) => setIntroEventDate(entry.target.value)}
-                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-                  />
+                  <div className="grid gap-2">
+                    <div className="relative focus-within:outline-none">
+                      <div className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white transition focus-within:border-emerald-300/40 focus-within:ring-1 focus-within:ring-emerald-300/30">
+                        <span className={formattedIntroEventDate ? 'text-white' : 'text-slate-400'}>
+                          {formattedIntroEventDate ?? labels.heroDatePlaceholder}
+                        </span>
+                        <CalendarDays size={18} className="shrink-0 text-slate-300" />
+                      </div>
+                      <input
+                        type="date"
+                        value={introEventDate}
+                        disabled={isIntroEditorDisabled}
+                        onChange={(entry) => setIntroEventDate(entry.target.value)}
+                        onKeyDown={(event) => {
+                          if (
+                            event.key.length === 1
+                            || event.key === 'Backspace'
+                            || event.key === 'Delete'
+                          ) {
+                            event.preventDefault()
+                          }
+                        }}
+                        onPaste={(event) => event.preventDefault()}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-xs text-slate-400">{labels.heroDateHint}</span>
+                      {introEventDate && (
+                        <button
+                          type="button"
+                          onClick={() => setIntroEventDate('')}
+                          disabled={isIntroEditorDisabled}
+                          className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {labels.heroDateClearAction}
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </label>
 
                 <label className="grid gap-1 text-sm text-slate-200">
                   <span>{labels.heroLocationLabel}</span>
                   <input
                     value={introEventLocation}
-                    disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                    disabled={isIntroEditorDisabled}
                     onChange={(entry) => setIntroEventLocation(entry.target.value)}
                     placeholder={labels.heroLocationPlaceholder}
+                    autoComplete="street-address"
                     className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
                   />
+                  <span className="text-xs text-slate-400">{labels.heroLocationHint}</span>
                 </label>
               </div>
 

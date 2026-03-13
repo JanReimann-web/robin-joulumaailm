@@ -321,8 +321,12 @@ export interface Dictionary {
     heroTitleLabel: string
     heroBodyLabel: string
     heroDateLabel: string
+    heroDatePlaceholder: string
+    heroDateHint: string
+    heroDateClearAction: string
     heroLocationLabel: string
     heroLocationPlaceholder: string
+    heroLocationHint: string
     heroBodyPlaceholder: string
     heroMediaLabel: string
     heroMediaHint: string
