@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarDays, CheckCircle2, MapPin, X } from 'lucide-react'
+import { CalendarDays, CheckCircle2, Clock3, MapPin, X } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
-import { formatHeroEventDate } from '@/lib/lists/hero'
+import { formatHeroEventDate, formatHeroEventTime } from '@/lib/lists/hero'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
@@ -24,6 +24,7 @@ type PublicListView = Pick<
   | 'introTitle'
   | 'introBody'
   | 'introEventDate'
+  | 'introEventTime'
   | 'introEventLocation'
   | 'introMediaUrl'
   | 'introMediaType'
@@ -289,13 +290,15 @@ const getEventSectionCopy = (
 
 const renderHeroEventMeta = (params: {
   eventDate: string | null
+  eventTime: string | null
   eventLocation: string | null
   locale: PublicLocale
 }) => {
   const formattedDate = formatHeroEventDate(params.eventDate, params.locale)
+  const formattedTime = formatHeroEventTime(params.eventTime)
   const normalizedLocation = params.eventLocation?.trim() ?? ''
 
-  if (!formattedDate && normalizedLocation.length === 0) {
+  if (!formattedDate && !formattedTime && normalizedLocation.length === 0) {
     return null
   }
 
@@ -305,6 +308,12 @@ const renderHeroEventMeta = (params: {
         <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
           <CalendarDays size={14} />
           <span>{formattedDate}</span>
+        </span>
+      )}
+      {formattedTime && (
+        <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
+          <Clock3 size={14} />
+          <span>{formattedTime}</span>
         </span>
       )}
       {normalizedLocation.length > 0 && (
@@ -1079,12 +1088,6 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               {meta.list.introTitle || meta.list.title}
             </h1>
 
-            {renderHeroEventMeta({
-              eventDate: meta.list.introEventDate,
-              eventLocation: meta.list.introEventLocation,
-              locale,
-            })}
-
             {(meta.list.introBody || '').trim() && (
               <p className="mt-5 text-sm text-slate-200">
                 {meta.list.introBody}
@@ -1188,6 +1191,7 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
 
             {renderHeroEventMeta({
               eventDate: list.introEventDate,
+              eventTime: list.introEventTime,
               eventLocation: list.introEventLocation,
               locale,
             })}

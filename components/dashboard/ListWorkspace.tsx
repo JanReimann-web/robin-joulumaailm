@@ -2,7 +2,7 @@
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { CalendarDays, Copy, Eye, EyeOff, Gift, GripVertical, MapPin, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { CalendarDays, Clock3, Copy, Eye, EyeOff, Gift, GripVertical, MapPin, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import {
   AccountEntitlement,
@@ -89,7 +89,7 @@ import {
   VISIBILITY_OPTIONS,
   WheelEntry,
 } from '@/lib/lists/types'
-import { formatHeroEventDate } from '@/lib/lists/hero'
+import { formatHeroEventDate, formatHeroEventTime } from '@/lib/lists/hero'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 import {
   ReferralCodeStatus,
@@ -401,8 +401,11 @@ export default function ListWorkspace({
   const [introTitle, setIntroTitle] = useState('')
   const [introBody, setIntroBody] = useState('')
   const [introEventDate, setIntroEventDate] = useState('')
+  const [introEventTime, setIntroEventTime] = useState('')
   const [introEventLocation, setIntroEventLocation] = useState('')
   const [introMediaFile, setIntroMediaFile] = useState<File | null>(null)
+  const introEventDateInputRef = useRef<HTMLInputElement | null>(null)
+  const introEventTimeInputRef = useRef<HTMLInputElement | null>(null)
   const introMediaInputRef = useRef<HTMLInputElement | null>(null)
   const [isSavingIntro, setIsSavingIntro] = useState(false)
   const [isUploadingIntroMedia, setIsUploadingIntroMedia] = useState(false)
@@ -1037,6 +1040,7 @@ export default function ListWorkspace({
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
   const isIntroEditorDisabled = !selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia
   const formattedIntroEventDate = formatHeroEventDate(introEventDate || null, locale)
+  const formattedIntroEventTime = formatHeroEventTime(introEventTime || null)
   const isSwitchingToPasswordProtected = Boolean(
     selectedList
     && selectedList.visibility !== 'public_password'
@@ -1148,6 +1152,7 @@ export default function ListWorkspace({
       setIntroTitle('')
       setIntroBody('')
       setIntroEventDate('')
+      setIntroEventTime('')
       setIntroEventLocation('')
       return
     }
@@ -1155,6 +1160,7 @@ export default function ListWorkspace({
     setIntroTitle(selectedList.introTitle ?? '')
     setIntroBody(selectedList.introBody ?? '')
     setIntroEventDate(selectedList.introEventDate ?? '')
+    setIntroEventTime(selectedList.introEventTime ?? '')
     setIntroEventLocation(selectedList.introEventLocation ?? '')
   }, [selectedList])
 
@@ -1436,14 +1442,36 @@ export default function ListWorkspace({
     }, 3400)
   }
 
+  const openNativePicker = (inputRef: { current: HTMLInputElement | null }) => {
+    const input = inputRef.current
+    if (!input || isIntroEditorDisabled) {
+      return
+    }
+
+    const pickerInput = input as HTMLInputElement & {
+      showPicker?: () => void
+    }
+
+    input.focus({ preventScroll: true })
+
+    if (typeof pickerInput.showPicker === 'function') {
+      pickerInput.showPicker()
+      return
+    }
+
+    input.click()
+  }
+
   const renderHeroEventMeta = (
     eventDate: string | null,
+    eventTime: string | null,
     eventLocation: string | null
   ) => {
     const formattedDate = formatHeroEventDate(eventDate, locale)
+    const formattedTime = formatHeroEventTime(eventTime)
     const normalizedLocation = eventLocation?.trim() ?? ''
 
-    if (!formattedDate && normalizedLocation.length === 0) {
+    if (!formattedDate && !formattedTime && normalizedLocation.length === 0) {
       return null
     }
 
@@ -1453,6 +1481,12 @@ export default function ListWorkspace({
           <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
             <CalendarDays size={14} />
             <span>{formattedDate}</span>
+          </span>
+        )}
+        {formattedTime && (
+          <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
+            <Clock3 size={14} />
+            <span>{formattedTime}</span>
           </span>
         )}
         {normalizedLocation.length > 0 && (
@@ -2058,6 +2092,7 @@ export default function ListWorkspace({
         introTitle,
         introBody,
         introEventDate,
+        introEventTime,
         introEventLocation,
         introMedia: uploadedMedia ?? undefined,
       })
@@ -2122,6 +2157,7 @@ export default function ListWorkspace({
         introTitle,
         introBody,
         introEventDate,
+        introEventTime,
         introEventLocation,
         introMedia: null,
       })
@@ -2869,8 +2905,6 @@ export default function ListWorkspace({
                   {list.introTitle || list.title}
                 </h4>
 
-                {renderHeroEventMeta(list.introEventDate, list.introEventLocation)}
-
                 {(list.introBody || '').trim() && (
                   <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
                 )}
@@ -2931,7 +2965,11 @@ export default function ListWorkspace({
                   {list.introTitle || list.title}
                 </h4>
 
-                {renderHeroEventMeta(list.introEventDate, list.introEventLocation)}
+                {renderHeroEventMeta(
+                  list.introEventDate,
+                  list.introEventTime,
+                  list.introEventLocation
+                )}
 
                 {(list.introBody || '').trim() && (
                   <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
@@ -3849,50 +3887,87 @@ export default function ListWorkspace({
                 />
               </label>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1 text-sm text-slate-200">
-                  <span>{labels.heroDateLabel}</span>
-                  <div className="grid gap-2">
-                    <div className="relative focus-within:outline-none">
-                      <div className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white transition focus-within:border-emerald-300/40 focus-within:ring-1 focus-within:ring-emerald-300/30">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr),minmax(0,1.15fr)]">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm text-slate-200">
+                    <span>{labels.heroDateLabel}</span>
+                    <div className="grid gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openNativePicker(introEventDateInputRef)}
+                        disabled={isIntroEditorDisabled}
+                        className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
                         <span className={formattedIntroEventDate ? 'text-white' : 'text-slate-400'}>
                           {formattedIntroEventDate ?? labels.heroDatePlaceholder}
                         </span>
                         <CalendarDays size={18} className="shrink-0 text-slate-300" />
-                      </div>
+                      </button>
                       <input
+                        ref={introEventDateInputRef}
                         type="date"
                         value={introEventDate}
                         disabled={isIntroEditorDisabled}
                         onChange={(entry) => setIntroEventDate(entry.target.value)}
-                        onKeyDown={(event) => {
-                          if (
-                            event.key.length === 1
-                            || event.key === 'Backspace'
-                            || event.key === 'Delete'
-                          ) {
-                            event.preventDefault()
-                          }
-                        }}
-                        onPaste={(event) => event.preventDefault()}
-                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+                        tabIndex={-1}
+                        className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
                       />
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs text-slate-400">{labels.heroDateHint}</span>
+                        {introEventDate && (
+                          <button
+                            type="button"
+                            onClick={() => setIntroEventDate('')}
+                            disabled={isIntroEditorDisabled}
+                            className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {labels.heroDateClearAction}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-xs text-slate-400">{labels.heroDateHint}</span>
-                      {introEventDate && (
-                        <button
-                          type="button"
-                          onClick={() => setIntroEventDate('')}
-                          disabled={isIntroEditorDisabled}
-                          className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {labels.heroDateClearAction}
-                        </button>
-                      )}
+                  </label>
+
+                  <label className="grid gap-1 text-sm text-slate-200">
+                    <span>{labels.heroTimeLabel}</span>
+                    <div className="grid gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openNativePicker(introEventTimeInputRef)}
+                        disabled={isIntroEditorDisabled}
+                        className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <span className={formattedIntroEventTime ? 'text-white' : 'text-slate-400'}>
+                          {formattedIntroEventTime ?? labels.heroTimePlaceholder}
+                        </span>
+                        <Clock3 size={18} className="shrink-0 text-slate-300" />
+                      </button>
+                      <input
+                        ref={introEventTimeInputRef}
+                        type="time"
+                        step={60}
+                        value={introEventTime}
+                        disabled={isIntroEditorDisabled}
+                        onChange={(entry) => setIntroEventTime(entry.target.value)}
+                        tabIndex={-1}
+                        className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
+                      />
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs text-slate-400">{labels.heroTimeHint}</span>
+                        {introEventTime && (
+                          <button
+                            type="button"
+                            onClick={() => setIntroEventTime('')}
+                            disabled={isIntroEditorDisabled}
+                            className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {labels.heroTimeClearAction}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                </div>
 
                 <label className="grid gap-1 text-sm text-slate-200">
                   <span>{labels.heroLocationLabel}</span>

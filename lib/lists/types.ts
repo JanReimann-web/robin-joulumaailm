@@ -108,6 +108,7 @@ export interface GiftList {
   introTitle: string | null
   introBody: string | null
   introEventDate: string | null
+  introEventTime: string | null
   introEventLocation: string | null
   introMediaUrl: string | null
   introMediaPath: string | null
@@ -139,6 +140,7 @@ export interface UpdateGiftListIntroInput {
   introTitle: string
   introBody: string
   introEventDate: string
+  introEventTime: string
   introEventLocation: string
   introMedia?: GiftItemMediaInput | null
 }

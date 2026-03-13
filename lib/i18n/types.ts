@@ -324,6 +324,10 @@ export interface Dictionary {
     heroDatePlaceholder: string
     heroDateHint: string
     heroDateClearAction: string
+    heroTimeLabel: string
+    heroTimePlaceholder: string
+    heroTimeHint: string
+    heroTimeClearAction: string
     heroLocationLabel: string
     heroLocationPlaceholder: string
     heroLocationHint: string

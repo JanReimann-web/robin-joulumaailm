@@ -134,6 +134,7 @@ export async function POST(request: NextRequest) {
         introTitle: null,
         introBody: null,
         introEventDate: null,
+        introEventTime: null,
         introEventLocation: null,
         introMediaUrl: null,
         introMediaPath: null,

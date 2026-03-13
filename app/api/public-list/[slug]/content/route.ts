@@ -112,6 +112,7 @@ export async function GET(
         introTitle: list.introTitle,
         introBody: list.introBody,
         introEventDate: list.introEventDate,
+        introEventTime: list.introEventTime,
         introEventLocation: list.introEventLocation,
         introMediaUrl: list.introMediaUrl,
         introMediaType: list.introMediaType,

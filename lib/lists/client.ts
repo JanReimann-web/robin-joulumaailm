@@ -145,6 +145,7 @@ const mapListDoc = (
     introTitle: data.introTitle ? String(data.introTitle) : null,
     introBody: data.introBody ? String(data.introBody) : null,
     introEventDate: data.introEventDate ? String(data.introEventDate) : null,
+    introEventTime: data.introEventTime ? String(data.introEventTime) : null,
     introEventLocation: data.introEventLocation ? String(data.introEventLocation) : null,
     introMediaUrl: data.introMediaUrl ? String(data.introMediaUrl) : null,
     introMediaPath: data.introMediaPath ? String(data.introMediaPath) : null,
@@ -355,6 +356,7 @@ export const createGiftList = async (
       introTitle: null,
       introBody: null,
       introEventDate: null,
+      introEventTime: null,
       introEventLocation: null,
       introMediaUrl: null,
       introMediaPath: null,
@@ -531,6 +533,7 @@ export const updateGiftListIntro = async (input: UpdateGiftListIntroInput) => {
     introTitle: input.introTitle.trim() || null,
     introBody: input.introBody.trim() || null,
     introEventDate: input.introEventDate.trim() || null,
+    introEventTime: input.introEventTime.trim() || null,
     introEventLocation: input.introEventLocation.trim() || null,
     updatedAt: serverTimestamp(),
   }

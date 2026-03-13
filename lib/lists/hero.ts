@@ -18,3 +18,18 @@ export const formatHeroEventDate = (
     year: 'numeric',
   }).format(parsedDate)
 }
+
+export const formatHeroEventTime = (value: string | null) => {
+  const normalized = value?.trim()
+  if (!normalized) {
+    return null
+  }
+
+  const timeMatch = normalized.match(/^(\d{2}):(\d{2})/)
+  if (!timeMatch) {
+    return normalized
+  }
+
+  const [, hours, minutes] = timeMatch
+  return `${hours}:${minutes}`
+}

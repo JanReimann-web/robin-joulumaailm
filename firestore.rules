@@ -143,6 +143,10 @@ service cloud.firestore {
           || isStringOrNull(data.introEventDate)
         )
         && (
+          !data.keys().hasAny(['introEventTime'])
+          || isStringOrNull(data.introEventTime)
+        )
+        && (
           !data.keys().hasAny(['introEventLocation'])
           || isStringOrNull(data.introEventLocation)
         )
@@ -226,6 +230,7 @@ service cloud.firestore {
           'introTitle',
           'introBody',
           'introEventDate',
+          'introEventTime',
           'introEventLocation',
           'introMediaUrl',
           'introMediaPath',
@@ -389,6 +394,7 @@ service cloud.firestore {
             'introTitle',
             'introBody',
             'introEventDate',
+            'introEventTime',
             'introEventLocation',
             'introMediaUrl',
             'introMediaPath',
