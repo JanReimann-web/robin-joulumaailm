@@ -144,6 +144,8 @@ const mapListDoc = (
     }),
     introTitle: data.introTitle ? String(data.introTitle) : null,
     introBody: data.introBody ? String(data.introBody) : null,
+    introEventDate: data.introEventDate ? String(data.introEventDate) : null,
+    introEventLocation: data.introEventLocation ? String(data.introEventLocation) : null,
     introMediaUrl: data.introMediaUrl ? String(data.introMediaUrl) : null,
     introMediaPath: data.introMediaPath ? String(data.introMediaPath) : null,
     introMediaType: data.introMediaType ? String(data.introMediaType) : null,
@@ -352,6 +354,8 @@ export const createGiftList = async (
       purgeAt: trialEndsAt,
       introTitle: null,
       introBody: null,
+      introEventDate: null,
+      introEventLocation: null,
       introMediaUrl: null,
       introMediaPath: null,
       introMediaType: null,
@@ -526,6 +530,8 @@ export const updateGiftListIntro = async (input: UpdateGiftListIntroInput) => {
   const payload: Record<string, unknown> = {
     introTitle: input.introTitle.trim() || null,
     introBody: input.introBody.trim() || null,
+    introEventDate: input.introEventDate.trim() || null,
+    introEventLocation: input.introEventLocation.trim() || null,
     updatedAt: serverTimestamp(),
   }
 
@@ -711,9 +717,6 @@ export const createWheelEntry = async (input: CreateWheelEntryInput) => {
     order: input.order ?? Date.now(),
     question: input.question.trim(),
     answerText: input.answerText.trim(),
-    answerAudioUrl: null,
-    answerAudioPath: null,
-    answerAudioType: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })

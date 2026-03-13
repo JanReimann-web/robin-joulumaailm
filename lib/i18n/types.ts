@@ -320,6 +320,9 @@ export interface Dictionary {
     heroEditorSubtitle: string
     heroTitleLabel: string
     heroBodyLabel: string
+    heroDateLabel: string
+    heroLocationLabel: string
+    heroLocationPlaceholder: string
     heroBodyPlaceholder: string
     heroMediaLabel: string
     heroMediaHint: string

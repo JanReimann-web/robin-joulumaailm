@@ -2,7 +2,7 @@
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { Copy, Eye, EyeOff, Gift, GripVertical, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { CalendarDays, Copy, Eye, EyeOff, Gift, GripVertical, MapPin, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import {
   AccountEntitlement,
@@ -89,6 +89,7 @@ import {
   VISIBILITY_OPTIONS,
   WheelEntry,
 } from '@/lib/lists/types'
+import { formatHeroEventDate } from '@/lib/lists/hero'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 import {
   ReferralCodeStatus,
@@ -399,6 +400,8 @@ export default function ListWorkspace({
   const [isDeletingList, setIsDeletingList] = useState(false)
   const [introTitle, setIntroTitle] = useState('')
   const [introBody, setIntroBody] = useState('')
+  const [introEventDate, setIntroEventDate] = useState('')
+  const [introEventLocation, setIntroEventLocation] = useState('')
   const [introMediaFile, setIntroMediaFile] = useState<File | null>(null)
   const introMediaInputRef = useRef<HTMLInputElement | null>(null)
   const [isSavingIntro, setIsSavingIntro] = useState(false)
@@ -1142,11 +1145,15 @@ export default function ListWorkspace({
     if (!selectedList) {
       setIntroTitle('')
       setIntroBody('')
+      setIntroEventDate('')
+      setIntroEventLocation('')
       return
     }
 
     setIntroTitle(selectedList.introTitle ?? '')
     setIntroBody(selectedList.introBody ?? '')
+    setIntroEventDate(selectedList.introEventDate ?? '')
+    setIntroEventLocation(selectedList.introEventLocation ?? '')
   }, [selectedList])
 
   const getPublicListUrl = (slug: string) => {
@@ -1425,6 +1432,35 @@ export default function ListWorkspace({
       setSelectedPreviewWheelEntryId(selectedEntry.id)
       setIsPreviewWheelSpinning(false)
     }, 3400)
+  }
+
+  const renderHeroEventMeta = (
+    eventDate: string | null,
+    eventLocation: string | null
+  ) => {
+    const formattedDate = formatHeroEventDate(eventDate, locale)
+    const normalizedLocation = eventLocation?.trim() ?? ''
+
+    if (!formattedDate && normalizedLocation.length === 0) {
+      return null
+    }
+
+    return (
+      <div className="mt-4 flex flex-wrap gap-2">
+        {formattedDate && (
+          <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
+            <CalendarDays size={14} />
+            <span>{formattedDate}</span>
+          </span>
+        )}
+        {normalizedLocation.length > 0 && (
+          <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
+            <MapPin size={14} />
+            <span>{normalizedLocation}</span>
+          </span>
+        )}
+      </div>
+    )
   }
 
   const handleCreateList = async (event: FormEvent<HTMLFormElement>) => {
@@ -2019,6 +2055,8 @@ export default function ListWorkspace({
         listId: selectedList.id,
         introTitle,
         introBody,
+        introEventDate,
+        introEventLocation,
         introMedia: uploadedMedia ?? undefined,
       })
 
@@ -2081,6 +2119,8 @@ export default function ListWorkspace({
         listId: selectedList.id,
         introTitle,
         introBody,
+        introEventDate,
+        introEventLocation,
         introMedia: null,
       })
       await deleteMediaByPath(previousMediaPath)
@@ -2827,6 +2867,8 @@ export default function ListWorkspace({
                   {list.introTitle || list.title}
                 </h4>
 
+                {renderHeroEventMeta(list.introEventDate, list.introEventLocation)}
+
                 {(list.introBody || '').trim() && (
                   <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
                 )}
@@ -2886,6 +2928,8 @@ export default function ListWorkspace({
                 <h4 className="text-2xl font-bold text-white">
                   {list.introTitle || list.title}
                 </h4>
+
+                {renderHeroEventMeta(list.introEventDate, list.introEventLocation)}
 
                 {(list.introBody || '').trim() && (
                   <p className="mt-4 text-sm text-slate-200">{list.introBody}</p>
@@ -3536,7 +3580,7 @@ export default function ListWorkspace({
                   ) : (
                     <div className="mt-4 grid gap-3">
                       <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                        <div className="flex h-full flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr),minmax(0,20rem)] md:items-center md:gap-6">
+                        <div className="flex h-full flex-col gap-4">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <Sparkles size={16} className="text-emerald-200" />
@@ -3559,10 +3603,10 @@ export default function ListWorkspace({
                               <p className="mt-3 text-xs text-slate-300">
                                 {labels.referralRewardSavedHint}
                               </p>
-                            )}
+                              )}
                           </div>
 
-                          <div className="flex min-w-0 flex-col justify-end gap-2 md:items-end">
+                          <div className="flex min-w-0 flex-col gap-2">
                             <input
                               value={referralCodeInput}
                               onChange={(event) => {
@@ -3578,9 +3622,9 @@ export default function ListWorkspace({
                               }}
                               placeholder={labels.referralCodeInputPlaceholder}
                               disabled={isApplyingReferralCode || isGeneratingReferralCode}
-                              className="min-w-0 w-full rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white md:max-w-[20rem]"
+                              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-white"
                             />
-                            <div className="flex w-full flex-wrap gap-2 md:justify-end">
+                            <div className="flex w-full flex-wrap gap-2">
                               <DashboardActionButton
                                 onClick={handleApplyReferralCode}
                                 disabled={isApplyingReferralCode || referralCodeInput.trim().length === 0}
@@ -3607,7 +3651,7 @@ export default function ListWorkspace({
                       </section>
 
                       <section className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                        <div className="flex h-full flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr),minmax(0,22rem)] md:items-start md:gap-6">
+                        <div className="flex h-full flex-col gap-4">
                           <div className="min-w-0">
                             <h5 className="text-sm font-semibold text-white">{labels.referralTitle}</h5>
 
@@ -3802,6 +3846,30 @@ export default function ListWorkspace({
                   className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
                 />
               </label>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.heroDateLabel}</span>
+                  <input
+                    type="date"
+                    value={introEventDate}
+                    disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                    onChange={(entry) => setIntroEventDate(entry.target.value)}
+                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                  />
+                </label>
+
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.heroLocationLabel}</span>
+                  <input
+                    value={introEventLocation}
+                    disabled={!selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia}
+                    onChange={(entry) => setIntroEventLocation(entry.target.value)}
+                    placeholder={labels.heroLocationPlaceholder}
+                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                  />
+                </label>
+              </div>
 
               <label className="grid gap-1 text-sm text-slate-200">
                 <span>{labels.heroMediaLabel}</span>

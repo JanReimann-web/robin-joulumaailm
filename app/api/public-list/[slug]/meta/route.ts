@@ -33,6 +33,8 @@ export async function GET(
         accessStatus: list.accessStatus,
         introTitle: list.introTitle,
         introBody: list.introBody,
+        introEventDate: list.introEventDate,
+        introEventLocation: list.introEventLocation,
         introMediaUrl: list.introMediaUrl,
         introMediaType: list.introMediaType,
       },

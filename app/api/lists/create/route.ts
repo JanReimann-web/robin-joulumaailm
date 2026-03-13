@@ -133,6 +133,8 @@ export async function POST(request: NextRequest) {
         purgeAt: trialEndsAt,
         introTitle: null,
         introBody: null,
+        introEventDate: null,
+        introEventLocation: null,
         introMediaUrl: null,
         introMediaPath: null,
         introMediaType: null,

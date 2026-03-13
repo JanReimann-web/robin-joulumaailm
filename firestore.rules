@@ -139,6 +139,14 @@ service cloud.firestore {
           || isStringOrNull(data.introBody)
         )
         && (
+          !data.keys().hasAny(['introEventDate'])
+          || isStringOrNull(data.introEventDate)
+        )
+        && (
+          !data.keys().hasAny(['introEventLocation'])
+          || isStringOrNull(data.introEventLocation)
+        )
+        && (
           !data.keys().hasAny(['introMediaUrl'])
           || isStringOrNull(data.introMediaUrl)
         )
@@ -217,6 +225,8 @@ service cloud.firestore {
           'purgeAt',
           'introTitle',
           'introBody',
+          'introEventDate',
+          'introEventLocation',
           'introMediaUrl',
           'introMediaPath',
           'introMediaType',
@@ -378,6 +388,8 @@ service cloud.firestore {
             'visibility',
             'introTitle',
             'introBody',
+            'introEventDate',
+            'introEventLocation',
             'introMediaUrl',
             'introMediaPath',
             'introMediaType',

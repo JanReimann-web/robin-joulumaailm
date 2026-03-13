@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CheckCircle2, X } from 'lucide-react'
+import { CalendarDays, CheckCircle2, MapPin, X } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
+import { formatHeroEventDate } from '@/lib/lists/hero'
 import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
@@ -22,6 +23,8 @@ type PublicListView = Pick<
   | 'accessStatus'
   | 'introTitle'
   | 'introBody'
+  | 'introEventDate'
+  | 'introEventLocation'
   | 'introMediaUrl'
   | 'introMediaType'
 >
@@ -282,6 +285,36 @@ const getEventSectionCopy = (
     storyTitle: copy.storyTitleDefault,
     wheelTitle: copy.wheelTitleDefault,
   }
+}
+
+const renderHeroEventMeta = (params: {
+  eventDate: string | null
+  eventLocation: string | null
+  locale: PublicLocale
+}) => {
+  const formattedDate = formatHeroEventDate(params.eventDate, params.locale)
+  const normalizedLocation = params.eventLocation?.trim() ?? ''
+
+  if (!formattedDate && normalizedLocation.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {formattedDate && (
+        <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
+          <CalendarDays size={14} />
+          <span>{formattedDate}</span>
+        </span>
+      )}
+      {normalizedLocation.length > 0 && (
+        <span className="event-surface-card inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-slate-200">
+          <MapPin size={14} />
+          <span>{normalizedLocation}</span>
+        </span>
+      )}
+    </div>
+  )
 }
 
 export default function PublicGiftList({ slug }: PublicGiftListProps) {
@@ -1046,6 +1079,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
               {meta.list.introTitle || meta.list.title}
             </h1>
 
+            {renderHeroEventMeta({
+              eventDate: meta.list.introEventDate,
+              eventLocation: meta.list.introEventLocation,
+              locale,
+            })}
+
             {(meta.list.introBody || '').trim() && (
               <p className="mt-5 text-sm text-slate-200">
                 {meta.list.introBody}
@@ -1146,6 +1185,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
             <h1 className="text-2xl font-bold text-white sm:text-3xl">
               {list.introTitle || list.title}
             </h1>
+
+            {renderHeroEventMeta({
+              eventDate: list.introEventDate,
+              eventLocation: list.introEventLocation,
+              locale,
+            })}
 
             {(list.introBody || '').trim() && (
               <p className="mt-5 text-sm text-slate-200">

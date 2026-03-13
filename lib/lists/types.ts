@@ -107,6 +107,8 @@ export interface GiftList {
   accessStatus: ListAccessStatus
   introTitle: string | null
   introBody: string | null
+  introEventDate: string | null
+  introEventLocation: string | null
   introMediaUrl: string | null
   introMediaPath: string | null
   introMediaType: string | null
@@ -136,6 +138,8 @@ export interface UpdateGiftListIntroInput {
   listId: string
   introTitle: string
   introBody: string
+  introEventDate: string
+  introEventLocation: string
   introMedia?: GiftItemMediaInput | null
 }
 
