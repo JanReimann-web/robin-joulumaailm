@@ -689,6 +689,41 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
     return null
   }
 
+  const renderStaticHeroMedia = (media: PreviewMedia, alt: string) => {
+    if (!media?.url || !media.type) {
+      return null
+    }
+
+    const heroMediaClassName = 'h-[17rem] w-full object-cover sm:h-[21rem] lg:h-[24rem]'
+
+    if (media.type.startsWith('image/')) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={media.url}
+          alt={alt}
+          className={heroMediaClassName}
+          loading="lazy"
+        />
+      )
+    }
+
+    if (media.type.startsWith('video/')) {
+      return (
+        <video
+          src={media.url}
+          className={heroMediaClassName}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )
+    }
+
+    return null
+  }
+
   const renderSquareMedia = (
     mediaUrl: string | null,
     mediaType: string | null,
@@ -1053,19 +1088,106 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
     )
   )
 
-  if (metaLoading) {
+  const renderLoadingShell = (params: {
+    themeId: string
+    message: string
+    title: string
+    body?: string | null
+    media?: PreviewMedia
+  }) => {
+    const normalizedBody = params.body?.trim() ?? ''
+
     return (
       <div
         className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
-        data-event-theme="default-dark"
+        data-event-theme={params.themeId}
       >
         <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
           <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-          <p className="text-slate-200">{copy.loadingList}</p>
+
+          <section className="event-surface-panel overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl">
+            {params.media ? (
+              renderStaticHeroMedia(params.media, params.title)
+            ) : (
+              <div className="relative h-[17rem] overflow-hidden sm:h-[21rem] lg:h-[24rem]">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-white/10 to-transparent" />
+                <div className="absolute inset-x-[8%] top-[18%] h-[62%] rounded-[2rem] border border-white/15 bg-black/10 animate-pulse" />
+                <div className="absolute -right-10 top-6 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
+                <div className="absolute bottom-4 left-8 h-20 w-20 rounded-full bg-black/10 blur-2xl" />
+              </div>
+            )}
+
+            <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr),18rem] lg:items-end">
+              <div className="min-w-0">
+                <span className="inline-flex rounded-full border border-white/15 bg-black/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
+                  {params.message}
+                </span>
+
+                <h1 className="mt-4 text-2xl font-bold text-white sm:text-3xl">
+                  {params.title}
+                </h1>
+
+                {normalizedBody ? (
+                  <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-200">
+                    {normalizedBody}
+                  </p>
+                ) : (
+                  <div className="mt-4 grid max-w-3xl gap-3">
+                    <div className="h-4 w-full rounded-full bg-black/10 animate-pulse" />
+                    <div className="h-4 w-[92%] rounded-full bg-black/10 animate-pulse" />
+                    <div className="h-4 w-[68%] rounded-full bg-black/10 animate-pulse" />
+                  </div>
+                )}
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <div className="h-11 w-40 rounded-full bg-black/10 animate-pulse" />
+                  <div className="h-11 w-36 rounded-full bg-black/10 animate-pulse" />
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <div className="event-surface-card rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
+                  <div className="h-3 w-24 rounded-full bg-black/10 animate-pulse" />
+                  <div className="mt-3 h-8 w-32 rounded-full bg-black/10 animate-pulse" />
+                </div>
+                <div className="event-surface-card rounded-[1.5rem] border border-white/10 bg-black/10 p-4">
+                  <div className="h-3 w-20 rounded-full bg-black/10 animate-pulse" />
+                  <div className="mt-3 h-8 w-28 rounded-full bg-black/10 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-6 grid gap-4 lg:grid-cols-2">
+            <div className="event-surface-card rounded-[1.8rem] border border-white/10 bg-white/5 p-5 sm:p-6">
+              <div className="h-4 w-32 rounded-full bg-black/10 animate-pulse" />
+              <div className="mt-5 aspect-[4/3] rounded-[1.6rem] border border-white/10 bg-black/10 animate-pulse" />
+            </div>
+
+            <div className="event-surface-card rounded-[1.8rem] border border-white/10 bg-white/5 p-5 sm:p-6">
+              <div className="h-4 w-28 rounded-full bg-black/10 animate-pulse" />
+              <div className="mt-5 grid gap-3">
+                <div className="h-16 rounded-[1.2rem] bg-black/10 animate-pulse" />
+                <div className="h-16 rounded-[1.2rem] bg-black/10 animate-pulse" />
+                <div className="h-16 rounded-[1.2rem] bg-black/10 animate-pulse" />
+              </div>
+            </div>
+          </section>
         </main>
         {passwordPromptModal}
       </div>
     )
+  }
+
+  if (metaLoading) {
+    return renderLoadingShell({
+      themeId: 'wedding-minimal',
+      message: copy.loadingList,
+      title: 'Giftlist Studio',
+      body: locale === 'et'
+        ? 'Koostame sulle nimekirja avava vaate. Hetke pärast saad näha sündmuse kujundust, lugu ja kingitusi.'
+        : 'Preparing the public list view. In a moment you will see the event design, story, and gift ideas.',
+    })
   }
 
   if (notFound || !meta) {
@@ -1172,18 +1294,13 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
   }
 
   if (contentLoading || !list) {
-    return (
-      <div
-        className="event-canvas min-h-screen w-full px-4 py-6 sm:px-6 sm:py-8"
-        data-event-theme={eventThemeId}
-      >
-        <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
-          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
-          <p className="text-slate-200">{copy.loadingContent}</p>
-        </main>
-        {passwordPromptModal}
-      </div>
-    )
+    return renderLoadingShell({
+      themeId: eventThemeId,
+      message: copy.loadingContent,
+      title: meta.list.introTitle || meta.list.title,
+      body: meta.list.introBody || copy.continueFallbackText,
+      media: previewMedia,
+    })
   }
 
   return (
