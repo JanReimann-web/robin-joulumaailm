@@ -7,6 +7,9 @@ type PublicListPageProps = {
   params: {
     slug: string
   }
+  searchParams?: {
+    template?: string | string[]
+  }
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
@@ -68,6 +71,19 @@ export async function generateMetadata({
   }
 }
 
-export default function PublicListPage({ params }: PublicListPageProps) {
-  return <PublicGiftList slug={params.slug} />
+const getSingleSearchParam = (value: string | string[] | undefined) => {
+  if (!value) {
+    return null
+  }
+
+  return Array.isArray(value) ? value[0] ?? null : value
+}
+
+export default function PublicListPage({ params, searchParams }: PublicListPageProps) {
+  return (
+    <PublicGiftList
+      slug={params.slug}
+      previewTemplateId={getSingleSearchParam(searchParams?.template)}
+    />
+  )
 }

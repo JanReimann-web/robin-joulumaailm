@@ -5,11 +5,20 @@ import { createPortal } from 'react-dom'
 import { CalendarDays, CheckCircle2, Clock3, MapPin, X } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import { formatHeroEventDate, formatHeroEventTime } from '@/lib/lists/hero'
-import { EventType, GiftList, GiftListItem, ListStoryEntry, TemplateId, WheelEntry } from '@/lib/lists/types'
+import {
+  EventType,
+  GiftList,
+  GiftListItem,
+  isTemplateAllowedForEvent,
+  ListStoryEntry,
+  TemplateId,
+  WheelEntry,
+} from '@/lib/lists/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 
 type PublicGiftListProps = {
   slug: string
+  previewTemplateId?: string | null
 }
 
 type PublicListView = Pick<
@@ -326,7 +335,7 @@ const renderHeroEventMeta = (params: {
   )
 }
 
-export default function PublicGiftList({ slug }: PublicGiftListProps) {
+export default function PublicGiftList({ slug, previewTemplateId = null }: PublicGiftListProps) {
   const [locale, setLocale] = useState<PublicLocale>(detectInitialLocale)
   const [hasMounted, setHasMounted] = useState(false)
   const [meta, setMeta] = useState<PublicListMetaResponse | null>(null)
@@ -594,7 +603,12 @@ export default function PublicGiftList({ slug }: PublicGiftListProps) {
   }
 
   const activeEventType = list?.eventType ?? meta?.list.eventType
-  const activeTemplateId = list?.templateId ?? meta?.list.templateId
+  const storedTemplateId = list?.templateId ?? meta?.list.templateId
+  const activeTemplateId = activeEventType
+    && previewTemplateId
+    && isTemplateAllowedForEvent(activeEventType, previewTemplateId)
+    ? previewTemplateId
+    : storedTemplateId
   const eventThemeId = resolveEventThemeId(activeEventType, activeTemplateId)
   const closePasswordPrompt = useCallback(() => {
     setIsPasswordPromptOpen(false)
