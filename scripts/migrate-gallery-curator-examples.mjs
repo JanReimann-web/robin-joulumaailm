@@ -111,6 +111,29 @@ const log = (message) => {
   console.log(`[${time}] ${message}`)
 }
 
+const upsertComplimentaryEntitlement = async (ownerId) => {
+  const entitlementRef = db.collection('accountEntitlements').doc(ownerId)
+  const entitlementSnapshot = await entitlementRef.get()
+  const now = admin.firestore.FieldValue.serverTimestamp()
+  const payload = {
+    tier: 'complimentary_unlimited',
+    status: 'active',
+    grantedBy: 'gallery_curator_migration',
+    note: 'Gallery curator account: complimentary access and purge bypass enabled.',
+    expiresAt: null,
+    updatedAt: now,
+    ...(entitlementSnapshot.exists ? {} : { createdAt: now }),
+  }
+
+  if (dryRun) {
+    log(`Would upsert complimentary entitlement for uid=${ownerId}`)
+    return
+  }
+
+  await entitlementRef.set(payload, { merge: true })
+  log(`Complimentary entitlement is active for uid=${ownerId}`)
+}
+
 const chooseBestListForEvent = (entries) => {
   return [...entries].sort((left, right) => {
     const leftUpdatedAt = toMillis(left.updatedAt)
@@ -154,6 +177,8 @@ const run = async () => {
   } else {
     log(`Using curator uid from CLI: ${ownerId}`)
   }
+
+  await upsertComplimentaryEntitlement(ownerId)
 
   const listsSnapshot = await db
     .collection('lists')
