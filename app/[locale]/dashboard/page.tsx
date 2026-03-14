@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import DashboardShell from '@/components/auth/DashboardShell'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
@@ -53,6 +55,7 @@ export default function DashboardPage({ params, searchParams }: DashboardPagePro
 
   const locale = params.locale
   const dict = getDictionary(locale)
+  const billingCurrency = resolveBillingCurrencyFromHeaders(headers())
   const billingRaw = getSingleSearchParam(searchParams?.billing)
   const listIdRaw = getSingleSearchParam(searchParams?.list)
   const billingStatus = billingRaw === 'success' || billingRaw === 'cancel'
@@ -64,6 +67,7 @@ export default function DashboardPage({ params, searchParams }: DashboardPagePro
       locale={locale}
       labels={dict.dashboard}
       eventLabels={dict.events}
+      billingCurrency={billingCurrency}
       billingStatus={billingStatus}
       billingListId={listIdRaw}
     />

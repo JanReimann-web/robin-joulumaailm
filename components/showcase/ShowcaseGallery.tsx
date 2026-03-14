@@ -61,30 +61,25 @@ const templateLabelMap = (
 
 const getShowcaseCardsByEvent = (
   entries: ShowcaseGalleryEntry[]
-): Record<EventType, ShowcaseDisplayCard[]> => {
-  const groupedEntries = EVENT_TYPES.reduce<Record<EventType, ShowcaseDisplayCard[]>>((result, eventType) => {
-    const matchingEntries = entries
-      .filter((entry) => entry.eventType === eventType)
-      .map((entry) => ({
-        id: entry.listId,
-        kind: 'entry' as const,
-        eventType,
-        entry,
-      }))
+): Record<EventType, ShowcaseDisplayCard> => {
+  return EVENT_TYPES.reduce<Record<EventType, ShowcaseDisplayCard>>((result, eventType) => {
+    const matchingEntry = entries.find((entry) => entry.eventType === eventType)
 
-    const placeholderCards = Array.from({
-      length: Math.max(0, 2 - matchingEntries.length),
-    }, (_, index) => ({
-      id: `${eventType}-placeholder-${index}`,
-      kind: 'placeholder' as const,
-      eventType,
-    }))
+    result[eventType] = matchingEntry
+      ? {
+          id: matchingEntry.listId,
+          kind: 'entry',
+          eventType,
+          entry: matchingEntry,
+        }
+      : {
+          id: `${eventType}-placeholder`,
+          kind: 'placeholder',
+          eventType,
+        }
 
-    result[eventType] = [...matchingEntries, ...placeholderCards]
     return result
-  }, {} as Record<EventType, ShowcaseDisplayCard[]>)
-
-  return groupedEntries
+  }, {} as Record<EventType, ShowcaseDisplayCard>)
 }
 
 const renderPreviewMedia = (
@@ -153,7 +148,7 @@ export default function ShowcaseGallery({
 
       <div className="mt-10 space-y-8">
         {EVENT_TYPES.map((eventType) => {
-          const cards = groupedCards[eventType]
+          const card = groupedCards[eventType]
 
           return (
             <section key={eventType} className="space-y-4">
@@ -170,26 +165,19 @@ export default function ShowcaseGallery({
                 </div>
               </div>
 
-              <div className="grid gap-5 xl:grid-cols-2">
-                {cards.map((card) => {
-                  const defaultTemplateId = card.kind === 'entry'
+              <div className="grid gap-5">
+                <GalleryCard
+                  key={card.id}
+                  locale={locale}
+                  card={card}
+                  labels={labels}
+                  templateLabels={templateLabels}
+                  eventLabel={eventLabels[eventType]}
+                  availableTemplateIds={getTemplateIdsForEvent(card.eventType)}
+                  defaultTemplateId={card.kind === 'entry'
                     ? card.entry.templateId
-                    : getTemplateIdsForEvent(card.eventType)[0]
-                  const availableTemplateIds = getTemplateIdsForEvent(card.eventType)
-
-                  return (
-                    <GalleryCard
-                      key={card.id}
-                      locale={locale}
-                      card={card}
-                      labels={labels}
-                      templateLabels={templateLabels}
-                      eventLabel={eventLabels[eventType]}
-                      availableTemplateIds={availableTemplateIds}
-                      defaultTemplateId={defaultTemplateId}
-                    />
-                  )
-                })}
+                    : getTemplateIdsForEvent(card.eventType)[0]}
+                />
               </div>
             </section>
           )

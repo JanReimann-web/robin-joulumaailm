@@ -10,17 +10,13 @@ import {
   normalizeTemplateId,
 } from '@/lib/lists/types'
 import {
-  SHOWCASE_STATUSES,
   ShowcaseGalleryEntry,
-  ShowcaseStatus,
 } from '@/lib/showcase'
 
 type ShowcaseRecord = {
-  id: string
+  eventType: EventType
   listId: string
   ownerId: string
-  status: ShowcaseStatus
-  featuredAt: number | null
   updatedAt: number | null
 }
 
@@ -32,20 +28,15 @@ const toMillis = (value: unknown) => {
   return null
 }
 
-const isShowcaseStatus = (value: unknown): value is ShowcaseStatus => {
-  return typeof value === 'string'
-    && SHOWCASE_STATUSES.includes(value as ShowcaseStatus)
-}
-
 const mapShowcaseRecord = (
   id: string,
   data: Record<string, unknown>
 ): ShowcaseRecord | null => {
-  if (!isShowcaseStatus(data.status)) {
+  if (!isEventType(id)) {
     return null
   }
 
-  const listId = typeof data.listId === 'string' ? data.listId : id
+  const listId = typeof data.listId === 'string' ? data.listId : ''
   const ownerId = typeof data.ownerId === 'string' ? data.ownerId : ''
 
   if (!listId || !ownerId) {
@@ -53,11 +44,9 @@ const mapShowcaseRecord = (
   }
 
   return {
-    id,
+    eventType: id,
     listId,
     ownerId,
-    status: data.status,
-    featuredAt: toMillis(data.featuredAt),
     updatedAt: toMillis(data.updatedAt),
   }
 }
@@ -71,12 +60,9 @@ const toActivePublicGalleryEntry = async (
     return null
   }
 
-  const eventType: EventType = (
-    typeof listData.eventType === 'string'
-    && isEventType(listData.eventType)
-  )
-    ? listData.eventType
-    : 'birthday'
+  if (listData.ownerId !== showcase.ownerId || listData.eventType !== showcase.eventType) {
+    return null
+  }
 
   const createdAt = toMillis(listData.createdAt)
   const trialEndsAtRaw = toMillis(listData.trialEndsAt)
@@ -106,21 +92,21 @@ const toActivePublicGalleryEntry = async (
     ownerId: showcase.ownerId,
     slug: typeof listData.slug === 'string' ? listData.slug : '',
     title: typeof listData.title === 'string' ? listData.title : '',
-    eventType,
-    templateId: normalizeTemplateId(eventType, listData.templateId),
+    eventType: showcase.eventType,
+    templateId: normalizeTemplateId(showcase.eventType, listData.templateId),
     introTitle: typeof listData.introTitle === 'string' ? listData.introTitle : null,
     introBody: typeof listData.introBody === 'string' ? listData.introBody : null,
     previewMedia: await getPublicListPreviewMedia(showcase.listId),
-    featuredAt: showcase.featuredAt,
+    featuredAt: null,
     updatedAt: showcase.updatedAt,
   }
 }
 
 export const getPublishedShowcaseEntries = async (): Promise<ShowcaseGalleryEntry[]> => {
-  const showcaseSnap = await adminDb.collection('showcaseLists').get()
+  const showcaseSnap = await adminDb.collection('galleryExamples').get()
   const showcaseRecords = showcaseSnap.docs
     .map((entry) => mapShowcaseRecord(entry.id, entry.data() as Record<string, unknown>))
-    .filter((entry): entry is ShowcaseRecord => entry?.status === 'published')
+    .filter((entry): entry is ShowcaseRecord => Boolean(entry))
 
   if (showcaseRecords.length === 0) {
     return []
@@ -148,9 +134,4 @@ export const getPublishedShowcaseEntries = async (): Promise<ShowcaseGalleryEntr
 
   return galleryEntries
     .filter((entry): entry is ShowcaseGalleryEntry => Boolean(entry?.slug && entry.title))
-    .sort((left, right) => {
-      const leftOrder = left.featuredAt ?? left.updatedAt ?? 0
-      const rightOrder = right.featuredAt ?? right.updatedAt ?? 0
-      return rightOrder - leftOrder
-    })
 }

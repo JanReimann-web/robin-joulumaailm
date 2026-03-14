@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth } from '@/lib/firebase/admin'
 import { startListCheckout } from '@/lib/billing/server'
+import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import { BillingPlanId } from '@/lib/lists/plans'
 
 export const runtime = 'nodejs'
@@ -53,10 +54,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const currency = resolveBillingCurrencyFromHeaders(request.headers)
     const result = await startListCheckout({
       listId,
       ownerId: decodedToken.uid,
       planId: planId as BillingPlanId,
+      currency,
       locale: body.locale,
       referralCode: body.referralCode,
     })

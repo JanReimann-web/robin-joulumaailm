@@ -9,6 +9,7 @@ import {
   hasActiveComplimentaryEntitlement,
 } from '@/lib/account-entitlements'
 import { subscribeToAccountEntitlement } from '@/lib/account-entitlements.client'
+import { BillingCurrency, formatBillingPlanPrice } from '@/lib/billing/pricing'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -101,6 +102,7 @@ type ListWorkspaceProps = {
   ownerId: string
   labels: Dictionary['dashboard']
   eventLabels: Dictionary['events']
+  billingCurrency: BillingCurrency
   billingStatus: 'success' | 'cancel' | null
   billingListId: string | null
 }
@@ -346,6 +348,7 @@ export default function ListWorkspace({
   ownerId,
   labels,
   eventLabels,
+  billingCurrency,
   billingStatus,
   billingListId,
 }: ListWorkspaceProps) {
@@ -383,6 +386,7 @@ export default function ListWorkspace({
   const [isApplyingReferralCode, setIsApplyingReferralCode] = useState(false)
   const [copiedReferralCodeId, setCopiedReferralCodeId] = useState<string | null>(null)
   const [showcaseListIds, setShowcaseListIds] = useState<string[]>([])
+  const [canManageGallery, setCanManageGallery] = useState(false)
   const [isShowcaseLoading, setIsShowcaseLoading] = useState(false)
   const [showcaseUpdatingListId, setShowcaseUpdatingListId] = useState<string | null>(null)
 
@@ -794,9 +798,11 @@ export default function ListWorkspace({
 
     try {
       const idToken = await getCurrentUserIdToken()
-      const nextListIds = await fetchShowcaseListIds(idToken)
-      setShowcaseListIds(nextListIds)
+      const showcaseState = await fetchShowcaseListIds(idToken)
+      setCanManageGallery(showcaseState.canManageGallery)
+      setShowcaseListIds(showcaseState.listIds)
     } catch (rawError) {
+      setCanManageGallery(false)
       setShowcaseListIds([])
 
       if (rawError instanceof ShowcaseClientError) {
@@ -826,14 +832,8 @@ export default function ListWorkspace({
   }, [billingStatus, loadReferralSummary])
 
   useEffect(() => {
-    if (!hasActiveComplimentaryEntitlement(accountEntitlement)) {
-      setShowcaseListIds([])
-      setIsShowcaseLoading(false)
-      return
-    }
-
     void loadShowcaseState()
-  }, [accountEntitlement, loadShowcaseState])
+  }, [loadShowcaseState])
 
   const resetDesktopPreviewFlow = useCallback(() => {
     setIsDesktopPreviewEntered(false)
@@ -905,31 +905,30 @@ export default function ListWorkspace({
     {
       id: 'base' as BillingPlanId,
       name: labels.planBaseName,
-      price: labels.planBasePrice,
+      price: formatBillingPlanPrice('base', billingCurrency, locale),
       features: labels.planBaseFeatures,
     },
     {
       id: 'premium' as BillingPlanId,
       name: labels.planPremiumName,
-      price: labels.planPremiumPrice,
+      price: formatBillingPlanPrice('premium', billingCurrency, locale),
       features: labels.planPremiumFeatures,
     },
     {
       id: 'platinum' as BillingPlanId,
       name: labels.planPlatinumName,
-      price: labels.planPlatinumPrice,
+      price: formatBillingPlanPrice('platinum', billingCurrency, locale),
       features: labels.planPlatinumFeatures,
     },
   ]), [
+    billingCurrency,
+    locale,
     labels.planBaseFeatures,
     labels.planBaseName,
-    labels.planBasePrice,
     labels.planPlatinumFeatures,
     labels.planPlatinumName,
-    labels.planPlatinumPrice,
     labels.planPremiumFeatures,
     labels.planPremiumName,
-    labels.planPremiumPrice,
   ])
 
   const selectedList = useMemo(
@@ -1680,7 +1679,7 @@ export default function ListWorkspace({
   const handleToggleShowcase = async (list: GiftList) => {
     setListError(null)
 
-    if (!hasComplimentaryAccess) {
+    if (!canManageGallery) {
       setListError(labels.errorShowcaseNotAllowed)
       return
     }
@@ -1695,21 +1694,12 @@ export default function ListWorkspace({
 
     try {
       const idToken = await getCurrentUserIdToken()
-      const result = await setShowcaseListState({
+      await setShowcaseListState({
         idToken,
         listId: list.id,
         publish: !isCurrentlyShowcased,
       })
-
-      setShowcaseListIds((current) => {
-        if (result.showcased) {
-          return current.includes(result.listId)
-            ? current
-            : [...current, result.listId]
-        }
-
-        return current.filter((entryId) => entryId !== result.listId)
-      })
+      await loadShowcaseState()
     } catch (rawError) {
       if (rawError instanceof ShowcaseClientError) {
         setListError(getShowcaseErrorMessage(rawError.code))
@@ -3309,7 +3299,7 @@ export default function ListWorkspace({
                     </>
                   )}
 
-                  {hasComplimentaryAccess && (
+                  {canManageGallery && (
                     <DashboardActionButton
                       onClick={() => handleToggleShowcase(list)}
                       icon={<Sparkles size={14} />}

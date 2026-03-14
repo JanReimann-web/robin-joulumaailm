@@ -14,6 +14,7 @@ type SetShowcaseStateInput = {
 }
 
 type FetchShowcaseListIdsResult = {
+  canManageGallery: boolean
   listIds: string[]
 }
 
@@ -32,7 +33,7 @@ const parseShowcaseError = async (response: Response) => {
 
 export const fetchShowcaseListIds = async (
   idToken: string
-): Promise<string[]> => {
+): Promise<FetchShowcaseListIdsResult> => {
   const response = await fetch('/api/showcase', {
     headers: {
       authorization: `Bearer ${idToken}`,
@@ -43,8 +44,12 @@ export const fetchShowcaseListIds = async (
     await parseShowcaseError(response)
   }
 
-  const payload = await response.json() as FetchShowcaseListIdsResult
-  return Array.isArray(payload.listIds) ? payload.listIds : []
+  const payload = await response.json() as Partial<FetchShowcaseListIdsResult>
+
+  return {
+    canManageGallery: payload.canManageGallery === true,
+    listIds: Array.isArray(payload.listIds) ? payload.listIds : [],
+  }
 }
 
 export const setShowcaseListState = async (

@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { formatBillingPlanPrice } from '@/lib/billing/pricing'
+import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 
@@ -46,6 +49,7 @@ export default function PricingPage({ params }: PricingPageProps) {
   }
 
   const dict = getDictionary(params.locale)
+  const billingCurrency = resolveBillingCurrencyFromHeaders(headers())
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
@@ -59,7 +63,9 @@ export default function PricingPage({ params }: PricingPageProps) {
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <h2 className="text-xl font-semibold text-white">{dict.pricing.baseName}</h2>
-          <p className="mt-2 text-2xl font-bold text-emerald-300">{dict.pricing.basePrice}</p>
+          <p className="mt-2 text-2xl font-bold text-emerald-300">
+            {formatBillingPlanPrice('base', billingCurrency, params.locale)}
+          </p>
           <ul className="mt-4 space-y-2 text-sm text-slate-200">
             {dict.pricing.baseFeatures.map((feature) => (
               <li key={feature}>- {feature}</li>
@@ -69,7 +75,9 @@ export default function PricingPage({ params }: PricingPageProps) {
 
         <article className="rounded-2xl border border-emerald-300/40 bg-emerald-300/10 p-6">
           <h2 className="text-xl font-semibold text-white">{dict.pricing.premiumName}</h2>
-          <p className="mt-2 text-2xl font-bold text-emerald-200">{dict.pricing.premiumPrice}</p>
+          <p className="mt-2 text-2xl font-bold text-emerald-200">
+            {formatBillingPlanPrice('premium', billingCurrency, params.locale)}
+          </p>
           <ul className="mt-4 space-y-2 text-sm text-slate-100">
             {dict.pricing.premiumFeatures.map((feature) => (
               <li key={feature}>- {feature}</li>
@@ -79,7 +87,9 @@ export default function PricingPage({ params }: PricingPageProps) {
 
         <article className="rounded-2xl border border-amber-300/40 bg-amber-300/10 p-6">
           <h2 className="text-xl font-semibold text-white">{dict.pricing.platinumName}</h2>
-          <p className="mt-2 text-2xl font-bold text-amber-100">{dict.pricing.platinumPrice}</p>
+          <p className="mt-2 text-2xl font-bold text-amber-100">
+            {formatBillingPlanPrice('platinum', billingCurrency, params.locale)}
+          </p>
           <ul className="mt-4 space-y-2 text-sm text-slate-100">
             {dict.pricing.platinumFeatures.map((feature) => (
               <li key={feature}>- {feature}</li>

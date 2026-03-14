@@ -17,6 +17,8 @@
     "ci:checks": "npm run lint && npm run typecheck && npm run test:unit && npm run build",
     "ci:checks:full": "npm run ci:checks && npm run test:security && npm run test:e2e",
     "test:race": "node scripts/race-reservation.mjs",
+    "gallery:migrate:curator": "node scripts/migrate-gallery-curator-examples.mjs",
+    "gallery:migrate:curator:dry": "node scripts/migrate-gallery-curator-examples.mjs --dry-run",
     "purge:expired:dry": "node scripts/purge-expired-lists.mjs --dry-run",
     "purge:expired": "node scripts/purge-expired-lists.mjs"
   },

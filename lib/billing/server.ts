@@ -1,6 +1,11 @@
 import 'server-only'
 import Stripe from 'stripe'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
+import {
+  BillingCurrency,
+  getBillingPlanPriceCents,
+  toStripeCurrencyCode,
+} from '@/lib/billing/pricing'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
 import { addDays, PAID_ACCESS_DAYS } from '@/lib/lists/access'
 import { adminDb } from '@/lib/firebase/admin'
@@ -34,9 +39,19 @@ import {
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY ?? ''
 const STRIPE_PRICE_ID_90D = process.env.STRIPE_PRICE_ID_90D ?? ''
-const STRIPE_PRICE_ID_BASE_90D = process.env.STRIPE_PRICE_ID_BASE_90D ?? STRIPE_PRICE_ID_90D
-const STRIPE_PRICE_ID_PREMIUM_90D = process.env.STRIPE_PRICE_ID_PREMIUM_90D ?? STRIPE_PRICE_ID_90D
-const STRIPE_PRICE_ID_PLATINUM_90D = process.env.STRIPE_PRICE_ID_PLATINUM_90D ?? STRIPE_PRICE_ID_90D
+const STRIPE_PRICE_ID_90D_USD = process.env.STRIPE_PRICE_ID_90D_USD ?? ''
+const STRIPE_PRICE_ID_BASE_90D_EUR = process.env.STRIPE_PRICE_ID_BASE_90D_EUR
+  ?? process.env.STRIPE_PRICE_ID_BASE_90D
+  ?? STRIPE_PRICE_ID_90D
+const STRIPE_PRICE_ID_PREMIUM_90D_EUR = process.env.STRIPE_PRICE_ID_PREMIUM_90D_EUR
+  ?? process.env.STRIPE_PRICE_ID_PREMIUM_90D
+  ?? STRIPE_PRICE_ID_90D
+const STRIPE_PRICE_ID_PLATINUM_90D_EUR = process.env.STRIPE_PRICE_ID_PLATINUM_90D_EUR
+  ?? process.env.STRIPE_PRICE_ID_PLATINUM_90D
+  ?? STRIPE_PRICE_ID_90D
+const STRIPE_PRICE_ID_BASE_90D_USD = process.env.STRIPE_PRICE_ID_BASE_90D_USD ?? STRIPE_PRICE_ID_90D_USD
+const STRIPE_PRICE_ID_PREMIUM_90D_USD = process.env.STRIPE_PRICE_ID_PREMIUM_90D_USD ?? STRIPE_PRICE_ID_90D_USD
+const STRIPE_PRICE_ID_PLATINUM_90D_USD = process.env.STRIPE_PRICE_ID_PLATINUM_90D_USD ?? STRIPE_PRICE_ID_90D_USD
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? ''
 const MANUAL_FALLBACK_ENABLED = (process.env.BILLING_MANUAL_FALLBACK ?? 'true') === 'true'
 
@@ -68,16 +83,19 @@ const resolveLocale = (locale: string | undefined) => {
   return isLocale(locale) ? locale : defaultLocale
 }
 
-const resolveStripePriceId = (planId: BillingPlanId) => {
+const resolveStripePriceId = (
+  planId: BillingPlanId,
+  currency: BillingCurrency
+) => {
   if (planId === 'base') {
-    return STRIPE_PRICE_ID_BASE_90D
+    return currency === 'EUR' ? STRIPE_PRICE_ID_BASE_90D_EUR : STRIPE_PRICE_ID_BASE_90D_USD
   }
 
   if (planId === 'premium') {
-    return STRIPE_PRICE_ID_PREMIUM_90D
+    return currency === 'EUR' ? STRIPE_PRICE_ID_PREMIUM_90D_EUR : STRIPE_PRICE_ID_PREMIUM_90D_USD
   }
 
-  return STRIPE_PRICE_ID_PLATINUM_90D
+  return currency === 'EUR' ? STRIPE_PRICE_ID_PLATINUM_90D_EUR : STRIPE_PRICE_ID_PLATINUM_90D_USD
 }
 
 const resolvePlanDisplayName = (planId: BillingPlanId) => {
@@ -119,6 +137,7 @@ const grantListPass = async (params: {
   listId: string
   ownerId: string
   planId: BillingPlanId
+  currency: BillingCurrency
   provider: 'manual' | 'stripe'
   paymentRef: string
   amountCents: number
@@ -225,7 +244,8 @@ const grantListPass = async (params: {
       billingModel: 'one_time_90d',
       billingPlanId: params.planId,
       amountCents: params.amountCents,
-      originalAmountCents: BILLING_PLAN_DEFINITIONS[params.planId].priceCents,
+      originalAmountCents: getBillingPlanPriceCents(params.planId, params.currency),
+      currency: params.currency,
       discountType: params.discount.discountType,
       discountPercent: params.discount.discountPercent,
       rewardCreditsConsumed,
@@ -278,15 +298,11 @@ const grantListPass = async (params: {
 }
 
 export const isStripeCheckoutConfigured = (planId?: BillingPlanId) => {
-  if (!stripeClient) {
-    return false
+  if (planId) {
+    return Boolean(stripeClient)
   }
 
-  if (!planId) {
-    return BILLING_PLAN_IDS.some((item) => resolveStripePriceId(item).length > 0)
-  }
-
-  return resolveStripePriceId(planId).length > 0
+  return Boolean(stripeClient)
 }
 
 export const isStripeWebhookConfigured = () => {
@@ -310,6 +326,7 @@ export const startListCheckout = async (params: {
   listId: string
   ownerId: string
   planId: BillingPlanId
+  currency: BillingCurrency
   locale?: string
   referralCode?: string | null
 }): Promise<BillingCheckoutResult> => {
@@ -354,7 +371,7 @@ export const startListCheckout = async (params: {
     throw error
   }
 
-  const originalAmountCents = BILLING_PLAN_DEFINITIONS[params.planId].priceCents
+  const originalAmountCents = getBillingPlanPriceCents(params.planId, params.currency)
   const discountedAmountCents = applyPercentageDiscount(
     originalAmountCents,
     preparedDiscount.discountPercent
@@ -370,6 +387,7 @@ export const startListCheckout = async (params: {
       listId: params.listId,
       ownerId: params.ownerId,
       planId: params.planId,
+      currency: params.currency,
       provider: 'manual',
       paymentRef,
       amountCents: discountedAmountCents,
@@ -385,13 +403,14 @@ export const startListCheckout = async (params: {
   const locale = resolveLocale(params.locale)
   const successUrl = `${SITE_URL}/${locale}/dashboard?billing=success&list=${params.listId}&session_id={CHECKOUT_SESSION_ID}`
   const cancelUrl = `${SITE_URL}/${locale}/dashboard?billing=cancel&list=${params.listId}`
-  const priceId = resolveStripePriceId(params.planId)
+  const priceId = resolveStripePriceId(params.planId, params.currency)
+  const stripeCurrency = toStripeCurrencyCode(params.currency)
 
   const session = await stripeClient!.checkout.sessions.create({
     mode: 'payment',
     success_url: successUrl,
     cancel_url: cancelUrl,
-    line_items: preparedDiscount.discountType === 'none'
+    line_items: preparedDiscount.discountType === 'none' && priceId
       ? [
           {
             price: priceId,
@@ -401,7 +420,7 @@ export const startListCheckout = async (params: {
       : [
           {
             price_data: {
-              currency: 'eur',
+              currency: stripeCurrency,
               unit_amount: discountedAmountCents,
               product_data: {
                 name: `Giftlist Studio ${resolvePlanDisplayName(params.planId)} package`,
@@ -425,6 +444,7 @@ export const startListCheckout = async (params: {
       currentBillingPlanId: typeof listData.billingPlanId === 'string'
         ? listData.billingPlanId
         : '',
+      currency: params.currency,
     },
     client_reference_id: `${params.ownerId}:${params.listId}`,
     allow_promotion_codes: preparedDiscount.discountType === 'none',
@@ -536,6 +556,7 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
         listId,
         ownerId,
         planId,
+        currency: session.currency?.toUpperCase() === 'EUR' ? 'EUR' : 'USD',
         provider: 'stripe',
         paymentRef: session.id,
         amountCents: session.amount_total ?? BILLING_PLAN_DEFINITIONS[planId].priceCents,
