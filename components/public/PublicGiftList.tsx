@@ -126,6 +126,7 @@ const PUBLIC_COPY = {
     detailsSaved: 'Reservation saved.',
     detailsSaveFailed: 'Failed to save the reservation. Please try again.',
     reservationSaved: 'Reservation saved.',
+    demoReservationLabel: 'Example mode',
     demoReservationNotice: 'Example mode is active. Reservations on this sample reset automatically after 5 minutes.',
     reservationExpired: 'This list has expired and no longer accepts reservations.',
     reservationUnavailable: 'This gift has already been reserved.',
@@ -201,6 +202,7 @@ const PUBLIC_COPY = {
     detailsSaved: 'Broneering salvestatud.',
     detailsSaveFailed: 'Broneeringu salvestamine ebaõnnestus. Proovi uuesti.',
     reservationSaved: 'Broneering salvestatud.',
+    demoReservationLabel: 'Näidisrežiim',
     demoReservationNotice: 'NÃ¤idisreÅ¾iim on aktiivne. Selle nÃ¤idislehe broneeringud nullitakse automaatselt 5 minuti pÃ¤rast.',
     reservationExpired: 'See nimekiri on aegunud ja ei võta enam broneeringuid vastu.',
     reservationUnavailable: 'See kingitus on juba broneeritud.',
@@ -1370,9 +1372,10 @@ export default function PublicGiftList({
             </div>
 
             {demoMode && (
-              <p className="mt-4 rounded-xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100">
-                {copy.demoReservationNotice}
-              </p>
+              <div className="event-surface-card mt-4 rounded-xl border px-4 py-3">
+                <p className="text-sm font-semibold text-white">{copy.demoReservationLabel}</p>
+                <p className="mt-1 text-sm text-slate-300">{copy.demoReservationNotice}</p>
+              </div>
             )}
 
             {error && !isPasswordPromptOpen && (
@@ -1474,9 +1477,10 @@ export default function PublicGiftList({
             )}
 
             {demoMode && (
-              <p className="mt-5 rounded-xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100">
-                {copy.demoReservationNotice}
-              </p>
+              <div className="event-surface-card mt-5 rounded-xl border px-4 py-3">
+                <p className="text-sm font-semibold text-white">{copy.demoReservationLabel}</p>
+                <p className="mt-1 text-sm text-slate-300">{copy.demoReservationNotice}</p>
+              </div>
             )}
           </div>
         </header>
@@ -1648,9 +1652,9 @@ export default function PublicGiftList({
                     item.reservedMessage
                     || (item.reservedNamePublic && item.reservedByName)
                   ) && (
-                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="event-surface-card mt-4 rounded-2xl border p-4">
                       {item.reservedMessage && (
-                        <p className="text-sm italic text-slate-100">&ldquo;{item.reservedMessage}&rdquo;</p>
+                        <p className="text-sm italic text-white">&ldquo;{item.reservedMessage}&rdquo;</p>
                       )}
                       {item.reservedNamePublic && item.reservedByName && (
                         <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
