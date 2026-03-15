@@ -161,6 +161,7 @@ export interface GiftListItem {
   mediaDurationSeconds: number | null
   status: GiftItemStatus
   reservedByName: string | null
+  reservedNamePublic: boolean
   reservedMessage: string | null
   reservedAt: number | null
   createdAt: number | null
@@ -196,8 +197,9 @@ export interface UpdateGiftItemInput {
 export interface ReserveGiftItemInput {
   listId: string
   itemId: string
-  guestName?: string
+  guestName: string
   guestMessage?: string
+  reservedNamePublic?: boolean
 }
 
 export interface ListStoryEntry {

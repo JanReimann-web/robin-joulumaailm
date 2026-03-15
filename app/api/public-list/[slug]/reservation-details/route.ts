@@ -16,6 +16,7 @@ type SaveReservationDetailsBody = {
   itemId?: string
   guestName?: string
   guestMessage?: string
+  reservedNamePublic?: boolean
 }
 
 type RouteContext = {
@@ -67,6 +68,7 @@ export async function POST(
 
   const guestName = body.guestName?.trim() ?? ''
   const guestMessage = body.guestMessage?.trim() ?? ''
+  const reservedNamePublic = body.reservedNamePublic === true
 
   if (guestName.length > GUEST_NAME_MAX_LENGTH) {
     return NextResponse.json({ error: 'invalid_guest_name' }, { status: 400 })
@@ -94,6 +96,7 @@ export async function POST(
 
   await itemRef.update({
     reservedByName: guestName || null,
+    reservedNamePublic,
     reservedMessage: guestMessage || null,
     updatedAt: FieldValue.serverTimestamp(),
   })

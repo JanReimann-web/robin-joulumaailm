@@ -54,6 +54,7 @@ describe('e2e public list flow', () => {
         mediaType: null,
         status: 'available',
         reservedByName: null,
+        reservedNamePublic: false,
         reservedMessage: null,
         reservedAt: null,
         createdAt: now,
@@ -95,6 +96,7 @@ describe('e2e public list flow', () => {
       updateDoc(doc(guestDb, 'lists', listId, 'items', itemId), {
         status: 'reserved',
         reservedByName: 'Mari',
+        reservedNamePublic: true,
         reservedMessage: 'Kohtume peol',
         reservedAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
@@ -105,6 +107,7 @@ describe('e2e public list flow', () => {
       setDoc(doc(guestDb, 'lists', listId, 'reservations', 'reservation-1'), {
         itemId,
         guestName: 'Mari',
+        reservedNamePublic: true,
         guestMessage: 'Kohtume peol',
         status: 'active',
         createdAt: Timestamp.fromDate(new Date()),
@@ -116,6 +119,7 @@ describe('e2e public list flow', () => {
       updateDoc(doc(secondGuestDb, 'lists', listId, 'items', itemId), {
         status: 'reserved',
         reservedByName: 'Jaan',
+        reservedNamePublic: false,
         reservedMessage: 'Topelt',
         reservedAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),

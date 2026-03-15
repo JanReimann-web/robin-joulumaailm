@@ -51,6 +51,7 @@ describe('e2e access lifecycle', () => {
         mediaType: null,
         status: 'available',
         reservedByName: null,
+        reservedNamePublic: false,
         reservedMessage: null,
         reservedAt: null,
         createdAt: now,

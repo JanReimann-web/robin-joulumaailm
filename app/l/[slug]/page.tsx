@@ -9,6 +9,7 @@ type PublicListPageProps = {
   }
   searchParams?: {
     template?: string | string[]
+    demo?: string | string[]
   }
 }
 
@@ -79,11 +80,20 @@ const getSingleSearchParam = (value: string | string[] | undefined) => {
   return Array.isArray(value) ? value[0] ?? null : value
 }
 
+const isDemoModeEnabled = (value: string | string[] | undefined) => {
+  const normalizedValue = getSingleSearchParam(value)?.toLowerCase()
+
+  return normalizedValue === '1'
+    || normalizedValue === 'true'
+    || normalizedValue === 'gallery'
+}
+
 export default function PublicListPage({ params, searchParams }: PublicListPageProps) {
   return (
     <PublicGiftList
       slug={params.slug}
       previewTemplateId={getSingleSearchParam(searchParams?.template)}
+      demoMode={isDemoModeEnabled(searchParams?.demo)}
     />
   )
 }

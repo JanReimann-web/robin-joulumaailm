@@ -4,6 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarDays, CheckCircle2, Clock3, MapPin, X } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
+import {
+  applyDemoReservations,
+  buildDemoReservationStorageKey,
+  DEMO_RESERVATION_DURATION_MS,
+  DemoReservationState,
+  isSameDemoReservationState,
+  parseDemoReservationState,
+  pruneDemoReservations,
+} from '@/lib/lists/demo-reservations'
 import { formatHeroEventDate, formatHeroEventTime } from '@/lib/lists/hero'
 import {
   EventType,
@@ -19,6 +28,7 @@ import { resolveEventThemeId } from '@/lib/lists/event-theme'
 type PublicGiftListProps = {
   slug: string
   previewTemplateId?: string | null
+  demoMode?: boolean
 }
 
 type PublicListView = Pick<
@@ -100,19 +110,23 @@ const PUBLIC_COPY = {
     productLinkAction: 'Open product link',
     reserveAction: 'Reserve this gift',
     reserving: 'Reserving...',
-    yourDetailsTitle: 'Your details (optional)',
-    yourDetailsSubtitle: 'You can add your details now so the host can thank you later.',
+    yourDetailsTitle: 'Reserve this gift',
+    yourDetailsSubtitle: 'Your name is required. Your message is optional and will be shown on this gift card.',
     yourNamePlaceholder: 'Your name',
     yourMessagePlaceholder: 'Message (optional)',
+    publicNameCheckboxLabel: 'Show my name publicly on the gift card',
+    detailsMessageHelp: 'Your message is visible on the public gift card after reservation.',
     messageCounterLabel: 'Message',
-    detailsSkipAction: 'Skip',
-    detailsSaveAction: 'Save details',
-    detailsSaving: 'Saving...',
+    detailsCancelAction: 'Cancel',
+    detailsSaveAction: 'Reserve gift',
+    detailsSaving: 'Saving reservation...',
+    detailsNameRequired: 'Please enter your name.',
     detailsNameTooLong: 'Name is too long.',
     detailsMessageTooLong: 'Message is too long.',
-    detailsSaved: 'Details saved.',
-    detailsSaveFailed: 'Failed to save details.',
+    detailsSaved: 'Reservation saved.',
+    detailsSaveFailed: 'Failed to save the reservation. Please try again.',
     reservationSaved: 'Reservation saved.',
+    demoReservationNotice: 'Example mode is active. Reservations on this sample reset automatically after 5 minutes.',
     reservationExpired: 'This list has expired and no longer accepts reservations.',
     reservationUnavailable: 'This gift has already been reserved.',
     reservationFailed: 'Reservation failed. Please try again.',
@@ -171,19 +185,23 @@ const PUBLIC_COPY = {
     productLinkAction: 'Ava toote link',
     reserveAction: 'Broneeri see kingitus',
     reserving: 'Broneerin...',
-    yourDetailsTitle: 'Sinu andmed (valikuline)',
-    yourDetailsSubtitle: 'Soovi korral lisa nüüd andmed, et nimekirja looja saaks sind tänada.',
+    yourDetailsTitle: 'Broneeri see kingitus',
+    yourDetailsSubtitle: 'Sinu nimi on kohustuslik. Sõnum on valikuline ja seda näidatakse selle kingituse avalikul kaardil.',
     yourNamePlaceholder: 'Sinu nimi',
     yourMessagePlaceholder: 'Sõnum (valikuline)',
+    publicNameCheckboxLabel: 'Näita minu nime avalikult kingituse kaardil',
+    detailsMessageHelp: 'Sinu sõnum jääb pärast broneerimist avalikult selle kingituse kaardile nähtavaks.',
     messageCounterLabel: 'Sõnum',
-    detailsSkipAction: 'Jäta vahele',
-    detailsSaveAction: 'Salvesta andmed',
-    detailsSaving: 'Salvestan...',
+    detailsCancelAction: 'Tühista',
+    detailsSaveAction: 'Broneeri kingitus',
+    detailsSaving: 'Salvestan broneeringut...',
+    detailsNameRequired: 'Palun sisesta oma nimi.',
     detailsNameTooLong: 'Nimi on liiga pikk.',
     detailsMessageTooLong: 'Sõnum on liiga pikk.',
-    detailsSaved: 'Andmed salvestatud.',
-    detailsSaveFailed: 'Andmete salvestamine ebaõnnestus.',
+    detailsSaved: 'Broneering salvestatud.',
+    detailsSaveFailed: 'Broneeringu salvestamine ebaõnnestus. Proovi uuesti.',
     reservationSaved: 'Broneering salvestatud.',
+    demoReservationNotice: 'NÃ¤idisreÅ¾iim on aktiivne. Selle nÃ¤idislehe broneeringud nullitakse automaatselt 5 minuti pÃ¤rast.',
     reservationExpired: 'See nimekiri on aegunud ja ei võta enam broneeringuid vastu.',
     reservationUnavailable: 'See kingitus on juba broneeritud.',
     reservationFailed: 'Broneerimine ebaõnnestus. Proovi uuesti.',
@@ -335,12 +353,17 @@ const renderHeroEventMeta = (params: {
   )
 }
 
-export default function PublicGiftList({ slug, previewTemplateId = null }: PublicGiftListProps) {
+export default function PublicGiftList({
+  slug,
+  previewTemplateId = null,
+  demoMode = false,
+}: PublicGiftListProps) {
   const [locale, setLocale] = useState<PublicLocale>(detectInitialLocale)
   const [hasMounted, setHasMounted] = useState(false)
   const [meta, setMeta] = useState<PublicListMetaResponse | null>(null)
   const [list, setList] = useState<PublicListView | null>(null)
   const [items, setItems] = useState<GiftListItem[]>([])
+  const [demoReservations, setDemoReservations] = useState<DemoReservationState>({})
   const [stories, setStories] = useState<ListStoryEntry[]>([])
   const [wheelEntries, setWheelEntries] = useState<WheelEntry[]>([])
   const [previewMedia, setPreviewMedia] = useState<PreviewMedia>(null)
@@ -354,6 +377,7 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [detailsItemId, setDetailsItemId] = useState<string | null>(null)
   const [detailsGuestName, setDetailsGuestName] = useState('')
+  const [detailsReservedNamePublic, setDetailsReservedNamePublic] = useState(false)
   const [detailsGuestMessage, setDetailsGuestMessage] = useState('')
   const [isSavingDetails, setIsSavingDetails] = useState(false)
   const [detailsError, setDetailsError] = useState<string | null>(null)
@@ -373,11 +397,21 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
   const thankYouLaunchTimeoutRef = useRef<number | null>(null)
   const copy = PUBLIC_COPY[locale]
   const modalRoot = hasMounted ? document.body : null
+  const demoStorageKey = useMemo(() => buildDemoReservationStorageKey(slug), [slug])
   const isPasswordProtected = Boolean(
     meta?.requiresPassword
     || meta?.list.visibility === 'public_password'
     || list?.visibility === 'public_password'
   )
+
+  const resetReservationDetails = useCallback(() => {
+    setIsDetailsModalOpen(false)
+    setDetailsItemId(null)
+    setDetailsGuestName('')
+    setDetailsReservedNamePublic(false)
+    setDetailsGuestMessage('')
+    setDetailsError(null)
+  }, [])
 
   useEffect(() => {
     setLocale(detectInitialLocale())
@@ -386,6 +420,69 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
   useEffect(() => {
     setHasMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!hasMounted || !demoMode) {
+      setDemoReservations({})
+      return
+    }
+
+    const nextReservations = pruneDemoReservations(
+      parseDemoReservationState(window.sessionStorage.getItem(demoStorageKey))
+    )
+
+    if (Object.keys(nextReservations).length === 0) {
+      window.sessionStorage.removeItem(demoStorageKey)
+    } else {
+      window.sessionStorage.setItem(demoStorageKey, JSON.stringify(nextReservations))
+    }
+
+    setDemoReservations(nextReservations)
+  }, [demoMode, demoStorageKey, hasMounted])
+
+  const persistDemoReservations = useCallback((nextReservations: DemoReservationState) => {
+    if (!hasMounted || !demoMode) {
+      return
+    }
+
+    if (Object.keys(nextReservations).length === 0) {
+      window.sessionStorage.removeItem(demoStorageKey)
+      return
+    }
+
+    window.sessionStorage.setItem(demoStorageKey, JSON.stringify(nextReservations))
+  }, [demoMode, demoStorageKey, hasMounted])
+
+  useEffect(() => {
+    if (!hasMounted || !demoMode) {
+      return
+    }
+
+    const nextReservations = pruneDemoReservations(demoReservations)
+    if (!isSameDemoReservationState(nextReservations, demoReservations)) {
+      persistDemoReservations(nextReservations)
+      setDemoReservations(nextReservations)
+      return
+    }
+
+    const activeReservations = Object.values(nextReservations)
+    if (activeReservations.length === 0) {
+      return
+    }
+
+    const nextExpiryAt = Math.min(...activeReservations.map((reservation) => reservation.expiresAt))
+    const timeoutId = window.setTimeout(() => {
+      setDemoReservations((current) => {
+        const prunedReservations = pruneDemoReservations(current)
+        persistDemoReservations(prunedReservations)
+        return prunedReservations
+      })
+    }, Math.max(nextExpiryAt - Date.now(), 0) + 80)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [demoMode, demoReservations, hasMounted, persistDemoReservations])
 
   useEffect(() => {
     return () => {
@@ -619,6 +716,11 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
     ? getEventSectionCopy(activeEventType, activeTemplateId, locale)
     : null
   const isListExpired = (list ?? meta?.list)?.accessStatus === 'expired'
+  const visibleItems = useMemo(() => {
+    return demoMode
+      ? applyDemoReservations(items, demoReservations)
+      : items
+  }, [demoMode, demoReservations, items])
   const selectedWheelEntry = useMemo(
     () => wheelEntries.find((entry) => entry.id === selectedWheelEntryId) ?? null,
     [selectedWheelEntryId, wheelEntries]
@@ -832,6 +934,16 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
     }, 5000)
   }
 
+  const updateDemoReservationState = useCallback((
+    updater: (current: DemoReservationState) => DemoReservationState
+  ) => {
+    setDemoReservations((current) => {
+      const nextReservations = pruneDemoReservations(updater(pruneDemoReservations(current)))
+      persistDemoReservations(nextReservations)
+      return nextReservations
+    })
+  }, [persistDemoReservations])
+
   const handleSaveReservationDetails = async () => {
     if (!detailsItemId) {
       return
@@ -839,6 +951,12 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
 
     const normalizedName = detailsGuestName.trim()
     const normalizedMessage = detailsGuestMessage.trim()
+    const reservingId = detailsItemId
+
+    if (!normalizedName) {
+      setDetailsError(copy.detailsNameRequired)
+      return
+    }
 
     if (normalizedName.length > GUEST_NAME_MAX_LENGTH) {
       setDetailsError(copy.detailsNameTooLong)
@@ -853,84 +971,37 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
     setIsSavingDetails(true)
     setDetailsError(null)
     setError(null)
+    setSuccess(null)
+    setReservingItemId(reservingId)
 
-    try {
-      const response = await fetch(
-        `/api/public-list/${encodeURIComponent(slug)}/reservation-details`,
-        {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({
-            itemId: detailsItemId,
-            guestName: normalizedName,
-            guestMessage: normalizedMessage,
-          }),
-        }
-      )
-
-      const payload = await response
-        .json()
-        .catch(() => ({ error: 'save_failed' })) as { error?: string }
-
-      if (!response.ok) {
-        if (payload.error === 'password_required') {
-          setHasEntered(false)
-          setIsPasswordPromptOpen(true)
-          return
-        }
-
-        if (payload.error === 'item_not_reserved' || payload.error === 'item_unavailable') {
-          await loadContent()
-        }
-
-        setDetailsError(copy.detailsSaveFailed)
+    if (demoMode) {
+      const selectedItem = visibleItems.find((entry) => entry.id === reservingId)
+      if (!selectedItem || selectedItem.status !== 'available') {
+        setDetailsError(copy.reservationUnavailable)
+        setIsSavingDetails(false)
+        setReservingItemId(null)
         return
       }
 
-      setItems((current) =>
-        current.map((entry) =>
-          entry.id === detailsItemId
-            ? {
-                ...entry,
-                reservedByName: normalizedName || null,
-                reservedMessage: normalizedMessage || null,
-              }
-            : entry
-        )
-      )
-      setSuccess(null)
-      setIsDetailsModalOpen(false)
-      setDetailsItemId(null)
-      setDetailsGuestName('')
-      setDetailsGuestMessage('')
+      const reservedAt = Date.now()
+      updateDemoReservationState((current) => ({
+        ...current,
+        [reservingId]: {
+          itemId: reservingId,
+          reservedAt,
+          expiresAt: reservedAt + DEMO_RESERVATION_DURATION_MS,
+          reservedByName: normalizedName,
+          reservedNamePublic: detailsReservedNamePublic,
+          reservedMessage: normalizedMessage || null,
+        },
+      }))
+
+      resetReservationDetails()
       scheduleThankYouCard()
-    } catch {
-      setDetailsError(copy.detailsSaveFailed)
-    } finally {
       setIsSavingDetails(false)
-    }
-  }
-
-  const handleSkipReservationDetails = () => {
-    setIsDetailsModalOpen(false)
-    setDetailsItemId(null)
-    setDetailsGuestName('')
-    setDetailsGuestMessage('')
-    setDetailsError(null)
-    setSuccess(null)
-    scheduleThankYouCard()
-  }
-
-  const handleReserve = async (itemId: string) => {
-    if (!list) {
+      setReservingItemId(null)
       return
     }
-
-    setError(null)
-    setSuccess(null)
-    setReservingItemId(itemId)
 
     try {
       const response = await fetch(
@@ -941,7 +1012,10 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
             'content-type': 'application/json',
           },
           body: JSON.stringify({
-            itemId,
+            itemId: reservingId,
+            guestName: normalizedName,
+            guestMessage: normalizedMessage,
+            reservedNamePublic: detailsReservedNamePublic,
           }),
         }
       )
@@ -951,49 +1025,97 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
         .catch(() => ({ error: 'reserve_failed' })) as { error?: string }
 
       if (!response.ok) {
+        if (payload.error === 'missing_guest_name') {
+          setDetailsError(copy.detailsNameRequired)
+          return
+        }
+
+        if (payload.error === 'invalid_guest_name') {
+          setDetailsError(copy.detailsNameTooLong)
+          return
+        }
+
+        if (payload.error === 'invalid_guest_message') {
+          setDetailsError(copy.detailsMessageTooLong)
+          return
+        }
+
         if (payload.error === 'list_expired') {
+          resetReservationDetails()
           setError(copy.reservationExpired)
           return
         }
+
         if (payload.error === 'item_unavailable') {
+          resetReservationDetails()
           setError(copy.reservationUnavailable)
           await loadContent()
           return
         }
+
         if (payload.error === 'password_required') {
+          resetReservationDetails()
           setHasEntered(false)
           setIsPasswordPromptOpen(true)
           return
         }
 
-        setError(copy.reservationFailed)
+        setDetailsError(copy.detailsSaveFailed)
         return
       }
 
       setItems((current) =>
         current.map((entry) =>
-          entry.id === itemId
+          entry.id === reservingId
             ? {
                 ...entry,
                 status: 'reserved',
-                reservedByName: null,
-                reservedMessage: null,
+                reservedByName: normalizedName,
+                reservedNamePublic: detailsReservedNamePublic,
+                reservedMessage: normalizedMessage || null,
                 reservedAt: Date.now(),
               }
             : entry
         )
       )
-      setSuccess(null)
-      setDetailsItemId(itemId)
-      setDetailsGuestName('')
-      setDetailsGuestMessage('')
-      setDetailsError(null)
-      setIsDetailsModalOpen(true)
+      resetReservationDetails()
+      scheduleThankYouCard()
     } catch {
-      setError(copy.reservationFailed)
+      setDetailsError(copy.detailsSaveFailed)
     } finally {
+      setIsSavingDetails(false)
       setReservingItemId(null)
     }
+  }
+
+  const handleCloseReservationDetails = () => {
+    if (isSavingDetails) {
+      return
+    }
+
+    resetReservationDetails()
+    setSuccess(null)
+  }
+
+  const handleReserve = async (itemId: string) => {
+    if (!list) {
+      return
+    }
+
+    const selectedItem = visibleItems.find((entry) => entry.id === itemId)
+    if (!selectedItem || selectedItem.status !== 'available') {
+      setError(copy.reservationUnavailable)
+      return
+    }
+
+    setError(null)
+    setSuccess(null)
+    setDetailsItemId(itemId)
+    setDetailsGuestName('')
+    setDetailsReservedNamePublic(false)
+    setDetailsGuestMessage('')
+    setDetailsError(null)
+    setIsDetailsModalOpen(true)
   }
 
   const handleSpinWheel = () => {
@@ -1247,6 +1369,12 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
               </button>
             </div>
 
+            {demoMode && (
+              <p className="mt-4 rounded-xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100">
+                {copy.demoReservationNotice}
+              </p>
+            )}
+
             {error && !isPasswordPromptOpen && (
               <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                 {error}
@@ -1342,6 +1470,12 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
             {isListExpired && (
               <p className="mt-5 rounded-xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
                 {copy.listExpired}
+              </p>
+            )}
+
+            {demoMode && (
+              <p className="mt-5 rounded-xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-100">
+                {copy.demoReservationNotice}
               </p>
             )}
           </div>
@@ -1478,11 +1612,11 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
         )}
 
         <section className="mt-6 grid gap-4">
-        {items.length === 0 && (
+        {visibleItems.length === 0 && (
           <p className="text-sm text-slate-300">{copy.noGiftItems}</p>
         )}
 
-        {items.map((item, index) => {
+        {visibleItems.map((item, index) => {
           const isAvailable = item.status === 'available'
           const hasItemVisualMedia = hasVisualMedia(item.mediaUrl, item.mediaType)
           const hasAudioOnlyMedia = Boolean(item.mediaUrl && item.mediaType?.startsWith('audio/'))
@@ -1509,6 +1643,22 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
                   </div>
 
                   <p className="mt-2 text-sm text-slate-300">{item.description}</p>
+
+                  {item.status !== 'available' && (
+                    item.reservedMessage
+                    || (item.reservedNamePublic && item.reservedByName)
+                  ) && (
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                      {item.reservedMessage && (
+                        <p className="text-sm italic text-slate-100">&ldquo;{item.reservedMessage}&rdquo;</p>
+                      )}
+                      {item.reservedNamePublic && item.reservedByName && (
+                        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
+                          {item.reservedByName}
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   {hasAudioOnlyMedia && (
                     <div className="mt-4">
@@ -1591,8 +1741,8 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
         <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 970 }}>
           <button
             type="button"
-            aria-label={copy.detailsSkipAction}
-            onClick={handleSkipReservationDetails}
+            aria-label={copy.detailsCancelAction}
+            onClick={handleCloseReservationDetails}
             className="absolute inset-0 bg-slate-950/85"
           />
           <section
@@ -1608,6 +1758,15 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
                 placeholder={copy.yourNamePlaceholder}
                 className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
               />
+              <label className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-slate-200">
+                <input
+                  type="checkbox"
+                  checked={detailsReservedNamePublic}
+                  onChange={(event) => setDetailsReservedNamePublic(event.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-white/30 bg-slate-950/80 text-emerald-400"
+                />
+                <span>{copy.publicNameCheckboxLabel}</span>
+              </label>
               <label className="grid gap-1">
                 <textarea
                   value={detailsGuestMessage}
@@ -1621,6 +1780,7 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
                   {copy.messageCounterLabel}: {detailsGuestMessage.length}/{GUEST_MESSAGE_MAX_LENGTH}
                 </span>
               </label>
+              <p className="text-xs text-slate-400">{copy.detailsMessageHelp}</p>
             </div>
 
             {detailsError && (
@@ -1632,10 +1792,11 @@ export default function PublicGiftList({ slug, previewTemplateId = null }: Publi
             <div className="mt-5 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
-                onClick={handleSkipReservationDetails}
+                onClick={handleCloseReservationDetails}
+                disabled={isSavingDetails}
                 className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white"
               >
-                {copy.detailsSkipAction}
+                {copy.detailsCancelAction}
               </button>
               <button
                 type="button"

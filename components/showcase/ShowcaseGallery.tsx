@@ -279,7 +279,7 @@ function GalleryCard({
             <div className="mt-5 flex flex-wrap gap-3">
               {card.kind === 'entry' ? (
                 <Link
-                  href={`/l/${card.entry.slug}?template=${previewTemplateId}`}
+                  href={`/l/${card.entry.slug}?template=${previewTemplateId}&demo=gallery`}
                   className="event-accent-button rounded-full px-5 py-2.5 text-sm font-semibold"
                 >
                   {labels.openExampleAction}

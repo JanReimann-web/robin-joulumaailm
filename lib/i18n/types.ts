@@ -366,6 +366,10 @@ export interface Dictionary {
     releaseReservationAction: string
     markGiftedAction: string
     markAvailableAction: string
+    reservationGuestNameLabel: string
+    reservationPublicNameVisible: string
+    reservationPublicNameHidden: string
+    reservationMessageLabel: string
     updatingStatus: string
     statusUpdated: string
     itemAdded: string

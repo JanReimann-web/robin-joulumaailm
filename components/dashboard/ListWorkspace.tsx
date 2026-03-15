@@ -1215,6 +1215,7 @@ export default function ListWorkspace({
                 mediaDurationSeconds: params.uploadedMedia.durationSeconds,
                 status: 'available' as const,
                 reservedByName: null,
+                reservedNamePublic: false,
                 reservedMessage: null,
                 reservedAt: null,
                 createdAt: null,
@@ -3877,89 +3878,87 @@ export default function ListWorkspace({
                 />
               </label>
 
-              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr),minmax(0,1.15fr)]">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-sm text-slate-200">
-                    <span>{labels.heroDateLabel}</span>
-                    <div className="grid gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openNativePicker(introEventDateInputRef)}
-                        disabled={isIntroEditorDisabled}
-                        className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <span className={formattedIntroEventDate ? 'text-white' : 'text-slate-400'}>
-                          {formattedIntroEventDate ?? labels.heroDatePlaceholder}
-                        </span>
-                        <CalendarDays size={18} className="shrink-0 text-slate-300" />
-                      </button>
-                      <input
-                        ref={introEventDateInputRef}
-                        type="date"
-                        value={introEventDate}
-                        disabled={isIntroEditorDisabled}
-                        onChange={(entry) => setIntroEventDate(entry.target.value)}
-                        tabIndex={-1}
-                        className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
-                      />
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs text-slate-400">{labels.heroDateHint}</span>
-                        {introEventDate && (
-                          <button
-                            type="button"
-                            onClick={() => setIntroEventDate('')}
-                            disabled={isIntroEditorDisabled}
-                            className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {labels.heroDateClearAction}
-                          </button>
-                        )}
-                      </div>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <label className="grid gap-2 text-sm text-slate-200">
+                  <span>{labels.heroDateLabel}</span>
+                  <div className="grid gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openNativePicker(introEventDateInputRef)}
+                      disabled={isIntroEditorDisabled}
+                      className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <span className={formattedIntroEventDate ? 'text-white' : 'text-slate-400'}>
+                        {formattedIntroEventDate ?? labels.heroDatePlaceholder}
+                      </span>
+                      <CalendarDays size={18} className="shrink-0 text-slate-300" />
+                    </button>
+                    <input
+                      ref={introEventDateInputRef}
+                      type="date"
+                      value={introEventDate}
+                      disabled={isIntroEditorDisabled}
+                      onChange={(entry) => setIntroEventDate(entry.target.value)}
+                      tabIndex={-1}
+                      className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
+                    />
+                    <div className="flex min-h-[2.75rem] flex-col items-start gap-1">
+                      <span className="text-xs text-slate-400">{labels.heroDateHint}</span>
+                      {introEventDate && (
+                        <button
+                          type="button"
+                          onClick={() => setIntroEventDate('')}
+                          disabled={isIntroEditorDisabled}
+                          className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {labels.heroDateClearAction}
+                        </button>
+                      )}
                     </div>
-                  </label>
+                  </div>
+                </label>
 
-                  <label className="grid gap-1 text-sm text-slate-200">
-                    <span>{labels.heroTimeLabel}</span>
-                    <div className="grid gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openNativePicker(introEventTimeInputRef)}
-                        disabled={isIntroEditorDisabled}
-                        className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <span className={formattedIntroEventTime ? 'text-white' : 'text-slate-400'}>
-                          {formattedIntroEventTime ?? labels.heroTimePlaceholder}
-                        </span>
-                        <Clock3 size={18} className="shrink-0 text-slate-300" />
-                      </button>
-                      <input
-                        ref={introEventTimeInputRef}
-                        type="time"
-                        step={60}
-                        value={introEventTime}
-                        disabled={isIntroEditorDisabled}
-                        onChange={(entry) => setIntroEventTime(entry.target.value)}
-                        tabIndex={-1}
-                        className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
-                      />
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs text-slate-400">{labels.heroTimeHint}</span>
-                        {introEventTime && (
-                          <button
-                            type="button"
-                            onClick={() => setIntroEventTime('')}
-                            disabled={isIntroEditorDisabled}
-                            className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {labels.heroTimeClearAction}
-                          </button>
-                        )}
-                      </div>
+                <label className="grid gap-2 text-sm text-slate-200">
+                  <span>{labels.heroTimeLabel}</span>
+                  <div className="grid gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openNativePicker(introEventTimeInputRef)}
+                      disabled={isIntroEditorDisabled}
+                      className="flex min-h-[42px] items-center justify-between gap-3 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-left transition hover:border-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <span className={formattedIntroEventTime ? 'text-white' : 'text-slate-400'}>
+                        {formattedIntroEventTime ?? labels.heroTimePlaceholder}
+                      </span>
+                      <Clock3 size={18} className="shrink-0 text-slate-300" />
+                    </button>
+                    <input
+                      ref={introEventTimeInputRef}
+                      type="time"
+                      step={60}
+                      value={introEventTime}
+                      disabled={isIntroEditorDisabled}
+                      onChange={(entry) => setIntroEventTime(entry.target.value)}
+                      tabIndex={-1}
+                      className="pointer-events-none absolute h-px w-px overflow-hidden opacity-0"
+                    />
+                    <div className="flex min-h-[2.75rem] flex-col items-start gap-1">
+                      <span className="text-xs text-slate-400">{labels.heroTimeHint}</span>
+                      {introEventTime && (
+                        <button
+                          type="button"
+                          onClick={() => setIntroEventTime('')}
+                          disabled={isIntroEditorDisabled}
+                          className="text-xs font-medium text-emerald-200 transition hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {labels.heroTimeClearAction}
+                        </button>
+                      )}
                     </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
 
-                <label className="grid gap-1 text-sm text-slate-200">
+                <label className="grid gap-2 text-sm text-slate-200">
                   <span>{labels.heroLocationLabel}</span>
                   <input
                     value={introEventLocation}
@@ -3967,9 +3966,9 @@ export default function ListWorkspace({
                     onChange={(entry) => setIntroEventLocation(entry.target.value)}
                     placeholder={labels.heroLocationPlaceholder}
                     autoComplete="street-address"
-                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                    className="min-h-[42px] w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
                   />
-                  <span className="text-xs text-slate-400">{labels.heroLocationHint}</span>
+                  <span className="min-h-[2.75rem] text-xs text-slate-400">{labels.heroLocationHint}</span>
                 </label>
               </div>
 
@@ -4229,10 +4228,30 @@ export default function ListWorkspace({
                         {labels.previewOpenLinkAction}
                       </a>
                     )}
-                    <p className="mt-2 text-xs text-slate-400">
-                      {itemStatusLabels[item.status]}
-                      {item.reservedByName ? ` · ${item.reservedByName}` : ''}
-                    </p>
+                    <p className="mt-2 text-xs text-slate-400">{itemStatusLabels[item.status]}</p>
+                    {(item.reservedByName || item.reservedMessage) && (
+                      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-slate-300">
+                        {item.reservedByName && (
+                          <p>
+                            <span className="font-semibold text-white">{labels.reservationGuestNameLabel}:</span>{' '}
+                            {item.reservedByName}
+                          </p>
+                        )}
+                        {item.reservedByName && (
+                          <p className="mt-1 text-slate-400">
+                            {item.reservedNamePublic
+                              ? labels.reservationPublicNameVisible
+                              : labels.reservationPublicNameHidden}
+                          </p>
+                        )}
+                        {item.reservedMessage && (
+                          <p className="mt-2">
+                            <span className="font-semibold text-white">{labels.reservationMessageLabel}:</span>{' '}
+                            {item.reservedMessage}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap gap-2 lg:max-w-[17rem] lg:justify-end">

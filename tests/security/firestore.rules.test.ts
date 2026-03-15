@@ -175,6 +175,7 @@ describe('firestore rules', () => {
         mediaType: null,
         status: 'available',
         reservedByName: null,
+        reservedNamePublic: false,
         reservedMessage: null,
         reservedAt: null,
         createdAt: Timestamp.fromDate(new Date()),
@@ -189,6 +190,7 @@ describe('firestore rules', () => {
       updateDoc(itemRef, {
         status: 'reserved',
         reservedByName: 'Guest',
+        reservedNamePublic: true,
         reservedMessage: 'See you!',
         reservedAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
@@ -200,6 +202,37 @@ describe('firestore rules', () => {
         name: 'Changed by guest',
       })
     )
+  })
+
+  it('keeps reservation documents visible only to the list owner', async () => {
+    const listId = 'list-reservation-read'
+    const ownerId = 'owner-reservation-read'
+
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      visibility: 'public',
+      trialEndsAt: futureTimestamp(),
+      paidAccessEndsAt: futureTimestamp(90),
+    })
+
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore()
+      await setDoc(doc(db, 'lists', listId, 'reservations', 'reservation-1'), {
+        itemId: 'item-1',
+        guestName: 'Guest',
+        reservedNamePublic: false,
+        guestMessage: 'Private note',
+        status: 'active',
+        createdAt: Timestamp.fromDate(new Date()),
+      })
+    })
+
+    const ownerDb = testEnv.authenticatedContext(ownerId).firestore()
+    const anonDb = testEnv.unauthenticatedContext().firestore()
+
+    await assertSucceeds(getDoc(doc(ownerDb, 'lists', listId, 'reservations', 'reservation-1')))
+    await assertFails(getDoc(doc(anonDb, 'lists', listId, 'reservations', 'reservation-1')))
   })
 
   it('allows owner to manage stories and wheel entries, public read-only', async () => {

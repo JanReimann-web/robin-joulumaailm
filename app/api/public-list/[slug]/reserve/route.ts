@@ -11,10 +11,14 @@ import { GiftListItem } from '@/lib/lists/types'
 
 export const runtime = 'nodejs'
 
+const GUEST_NAME_MAX_LENGTH = 80
+const GUEST_MESSAGE_MAX_LENGTH = 240
+
 type ReserveBody = {
   itemId?: string
   guestName?: string
   guestMessage?: string
+  reservedNamePublic?: boolean
 }
 
 type RouteContext = {
@@ -82,6 +86,22 @@ export async function POST(
     return NextResponse.json({ error: 'missing_item_id' }, { status: 400 })
   }
 
+  const guestName = body.guestName?.trim() ?? ''
+  const guestMessage = body.guestMessage?.trim() ?? ''
+  const reservedNamePublic = body.reservedNamePublic === true
+
+  if (!guestName) {
+    return NextResponse.json({ error: 'missing_guest_name' }, { status: 400 })
+  }
+
+  if (guestName.length > GUEST_NAME_MAX_LENGTH) {
+    return NextResponse.json({ error: 'invalid_guest_name' }, { status: 400 })
+  }
+
+  if (guestMessage.length > GUEST_MESSAGE_MAX_LENGTH) {
+    return NextResponse.json({ error: 'invalid_guest_message' }, { status: 400 })
+  }
+
   const listRef = adminDb.collection('lists').doc(list.id)
   const itemRef = listRef.collection('items').doc(itemId)
   const reservationRef = listRef.collection('reservations').doc()
@@ -122,16 +142,18 @@ export async function POST(
 
       transaction.update(itemRef, {
         status: 'reserved',
-        reservedByName: body.guestName?.trim() || null,
-        reservedMessage: body.guestMessage?.trim() || null,
+        reservedByName: guestName,
+        reservedNamePublic,
+        reservedMessage: guestMessage || null,
         reservedAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       })
 
       transaction.set(reservationRef, {
         itemId,
-        guestName: body.guestName?.trim() || null,
-        guestMessage: body.guestMessage?.trim() || null,
+        guestName,
+        reservedNamePublic,
+        guestMessage: guestMessage || null,
         status: 'active',
         createdAt: FieldValue.serverTimestamp(),
       })

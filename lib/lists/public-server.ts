@@ -121,6 +121,7 @@ const mapItemDoc = (
     mediaDurationSeconds: toNullableNumber(data.mediaDurationSeconds),
     status: (data.status as GiftListItem['status']) ?? 'available',
     reservedByName: data.reservedByName ? String(data.reservedByName) : null,
+    reservedNamePublic: data.reservedNamePublic === true,
     reservedMessage: data.reservedMessage ? String(data.reservedMessage) : null,
     reservedAt: toMillis(data.reservedAt),
     createdAt: toMillis(data.createdAt),

@@ -175,6 +175,7 @@ const mapItemDoc = (
     mediaDurationSeconds: toNullableNumber(data.mediaDurationSeconds),
     status: (data.status as GiftListItem['status']) ?? 'available',
     reservedByName: data.reservedByName ? String(data.reservedByName) : null,
+    reservedNamePublic: data.reservedNamePublic === true,
     reservedMessage: data.reservedMessage ? String(data.reservedMessage) : null,
     reservedAt: toMillis(data.reservedAt),
     createdAt: toMillis(data.createdAt),
@@ -500,6 +501,7 @@ export const createGiftItem = async (input: CreateGiftItemInput) => {
     mediaDurationSeconds: input.media?.durationSeconds ?? null,
     status: 'available',
     reservedByName: null,
+    reservedNamePublic: false,
     reservedMessage: null,
     reservedAt: null,
     createdAt: serverTimestamp(),
@@ -576,6 +578,7 @@ export const setGiftItemStatus = async (
 
   if (status === 'available') {
     payload.reservedByName = null
+    payload.reservedNamePublic = false
     payload.reservedMessage = null
     payload.reservedAt = null
   }
@@ -885,7 +888,8 @@ export const reserveGiftItem = async (input: ReserveGiftItemInput) => {
 
     transaction.update(itemRef, {
       status: 'reserved',
-      reservedByName: input.guestName?.trim() || null,
+      reservedByName: input.guestName.trim() || null,
+      reservedNamePublic: input.reservedNamePublic === true,
       reservedMessage: input.guestMessage?.trim() || null,
       reservedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -893,7 +897,8 @@ export const reserveGiftItem = async (input: ReserveGiftItemInput) => {
 
     transaction.set(reservationRef, {
       itemId: input.itemId,
-      guestName: input.guestName?.trim() || null,
+      guestName: input.guestName.trim(),
+      reservedNamePublic: input.reservedNamePublic === true,
       guestMessage: input.guestMessage?.trim() || null,
       status: 'active',
       createdAt: serverTimestamp(),

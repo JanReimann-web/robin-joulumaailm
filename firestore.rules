@@ -278,7 +278,9 @@ service cloud.firestore {
         && request.resource.data.description == resource.data.description
         && request.resource.data.link == resource.data.link
         && request.resource.data.createdAt == resource.data.createdAt
-        && isStringOrNull(request.resource.data.reservedByName)
+        && request.resource.data.reservedByName is string
+        && request.resource.data.reservedByName.size() > 0
+        && request.resource.data.reservedNamePublic is bool
         && isStringOrNull(request.resource.data.reservedMessage)
         && request.resource.data.reservedAt is timestamp
         && request.resource.data.updatedAt is timestamp
@@ -288,6 +290,7 @@ service cloud.firestore {
           .hasOnly([
             'status',
             'reservedByName',
+            'reservedNamePublic',
             'reservedMessage',
             'reservedAt',
             'updatedAt',
@@ -298,12 +301,15 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly([
           'itemId',
           'guestName',
+          'reservedNamePublic',
           'guestMessage',
           'status',
           'createdAt',
         ])
         && request.resource.data.itemId is string
-        && isStringOrNull(request.resource.data.guestName)
+        && request.resource.data.guestName is string
+        && request.resource.data.guestName.size() > 0
+        && request.resource.data.reservedNamePublic is bool
         && isStringOrNull(request.resource.data.guestMessage)
         && request.resource.data.status == 'active'
         && request.resource.data.createdAt is timestamp;
@@ -435,7 +441,7 @@ service cloud.firestore {
     match /lists/{listId}/reservations/{reservationId} {
       allow create: if isListOwner(listId)
         || (isListPublic(listId) && isValidPublicReservationCreate());
-      allow read: if isListOwner(listId) || isListPublic(listId);
+      allow read: if isListOwner(listId);
       allow update, delete: if isListOwner(listId);
     }
 

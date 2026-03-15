@@ -55,6 +55,7 @@ describe('e2e complimentary access flow', () => {
         mediaType: null,
         status: 'available',
         reservedByName: null,
+        reservedNamePublic: false,
         reservedMessage: null,
         reservedAt: null,
         createdAt: now,
@@ -71,6 +72,7 @@ describe('e2e complimentary access flow', () => {
       updateDoc(doc(guestDb, 'lists', listId, 'items', itemId), {
         status: 'reserved',
         reservedByName: 'Guest',
+        reservedNamePublic: true,
         reservedMessage: 'Reserved with complimentary access',
         reservedAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
