@@ -10,6 +10,7 @@ const nextConfig = {
   poweredByHeader: false,
   // Suurte failide toetus (videod)
   experimental: {
+    serverComponentsExternalPackages: ['ffmpeg-static'],
     outputFileTracingIncludes: {
       '/api/lists/media/process-video': [
         './node_modules/ffmpeg-static/**/*',
