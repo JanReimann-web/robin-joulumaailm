@@ -15,6 +15,19 @@ type ProcessVideoBody = {
   incomingPath?: string
 }
 
+const sanitizeErrorDetails = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const normalized = value
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 500)
+
+  return normalized.length > 0 ? normalized : null
+}
+
 const parseBearerToken = (request: NextRequest) => {
   const authHeader = request.headers.get('authorization') ?? ''
   if (!authHeader.startsWith('Bearer ')) {
@@ -81,19 +94,21 @@ export async function POST(request: NextRequest) {
     })
 
     if (error instanceof VideoProcessingError) {
+      const details = sanitizeErrorDetails(error.cause)
+
       if (error.code === 'video_too_long') {
-        return NextResponse.json({ error: error.code }, { status: 400 })
+        return NextResponse.json({ error: error.code, details }, { status: 400 })
       }
 
       if (error.code === 'invalid_section' || error.code === 'invalid_source') {
-        return NextResponse.json({ error: error.code }, { status: 400 })
+        return NextResponse.json({ error: error.code, details }, { status: 400 })
       }
 
       if (error.code === 'video_processing_unavailable') {
-        return NextResponse.json({ error: error.code }, { status: 503 })
+        return NextResponse.json({ error: error.code, details }, { status: 503 })
       }
 
-      return NextResponse.json({ error: error.code }, { status: 500 })
+      return NextResponse.json({ error: error.code, details }, { status: 500 })
     }
 
     return NextResponse.json({ error: 'video_processing_failed' }, { status: 500 })

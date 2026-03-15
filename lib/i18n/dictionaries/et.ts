@@ -357,6 +357,7 @@ export const etDictionary: Dictionary = {
     planPlatinumFeatures: ['Kuni 500 MB optimeeritud meediat', 'Videod töödeldakse serveris MP4 formaati kuni 720p resolutsiooniga', 'Videod kuni 60 sekundit'],
     errorSessionExpired: 'Sinu sessioon aegus. Logi uuesti sisse.',
     errorActivatePass: 'Paketi aktiveerimine ebaõnnestus.',
+    errorMediaProcessingReasonPrefix: 'Põhjus',
     listSelectorLabel: 'Aktiivne nimekiri',
     listSettingsTitle: 'Nimekirja seaded',
     listSettingsSubtitle: 'Muuda pärast loomist sündmuse tüüpi, kujundust, nähtavust ja soovi korral parooli.',

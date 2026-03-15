@@ -191,6 +191,28 @@ const withErrorCode = (fallbackMessage: string, error: unknown) => {
   return `${fallbackMessage} (${error.code})`
 }
 
+const withErrorDiagnostics = (
+  fallbackMessage: string,
+  reasonPrefix: string,
+  diagnostics: {
+    code?: string
+    details?: string | null
+  }
+) => {
+  const normalizedDetails = diagnostics.details?.trim()
+  const segments = [fallbackMessage]
+
+  if (diagnostics.code) {
+    segments.push(`[${diagnostics.code}]`)
+  }
+
+  if (normalizedDetails) {
+    segments.push(`${reasonPrefix}: ${normalizedDetails}`)
+  }
+
+  return segments.join(' ')
+}
+
 const interpolateLabel = (
   template: string,
   replacements: Record<string, string | number>
@@ -1278,12 +1300,15 @@ export default function ListWorkspace({
   }, [labels.errorMediaTooLarge, labels.errorMediaUnsupportedType, labels.errorMediaVideoTooLong])
 
   const resolveMediaProcessingMessage = useCallback((error: MediaProcessingError) => {
-    if (error.code === 'missing_auth') {
+    if (error.code === 'missing_auth' || error.code === 'invalid_auth') {
       return labels.errorSessionExpired
     }
 
-    return labels.errorMediaProcessingFailed
-  }, [labels.errorMediaProcessingFailed, labels.errorSessionExpired])
+    return withErrorDiagnostics(labels.errorMediaProcessingFailed, labels.errorMediaProcessingReasonPrefix, {
+      code: error.code,
+      details: error.details,
+    })
+  }, [labels.errorMediaProcessingFailed, labels.errorMediaProcessingReasonPrefix, labels.errorSessionExpired])
 
   const composedCreateSlug = useMemo(() => {
     return buildPublicSlug(publicUrlCode, slug)

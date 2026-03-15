@@ -301,6 +301,7 @@ export interface Dictionary {
     planPlatinumFeatures: string[]
     errorSessionExpired: string
     errorActivatePass: string
+    errorMediaProcessingReasonPrefix: string
     listSelectorLabel: string
     listSettingsTitle: string
     listSettingsSubtitle: string

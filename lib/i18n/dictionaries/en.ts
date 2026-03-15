@@ -357,6 +357,7 @@ export const enDictionary: Dictionary = {
     planPlatinumFeatures: ['Up to 500 MB of optimized media', 'Videos processed server-side to MP4 at up to 720p', 'Videos up to 60 seconds'],
     errorSessionExpired: 'Your session expired. Please sign in again.',
     errorActivatePass: 'Failed to activate pass.',
+    errorMediaProcessingReasonPrefix: 'Reason',
     listSelectorLabel: 'Active list',
     listSettingsTitle: 'List settings',
     listSettingsSubtitle: 'Change event type, design, visibility, and optional password after creating the list.',

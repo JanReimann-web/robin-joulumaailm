@@ -183,21 +183,28 @@ export class MediaValidationError extends Error {
 export class MediaProcessingError extends Error {
   code:
     | 'missing_auth'
+    | 'invalid_auth'
     | 'video_processing_failed'
     | 'video_processing_unavailable'
+    | 'video_probe_failed'
     | 'invalid_source'
     | 'invalid_section'
+  details: string | null
 
   constructor(
     code:
       | 'missing_auth'
+      | 'invalid_auth'
       | 'video_processing_failed'
       | 'video_processing_unavailable'
+      | 'video_probe_failed'
       | 'invalid_source'
-      | 'invalid_section'
+      | 'invalid_section',
+    details?: string | null
   ) {
-    super(code)
+    super(details?.trim() || code)
     this.code = code
+    this.details = details?.trim() ? details.trim() : null
   }
 }
 
@@ -268,6 +275,20 @@ type UploadListMediaParams = {
   sectionPath: string
   file: File
   allowedPrefixes?: AllowedMediaPrefix[]
+}
+
+type ProcessVideoErrorPayload = {
+  error?: string
+  details?: string | null
+}
+
+const normalizeProcessingErrorDetails = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const normalized = value.replace(/\s+/g, ' ').trim().slice(0, 500)
+  return normalized.length > 0 ? normalized : null
 }
 
 const createObjectId = (safeName: string) => {
@@ -341,28 +362,42 @@ const processUploadedVideo = async (params: UploadListMediaParams) => {
       .json()
       .catch(() => ({ error: 'video_processing_failed' })) as
       | UploadMediaMetadata
-      | { error?: string }
+      | ProcessVideoErrorPayload
 
     if (!response.ok) {
       if (payload && 'error' in payload) {
+        const details = normalizeProcessingErrorDetails(payload.details)
+
         if (payload.error === 'video_too_long') {
           throw new MediaValidationError('video_too_long')
         }
 
         if (payload.error === 'missing_auth') {
-          throw new MediaProcessingError('missing_auth')
+          throw new MediaProcessingError('missing_auth', details)
+        }
+
+        if (payload.error === 'invalid_auth') {
+          throw new MediaProcessingError('invalid_auth', details)
         }
 
         if (payload.error === 'video_processing_unavailable') {
-          throw new MediaProcessingError('video_processing_unavailable')
+          throw new MediaProcessingError('video_processing_unavailable', details)
+        }
+
+        if (payload.error === 'video_probe_failed') {
+          throw new MediaProcessingError('video_probe_failed', details)
         }
 
         if (payload.error === 'invalid_section') {
-          throw new MediaProcessingError('invalid_section')
+          throw new MediaProcessingError('invalid_section', details)
         }
 
         if (payload.error === 'invalid_source') {
-          throw new MediaProcessingError('invalid_source')
+          throw new MediaProcessingError('invalid_source', details)
+        }
+
+        if (payload.error === 'video_processing_failed') {
+          throw new MediaProcessingError('video_processing_failed', details)
         }
       }
 
