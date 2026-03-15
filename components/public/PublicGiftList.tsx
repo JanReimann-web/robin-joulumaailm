@@ -203,7 +203,7 @@ const PUBLIC_COPY = {
     detailsSaveFailed: 'Broneeringu salvestamine ebaõnnestus. Proovi uuesti.',
     reservationSaved: 'Broneering salvestatud.',
     demoReservationLabel: 'Näidisrežiim',
-    demoReservationNotice: 'NÃ¤idisreÅ¾iim on aktiivne. Selle nÃ¤idislehe broneeringud nullitakse automaatselt 5 minuti pÃ¤rast.',
+    demoReservationNotice: 'Näidisrežiim on aktiivne. Selle näidislehe broneeringud nullitakse automaatselt 5 minuti pärast.',
     reservationExpired: 'See nimekiri on aegunud ja ei võta enam broneeringuid vastu.',
     reservationUnavailable: 'See kingitus on juba broneeritud.',
     reservationFailed: 'Broneerimine ebaõnnestus. Proovi uuesti.',
