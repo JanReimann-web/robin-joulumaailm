@@ -115,37 +115,55 @@ const runBinary = (
   }
 ) => {
   return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
-    const child = spawn(executablePath, args, {
-      windowsHide: true,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-
-    let stdout = ''
-    let stderr = ''
-
-    child.stdout.on('data', (chunk) => {
-      if (options?.captureStdout) {
-        stdout += chunk.toString()
-      }
-    })
-
-    child.stderr.on('data', (chunk) => {
-      if (stderr.length < MAX_STDERR_LENGTH) {
-        stderr += chunk.toString()
-      }
-    })
-
-    child.on('error', () => {
-      reject(new VideoProcessingError('video_processing_unavailable'))
-    })
-
-    child.on('close', (code) => {
-      if (code === 0 || options?.allowNonZeroExit) {
-        resolve({ stdout, stderr })
-        return
+    const launch = async () => {
+      if (process.platform !== 'win32') {
+        await fs.chmod(executablePath, 0o755).catch(() => undefined)
       }
 
-      reject(captureProcessError(stderr, 'video_processing_failed'))
+      const child = spawn(executablePath, args, {
+        windowsHide: true,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+
+      let stdout = ''
+      let stderr = ''
+
+      child.stdout.on('data', (chunk) => {
+        if (options?.captureStdout) {
+          stdout += chunk.toString()
+        }
+      })
+
+      child.stderr.on('data', (chunk) => {
+        if (stderr.length < MAX_STDERR_LENGTH) {
+          stderr += chunk.toString()
+        }
+      })
+
+      child.on('error', (spawnError) => {
+        const error = new VideoProcessingError('video_processing_unavailable')
+        error.cause = spawnError instanceof Error
+          ? spawnError.message
+          : String(spawnError)
+        reject(error)
+      })
+
+      child.on('close', (code) => {
+        if (code === 0 || options?.allowNonZeroExit) {
+          resolve({ stdout, stderr })
+          return
+        }
+
+        reject(captureProcessError(stderr, 'video_processing_failed'))
+      })
+    }
+
+    launch().catch((launchError) => {
+      const error = new VideoProcessingError('video_processing_unavailable')
+      error.cause = launchError instanceof Error
+        ? launchError.message
+        : String(launchError)
+      reject(error)
     })
   })
 }
