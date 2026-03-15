@@ -119,20 +119,25 @@ service firebase.storage {
         );
     }
 
+    function canManageUploadedMedia() {
+      return isSupportedMediaType()
+        && isWithinUploadLimit();
+    }
+
     // Private user-level assets.
     match /users/{userId}/{allPaths=**} {
       allow read: if isUser(userId);
-      allow write: if isUser(userId)
-        && isSupportedMediaType()
-        && isWithinUploadLimit();
+      allow create, update: if isUser(userId)
+        && canManageUploadedMedia();
+      allow delete: if isUser(userId);
     }
 
     // List assets. Ownership is validated against Firestore list document.
     match /lists/{listId}/{allPaths=**} {
       allow read: if isListOwner(listId) || isListPublic(listId);
-      allow write: if isListOwner(listId)
-        && isSupportedMediaType()
-        && isWithinUploadLimit();
+      allow create, update: if isListOwner(listId)
+        && canManageUploadedMedia();
+      allow delete: if isListOwner(listId);
     }
 
     match /{allPaths=**} {

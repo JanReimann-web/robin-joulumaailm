@@ -80,6 +80,15 @@ const captureProcessError = (stderr: string, fallbackCode: VideoProcessingErrorC
   return error
 }
 
+const parseDurationSeconds = (value: unknown) => {
+  const durationSeconds = Math.ceil(Number(value))
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    return null
+  }
+
+  return durationSeconds
+}
+
 const runBinary = (
   executablePath: string,
   args: string[],
@@ -164,6 +173,28 @@ const probeVideoDurationSeconds = async (inputPath: string) => {
   }
 }
 
+const resolveVideoDurationSeconds = async (
+  inputPath: string,
+  fallbackDurationSeconds: number | null
+) => {
+  try {
+    return await probeVideoDurationSeconds(inputPath)
+  } catch (error) {
+    if (
+      fallbackDurationSeconds
+      && error instanceof VideoProcessingError
+      && (
+        error.code === 'video_probe_failed'
+        || error.code === 'video_processing_unavailable'
+      )
+    ) {
+      return fallbackDurationSeconds
+    }
+
+    throw error
+  }
+}
+
 const transcodeVideo = async (inputPath: string, outputPath: string) => {
   if (!ffmpegPath) {
     throw new VideoProcessingError('video_processing_unavailable')
@@ -182,7 +213,7 @@ const transcodeVideo = async (inputPath: string, outputPath: string) => {
     '-c:v',
     'libx264',
     '-preset',
-    'fast',
+    'veryfast',
     '-pix_fmt',
     'yuv420p',
     '-profile:v',
@@ -207,6 +238,8 @@ const transcodeVideo = async (inputPath: string, outputPath: string) => {
     '48000',
     '-map_metadata',
     '-1',
+    '-threads',
+    '1',
     outputPath,
   ])
 }
@@ -249,6 +282,11 @@ export const processStoredVideoUpload = async (params: {
     throw new VideoProcessingError('invalid_source')
   }
 
+  const [incomingMetadata] = await incomingFile.getMetadata()
+  const fallbackDurationSeconds = parseDurationSeconds(
+    incomingMetadata.metadata?.durationSeconds
+  )
+
   const tempDirectory = await fs.mkdtemp(join(tmpdir(), 'giftlist-video-'))
   const inputExtension = extname(params.incomingPath) || '.mp4'
   const inputPath = join(tempDirectory, `input${inputExtension}`)
@@ -257,14 +295,20 @@ export const processStoredVideoUpload = async (params: {
   try {
     await incomingFile.download({ destination: inputPath })
 
-    const durationSeconds = await probeVideoDurationSeconds(inputPath)
+    const durationSeconds = await resolveVideoDurationSeconds(
+      inputPath,
+      fallbackDurationSeconds
+    )
     if (durationSeconds > MAX_VIDEO_DURATION_SECONDS) {
       throw new VideoProcessingError('video_too_long')
     }
 
     await transcodeVideo(inputPath, outputPath)
 
-    const outputDurationSeconds = await probeVideoDurationSeconds(outputPath)
+    const outputDurationSeconds = await resolveVideoDurationSeconds(
+      outputPath,
+      fallbackDurationSeconds
+    )
     if (outputDurationSeconds > MAX_VIDEO_DURATION_SECONDS) {
       throw new VideoProcessingError('video_too_long')
     }

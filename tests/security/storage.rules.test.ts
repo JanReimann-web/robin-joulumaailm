@@ -51,6 +51,31 @@ describe('storage rules', () => {
     )
   })
 
+  it('allows list owner to delete their own list asset', async () => {
+    const ownerId = 'owner-storage-delete'
+    const listId = 'list-storage-delete'
+    const path = `lists/${listId}/items/photo.jpg`
+
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      visibility: 'private',
+      trialEndsAt: futureTimestamp(14),
+    })
+
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const adminStorage = context.storage(`gs://${TEST_STORAGE_BUCKET}`)
+      await adminStorage.ref(path).putString('image-bytes', 'raw', {
+        contentType: 'image/jpeg',
+      })
+    })
+
+    const ownerStorage = testEnv
+      .authenticatedContext(ownerId)
+      .storage(`gs://${TEST_STORAGE_BUCKET}`)
+    await assertSucceeds(ownerStorage.ref(path).delete())
+  })
+
   it('blocks unsupported media upload type for owner', async () => {
     const ownerId = 'owner-storage'
     const listId = 'list-storage-type'
@@ -198,5 +223,22 @@ describe('storage rules', () => {
         .then(() => true)
     )
     await assertFails(bobStorage.ref(userPath).getMetadata())
+  })
+
+  it('allows signed-in user to delete their own user-scoped media', async () => {
+    const userId = 'alice-delete'
+    const userPath = `users/${userId}/lists/list-1/stories/video.mp4`
+
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const adminStorage = context.storage(`gs://${TEST_STORAGE_BUCKET}`)
+      await adminStorage.ref(userPath).putString('video-bytes', 'raw', {
+        contentType: 'video/mp4',
+      })
+    })
+
+    const userStorage = testEnv
+      .authenticatedContext(userId)
+      .storage(`gs://${TEST_STORAGE_BUCKET}`)
+    await assertSucceeds(userStorage.ref(userPath).delete())
   })
 })

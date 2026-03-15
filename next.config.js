@@ -5,11 +5,17 @@ const nextConfig = {
     domains: ['images.unsplash.com'],
     formats: ['image/avif', 'image/webp'],
   },
-  // Jõudluse optimeerimine
+  // JÃµudluse optimeerimine
   compress: true,
   poweredByHeader: false,
   // Suurte failide toetus (videod)
   experimental: {
+    outputFileTracingIncludes: {
+      '/api/lists/media/process-video': [
+        './node_modules/ffmpeg-static/**/*',
+        './node_modules/ffprobe-static/**/*',
+      ],
+    },
     serverActions: {
       bodySizeLimit: '200mb',
     },
@@ -21,4 +27,3 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-

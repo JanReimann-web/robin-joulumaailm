@@ -1,5 +1,6 @@
 'use client'
 
+import { FirebaseError } from 'firebase/app'
 import {
   deleteObject,
   getDownloadURL,
@@ -480,7 +481,18 @@ export const deleteMediaByPath = async (mediaPath: string | null) => {
   }
 
   const mediaRef = ref(storage, mediaPath)
-  await deleteObject(mediaRef)
+  try {
+    await deleteObject(mediaRef)
+  } catch (rawError) {
+    if (
+      rawError instanceof FirebaseError
+      && rawError.code === 'storage/object-not-found'
+    ) {
+      return
+    }
+
+    throw rawError
+  }
 }
 
 export const deleteItemMediaByPath = deleteMediaByPath

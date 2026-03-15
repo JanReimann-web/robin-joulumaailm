@@ -7,6 +7,7 @@ import {
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+export const maxDuration = 120
 
 type ProcessVideoBody = {
   listId?: string
@@ -72,6 +73,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(processedVideo)
   } catch (error) {
+    console.error('Video processing failed', {
+      listId,
+      sectionPath,
+      code: error instanceof VideoProcessingError ? error.code : 'unknown_error',
+      cause: error instanceof Error ? error.cause : undefined,
+    })
+
     if (error instanceof VideoProcessingError) {
       if (error.code === 'video_too_long') {
         return NextResponse.json({ error: error.code }, { status: 400 })
