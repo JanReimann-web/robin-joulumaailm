@@ -13,7 +13,6 @@ const nextConfig = {
     outputFileTracingIncludes: {
       '/api/lists/media/process-video': [
         './node_modules/ffmpeg-static/**/*',
-        './node_modules/ffprobe-static/**/*',
       ],
     },
     serverActions: {

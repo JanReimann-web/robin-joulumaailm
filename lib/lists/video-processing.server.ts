@@ -5,7 +5,6 @@ import { promises as fs } from 'node:fs'
 import { basename, extname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import ffmpegPath from 'ffmpeg-static'
-import ffprobe from 'ffprobe-static'
 import { adminStorage } from '@/lib/firebase/admin'
 import {
   MAX_VIDEO_DURATION_SECONDS,
@@ -89,11 +88,30 @@ const parseDurationSeconds = (value: unknown) => {
   return durationSeconds
 }
 
+const parseFfmpegDurationSeconds = (output: string) => {
+  const durationMatch = output.match(/Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/i)
+  if (!durationMatch) {
+    return null
+  }
+
+  const hours = Number(durationMatch[1])
+  const minutes = Number(durationMatch[2])
+  const seconds = Number(durationMatch[3])
+  const totalSeconds = Math.ceil((hours * 60 * 60) + (minutes * 60) + seconds)
+
+  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
+    return null
+  }
+
+  return totalSeconds
+}
+
 const runBinary = (
   executablePath: string,
   args: string[],
   options?: {
     captureStdout?: boolean
+    allowNonZeroExit?: boolean
   }
 ) => {
   return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
@@ -122,7 +140,7 @@ const runBinary = (
     })
 
     child.on('close', (code) => {
-      if (code === 0) {
+      if (code === 0 || options?.allowNonZeroExit) {
         resolve({ stdout, stderr })
         return
       }
@@ -133,33 +151,26 @@ const runBinary = (
 }
 
 const probeVideoDurationSeconds = async (inputPath: string) => {
-  if (!ffprobe.path) {
+  if (!ffmpegPath) {
     throw new VideoProcessingError('video_processing_unavailable')
   }
 
   try {
     const result = await runBinary(
-      ffprobe.path,
+      ffmpegPath,
       [
-        '-v',
-        'error',
-        '-print_format',
-        'json',
-        '-show_entries',
-        'format=duration',
+        '-hide_banner',
+        '-i',
         inputPath,
       ],
-      { captureStdout: true }
+      {
+        captureStdout: true,
+        allowNonZeroExit: true,
+      }
     )
 
-    const parsed = JSON.parse(result.stdout) as {
-      format?: {
-        duration?: string
-      }
-    }
-
-    const durationSeconds = Math.ceil(Number(parsed.format?.duration ?? 0))
-    if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    const durationSeconds = parseFfmpegDurationSeconds(`${result.stdout}\n${result.stderr}`)
+    if (durationSeconds === null) {
       throw new Error('invalid_duration')
     }
 
