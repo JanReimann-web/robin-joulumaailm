@@ -29,6 +29,11 @@ const TARGET_VIDEO_MAXRATE = '2500k'
 const TARGET_VIDEO_BUFSIZE = '5000k'
 const TARGET_AUDIO_BITRATE = '128k'
 const MAX_STDERR_LENGTH = 12_000
+const TARGET_VIDEO_FILTER = [
+  `scale=w=${TARGET_VIDEO_WIDTH}:h=${TARGET_VIDEO_HEIGHT}:force_original_aspect_ratio=decrease`,
+  'pad=width=ceil(iw/2)*2:height=ceil(ih/2)*2:x=(ow-iw)/2:y=(oh-ih)/2:color=black',
+  'setsar=1',
+].join(',')
 
 type VideoProcessingErrorCode =
   | 'invalid_section'
@@ -249,7 +254,7 @@ const transcodeVideo = async (inputPath: string, outputPath: string) => {
     '-map',
     '0:a?',
     '-vf',
-    `scale=w=${TARGET_VIDEO_WIDTH}:h=${TARGET_VIDEO_HEIGHT}:force_original_aspect_ratio=decrease`,
+    TARGET_VIDEO_FILTER,
     '-c:v',
     'libx264',
     '-preset',
