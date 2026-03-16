@@ -9,12 +9,13 @@ const SITE_TITLE = 'Giftlist Studio'
 const SITE_DESCRIPTION =
   'Create beautiful gift lists for weddings, birthdays, kids birthdays, baby showers, graduations, housewarming parties, and holidays.'
 const SHARE_IMAGE = '/images/Joulud.jpg'
+const BRAND_MARK = '/brand/giftlist-studio-mark.svg'
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: SITE_TITLE,
   url: SITE_URL,
-  logo: `${SITE_URL}${SHARE_IMAGE}`,
+  logo: `${SITE_URL}${BRAND_MARK}`,
 }
 const websiteSchema = {
   '@context': 'https://schema.org',
@@ -36,6 +37,11 @@ export const metadata: Metadata = {
     template: '%s | Giftlist Studio',
   },
   description: SITE_DESCRIPTION,
+  icons: {
+    icon: BRAND_MARK,
+    shortcut: BRAND_MARK,
+    apple: BRAND_MARK,
+  },
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,

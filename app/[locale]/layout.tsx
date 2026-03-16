@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import BrandLogo from '@/components/site/BrandLogo'
 import LanguageSwitcher from '@/components/site/LanguageSwitcher'
 import CookieSettingsButton from '@/components/site/CookieSettingsButton'
 import SiteNavigation from '@/components/site/SiteNavigation'
@@ -51,12 +52,13 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
     <div className="min-h-screen overflow-x-hidden" lang={locale}>
       <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl min-w-0 items-start justify-between gap-3 px-4 py-3 sm:items-center">
-          <Link
+          <BrandLogo
             href={`/${locale}`}
-            className="max-w-[11rem] truncate text-base font-semibold leading-tight tracking-tight text-white sm:max-w-none sm:text-lg"
-          >
-            {dict.brand}
-          </Link>
+            tone="header"
+            size="sm"
+            className="max-w-[15rem] truncate sm:max-w-none"
+            wordmarkClassName="max-w-[11rem] sm:max-w-none"
+          />
 
           <SiteNavigation locale={locale} labels={dict.nav} mode="desktop" />
 

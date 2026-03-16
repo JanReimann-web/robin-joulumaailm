@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarDays, CheckCircle2, Clock3, MapPin, X } from 'lucide-react'
+import BrandLogo from '@/components/site/BrandLogo'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import {
   applyDemoReservations,
@@ -400,6 +401,7 @@ export default function PublicGiftList({
   const copy = PUBLIC_COPY[locale]
   const modalRoot = hasMounted ? document.body : null
   const demoStorageKey = useMemo(() => buildDemoReservationStorageKey(slug), [slug])
+  const homeHref = locale === 'et' ? '/et' : '/en'
   const isPasswordProtected = Boolean(
     meta?.requiresPassword
     || meta?.list.visibility === 'public_password'
@@ -1165,6 +1167,21 @@ export default function PublicGiftList({
     </div>
   )
 
+  const brandBar = (animated = false) => (
+    <div className="mb-4 flex items-start justify-between gap-3 sm:items-center">
+      <div className="event-surface-card rounded-full border px-3 py-2 sm:px-4">
+        <BrandLogo
+          href={homeHref}
+          tone="event"
+          size="sm"
+          animated={animated}
+          className="max-w-[15rem] sm:max-w-none"
+        />
+      </div>
+      {languageSwitcher}
+    </div>
+  )
+
   const shouldShowInlinePasswordPrompt = !hasEntered && isPasswordPromptOpen && isPasswordProtected
 
   const passwordPromptModal = (
@@ -1227,7 +1244,7 @@ export default function PublicGiftList({
         data-event-theme={params.themeId}
       >
         <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
-          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          {brandBar(true)}
 
           <section className="event-surface-panel overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl">
             {params.media ? (
@@ -1321,7 +1338,7 @@ export default function PublicGiftList({
         data-event-theme="default-dark"
       >
         <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
-          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          {brandBar()}
           <h1 className="text-2xl font-bold text-white sm:text-3xl">{copy.listNotFoundTitle}</h1>
           <p className="mt-3 text-slate-300">{copy.listNotFoundBody}</p>
         </main>
@@ -1337,7 +1354,7 @@ export default function PublicGiftList({
         data-event-theme={eventThemeId}
       >
         <main className="mx-auto w-full max-w-4xl py-4 sm:py-8">
-          <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+          {brandBar()}
           <section
             className="event-surface-panel relative overflow-hidden rounded-2xl border border-white/10 bg-white/5"
           >
@@ -1440,7 +1457,7 @@ export default function PublicGiftList({
       data-event-theme={eventThemeId}
     >
       <main className="mx-auto w-full max-w-6xl py-4 sm:py-8">
-        <div className="mb-4 flex justify-end">{languageSwitcher}</div>
+        {brandBar()}
         <header
           className="event-surface-panel overflow-hidden rounded-2xl border border-white/10 bg-white/5"
         >

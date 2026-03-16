@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Giftlist Studio mark</title>
+  <desc id="desc">A rounded gift box with ribbon, check mark, and sparkle.</desc>
+  <defs>
+    <linearGradient id="shell" x1="8" x2="56" y1="10" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#122033"/>
+      <stop offset="1" stop-color="#0b1524"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="18" x2="48" y1="18" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#34d399"/>
+      <stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect x="5" y="7" width="54" height="50" rx="16" fill="url(#shell)" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+  <rect x="10" y="19" width="44" height="10" rx="5" fill="#7dd3fc" opacity="0.94"/>
+  <path d="M31.5 21.5C23.6 13.3 18.8 12.8 15.1 17.4C19.1 23 24.6 24 31.5 21.5Z" fill="#9be7ff"/>
+  <path d="M32.5 21.5C40.4 13.3 45.2 12.8 48.9 17.4C44.9 23 39.4 24 32.5 21.5Z" fill="#34d399"/>
+  <rect x="29" y="19" width="6" height="33" rx="3" fill="url(#ribbon)"/>
+  <rect x="13" y="28" width="38" height="22" rx="10" fill="#223145"/>
+  <path d="M22 40.5L28 46.5L42.5 32" fill="none" stroke="#f8fafc" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <path d="M51.5 11.5L53.1 15.4L57 17L53.1 18.6L51.5 22.5L49.9 18.6L46 17L49.9 15.4Z" fill="#fde68a"/>
+</svg>

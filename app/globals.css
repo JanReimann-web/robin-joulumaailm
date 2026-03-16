@@ -57,6 +57,57 @@
 }
 
 @layer utilities {
+  @keyframes brand-mark-float {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-2px) scale(1.02);
+    }
+  }
+
+  @keyframes brand-mark-ribbon {
+    0%,
+    100% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(1.06);
+    }
+  }
+
+  @keyframes brand-mark-spark {
+    0%,
+    100% {
+      transform: scale(0.92) rotate(0deg);
+      opacity: 0.7;
+    }
+    50% {
+      transform: scale(1.12) rotate(12deg);
+      opacity: 1;
+    }
+  }
+
+  .brand-mark {
+    filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.18));
+  }
+
+  .brand-mark--animated .brand-mark__frame {
+    transform-origin: center;
+    animation: brand-mark-float 1.8s ease-in-out infinite;
+  }
+
+  .brand-mark--animated .brand-mark__ribbon {
+    transform-origin: center;
+    animation: brand-mark-ribbon 1.8s ease-in-out infinite;
+  }
+
+  .brand-mark--animated .brand-mark__spark {
+    transform-origin: center;
+    animation: brand-mark-spark 1.8s ease-in-out infinite;
+  }
+
   @keyframes toast-success-in {
     from {
       opacity: 0;

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import BrandLogo from '@/components/site/BrandLogo'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventTypeToSlug } from '@/lib/lists/event-route'
@@ -62,9 +63,18 @@ export default function HomePage({ params }: LocalePageProps) {
   return (
     <div>
       <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:pb-12 sm:pt-14">
-        <p className="mb-4 inline-flex rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
-          {dict.hero.badge}
-        </p>
+        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <BrandLogo
+            href={`/${locale}`}
+            tone="header"
+            size="lg"
+            className="max-w-full"
+          />
+
+          <p className="inline-flex rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
+            {dict.hero.badge}
+          </p>
+        </div>
 
         <h1 className="max-w-3xl text-3xl font-bold leading-tight text-white sm:text-4xl md:text-6xl">
           {dict.hero.title}
