@@ -5,7 +5,16 @@ import { EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ['', '/gallery', '/pricing', '/login']
+  const staticRoutes = [
+    '',
+    '/gallery',
+    '/pricing',
+    '/login',
+    '/cookies',
+    '/privacy',
+    '/terms',
+    '/faq',
+  ]
   const eventRoutes = EVENT_ROUTE_SLUGS.map((eventSlug) => `/events/${eventSlug}`)
   const allRoutes = [...staticRoutes, ...eventRoutes]
 

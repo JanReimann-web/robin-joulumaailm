@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk } from 'next/font/google'
 import { AuthProvider } from '@/components/auth/AuthProvider'
+import CookieConsentManager from '@/components/site/CookieConsentManager'
 import './globals.css'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
@@ -79,6 +80,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
         <AuthProvider>{children}</AuthProvider>
+        <CookieConsentManager />
       </body>
     </html>
   )
