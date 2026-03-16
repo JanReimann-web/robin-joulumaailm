@@ -106,6 +106,15 @@ const parseFfmpegDurationSeconds = (output: string) => {
   return totalSeconds
 }
 
+const appendLimitedOutput = (current: string, chunk: string) => {
+  const next = current + chunk
+  if (next.length <= MAX_STDERR_LENGTH) {
+    return next
+  }
+
+  return next.slice(-MAX_STDERR_LENGTH)
+}
+
 const runBinary = (
   executablePath: string,
   args: string[],
@@ -135,9 +144,7 @@ const runBinary = (
       })
 
       child.stderr.on('data', (chunk) => {
-        if (stderr.length < MAX_STDERR_LENGTH) {
-          stderr += chunk.toString()
-        }
+        stderr = appendLimitedOutput(stderr, chunk.toString())
       })
 
       child.on('error', (spawnError) => {
@@ -231,6 +238,10 @@ const transcodeVideo = async (inputPath: string, outputPath: string) => {
 
   await runBinary(ffmpegPath, [
     '-y',
+    '-hide_banner',
+    '-loglevel',
+    'error',
+    '-nostdin',
     '-i',
     inputPath,
     '-map',
