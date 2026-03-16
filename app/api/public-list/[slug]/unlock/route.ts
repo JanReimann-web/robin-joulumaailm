@@ -62,7 +62,17 @@ export async function POST(
       hash: passwordHash,
     })
   ) {
-    return NextResponse.json({ error: 'invalid_password' }, { status: 401 })
+    const response = NextResponse.json({ error: 'invalid_password' }, { status: 401 })
+    response.cookies.set({
+      name: getPublicAccessCookieName(list.slug),
+      value: '',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 0,
+    })
+    return response
   }
 
   const cookieName = getPublicAccessCookieName(list.slug)

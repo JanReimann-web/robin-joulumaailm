@@ -348,12 +348,27 @@ export const startListCheckout = async (params: {
     throw new Error(mediaUsageIssue)
   }
 
-  const requiredPlanId = resolveRequiredBillingPlanId(mediaUsage)
+  const listVisibility = typeof listData.visibility === 'string'
+    ? listData.visibility
+    : null
+  const requiredPlanId = resolveRequiredBillingPlanId(mediaUsage, {
+    visibility: listVisibility === 'public_password'
+      ? 'public_password'
+      : listVisibility === 'private'
+        ? 'private'
+        : 'public',
+  })
   if (!requiredPlanId) {
     throw new Error('media_limit_exceeded')
   }
 
-  if (!isBillingPlanEligible(params.planId, mediaUsage)) {
+  if (!isBillingPlanEligible(params.planId, mediaUsage, {
+    visibility: listVisibility === 'public_password'
+      ? 'public_password'
+      : listVisibility === 'private'
+        ? 'private'
+        : 'public',
+  })) {
     throw new Error('plan_too_small')
   }
 

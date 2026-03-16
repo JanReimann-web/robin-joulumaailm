@@ -68,12 +68,13 @@ import {
 import { buildPublicSlug, generatePublicUrlCode } from '@/lib/lists/public-link'
 import {
   BillingPlanId,
+  MAX_VIDEO_DURATION_SECONDS,
   UploadMediaMetadata,
   calculateListMediaUsageSummary,
   createPersistedMediaMetadata,
-  formatMediaUsageMegabytes,
   getMediaUsageIssue,
   isBillingPlanEligible,
+  isVisibilityAllowedForPlan,
   resolveRequiredBillingPlanId,
 } from '@/lib/lists/plans'
 import { isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
@@ -1078,16 +1079,19 @@ export default function ListWorkspace({
     [items, selectedList, stories]
   )
   const selectedListRequiredPlanId = useMemo(
-    () => resolveRequiredBillingPlanId(selectedListMediaUsage),
-    [selectedListMediaUsage]
+    () => resolveRequiredBillingPlanId(selectedListMediaUsage, { visibility }),
+    [selectedListMediaUsage, visibility]
   )
   const selectedListMediaUsageIssue = useMemo(
     () => getMediaUsageIssue(selectedListMediaUsage),
     [selectedListMediaUsage]
   )
-  const selectedListUsageDisplay = useMemo(
-    () => formatMediaUsageMegabytes(selectedListMediaUsage.totalBytes),
-    [selectedListMediaUsage.totalBytes]
+  const isPasswordVisibilityBlockedByCurrentPlan = Boolean(
+    selectedList
+    && visibility === 'public_password'
+    && selectedList.accessStatus === 'active'
+    && !hasComplimentaryAccess
+    && !isVisibilityAllowedForPlan(selectedList.billingPlanId, visibility)
   )
   const visibleBillingFeedback = useMemo(() => {
     if (!billingFeedback || !selectedList) {
@@ -1604,6 +1608,11 @@ export default function ListWorkspace({
       return
     }
 
+    if (isPasswordVisibilityBlockedByCurrentPlan) {
+      setListError(labels.errorVisibilityRequiresPremium)
+      return
+    }
+
     setIsSavingListSettings(true)
 
     try {
@@ -1642,6 +1651,8 @@ export default function ListWorkspace({
       if (rawError instanceof VisibilityPasswordRequiredError) {
         setVisibility(selectedList.visibility)
         setListError(labels.errorVisibilityPasswordRequired)
+      } else if (rawError instanceof Error && rawError.message === 'visibility_requires_premium') {
+        setListError(labels.errorVisibilityRequiresPremium)
       } else {
         setListError(withErrorCode(labels.errorListSettingsUpdate, rawError))
       }
@@ -2028,6 +2039,15 @@ export default function ListWorkspace({
           return
         }
 
+        if (rawError.code === 'video_count_exceeded') {
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorMediaVideoCountExceeded,
+            listId,
+          })
+          return
+        }
+
         if (rawError.code === 'media_limit_exceeded') {
           setBillingFeedback({
             type: 'error',
@@ -2140,6 +2160,8 @@ export default function ListWorkspace({
         setIntroError(resolveMediaProcessingMessage(rawError))
       } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
         setIntroError(labels.errorMediaUsageLimitExceeded)
+      } else if (rawError instanceof Error && rawError.message === 'video_count_exceeded') {
+        setIntroError(labels.errorMediaVideoCountExceeded)
       } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
         setIntroError(labels.errorMediaVideoTooLong)
       } else {
@@ -2493,6 +2515,8 @@ export default function ListWorkspace({
         setItemError(resolveMediaProcessingMessage(rawError))
       } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
         setItemError(labels.errorMediaUsageLimitExceeded)
+      } else if (rawError instanceof Error && rawError.message === 'video_count_exceeded') {
+        setItemError(labels.errorMediaVideoCountExceeded)
       } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
         setItemError(labels.errorMediaVideoTooLong)
       } else {
@@ -2652,6 +2676,8 @@ export default function ListWorkspace({
         setStoryError(resolveMediaProcessingMessage(rawError))
       } else if (rawError instanceof Error && rawError.message === 'media_limit_exceeded') {
         setStoryError(labels.errorMediaUsageLimitExceeded)
+      } else if (rawError instanceof Error && rawError.message === 'video_count_exceeded') {
+        setStoryError(labels.errorMediaVideoCountExceeded)
       } else if (rawError instanceof Error && rawError.message === 'video_duration_exceeded') {
         setStoryError(labels.errorMediaVideoTooLong)
       } else {
@@ -3480,13 +3506,22 @@ export default function ListWorkspace({
                   {isVisibilityPasswordMissing && (
                     <span className="text-xs text-red-200">{labels.errorVisibilityPasswordRequired}</span>
                   )}
+                  {isPasswordVisibilityBlockedByCurrentPlan && (
+                    <span className="text-xs text-amber-200">{labels.errorVisibilityRequiresPremium}</span>
+                  )}
                 </label>
               )}
 
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="submit"
-                  disabled={!selectedList || isSavingListSettings || isSelectedListExpired || isVisibilityPasswordMissing}
+                  disabled={
+                    !selectedList
+                    || isSavingListSettings
+                    || isSelectedListExpired
+                    || isVisibilityPasswordMissing
+                    || isPasswordVisibilityBlockedByCurrentPlan
+                  }
                   className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSavingListSettings
@@ -3523,7 +3558,13 @@ export default function ListWorkspace({
               <>
                 <div className="mt-4 flex flex-wrap gap-2 text-xs">
                   <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
-                    {labels.billingUsageTag}: {selectedListUsageDisplay}
+                    {labels.billingUsageTag}: {selectedListMediaUsage.totalMediaCount}
+                  </span>
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
+                    {labels.billingVideoCountTag}: {selectedListMediaUsage.videoCount}
+                  </span>
+                  <span className="rounded-full border border-white/20 px-3 py-1 text-slate-200">
+                    {labels.billingVideoLengthTag}: {MAX_VIDEO_DURATION_SECONDS} s
                   </span>
                   {hasComplimentaryAccess ? (
                     <span className="rounded-full border border-amber-300/40 bg-amber-300/10 px-3 py-1 text-amber-100">
@@ -3565,9 +3606,19 @@ export default function ListWorkspace({
                   <p className="mt-3 text-xs text-amber-100">{labels.billingVideoNotice}</p>
                 )}
 
+                {visibility === 'public_password' && (
+                  <p className="mt-3 text-xs text-amber-100">{labels.billingPasswordNotice}</p>
+                )}
+
                 {!hasComplimentaryAccess && selectedListMediaUsageIssue === 'media_limit_exceeded' && (
                   <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                     {labels.errorMediaUsageLimitExceeded}
+                  </p>
+                )}
+
+                {!hasComplimentaryAccess && selectedListMediaUsageIssue === 'video_count_exceeded' && (
+                  <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                    {labels.errorMediaVideoCountExceeded}
                   </p>
                 )}
 
@@ -3786,7 +3837,7 @@ export default function ListWorkspace({
                     {billingPlans.map((plan) => {
                       const isCurrentPlan = selectedList.billingPlanId === plan.id && selectedList.accessStatus === 'active'
                       const isRecommendedPlan = selectedListRequiredPlanId === plan.id
-                      const isEligiblePlan = isBillingPlanEligible(plan.id, selectedListMediaUsage)
+                      const isEligiblePlan = isBillingPlanEligible(plan.id, selectedListMediaUsage, { visibility })
                       const isPlanActionLoading = activatingPlanTarget === `${selectedList.id}:${plan.id}`
 
                       return (

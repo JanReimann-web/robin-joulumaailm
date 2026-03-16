@@ -249,9 +249,12 @@ export interface Dictionary {
     billingPlanTitle: string
     billingPlanSubtitle: string
     billingUsageTag: string
+    billingVideoCountTag: string
+    billingVideoLengthTag: string
     billingRecommendedPlanTag: string
     billingCustomPlanRequired: string
     billingVideoNotice: string
+    billingPasswordNotice: string
     billingRecommendedBadge: string
     billingCurrentPlanBadge: string
     currentPlanTag: string
@@ -433,6 +436,7 @@ export interface Dictionary {
     errorMediaTooLarge: string
     errorMediaProcessingFailed: string
     errorMediaVideoTooLong: string
+    errorMediaVideoCountExceeded: string
     errorMediaUsageLimitExceeded: string
     errorPlanTooSmall: string
     errorReferralInvalid: string
@@ -451,6 +455,7 @@ export interface Dictionary {
     errorSlugReserved: string
     errorSlugTaken: string
     errorVisibilityPasswordRequired: string
+    errorVisibilityRequiresPremium: string
     errorCreateFailed: string
   }
   footer: {

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { FieldValue } from 'firebase-admin/firestore'
+import { FieldValue, Timestamp } from 'firebase-admin/firestore'
+import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
+import { hasPublishedListAccess } from '@/lib/lists/access'
 import { hashVisibilityPassword, isValidVisibilityPassword } from '@/lib/lists/password.server'
+import { BILLING_PLAN_IDS, type BillingPlanId, isVisibilityAllowedForPlan } from '@/lib/lists/plans'
 import {
   VISIBILITY_OPTIONS,
   isEventType,
@@ -37,6 +40,24 @@ const isVisibility = (
   value: string
 ): value is (typeof VISIBILITY_OPTIONS)[number] => {
   return VISIBILITY_OPTIONS.includes(value as (typeof VISIBILITY_OPTIONS)[number])
+}
+
+const toMillis = (value: unknown): number | null => {
+  if (value instanceof Timestamp) {
+    return value.toMillis()
+  }
+
+  return null
+}
+
+const toBillingPlanId = (value: unknown): BillingPlanId | null => {
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  return BILLING_PLAN_IDS.includes(value as BillingPlanId)
+    ? (value as BillingPlanId)
+    : null
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
@@ -83,6 +104,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
   const listRef = adminDb.collection('lists').doc(listId)
   const secretRef = adminDb.collection('listAccessSecrets').doc(listId)
+  const hasComplimentaryAccess = await hasServerSideComplimentaryEntitlement(decodedToken.uid)
 
   try {
     await adminDb.runTransaction(async (transaction) => {
@@ -94,6 +116,21 @@ export async function POST(request: NextRequest, context: RouteContext) {
       const listData = listSnap.data() as Record<string, unknown>
       if (listData.ownerId !== decodedToken.uid) {
         throw new Error('forbidden')
+      }
+
+      const paidAccessEndsAt = toMillis(listData.paidAccessEndsAt)
+      const billingPlanId = toBillingPlanId(listData.billingPlanId)
+
+      if (
+        visibility === 'public_password'
+        && hasPublishedListAccess({
+          paidAccessEndsAt,
+          complimentaryAccess: hasComplimentaryAccess,
+        })
+        && !hasComplimentaryAccess
+        && !isVisibilityAllowedForPlan(billingPlanId, visibility)
+      ) {
+        throw new Error('visibility_requires_premium')
       }
 
       const secretSnap = visibility === 'public_password'
@@ -154,6 +191,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (error instanceof Error && error.message === 'invalid_visibility_password') {
       return NextResponse.json({ error: 'invalid_visibility_password' }, { status: 400 })
+    }
+
+    if (error instanceof Error && error.message === 'visibility_requires_premium') {
+      return NextResponse.json({ error: 'visibility_requires_premium' }, { status: 400 })
     }
 
     return NextResponse.json({ error: 'update_failed' }, { status: 500 })

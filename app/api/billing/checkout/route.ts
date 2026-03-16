@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
       || message === 'missing_plan_id'
       || message === 'plan_too_small'
       || message === 'media_limit_exceeded'
+      || message === 'video_count_exceeded'
       || message === 'video_duration_exceeded'
       || message === 'referral_invalid'
       || message === 'self_referral_not_allowed'
