@@ -6,6 +6,7 @@ import {
   COMPANY_NAME,
   COOKIE_CONSENT_COOKIE_NAME,
   getLegalCopy,
+  repairLegalContent,
 } from '@/lib/site/legal'
 
 const COOKIE_PAGE_CONTENT: Record<Locale, {
@@ -16,7 +17,7 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
   analyticsBody: string[]
   manageTitle: string
   manageBody: string[]
-}> = {
+}> = repairLegalContent({
   en: {
     introPoints: [
       'Giftlist Studio uses a small set of necessary cookies and browser storage technologies to keep the service secure and usable.',
@@ -97,7 +98,7 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
       `Selle veebilehe andmetöötleja on ${COMPANY_NAME}, ${COMPANY_ADDRESS}.`,
     ],
   },
-}
+})
 
 type CookiesPageProps = {
   params: {

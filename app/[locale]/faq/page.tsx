@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
 import { isLocale, type Locale } from '@/lib/i18n/config'
-import { getLegalCopy } from '@/lib/site/legal'
+import { getLegalCopy, repairLegalContent } from '@/lib/site/legal'
 
 type FaqEntry = {
   question: string
@@ -19,7 +19,7 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
   updatedValue: string
   sectionJumpLabel: string
   sections: FaqSection[]
-}> = {
+}> = repairLegalContent({
   en: {
     updatedLabel: 'Last updated',
     updatedValue: 'March 16, 2026',
@@ -470,7 +470,7 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
       },
     ],
   },
-}
+})
 
 type FaqPageProps = {
   params: {

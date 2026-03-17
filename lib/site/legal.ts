@@ -7,6 +7,19 @@ export const COOKIE_CONSENT_COOKIE_NAME = 'giftlist_consent'
 export const COOKIE_CONSENT_VERSION = 1
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
 
+const TRACKED_ANALYTICS_PAGE_MAP: Record<string, { locale: Locale; title: string }> = {
+  '/en': { locale: 'en', title: 'Home' },
+  '/et': { locale: 'et', title: 'Avaleht' },
+  '/en/pricing': { locale: 'en', title: 'Pricing' },
+  '/et/pricing': { locale: 'et', title: 'Hinnad' },
+  '/en/gallery': { locale: 'en', title: 'Gallery' },
+  '/et/gallery': { locale: 'et', title: 'Galerii' },
+  '/en/dashboard': { locale: 'en', title: 'Dashboard' },
+  '/et/dashboard': { locale: 'et', title: 'Töölaud' },
+}
+
+const MOJIBAKE_PATTERN = /Ã|Â|â|Å|Æ|Õ/
+
 export type CookieConsentPreferences = {
   version: typeof COOKIE_CONSENT_VERSION
   analytics: boolean
@@ -53,11 +66,43 @@ type LegalPagesCopy = {
   cookiesIntro: string
 }
 
+const repairMojibake = (value: string) => {
+  if (!MOJIBAKE_PATTERN.test(value)) {
+    return value
+  }
+
+  try {
+    const bytes = Uint8Array.from(Array.from(value).map((char) => char.charCodeAt(0) & 0xff))
+    const repaired = new TextDecoder('utf-8').decode(bytes)
+    return repaired.includes('\uFFFD') ? value : repaired
+  } catch {
+    return value
+  }
+}
+
+export const repairLegalContent = <T>(value: T): T => {
+  if (typeof value === 'string') {
+    return repairMojibake(value) as T
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => repairLegalContent(item)) as T
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entryValue]) => [key, repairLegalContent(entryValue)])
+    ) as T
+  }
+
+  return value
+}
+
 export const LEGAL_COPY: Record<Locale, {
   footer: FooterCopy
   consent: ConsentCopy
   pages: LegalPagesCopy
-}> = {
+}> = repairLegalContent({
   en: {
     footer: {
       companyLabel: 'Company',
@@ -136,7 +181,7 @@ export const LEGAL_COPY: Record<Locale, {
       cookiesIntro: 'See leht selgitab, milliseid küpsiseid ja brauserisalvestuse tehnoloogiaid Giftlist Studio kasutab ning kuidas nõusolek toimib.',
     },
   },
-}
+})
 
 export const getLegalCopy = (locale: Locale) => {
   return LEGAL_COPY[locale]
@@ -183,6 +228,14 @@ export const buildCookieConsentCookieValue = (
   return encodeURIComponent(JSON.stringify(preferences))
 }
 
+const normalizeTrackedPathname = (pathname: string) => {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1)
+  }
+
+  return pathname
+}
+
 export const getTrackedAnalyticsPage = (
   pathname: string
 ): {
@@ -190,25 +243,15 @@ export const getTrackedAnalyticsPage = (
   path: string
   title: string
 } | null => {
-  const map: Record<string, { locale: Locale; title: string }> = {
-    '/en': { locale: 'en', title: 'Home' },
-    '/et': { locale: 'et', title: 'Avaleht' },
-    '/en/pricing': { locale: 'en', title: 'Pricing' },
-    '/et/pricing': { locale: 'et', title: 'Hinnad' },
-    '/en/gallery': { locale: 'en', title: 'Gallery' },
-    '/et/gallery': { locale: 'et', title: 'Galerii' },
-    '/en/dashboard': { locale: 'en', title: 'Dashboard' },
-    '/et/dashboard': { locale: 'et', title: 'Töölaud' },
-  }
-
-  const tracked = map[pathname]
+  const normalizedPathname = normalizeTrackedPathname(pathname)
+  const tracked = TRACKED_ANALYTICS_PAGE_MAP[normalizedPathname]
   if (!tracked) {
     return null
   }
 
   return {
     locale: tracked.locale,
-    path: pathname,
+    path: normalizedPathname,
     title: tracked.title,
   }
 }

@@ -91,6 +91,7 @@ export default function CookieConsentManager() {
 
   const gaConfiguredRef = useRef(false)
   const lastTrackedPathRef = useRef<string | null>(null)
+  const shouldEnableAnalyticsOnPage = Boolean(preferences?.analytics && trackedPage)
 
   useEffect(() => {
     const storedPreferences = readCookieConsentPreferences(document.cookie)
@@ -113,10 +114,10 @@ export default function CookieConsentManager() {
   }, [preferences?.analytics])
 
   useEffect(() => {
-    if (GA_MEASUREMENT_ID && preferences?.analytics) {
+    if (GA_MEASUREMENT_ID && preferences?.analytics && trackedPage) {
       setShouldRenderGaScript(true)
     }
-  }, [preferences?.analytics])
+  }, [preferences?.analytics, trackedPage])
 
   useEffect(() => {
     if (!shouldRenderGaScript) {
@@ -136,6 +137,12 @@ export default function CookieConsentManager() {
       return
     }
 
+    window.gtag('consent', 'default', BASE_GOOGLE_CONSENT)
+    window.gtag('consent', 'update', {
+      ...BASE_GOOGLE_CONSENT,
+      analytics_storage: shouldEnableAnalyticsOnPage ? 'granted' : 'denied',
+    })
+
     if (!gaConfiguredRef.current) {
       window.gtag('js', new Date())
       window.gtag('config', GA_MEASUREMENT_ID, {
@@ -146,24 +153,7 @@ export default function CookieConsentManager() {
       })
       gaConfiguredRef.current = true
     }
-  }, [isGaLoaded, shouldRenderGaScript])
-
-  useEffect(() => {
-    if (!GA_MEASUREMENT_ID || !shouldRenderGaScript || !isGaLoaded) {
-      return
-    }
-
-    ensureGtag()
-    if (!window.gtag) {
-      return
-    }
-
-    window.gtag('consent', 'default', BASE_GOOGLE_CONSENT)
-    window.gtag('consent', 'update', {
-      ...BASE_GOOGLE_CONSENT,
-      analytics_storage: preferences?.analytics ? 'granted' : 'denied',
-    })
-  }, [isGaLoaded, preferences?.analytics, shouldRenderGaScript])
+  }, [isGaLoaded, shouldEnableAnalyticsOnPage, shouldRenderGaScript])
 
   useEffect(() => {
     if (
@@ -199,6 +189,12 @@ export default function CookieConsentManager() {
       lastTrackedPathRef.current = null
     }
   }, [trackedPage])
+
+  useEffect(() => {
+    if (!preferences?.analytics) {
+      lastTrackedPathRef.current = null
+    }
+  }, [preferences?.analytics])
 
   const savePreferences = (analytics: boolean) => {
     const nextPreferences = serializeCookieConsentPreferences(analytics)

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
 import { isLocale, type Locale } from '@/lib/i18n/config'
-import { COMPANY_NAME, getLegalCopy } from '@/lib/site/legal'
+import { COMPANY_NAME, getLegalCopy, repairLegalContent } from '@/lib/site/legal'
 
 type TermsSection = {
   title: string
@@ -15,7 +15,7 @@ const TERMS_PAGE_CONTENT: Record<Locale, {
   summaryTitle: string
   summaryBody: string
   sections: TermsSection[]
-}> = {
+}> = repairLegalContent({
   en: {
     updatedLabel: 'Last updated',
     updatedValue: 'March 16, 2026',
@@ -290,7 +290,7 @@ const TERMS_PAGE_CONTENT: Record<Locale, {
       },
     ],
   },
-}
+})
 
 type TermsPageProps = {
   params: {
