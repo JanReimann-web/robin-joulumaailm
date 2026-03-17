@@ -50,6 +50,8 @@ export const enDictionary: Dictionary = {
       'Guests reserve gifts so duplicate presents are avoided.',
     ],
     sampleTitle: 'Popular gift ideas',
+    liveExampleTitle: 'Live example page for this event',
+    liveExampleBody: 'Explore the finished sample list for the same event, try different designs, and open the example page directly from here.',
     ctaPrimary: 'Start your list',
     ctaSecondary: 'View pricing',
     backHomeAction: 'Back to home',

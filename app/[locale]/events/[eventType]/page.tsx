@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import ShowcasePreviewCard from '@/components/showcase/ShowcasePreviewCard'
 import { isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventSlugToType, eventTypeToSlug, EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
+import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 
@@ -61,7 +63,7 @@ export function generateMetadata({ params }: EventPageProps): Metadata {
   }
 }
 
-export default function EventTypePage({ params }: EventPageProps) {
+export default async function EventTypePage({ params }: EventPageProps) {
   if (!isLocale(params.locale)) {
     notFound()
   }
@@ -75,6 +77,7 @@ export default function EventTypePage({ params }: EventPageProps) {
   const dict = getDictionary(locale)
   const eventName = dict.events[mappedEventType]
   const content = dict.eventPages[mappedEventType]
+  const showcaseEntry = await getPublishedShowcaseEntryForEvent(mappedEventType)
 
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
@@ -130,6 +133,28 @@ export default function EventTypePage({ params }: EventPageProps) {
           </ul>
         </article>
       </div>
+
+      {showcaseEntry && (
+        <section className="mt-8 space-y-4">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-semibold text-white">
+              {dict.eventPages.liveExampleTitle}
+            </h2>
+            <p className="mt-2 text-sm text-slate-300 sm:text-base">
+              {dict.eventPages.liveExampleBody}
+            </p>
+          </div>
+
+          <ShowcasePreviewCard
+            locale={locale}
+            labels={dict.gallery}
+            dashboardLabels={dict.dashboard}
+            eventLabel={eventName}
+            eventType={mappedEventType}
+            entry={showcaseEntry}
+          />
+        </section>
+      )}
     </section>
   )
 }

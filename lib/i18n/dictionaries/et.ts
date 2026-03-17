@@ -50,6 +50,8 @@ export const etDictionary: Dictionary = {
       'Külalised broneerivad kingitused ning topeltkingid jäävad ära.',
     ],
     sampleTitle: 'Populaarsed kingiideed',
+    liveExampleTitle: 'Päris näidisleht selle sündmuse jaoks',
+    liveExampleBody: 'Vaata sama sündmuse valmis näidisnimekirja, proovi erinevaid kujundusi ja ava näidisleht otse siit.',
     ctaPrimary: 'Alusta nimekirjaga',
     ctaSecondary: 'Vaata hinnastust',
     backHomeAction: 'Tagasi avalehele',

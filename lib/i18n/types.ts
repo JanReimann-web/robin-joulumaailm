@@ -43,6 +43,8 @@ export interface Dictionary {
     processTitle: string
     processSteps: string[]
     sampleTitle: string
+    liveExampleTitle: string
+    liveExampleBody: string
     ctaPrimary: string
     ctaSecondary: string
     backHomeAction: string

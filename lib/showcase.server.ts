@@ -135,3 +135,36 @@ export const getPublishedShowcaseEntries = async (): Promise<ShowcaseGalleryEntr
   return galleryEntries
     .filter((entry): entry is ShowcaseGalleryEntry => Boolean(entry?.slug && entry.title))
 }
+
+export const getPublishedShowcaseEntryForEvent = async (
+  eventType: EventType
+): Promise<ShowcaseGalleryEntry | null> => {
+  const showcaseSnapshot = await adminDb.collection('galleryExamples').doc(eventType).get()
+
+  if (!showcaseSnapshot.exists) {
+    return null
+  }
+
+  const showcaseRecord = mapShowcaseRecord(
+    showcaseSnapshot.id,
+    showcaseSnapshot.data() as Record<string, unknown>
+  )
+
+  if (!showcaseRecord) {
+    return null
+  }
+
+  const listSnapshot = await adminDb.collection('lists').doc(showcaseRecord.listId).get()
+  if (!listSnapshot.exists) {
+    return null
+  }
+
+  const entitlementCache = new Map<string, boolean>()
+  const entry = await toActivePublicGalleryEntry(
+    showcaseRecord,
+    listSnapshot.data() as Record<string, unknown>,
+    entitlementCache
+  )
+
+  return entry?.slug && entry.title ? entry : null
+}
