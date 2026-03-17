@@ -8,7 +8,6 @@ import { formatBillingPlanPrice, formatBillingPriceCents } from '@/lib/billing/p
 import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
-import { SUPPORT_EMAIL, SUPPORT_EMAIL_HREF } from '@/lib/site/contact'
 import { buildLocalizedUrl } from '@/lib/site/url'
 
 type PricingPageProps = {
@@ -25,16 +24,12 @@ const pricingMarketingCopy = {
     trustPoints: [
       'Secure Stripe checkout',
       'No subscription',
-      'Selling in the United States, EU27, and Estonia',
     ],
     planCta: 'Start free trial',
     lifecycleTitle: 'Lifecycle, upgrades, and cleanup rules',
     lifecycleBody:
       'The paid pass is built for a live event window. You can upgrade the same list later, extend it if needed, and follow the lifecycle rules below when the active period ends.',
-    supportTitle: 'Need help choosing the right plan?',
-    supportBody:
-      'If you are launching in the US wedding market and want help deciding between Base, Premium, or Platinum, contact {email}.',
-    supportAction: 'Email support',
+    trustBlock: 'No subscription. 14-day free build period. Publish only when ready.',
     leadTitle: 'Want pricing and launch updates in your inbox?',
     leadBody:
       'Leave your email to get notified about launch updates, plan changes, and new event templates after the wedding-first release.',
@@ -53,16 +48,12 @@ const pricingMarketingCopy = {
     trustPoints: [
       'Turvaline Stripe checkout',
       'Tellimust ei ole',
-      'Müük on avatud USAs, EU27 riikides ja Eestis',
     ],
     planCta: 'Alusta tasuta katseaega',
     lifecycleTitle: 'Elutsükkel, upgrade’id ja andmete korrastus',
     lifecycleBody:
       'Tasuline pass on ehitatud päris sündmuse akna jaoks. Sama nimekirja saad hiljem uuendada, vajadusel pikendada ning aktiivse perioodi lõpus kehtivad allpool toodud elutsükli reeglid.',
-    supportTitle: 'Kas vajad abi õige paketi valimisel?',
-    supportBody:
-      'Kui liigud USA pulmaturule ja tahad otsustada Base, Premium või Platinum paketi vahel, kirjuta aadressile {email}.',
-    supportAction: 'Kirjuta toele',
+    trustBlock: 'Tellimust ei ole. 14-päevane tasuta ehitusperiood. Avalikusta alles siis, kui kõik on valmis.',
     leadTitle: 'Kas tahad hinnastuse ja launchi uuendusi postkasti?',
     leadBody:
       'Jäta oma e-post, et saada launch-uudiseid, paketimuudatusi ja infot järgmiste sündmuste mallide kohta pärast wedding-first väljalaset.',
@@ -151,7 +142,6 @@ export default function PricingPage({ params }: PricingPageProps) {
           <p>{dict.pricing.draftOnlyLine}</p>
           <p>{dict.pricing.perListLine}</p>
           <p>{dict.pricing.extensionLine}</p>
-          <p className="text-emerald-200">{dict.pricing.launchRegionsLine}</p>
         </div>
       </div>
 
@@ -250,16 +240,7 @@ export default function PricingPage({ params }: PricingPageProps) {
       </article>
 
       <article className="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5">
-        <h2 className="text-lg font-semibold text-white">{copy.supportTitle}</h2>
-        <p className="mt-2 text-sm text-slate-300">
-          {copy.supportBody.replace('{email}', SUPPORT_EMAIL)}
-        </p>
-        <a
-          href={SUPPORT_EMAIL_HREF}
-          className="mt-4 inline-flex rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-        >
-          {copy.supportAction}
-        </a>
+        <p className="text-base font-semibold text-white sm:text-lg">{copy.trustBlock}</p>
       </article>
 
       <div className="mt-6">
