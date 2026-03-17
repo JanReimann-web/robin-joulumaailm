@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ListWorkspace from '@/components/dashboard/ListWorkspace'
+import { BillingMarketAvailability } from '@/lib/billing/markets'
 import { BillingCurrency } from '@/lib/billing/pricing'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -14,6 +15,7 @@ type DashboardShellProps = {
   labels: Dictionary['dashboard']
   eventLabels: Dictionary['events']
   billingCurrency: BillingCurrency
+  billingMarketAvailability: BillingMarketAvailability
   billingStatus: 'success' | 'cancel' | null
   billingListId: string | null
 }
@@ -23,6 +25,7 @@ export default function DashboardShell({
   labels,
   eventLabels,
   billingCurrency,
+  billingMarketAvailability,
   billingStatus,
   billingListId,
 }: DashboardShellProps) {
@@ -91,6 +94,7 @@ export default function DashboardShell({
         labels={labels}
         eventLabels={eventLabels}
         billingCurrency={billingCurrency}
+        billingMarketAvailability={billingMarketAvailability}
         billingStatus={billingStatus}
         billingListId={billingListId}
       />

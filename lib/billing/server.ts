@@ -1,6 +1,7 @@
 import 'server-only'
 import Stripe from 'stripe'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
+import { BillingMarketAvailability } from '@/lib/billing/markets'
 import {
   BillingCurrency,
   getBillingPlanPriceCents,
@@ -54,6 +55,8 @@ const STRIPE_PRICE_ID_PREMIUM_90D_USD = process.env.STRIPE_PRICE_ID_PREMIUM_90D_
 const STRIPE_PRICE_ID_PLATINUM_90D_USD = process.env.STRIPE_PRICE_ID_PLATINUM_90D_USD ?? STRIPE_PRICE_ID_90D_USD
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? ''
 const MANUAL_FALLBACK_ENABLED = (process.env.BILLING_MANUAL_FALLBACK ?? 'true') === 'true'
+const STRIPE_TAX_ENABLED = (process.env.STRIPE_TAX_ENABLED ?? 'false') === 'true'
+const SHOULD_ENFORCE_MARKET_HEADERS = process.env.NODE_ENV === 'production'
 
 const stripeClient = STRIPE_SECRET_KEY
   ? new Stripe(STRIPE_SECRET_KEY, {
@@ -319,6 +322,7 @@ export const getBillingRuntimeConfig = () => {
     manualFallbackEnabled: MANUAL_FALLBACK_ENABLED,
     stripeCheckoutConfigured,
     stripeWebhookConfigured,
+    stripeTaxEnabled: STRIPE_TAX_ENABLED,
   }
 }
 
@@ -327,11 +331,25 @@ export const startListCheckout = async (params: {
   ownerId: string
   planId: BillingPlanId
   currency: BillingCurrency
+  marketAvailability: BillingMarketAvailability
+  marketCountryCode: string | null
   locale?: string
   referralCode?: string | null
 }): Promise<BillingCheckoutResult> => {
   if (!isBillingPlanId(params.planId)) {
     throw new Error('invalid_plan')
+  }
+
+  if (params.marketAvailability === 'blocked_sanctioned') {
+    throw new Error('billing_market_sanctioned')
+  }
+
+  if (params.marketAvailability === 'blocked_unsupported') {
+    throw new Error('billing_market_unsupported')
+  }
+
+  if (params.marketAvailability === 'unknown' && SHOULD_ENFORCE_MARKET_HEADERS) {
+    throw new Error('billing_market_unknown')
   }
 
   const { listData } = await validateListOwnership(params.listId, params.ownerId)
@@ -425,6 +443,14 @@ export const startListCheckout = async (params: {
     mode: 'payment',
     success_url: successUrl,
     cancel_url: cancelUrl,
+    billing_address_collection: 'required',
+    customer_creation: 'always',
+    tax_id_collection: {
+      enabled: true,
+    },
+    automatic_tax: {
+      enabled: STRIPE_TAX_ENABLED,
+    },
     line_items: preparedDiscount.discountType === 'none' && priceId
       ? [
           {
@@ -460,6 +486,8 @@ export const startListCheckout = async (params: {
         ? listData.billingPlanId
         : '',
       currency: params.currency,
+      marketAvailability: params.marketAvailability,
+      marketCountryCode: params.marketCountryCode ?? '',
     },
     client_reference_id: `${params.ownerId}:${params.listId}`,
     allow_promotion_codes: preparedDiscount.discountType === 'none',
@@ -505,6 +533,9 @@ export const startListCheckout = async (params: {
     referralCode: preparedDiscount.referralCode,
     referralOwnerUserId: preparedDiscount.referralOwnerUserId,
     currency: session.currency ?? null,
+    marketAvailability: params.marketAvailability,
+    marketCountryCode: params.marketCountryCode,
+    stripeTaxEnabled: STRIPE_TAX_ENABLED,
     createdAt: FieldValue.serverTimestamp(),
   }, { merge: true })
 

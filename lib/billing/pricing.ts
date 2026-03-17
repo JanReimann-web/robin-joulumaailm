@@ -1,63 +1,10 @@
+import { EU27_COUNTRY_CODES } from '@/lib/billing/markets'
 import { Locale } from '@/lib/i18n/config'
 import { BillingPlanId, BILLING_PLAN_DEFINITIONS } from '@/lib/lists/plans'
 
 export const BILLING_CURRENCIES = ['EUR', 'USD'] as const
 export type BillingCurrency = (typeof BILLING_CURRENCIES)[number]
 const DEFAULT_BILLING_CURRENCY: BillingCurrency = 'USD'
-const EUROPE_PRICING_COUNTRY_CODES = new Set([
-  'AD',
-  'AL',
-  'AT',
-  'AX',
-  'BA',
-  'BE',
-  'BG',
-  'BY',
-  'CH',
-  'CY',
-  'CZ',
-  'DE',
-  'DK',
-  'EE',
-  'ES',
-  'FI',
-  'FO',
-  'FR',
-  'GB',
-  'GG',
-  'GI',
-  'GR',
-  'HR',
-  'HU',
-  'IE',
-  'IM',
-  'IS',
-  'IT',
-  'JE',
-  'LI',
-  'LT',
-  'LU',
-  'LV',
-  'MC',
-  'MD',
-  'ME',
-  'MK',
-  'MT',
-  'NL',
-  'NO',
-  'PL',
-  'PT',
-  'RO',
-  'RS',
-  'SE',
-  'SI',
-  'SJ',
-  'SK',
-  'SM',
-  'UA',
-  'VA',
-  'XK',
-])
 
 export const isBillingCurrency = (value: string): value is BillingCurrency => {
   return BILLING_CURRENCIES.includes(value as BillingCurrency)
@@ -67,7 +14,7 @@ export const resolveBillingCurrencyFromCountryCode = (
   countryCode: string | null | undefined
 ): BillingCurrency => {
   const normalizedCountryCode = countryCode?.trim().toUpperCase() ?? ''
-  if (normalizedCountryCode && EUROPE_PRICING_COUNTRY_CODES.has(normalizedCountryCode)) {
+  if (normalizedCountryCode && EU27_COUNTRY_CODES.has(normalizedCountryCode)) {
     return 'EUR'
   }
 

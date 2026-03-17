@@ -103,6 +103,11 @@ export interface Dictionary {
     perListLine: string
     extensionLine: string
     retentionLine: string
+    launchRegionsLine: string
+    taxCollectionLine: string
+    marketUnsupportedNotice: string
+    marketSanctionedNotice: string
+    marketUnknownNotice: string
     baseName: string
     basePrice: string
     baseFeatures: string[]
@@ -255,6 +260,11 @@ export interface Dictionary {
     billingCustomPlanRequired: string
     billingVideoNotice: string
     billingPasswordNotice: string
+    billingLaunchRegionsNotice: string
+    billingTaxCollectionNotice: string
+    billingMarketUnsupportedNotice: string
+    billingMarketSanctionedNotice: string
+    billingMarketUnknownNotice: string
     billingRecommendedBadge: string
     billingCurrentPlanBadge: string
     currentPlanTag: string
@@ -304,6 +314,9 @@ export interface Dictionary {
     planPlatinumFeatures: string[]
     errorSessionExpired: string
     errorActivatePass: string
+    errorBillingMarketUnsupported: string
+    errorBillingMarketSanctioned: string
+    errorBillingMarketUnknown: string
     errorMediaProcessingReasonPrefix: string
     listSelectorLabel: string
     listSettingsTitle: string

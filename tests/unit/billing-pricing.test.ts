@@ -4,14 +4,14 @@ import {
 } from '@/lib/billing/pricing'
 
 describe('billing pricing helpers', () => {
-  it('uses EUR for configured European countries', () => {
+  it('uses EUR for EU27 countries', () => {
     expect(resolveBillingCurrencyFromCountryCode('EE')).toBe('EUR')
     expect(resolveBillingCurrencyFromCountryCode('de')).toBe('EUR')
-    expect(resolveBillingCurrencyFromCountryCode('GB')).toBe('EUR')
   })
 
-  it('uses USD outside the configured Europe region or when country is missing', () => {
+  it('uses USD outside the configured launch EU pricing region or when country is missing', () => {
     expect(resolveBillingCurrencyFromCountryCode('US')).toBe('USD')
+    expect(resolveBillingCurrencyFromCountryCode('GB')).toBe('USD')
     expect(resolveBillingCurrencyFromCountryCode('AU')).toBe('USD')
     expect(resolveBillingCurrencyFromCountryCode(null)).toBe('USD')
   })

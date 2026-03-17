@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { resolveBillingMarketFromHeaders } from '@/lib/billing/markets.server'
 import { formatBillingPlanPrice } from '@/lib/billing/pricing'
 import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import { isLocale } from '@/lib/i18n/config'
@@ -49,7 +50,16 @@ export default function PricingPage({ params }: PricingPageProps) {
   }
 
   const dict = getDictionary(params.locale)
-  const billingCurrency = resolveBillingCurrencyFromHeaders(headers())
+  const requestHeaders = headers()
+  const billingCurrency = resolveBillingCurrencyFromHeaders(requestHeaders)
+  const billingMarket = resolveBillingMarketFromHeaders(requestHeaders)
+  const marketNotice = billingMarket.availability === 'blocked_sanctioned'
+    ? dict.pricing.marketSanctionedNotice
+    : billingMarket.availability === 'blocked_unsupported'
+      ? dict.pricing.marketUnsupportedNotice
+      : billingMarket.availability === 'unknown'
+        ? dict.pricing.marketUnknownNotice
+        : null
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
@@ -59,6 +69,14 @@ export default function PricingPage({ params }: PricingPageProps) {
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.perListLine}</p>
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.extensionLine}</p>
       <p className="mt-1 text-sm text-slate-400">{dict.pricing.retentionLine}</p>
+      <p className="mt-3 text-sm text-emerald-200">{dict.pricing.launchRegionsLine}</p>
+      <p className="mt-1 text-sm text-slate-300">{dict.pricing.taxCollectionLine}</p>
+
+      {marketNotice && (
+        <p className="mt-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
+          {marketNotice}
+        </p>
+      )}
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <article className="rounded-2xl border border-white/10 bg-white/5 p-6">

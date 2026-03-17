@@ -9,6 +9,7 @@ import {
   hasActiveComplimentaryEntitlement,
 } from '@/lib/account-entitlements'
 import { subscribeToAccountEntitlement } from '@/lib/account-entitlements.client'
+import { BillingMarketAvailability } from '@/lib/billing/markets'
 import { BillingCurrency, formatBillingPlanPrice } from '@/lib/billing/pricing'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
@@ -104,6 +105,7 @@ type ListWorkspaceProps = {
   labels: Dictionary['dashboard']
   eventLabels: Dictionary['events']
   billingCurrency: BillingCurrency
+  billingMarketAvailability: BillingMarketAvailability
   billingStatus: 'success' | 'cancel' | null
   billingListId: string | null
 }
@@ -372,6 +374,7 @@ export default function ListWorkspace({
   labels,
   eventLabels,
   billingCurrency,
+  billingMarketAvailability,
   billingStatus,
   billingListId,
 }: ListWorkspaceProps) {
@@ -1059,6 +1062,7 @@ export default function ListWorkspace({
     selectedList?.accessStatus === 'expired'
     && !hasComplimentaryAccess
   )
+  const isBillingCheckoutBlocked = billingMarketAvailability !== 'allowed'
   const isItemActionsDisabled = !selectedListId || Boolean(isSelectedListExpired)
   const isIntroEditorDisabled = !selectedList || isSelectedListExpired || isSavingIntro || isRemovingIntroMedia
   const formattedIntroEventDate = formatHeroEventDate(introEventDate || null, locale)
@@ -1104,6 +1108,26 @@ export default function ListWorkspace({
 
     return billingFeedback
   }, [billingFeedback, selectedList])
+  const billingMarketNotice = useMemo(() => {
+    if (billingMarketAvailability === 'blocked_sanctioned') {
+      return labels.billingMarketSanctionedNotice
+    }
+
+    if (billingMarketAvailability === 'blocked_unsupported') {
+      return labels.billingMarketUnsupportedNotice
+    }
+
+    if (billingMarketAvailability === 'unknown') {
+      return labels.billingMarketUnknownNotice
+    }
+
+    return null
+  }, [
+    billingMarketAvailability,
+    labels.billingMarketSanctionedNotice,
+    labels.billingMarketUnknownNotice,
+    labels.billingMarketUnsupportedNotice,
+  ])
   const referralActiveCountLabel = useMemo(() => {
     return referralSummary
       ? interpolateLabel(labels.referralActiveCountLabel, {
@@ -2052,6 +2076,33 @@ export default function ListWorkspace({
           setBillingFeedback({
             type: 'error',
             message: labels.errorMediaUsageLimitExceeded,
+            listId,
+          })
+          return
+        }
+
+        if (rawError.code === 'billing_market_sanctioned') {
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorBillingMarketSanctioned,
+            listId,
+          })
+          return
+        }
+
+        if (rawError.code === 'billing_market_unsupported') {
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorBillingMarketUnsupported,
+            listId,
+          })
+          return
+        }
+
+        if (rawError.code === 'billing_market_unknown') {
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorBillingMarketUnknown,
             listId,
           })
           return
@@ -3610,6 +3661,15 @@ export default function ListWorkspace({
                   <p className="mt-3 text-xs text-amber-100">{labels.billingPasswordNotice}</p>
                 )}
 
+                <p className="mt-3 text-xs text-slate-300">{labels.billingLaunchRegionsNotice}</p>
+                <p className="mt-1 text-xs text-slate-400">{labels.billingTaxCollectionNotice}</p>
+
+                {billingMarketNotice && (
+                  <p className="mt-3 rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
+                    {billingMarketNotice}
+                  </p>
+                )}
+
                 {!hasComplimentaryAccess && selectedListMediaUsageIssue === 'media_limit_exceeded' && (
                   <p className="mt-3 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
                     {labels.errorMediaUsageLimitExceeded}
@@ -3883,6 +3943,7 @@ export default function ListWorkspace({
                                   || isPlanActionLoading
                                   || Boolean(selectedListMediaUsageIssue)
                                   || !isEligiblePlan
+                                  || isBillingCheckoutBlocked
                                 }
                                 className={`w-full rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto lg:min-w-[11rem] ${
                                   isCurrentPlan

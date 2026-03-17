@@ -64,6 +64,7 @@ export interface BillingRuntimeConfig {
   manualFallbackEnabled: boolean
   stripeCheckoutConfigured: boolean
   stripeWebhookConfigured: boolean
+  stripeTaxEnabled: boolean
 }
 
 export const fetchBillingRuntimeConfig = async (): Promise<BillingRuntimeConfig> => {
@@ -83,5 +84,6 @@ export const fetchBillingRuntimeConfig = async (): Promise<BillingRuntimeConfig>
     manualFallbackEnabled: Boolean(payload.manualFallbackEnabled),
     stripeCheckoutConfigured: Boolean(payload.stripeCheckoutConfigured),
     stripeWebhookConfigured: Boolean(payload.stripeWebhookConfigured),
+    stripeTaxEnabled: Boolean(payload.stripeTaxEnabled),
   }
 }

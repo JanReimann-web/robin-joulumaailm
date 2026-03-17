@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth } from '@/lib/firebase/admin'
 import { startListCheckout } from '@/lib/billing/server'
-import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
+import { resolveBillingMarketFromHeaders } from '@/lib/billing/markets.server'
 import { BillingPlanId } from '@/lib/lists/plans'
 
 export const runtime = 'nodejs'
@@ -54,12 +54,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const currency = resolveBillingCurrencyFromHeaders(request.headers)
+    const billingMarket = resolveBillingMarketFromHeaders(request.headers)
     const result = await startListCheckout({
       listId,
       ownerId: decodedToken.uid,
       planId: planId as BillingPlanId,
-      currency,
+      currency: billingMarket.billingCurrency,
+      marketAvailability: billingMarket.availability,
+      marketCountryCode: billingMarket.countryCode,
       locale: body.locale,
       referralCode: body.referralCode,
     })
@@ -77,6 +79,17 @@ export async function POST(request: NextRequest) {
 
     if (message === 'billing_unavailable') {
       return NextResponse.json({ error: message }, { status: 503 })
+    }
+
+    if (message === 'billing_market_unknown') {
+      return NextResponse.json({ error: message }, { status: 503 })
+    }
+
+    if (
+      message === 'billing_market_unsupported'
+      || message === 'billing_market_sanctioned'
+    ) {
+      return NextResponse.json({ error: message }, { status: 403 })
     }
 
     if (
