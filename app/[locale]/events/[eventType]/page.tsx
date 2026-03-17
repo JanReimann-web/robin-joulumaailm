@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { weddingPageCopy as localizedWeddingPageCopy } from '@/lib/i18n/generated'
 import ShowcasePreviewCard from '@/components/showcase/ShowcasePreviewCard'
 import TrackedLink from '@/components/site/TrackedLink'
 import { isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventSlugToType, eventTypeToSlug, EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
+import { getWeddingIntentContent } from '@/lib/site/wedding-intent'
 import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
 
 type EventPageProps = {
@@ -16,6 +18,7 @@ type EventPageProps = {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const weddingPageCopy = {
   en: {
     proofTitle: 'Why the wedding page works as a registry alternative',
@@ -67,10 +70,7 @@ export function generateMetadata({ params }: EventPageProps): Metadata {
     description: content.seoDescription,
     alternates: {
       canonical,
-      languages: {
-        en: buildLocalizedUrl('en', `/events/${eventTypeToSlug(mappedEventType)}`),
-        et: buildLocalizedUrl('et', `/events/${eventTypeToSlug(mappedEventType)}`),
-      },
+      languages: buildLocalizedAlternates(`/events/${eventTypeToSlug(mappedEventType)}`),
     },
     openGraph: {
       title: content.seoTitle,
@@ -102,31 +102,36 @@ export default async function EventTypePage({ params }: EventPageProps) {
   const content = dict.eventPages[mappedEventType]
   const showcaseEntry = await getPublishedShowcaseEntryForEvent(mappedEventType)
   const isWeddingPage = mappedEventType === 'wedding'
-  const weddingCopy = weddingPageCopy[locale]
-  const weddingIntentLinks = locale === 'et'
-    ? [
-        { href: `/${locale}/wedding-gift-list`, label: 'Pulmade kinginimekiri' },
-        { href: `/${locale}/private-wedding-registry`, label: 'Privaatne pulmaregister' },
-        { href: `/${locale}/wedding-registry-alternative`, label: 'Pulmaregistri alternatiiv' },
-        { href: `/${locale}/wedding-gift-page-for-guests`, label: 'Pulmade kingileht külalistele' },
-      ]
-    : [
-        { href: `/${locale}/wedding-gift-list`, label: 'Wedding gift list' },
-        { href: `/${locale}/private-wedding-registry`, label: 'Private wedding registry' },
-        { href: `/${locale}/wedding-registry-alternative`, label: 'Wedding registry alternative' },
-        { href: `/${locale}/wedding-gift-page-for-guests`, label: 'Wedding gift page for guests' },
-      ]
+  const weddingCopy = localizedWeddingPageCopy[locale]
+  const weddingIntentLinks = [
+    {
+      href: `/${locale}/wedding-gift-list`,
+      label: getWeddingIntentContent(locale, 'wedding-gift-list').eyebrow,
+    },
+    {
+      href: `/${locale}/private-wedding-registry`,
+      label: getWeddingIntentContent(locale, 'private-wedding-registry').eyebrow,
+    },
+    {
+      href: `/${locale}/wedding-registry-alternative`,
+      label: getWeddingIntentContent(locale, 'wedding-registry-alternative').eyebrow,
+    },
+    {
+      href: `/${locale}/wedding-gift-page-for-guests`,
+      label: getWeddingIntentContent(locale, 'wedding-gift-page-for-guests').eyebrow,
+    },
+  ]
   const primaryActionHref = isWeddingPage && showcaseEntry
     ? `/l/${showcaseEntry.slug}?template=${showcaseEntry.templateId}&demo=event-page`
     : `/${locale}/login`
   const primaryActionLabel = isWeddingPage && showcaseEntry
-    ? (locale === 'et' ? 'Vaata päris pulmalehte' : 'See live wedding page')
+    ? dict.hero.primaryCta
     : dict.eventPages.ctaPrimary
   const secondaryActionHref = isWeddingPage
     ? `/${locale}/login`
     : `/${locale}/pricing`
   const secondaryActionLabel = isWeddingPage
-    ? (locale === 'et' ? 'Alusta tasuta katseaega' : 'Start free trial')
+    ? dict.hero.secondaryCta
     : dict.eventPages.ctaSecondary
 
   return (

@@ -19,6 +19,23 @@ export type BillingChargeQuote = {
 }
 
 const DEFAULT_BILLING_CURRENCY: BillingCurrency = 'USD'
+const billingDurationLabels: Record<Locale, string> = {
+  en: '90 days',
+  et: '90 päeva',
+  fi: '90 päivää',
+  sv: '90 dagar',
+  no: '90 dager',
+  da: '90 dage',
+  de: '90 Tage',
+  fr: '90 jours',
+  es: '90 días',
+  pt: '90 dias',
+  it: '90 giorni',
+  pl: '90 dni',
+  ru: '90 дней',
+  lv: '90 dienas',
+  lt: '90 dienų',
+}
 
 const BILLING_PLAN_PRIORITY: Record<BillingPlanId, number> = {
   base: 0,
@@ -160,7 +177,7 @@ export const formatBillingPriceCents = (
   locale: Locale
 ) => {
   const amount = (priceCents / 100).toFixed(2)
-  const durationLabel = locale === 'et' ? '90 päeva' : '90 days'
+  const durationLabel = billingDurationLabels[locale]
 
   return `${amount} ${currency} / ${durationLabel}`
 }

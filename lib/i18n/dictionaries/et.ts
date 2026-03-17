@@ -10,7 +10,7 @@ export const etDictionary: Dictionary = {
     dashboard: 'Töölaud',
   },
   languageSwitcher: {
-    label: 'Keel',
+    label: 'Vaata keeles',
     english: 'Inglise',
     estonian: 'Eesti',
   },

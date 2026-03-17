@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarDays, CheckCircle2, Clock3, MapPin, X } from 'lucide-react'
+import { CalendarDays, CheckCircle2, Clock3, Globe2, MapPin, X } from 'lucide-react'
 import BrandLogo from '@/components/site/BrandLogo'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
+import { publicGiftListCopy as localizedPublicGiftListCopy } from '@/lib/i18n/generated'
+import { localeNativeNames, locales, resolveLocale, type Locale } from '@/lib/i18n/config'
 import {
   applyDemoReservations,
   buildDemoReservationStorageKey,
@@ -69,7 +71,7 @@ type PublicListContentResponse = {
   previewMedia: PreviewMedia
 }
 
-type PublicLocale = 'en' | 'et'
+type PublicLocale = Locale
 type LightboxMedia = {
   url: string
   alt: string
@@ -78,7 +80,7 @@ type LightboxMedia = {
 const GUEST_MESSAGE_MAX_LENGTH = 240
 const GUEST_NAME_MAX_LENGTH = 80
 
-const PUBLIC_COPY = {
+export const PUBLIC_COPY = {
   en: {
     loadingList: 'Loading list...',
     loadingContent: 'Loading list content...',
@@ -151,7 +153,7 @@ const PUBLIC_COPY = {
     eventGraduation: 'Graduation',
     eventHousewarming: 'Housewarming',
     eventChristmas: 'Christmas',
-    languageLabel: 'Language',
+    languageLabel: 'View in',
     expandImageAria: 'Open image',
     closeImageAction: 'Close',
   },
@@ -227,18 +229,14 @@ const PUBLIC_COPY = {
     eventGraduation: 'Lõpetamine',
     eventHousewarming: 'Soolaleib',
     eventChristmas: 'Jõulud',
-    languageLabel: 'Keel',
+    languageLabel: 'Vaata keeles',
     expandImageAria: 'Ava pilt',
     closeImageAction: 'Sulge',
   },
 } as const
 
 const detectInitialLocale = (): PublicLocale => {
-  if (typeof navigator === 'undefined') {
-    return 'en'
-  }
-
-  return navigator.language.toLowerCase().startsWith('et') ? 'et' : 'en'
+  return resolveLocale(typeof navigator === 'undefined' ? null : navigator.language)
 }
 
 const KIDS_BIRTHDAY_TEMPLATE_SET = new Set<TemplateId>([
@@ -265,7 +263,7 @@ const statusLabel = (
   status: GiftListItem['status'],
   locale: PublicLocale
 ) => {
-  const copy = PUBLIC_COPY[locale]
+  const copy = localizedPublicGiftListCopy[locale]
   if (status === 'available') return copy.statusAvailable
   if (status === 'reserved') return copy.statusReserved
   return copy.statusGifted
@@ -295,7 +293,7 @@ const getEventSectionCopy = (
   templateId: TemplateId,
   locale: PublicLocale
 ): EventSectionCopy => {
-  const copy = PUBLIC_COPY[locale]
+  const copy = localizedPublicGiftListCopy[locale]
   const displayEventType = getDisplayEventType(eventType, templateId)
 
   if (displayEventType === 'kidsBirthday') {
@@ -398,10 +396,10 @@ export default function PublicGiftList({
   const thankYouTimeoutRef = useRef<number | null>(null)
   const thankYouCloseTimeoutRef = useRef<number | null>(null)
   const thankYouLaunchTimeoutRef = useRef<number | null>(null)
-  const copy = PUBLIC_COPY[locale]
+  const copy = localizedPublicGiftListCopy[locale]
   const modalRoot = hasMounted ? document.body : null
   const demoStorageKey = useMemo(() => buildDemoReservationStorageKey(slug), [slug])
-  const homeHref = locale === 'et' ? '/et' : '/en'
+  const homeHref = `/${locale}`
   const isPasswordProtected = Boolean(
     meta?.requiresPassword
     || meta?.list.visibility === 'public_password'
@@ -1144,26 +1142,21 @@ export default function PublicGiftList({
   }
 
   const languageSwitcher = (
-    <div className="event-chip-group">
-      <span className="event-chip-label">{copy.languageLabel}</span>
-      <button
-        type="button"
-        onClick={() => setLocale('en')}
-        className={`event-chip-button ${
-          locale === 'en' ? 'is-active' : ''
-        }`}
+    <div className="relative inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-2">
+      <Globe2 size={14} className="text-white/70" />
+      <label className="sr-only" htmlFor="public-language-switcher">{copy.languageLabel}</label>
+      <select
+        id="public-language-switcher"
+        value={locale}
+        onChange={(event) => setLocale(event.target.value as PublicLocale)}
+        className="bg-transparent pr-6 text-sm font-medium text-white outline-none"
       >
-        EN
-      </button>
-      <button
-        type="button"
-        onClick={() => setLocale('et')}
-        className={`event-chip-button ${
-          locale === 'et' ? 'is-active' : ''
-        }`}
-      >
-        ET
-      </button>
+        {locales.map((availableLocale) => (
+          <option key={availableLocale} value={availableLocale} className="bg-slate-950 text-white">
+            {localeNativeNames[availableLocale]}
+          </option>
+        ))}
+      </select>
     </div>
   )
 
@@ -1325,9 +1318,7 @@ export default function PublicGiftList({
       themeId: 'wedding-minimal',
       message: copy.loadingList,
       title: 'Giftlist Studio',
-      body: locale === 'et'
-        ? 'Koostame sulle nimekirja avava vaate. Hetke pärast saad näha sündmuse kujundust, lugu ja kingitusi.'
-        : 'Preparing the public list view. In a moment you will see the event design, story, and gift ideas.',
+      body: copy.loadingContent,
     })
   }
 

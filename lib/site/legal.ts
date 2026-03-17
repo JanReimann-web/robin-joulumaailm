@@ -1,4 +1,5 @@
 import type { Locale } from '@/lib/i18n/config'
+import { legalCopy as generatedLegalCopy } from '@/lib/i18n/generated'
 import type { AnalyticsEventName } from '@/lib/site/analytics'
 
 export const COMPANY_NAME = 'Robinio Invest OÜ'
@@ -85,6 +86,8 @@ type LegalPagesCopy = {
   cookiesIntro: string
 }
 
+type SourceLocale = 'en' | 'et'
+
 const repairMojibake = (value: string) => {
   if (!MOJIBAKE_PATTERN.test(value)) {
     return value
@@ -117,7 +120,7 @@ export const repairLegalContent = <T>(value: T): T => {
   return value
 }
 
-export const LEGAL_COPY: Record<Locale, {
+export const LEGAL_COPY: Record<SourceLocale, {
   footer: FooterCopy
   consent: ConsentCopy
   pages: LegalPagesCopy
@@ -203,7 +206,7 @@ export const LEGAL_COPY: Record<Locale, {
 })
 
 export const getLegalCopy = (locale: Locale) => {
-  return LEGAL_COPY[locale]
+  return generatedLegalCopy[locale]
 }
 
 const CONSENT_MATCH = new RegExp(`(?:^|; )${COOKIE_CONSENT_COOKIE_NAME}=([^;]+)`)

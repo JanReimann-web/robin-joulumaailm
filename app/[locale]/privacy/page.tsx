@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
-import { isLocale, type Locale } from '@/lib/i18n/config'
+import { isLocale } from '@/lib/i18n/config'
+import { privacyPageContent } from '@/lib/i18n/generated'
 import { COMPANY_ADDRESS, COMPANY_NAME, getLegalCopy, repairLegalContent } from '@/lib/site/legal'
 
 type PrivacySection = {
@@ -9,7 +10,10 @@ type PrivacySection = {
   points?: string[]
 }
 
-const PRIVACY_PAGE_CONTENT: Record<Locale, {
+type SourceLocale = 'en' | 'et'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const PRIVACY_PAGE_CONTENT: Record<SourceLocale, {
   updatedLabel: string
   updatedValue: string
   summaryTitle: string
@@ -265,7 +269,7 @@ export default function PrivacyPage({ params }: PrivacyPageProps) {
 
   const locale = params.locale
   const legalCopy = getLegalCopy(locale).pages
-  const content = PRIVACY_PAGE_CONTENT[locale]
+  const content = privacyPageContent[locale] as unknown as (typeof PRIVACY_PAGE_CONTENT)['en']
 
   return (
     <LegalPageShell

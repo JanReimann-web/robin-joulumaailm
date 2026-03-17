@@ -1,4 +1,5 @@
 import type { Locale } from '@/lib/i18n/config'
+import { weddingIntentContent as generatedWeddingIntentContent } from '@/lib/i18n/generated'
 
 export const WEDDING_INTENT_SLUGS = [
   'wedding-gift-list',
@@ -24,7 +25,9 @@ type WeddingIntentContent = {
   }>
 }
 
-const weddingIntentContent: Record<Locale, Record<WeddingIntentSlug, WeddingIntentContent>> = {
+type SourceLocale = 'en' | 'et'
+
+export const weddingIntentContent: Record<SourceLocale, Record<WeddingIntentSlug, WeddingIntentContent>> = {
   en: {
     'wedding-gift-list': {
       seoTitle: 'Wedding Gift List | Giftlist Studio',
@@ -279,5 +282,5 @@ export const getWeddingIntentContent = (
   locale: Locale,
   slug: WeddingIntentSlug
 ) => {
-  return weddingIntentContent[locale][slug]
+  return generatedWeddingIntentContent[locale][slug]
 }

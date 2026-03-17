@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
-import { isLocale, type Locale } from '@/lib/i18n/config'
+import { isLocale } from '@/lib/i18n/config'
+import { termsPageContent } from '@/lib/i18n/generated'
 import { COMPANY_NAME, getLegalCopy, repairLegalContent } from '@/lib/site/legal'
 
 type TermsSection = {
@@ -9,7 +10,10 @@ type TermsSection = {
   points?: string[]
 }
 
-const TERMS_PAGE_CONTENT: Record<Locale, {
+type SourceLocale = 'en' | 'et'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const TERMS_PAGE_CONTENT: Record<SourceLocale, {
   updatedLabel: string
   updatedValue: string
   summaryTitle: string
@@ -305,7 +309,7 @@ export default function TermsPage({ params }: TermsPageProps) {
 
   const locale = params.locale
   const legalCopy = getLegalCopy(locale).pages
-  const content = TERMS_PAGE_CONTENT[locale]
+  const content = termsPageContent[locale] as unknown as (typeof TERMS_PAGE_CONTENT)['en']
 
   return (
     <LegalPageShell

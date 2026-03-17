@@ -4,7 +4,7 @@ import ShowcaseGallery from '@/components/showcase/ShowcaseGallery'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { SUPPORT_EMAIL } from '@/lib/site/contact'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 import { getPublishedShowcaseEntries } from '@/lib/showcase.server'
 
 type GalleryPageProps = {
@@ -25,10 +25,7 @@ export async function generateMetadata({ params }: GalleryPageProps): Promise<Me
     description: dict.gallery.seoDescription,
     alternates: {
       canonical: url,
-      languages: {
-        en: buildLocalizedUrl('en', '/gallery'),
-        et: buildLocalizedUrl('et', '/gallery'),
-      },
+      languages: buildLocalizedAlternates('/gallery'),
     },
     openGraph: {
       title: dict.gallery.seoTitle,

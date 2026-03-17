@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
-import { isLocale, type Locale } from '@/lib/i18n/config'
+import { isLocale } from '@/lib/i18n/config'
+import { cookiePageContent } from '@/lib/i18n/generated'
 import {
   COMPANY_ADDRESS,
   COMPANY_NAME,
@@ -9,7 +10,10 @@ import {
   repairLegalContent,
 } from '@/lib/site/legal'
 
-const COOKIE_PAGE_CONTENT: Record<Locale, {
+type SourceLocale = 'en' | 'et'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const COOKIE_PAGE_CONTENT: Record<SourceLocale, {
   introPoints: string[]
   necessaryTitle: string
   necessaryItems: Array<{ name: string; purpose: string; duration: string }>
@@ -113,7 +117,7 @@ export default function CookiesPage({ params }: CookiesPageProps) {
 
   const locale = params.locale
   const legalCopy = getLegalCopy(locale).pages
-  const content = COOKIE_PAGE_CONTENT[locale]
+  const content = cookiePageContent[locale] as unknown as (typeof COOKIE_PAGE_CONTENT)['en']
 
   return (
     <LegalPageShell

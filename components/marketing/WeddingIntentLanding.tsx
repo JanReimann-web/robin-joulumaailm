@@ -1,6 +1,7 @@
 import LeadCaptureForm from '@/components/marketing/LeadCaptureForm'
 import ShowcasePreviewCard from '@/components/showcase/ShowcasePreviewCard'
 import TrackedLink from '@/components/site/TrackedLink'
+import { weddingIntentLeadCopy as localizedWeddingIntentLeadCopy } from '@/lib/i18n/generated'
 import type { Locale } from '@/lib/i18n/config'
 import type { Dictionary } from '@/lib/i18n/types'
 import type { ShowcaseGalleryEntry } from '@/lib/showcase'
@@ -14,9 +15,9 @@ type WeddingIntentLandingProps = {
     title: string
     body: string
     benefitTitle: string
-    benefits: string[]
+    benefits: readonly string[]
     faqTitle: string
-    faqEntries: Array<{
+    faqEntries: ReadonlyArray<{
       question: string
       answer: string
     }>
@@ -25,7 +26,7 @@ type WeddingIntentLandingProps = {
   showcaseEntry: ShowcaseGalleryEntry | null
 }
 
-const leadCopy = {
+export const leadCopy = {
   en: {
     title: 'Get wedding launch updates',
     body:
@@ -59,7 +60,7 @@ export default function WeddingIntentLanding({
   dict,
   showcaseEntry,
 }: WeddingIntentLandingProps) {
-  const lead = leadCopy[locale]
+  const lead = localizedWeddingIntentLeadCopy[locale]
   const primaryHref = showcaseEntry
     ? `/l/${showcaseEntry.slug}?template=${showcaseEntry.templateId}&demo=intent`
     : `/${locale}/gallery`
@@ -90,7 +91,7 @@ export default function WeddingIntentLanding({
                 }}
                 className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-semibold text-black hover:bg-emerald-300 sm:text-left"
               >
-                {locale === 'et' ? 'Vaata päris pulmalehte' : 'See live wedding page'}
+                {dict.hero.primaryCta}
               </TrackedLink>
               <TrackedLink
                 href={`/${locale}/login`}
@@ -102,7 +103,7 @@ export default function WeddingIntentLanding({
                 }}
                 className="rounded-full border border-white/20 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-white/10 sm:text-left"
               >
-                {locale === 'et' ? 'Alusta tasuta katseaega' : 'Start free trial'}
+                {dict.hero.secondaryCta}
               </TrackedLink>
             </div>
           </div>

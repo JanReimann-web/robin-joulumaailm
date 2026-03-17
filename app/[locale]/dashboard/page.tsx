@@ -6,7 +6,7 @@ import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import DashboardShell from '@/components/auth/DashboardShell'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 
 type DashboardPageProps = {
   params: {
@@ -36,10 +36,7 @@ export function generateMetadata({ params }: DashboardPageProps): Metadata {
     description: dict.dashboard.subtitle,
     alternates: {
       canonical: url,
-      languages: {
-        en: buildLocalizedUrl('en', '/dashboard'),
-        et: buildLocalizedUrl('et', '/dashboard'),
-      },
+      languages: buildLocalizedAlternates('/dashboard'),
     },
     robots: {
       index: false,

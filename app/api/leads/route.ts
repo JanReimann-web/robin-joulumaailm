@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
+import { defaultLocale, isLocale } from '@/lib/i18n/config'
 
 export const runtime = 'nodejs'
 
@@ -26,7 +27,9 @@ export async function POST(request: NextRequest) {
   }
 
   const email = body.email?.trim().toLowerCase() ?? ''
-  const locale = body.locale === 'et' ? 'et' : 'en'
+  const locale = typeof body.locale === 'string' && isLocale(body.locale)
+    ? body.locale
+    : defaultLocale
   const source = typeof body.source === 'string' ? body.source.trim() : ''
 
   if (!EMAIL_PATTERN.test(email) || !source) {

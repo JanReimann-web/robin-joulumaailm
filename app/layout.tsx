@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk } from 'next/font/google'
+import { IBM_Plex_Sans } from 'next/font/google'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import CookieConsentManager from '@/components/site/CookieConsentManager'
+import { localeIntlCodes } from '@/lib/i18n/config'
 import { buildAbsoluteUrl, getSiteUrl } from '@/lib/site/url'
 import './globals.css'
 
@@ -23,12 +24,13 @@ const websiteSchema = {
   '@type': 'WebSite',
   name: SITE_TITLE,
   url: SITE_URL,
-  inLanguage: ['en', 'et'],
+  inLanguage: Object.values(localeIntlCodes),
 }
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ['latin', 'latin-ext', 'cyrillic'],
   variable: '--font-space-grotesk',
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -77,7 +79,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${spaceGrotesk.variable} antialiased`}>
+      <body className={`${ibmPlexSans.variable} antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { pricingMarketingCopy as localizedPricingMarketingCopy } from '@/lib/i18n/generated'
 import LeadCaptureForm from '@/components/marketing/LeadCaptureForm'
 import TrackedLink from '@/components/site/TrackedLink'
 import { resolveBillingMarketFromHeaders } from '@/lib/billing/markets.server'
@@ -8,7 +9,7 @@ import { formatBillingPlanPrice, formatBillingPriceCents } from '@/lib/billing/p
 import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 
 type PricingPageProps = {
   params: {
@@ -16,6 +17,7 @@ type PricingPageProps = {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const pricingMarketingCopy = {
   en: {
     eyebrow: 'Wedding-first launch pricing',
@@ -77,10 +79,7 @@ export function generateMetadata({ params }: PricingPageProps): Metadata {
     description: dict.pricing.seoDescription,
     alternates: {
       canonical: url,
-      languages: {
-        en: buildLocalizedUrl('en', '/pricing'),
-        et: buildLocalizedUrl('et', '/pricing'),
-      },
+      languages: buildLocalizedAlternates('/pricing'),
     },
     openGraph: {
       title: dict.pricing.seoTitle,
@@ -103,7 +102,7 @@ export default function PricingPage({ params }: PricingPageProps) {
 
   const locale = params.locale
   const dict = getDictionary(locale)
-  const copy = pricingMarketingCopy[locale]
+  const copy = localizedPricingMarketingCopy[locale]
   const requestHeaders = headers()
   const billingCurrency = resolveBillingCurrencyFromHeaders(requestHeaders)
   const billingMarket = resolveBillingMarketFromHeaders(requestHeaders)

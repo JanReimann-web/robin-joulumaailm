@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { homeMarketingCopy as localizedHomeMarketingCopy } from '@/lib/i18n/generated'
 import LeadCaptureForm from '@/components/marketing/LeadCaptureForm'
 import TrackedLink from '@/components/site/TrackedLink'
 import ShowcasePreviewCard from '@/components/showcase/ShowcasePreviewCard'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventTypeToSlug } from '@/lib/lists/event-route'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
 
 type LocalePageProps = {
@@ -25,6 +26,7 @@ const eventKeyOrder = [
   'christmas',
 ] as const
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const homeMarketingCopy = {
   en: {
     showcaseTitle: 'See the wedding experience before you commit',
@@ -132,10 +134,7 @@ export function generateMetadata({ params }: LocalePageProps): Metadata {
     description: dict.hero.seoDescription,
     alternates: {
       canonical: url,
-      languages: {
-        en: buildLocalizedUrl('en'),
-        et: buildLocalizedUrl('et'),
-      },
+      languages: buildLocalizedAlternates(),
     },
     openGraph: {
       title: dict.hero.seoTitle,
@@ -158,7 +157,7 @@ export default async function HomePage({ params }: LocalePageProps) {
 
   const locale = params.locale
   const dict = getDictionary(locale)
-  const copy = homeMarketingCopy[locale]
+  const copy = localizedHomeMarketingCopy[locale]
   const weddingShowcaseEntry = await getPublishedShowcaseEntryForEvent('wedding')
   const primaryHeroHref = weddingShowcaseEntry
     ? `/l/${weddingShowcaseEntry.slug}?template=${weddingShowcaseEntry.templateId}&demo=home`

@@ -10,7 +10,7 @@ export const enDictionary: Dictionary = {
     dashboard: 'Dashboard',
   },
   languageSwitcher: {
-    label: 'Language',
+    label: 'View in',
     english: 'English',
     estonian: 'Estonian',
   },

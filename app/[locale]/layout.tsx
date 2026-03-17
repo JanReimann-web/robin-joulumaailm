@@ -9,7 +9,7 @@ import { defaultLocale, isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { COMPANY_ADDRESS, COMPANY_NAME, getLegalCopy } from '@/lib/site/legal'
 import { SUPPORT_EMAIL, SUPPORT_EMAIL_HREF } from '@/lib/site/contact'
-import { buildLocalizedUrl, getSiteUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl, getSiteUrl } from '@/lib/site/url'
 
 const SITE_URL = getSiteUrl()
 
@@ -19,6 +19,24 @@ type LocaleLayoutProps = {
     locale: string
   }
 }
+
+const contactLabelMap = {
+  en: 'Email',
+  et: 'E-post',
+  fi: 'Sähköposti',
+  sv: 'E-post',
+  no: 'E-post',
+  da: 'E-mail',
+  de: 'E-Mail',
+  fr: 'E-mail',
+  es: 'Correo',
+  pt: 'E-mail',
+  it: 'Email',
+  pl: 'E-mail',
+  ru: 'Эл. почта',
+  lv: 'E-pasts',
+  lt: 'El. paštas',
+} as const
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
@@ -33,10 +51,7 @@ export function generateMetadata({ params }: LocaleLayoutProps): Metadata {
     description: dict.hero.subtitle,
     alternates: {
       canonical: buildLocalizedUrl(locale),
-      languages: {
-        en: buildLocalizedUrl('en'),
-        et: buildLocalizedUrl('et'),
-      },
+      languages: buildLocalizedAlternates(),
     },
   }
 }
@@ -49,7 +64,7 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const locale = params.locale
   const dict = getDictionary(locale)
   const legalCopy = getLegalCopy(locale)
-  const contactLabel = locale === 'et' ? 'E-post' : 'Email'
+  const contactLabel = contactLabelMap[locale]
 
   return (
     <div className="min-h-screen overflow-x-hidden" lang={locale}>
@@ -68,10 +83,6 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
           <LanguageSwitcher
             currentLocale={locale}
             label={dict.languageSwitcher.label}
-            names={{
-              en: dict.languageSwitcher.english,
-              et: dict.languageSwitcher.estonian,
-            }}
           />
         </div>
 

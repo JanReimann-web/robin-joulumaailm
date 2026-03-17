@@ -1,5 +1,6 @@
 'use client'
 
+import { galleryCopy as localizedGalleryCopy } from '@/lib/i18n/generated'
 import LeadCaptureForm from '@/components/marketing/LeadCaptureForm'
 import TrackedLink from '@/components/site/TrackedLink'
 import { Locale } from '@/lib/i18n/config'
@@ -29,7 +30,7 @@ const interpolateLabel = (
   }, template)
 }
 
-const galleryCopy = {
+export const galleryCopy = {
   en: {
     featuredEyebrow: 'Featured wedding example',
     featuredTitle: 'Start with the wedding example that makes the product feel real',
@@ -115,7 +116,7 @@ export default function ShowcaseGallery({
   entries,
   supportEmail,
 }: ShowcaseGalleryProps) {
-  const copy = galleryCopy[locale]
+  const copy = localizedGalleryCopy[locale]
   const featuredWeddingEntry = entries.find((entry) => entry.eventType === 'wedding') ?? null
   const remainingEntries = sortEntriesByPriority(
     entries.filter((entry) => entry.listId !== featuredWeddingEntry?.listId)

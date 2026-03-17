@@ -1,3 +1,5 @@
+import { localeIntlCodes, resolveLocale } from '@/lib/i18n/config'
+
 export const formatHeroEventDate = (
   value: string | null,
   locale: string
@@ -12,7 +14,7 @@ export const formatHeroEventDate = (
     return normalized
   }
 
-  return new Intl.DateTimeFormat(locale === 'et' ? 'et-EE' : 'en-US', {
+  return new Intl.DateTimeFormat(localeIntlCodes[resolveLocale(locale)], {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

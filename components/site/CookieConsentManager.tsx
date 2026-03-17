@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import type { Locale } from '@/lib/i18n/config'
+import { resolveLocale, type Locale } from '@/lib/i18n/config'
 import {
   buildCookieConsentCookieValue,
   COOKIE_CONSENT_COOKIE_NAME,
@@ -26,6 +26,23 @@ declare global {
 }
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? ''
+const necessaryStatusLabels: Record<Locale, string> = {
+  en: 'On',
+  et: 'Sees',
+  fi: 'Päällä',
+  sv: 'På',
+  no: 'På',
+  da: 'Til',
+  de: 'An',
+  fr: 'Activé',
+  es: 'Activo',
+  pt: 'Ativo',
+  it: 'Attivo',
+  pl: 'Wł.',
+  ru: 'Вкл.',
+  lv: 'Ieslēgts',
+  lt: 'Įjungta',
+}
 
 const BASE_GOOGLE_CONSENT = {
   ad_storage: 'denied',
@@ -37,19 +54,12 @@ const BASE_GOOGLE_CONSENT = {
 } as const
 
 const detectLocale = (pathname: string | null): Locale => {
-  if (pathname?.startsWith('/et')) {
-    return 'et'
+  const localeFromPath = pathname?.split('/')[1] ?? null
+  if (localeFromPath) {
+    return resolveLocale(localeFromPath)
   }
 
-  if (pathname?.startsWith('/en')) {
-    return 'en'
-  }
-
-  if (typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('et')) {
-    return 'et'
-  }
-
-  return 'en'
+  return resolveLocale(typeof navigator === 'undefined' ? null : navigator.language)
 }
 
 const persistPreferences = (preferences: CookieConsentPreferences) => {
@@ -77,7 +87,7 @@ export default function CookieConsentManager() {
   const pathname = usePathname()
   const locale = useMemo(() => detectLocale(pathname), [pathname])
   const copy = getLegalCopy(locale).consent
-  const necessaryStatusLabel = locale === 'et' ? 'Sees' : 'On'
+  const necessaryStatusLabel = necessaryStatusLabels[locale]
   const policyHref = `/${locale}/cookies`
   const trackedPage = pathname ? getTrackedAnalyticsPage(pathname) : null
 

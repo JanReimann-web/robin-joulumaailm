@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
-import { isLocale, type Locale } from '@/lib/i18n/config'
+import { isLocale } from '@/lib/i18n/config'
+import { faqPageContent } from '@/lib/i18n/generated'
 import { getLegalCopy, repairLegalContent } from '@/lib/site/legal'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 
 type FaqEntry = {
   question: string
@@ -16,7 +17,10 @@ type FaqSection = {
   entries: FaqEntry[]
 }
 
-const FAQ_PAGE_CONTENT: Record<Locale, {
+type SourceLocale = 'en' | 'et'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const FAQ_PAGE_CONTENT: Record<SourceLocale, {
   updatedLabel: string
   updatedValue: string
   sectionJumpLabel: string
@@ -490,10 +494,7 @@ export function generateMetadata({ params }: FaqPageProps): Metadata {
     description: legalCopy.faqIntro,
     alternates: {
       canonical: url,
-      languages: {
-        en: buildLocalizedUrl('en', '/faq'),
-        et: buildLocalizedUrl('et', '/faq'),
-      },
+      languages: buildLocalizedAlternates('/faq'),
     },
     openGraph: {
       title: `${legalCopy.faqTitle} | Giftlist Studio`,
@@ -516,7 +517,7 @@ export default function FaqPage({ params }: FaqPageProps) {
 
   const locale = params.locale
   const legalCopy = getLegalCopy(locale).pages
-  const content = FAQ_PAGE_CONTENT[locale]
+  const content = faqPageContent[locale] as unknown as (typeof FAQ_PAGE_CONTENT)['en']
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import LoginPanel from '@/components/auth/LoginPanel'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 
 type LoginPageProps = {
   params: {
@@ -21,10 +21,7 @@ export function generateMetadata({ params }: LoginPageProps): Metadata {
     description: dict.login.subtitle,
     alternates: {
       canonical: url,
-      languages: {
-        en: buildLocalizedUrl('en', '/login'),
-        et: buildLocalizedUrl('et', '/login'),
-      },
+      languages: buildLocalizedAlternates('/login'),
     },
     robots: {
       index: false,

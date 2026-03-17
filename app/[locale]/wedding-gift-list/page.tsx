@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import WeddingIntentLanding from '@/components/marketing/WeddingIntentLanding'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
-import { buildLocalizedUrl } from '@/lib/site/url'
+import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 import { getWeddingIntentContent } from '@/lib/site/wedding-intent'
 import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
 
@@ -25,10 +25,7 @@ export function generateMetadata({ params }: WeddingGiftListPageProps): Metadata
     description: content.seoDescription,
     alternates: {
       canonical,
-      languages: {
-        en: buildLocalizedUrl('en', `/${SLUG}`),
-        et: buildLocalizedUrl('et', `/${SLUG}`),
-      },
+      languages: buildLocalizedAlternates(`/${SLUG}`),
     },
     openGraph: {
       title: content.seoTitle,
