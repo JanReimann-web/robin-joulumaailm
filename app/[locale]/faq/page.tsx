@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
 import { isLocale, type Locale } from '@/lib/i18n/config'
 import { getLegalCopy, repairLegalContent } from '@/lib/site/legal'
+import { buildLocalizedUrl } from '@/lib/site/url'
 
 type FaqEntry = {
   question: string
@@ -479,12 +480,10 @@ type FaqPageProps = {
   }
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
-
 export function generateMetadata({ params }: FaqPageProps): Metadata {
   const locale = isLocale(params.locale) ? params.locale : 'en'
   const legalCopy = getLegalCopy(locale).pages
-  const url = `${SITE_URL}/${locale}/faq`
+  const url = buildLocalizedUrl(locale, '/faq')
 
   return {
     title: legalCopy.faqTitle,
@@ -492,8 +491,8 @@ export function generateMetadata({ params }: FaqPageProps): Metadata {
     alternates: {
       canonical: url,
       languages: {
-        en: `${SITE_URL}/en/faq`,
-        et: `${SITE_URL}/et/faq`,
+        en: buildLocalizedUrl('en', '/faq'),
+        et: buildLocalizedUrl('et', '/faq'),
       },
     },
     openGraph: {

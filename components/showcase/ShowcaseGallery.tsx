@@ -1,6 +1,7 @@
 'use client'
 
-import Link from 'next/link'
+import LeadCaptureForm from '@/components/marketing/LeadCaptureForm'
+import TrackedLink from '@/components/site/TrackedLink'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
 import {
@@ -16,18 +17,8 @@ type ShowcaseGalleryProps = {
   eventLabels: Dictionary['events']
   dashboardLabels: Dictionary['dashboard']
   entries: ShowcaseGalleryEntry[]
+  supportEmail: string
 }
-
-type ShowcaseDisplayCard =
-  | {
-      kind: 'entry'
-      eventType: EventType
-      entry: ShowcaseGalleryEntry
-    }
-  | {
-      kind: 'placeholder'
-      eventType: EventType
-    }
 
 const interpolateLabel = (
   template: string,
@@ -38,25 +29,82 @@ const interpolateLabel = (
   }, template)
 }
 
-const getShowcaseCardsByEvent = (
+const galleryCopy = {
+  en: {
+    featuredEyebrow: 'Featured wedding example',
+    featuredTitle: 'Start with the wedding example that makes the product feel real',
+    featuredBody:
+      'Wedding is the first purchase. Once couples trust the product here, birthdays, baby showers, graduations, Christmas, and other events become natural repeat purchases.',
+    collectionTitle: 'Live examples by event',
+    collectionBody:
+      'Each card below links to a finished public page so visitors can see how Giftlist Studio works before signing up.',
+    sectionBody: 'Live example for {event}.',
+    emptyTitle: 'The gallery is being curated',
+    emptyBody:
+      'There are no public examples available right now. Start your free trial or contact us if you want your event page featured early.',
+    emptyAction: 'Start free trial',
+    supportTitle: 'Want your event page featured?',
+    supportBody:
+      'Send a polished public example for review and we can consider it for the gallery. For support, partnerships, or early access requests, contact {email}.',
+    supportAction: 'Email support',
+    leadTitle: 'Get launch updates and featured example drops',
+    leadBody:
+      'Leave your email to get notified when new wedding-first examples, launch updates, and lifecycle event templates go live.',
+    leadInputLabel: 'Email address',
+    leadInputPlaceholder: 'you@example.com',
+    leadSubmitLabel: 'Join the list',
+    leadSuccessMessage: 'Thanks. We saved your email for gallery and launch updates.',
+    leadErrorMessage: 'We could not save your email. Please try again.',
+    leadNote: 'We only use your email for launch and product updates.',
+    leadPrivacyLabel: 'Privacy policy',
+  },
+  et: {
+    featuredEyebrow: 'Esiletõstetud pulmanäidis',
+    featuredTitle: 'Alusta pulmanäidisest, mis teeb toote kohe arusaadavaks',
+    featuredBody:
+      'Pulm on esimene ost. Kui paar usaldab toodet siin, muutuvad sünnipäevad, baby shower’id, lõpetamised, jõulud ja teised sündmused loomulikeks kordusostudeks.',
+    collectionTitle: 'Päris näidised sündmuse järgi',
+    collectionBody:
+      'Iga kaart allpool viib valmis avalikule lehele, et külastaja näeks enne konto loomist, kuidas Giftlist Studio päriselt töötab.',
+    sectionBody: 'Päris näidis sündmusele {event}.',
+    emptyTitle: 'Galerii on kureerimisel',
+    emptyBody:
+      'Praegu ei ole avalikke näidiseid saadaval. Alusta tasuta katseajaga või võta ühendust, kui soovid oma sündmuse lehte varakult esile tõsta.',
+    emptyAction: 'Alusta tasuta katseaega',
+    supportTitle: 'Kas tahad oma sündmuse lehte esile tõsta?',
+    supportBody:
+      'Saada meile viimistletud avalik näidis ülevaatuseks ja võime selle lisada galeriisse. Toe, koostöö või varajase ligipääsu jaoks kirjuta aadressile {email}.',
+    supportAction: 'Kirjuta toele',
+    leadTitle: 'Saa launch-uudiseid ja uusi näidiseid',
+    leadBody:
+      'Jäta oma e-post, et saada teada uutest pulmade näidistest, launch-uudistest ja elutsükli järgmiste sündmuste mallidest.',
+    leadInputLabel: 'E-posti aadress',
+    leadInputPlaceholder: 'sina@naide.ee',
+    leadSubmitLabel: 'Liitu nimekirjaga',
+    leadSuccessMessage: 'Aitäh. Sinu e-post on salvestatud galerii ja launch-uudiste jaoks.',
+    leadErrorMessage: 'E-posti salvestamine ei õnnestunud. Proovi uuesti.',
+    leadNote: 'Kasutame sinu e-posti ainult launchi ja tootearenduse uuenduste jaoks.',
+    leadPrivacyLabel: 'Privaatsuspoliitika',
+  },
+} as const
+
+const sortEntriesByPriority = (
   entries: ShowcaseGalleryEntry[]
-): Record<EventType, ShowcaseDisplayCard> => {
-  return EVENT_TYPES.reduce<Record<EventType, ShowcaseDisplayCard>>((result, eventType) => {
-    const matchingEntry = entries.find((entry) => entry.eventType === eventType)
+) => {
+  const eventPriority = new Map<EventType, number>(
+    EVENT_TYPES.map((eventType, index) => [eventType, index])
+  )
 
-    result[eventType] = matchingEntry
-      ? {
-          kind: 'entry',
-          eventType,
-          entry: matchingEntry,
-        }
-      : {
-          kind: 'placeholder',
-          eventType,
-        }
+  return [...entries].sort((left, right) => {
+    const leftPriority = eventPriority.get(left.eventType) ?? EVENT_TYPES.length
+    const rightPriority = eventPriority.get(right.eventType) ?? EVENT_TYPES.length
 
-    return result
-  }, {} as Record<EventType, ShowcaseDisplayCard>)
+    if (leftPriority !== rightPriority) {
+      return leftPriority - rightPriority
+    }
+
+    return (right.updatedAt ?? 0) - (left.updatedAt ?? 0)
+  })
 }
 
 export default function ShowcaseGallery({
@@ -65,8 +113,14 @@ export default function ShowcaseGallery({
   eventLabels,
   dashboardLabels,
   entries,
+  supportEmail,
 }: ShowcaseGalleryProps) {
-  const groupedCards = getShowcaseCardsByEvent(entries)
+  const copy = galleryCopy[locale]
+  const featuredWeddingEntry = entries.find((entry) => entry.eventType === 'wedding') ?? null
+  const remainingEntries = sortEntriesByPriority(
+    entries.filter((entry) => entry.listId !== featuredWeddingEntry?.listId)
+  )
+  const hasEntries = Boolean(featuredWeddingEntry || remainingEntries.length > 0)
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-16">
@@ -85,91 +139,163 @@ export default function ShowcaseGallery({
         </p>
       </section>
 
-      <div className="mt-10 space-y-8">
-        {EVENT_TYPES.map((eventType) => {
-          const card = groupedCards[eventType]
+      {featuredWeddingEntry && (
+        <section className="mt-10 space-y-4">
+          <div className="max-w-3xl">
+            <p className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100">
+              {copy.featuredEyebrow}
+            </p>
+            <h2 className="mt-4 text-2xl font-semibold text-white sm:text-3xl">
+              {copy.featuredTitle}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-slate-200 sm:text-base">
+              {copy.featuredBody}
+            </p>
+          </div>
 
-          return (
-            <section key={eventType} className="space-y-4">
-              <div className="flex flex-wrap items-end justify-between gap-3">
+          <ShowcasePreviewCard
+            locale={locale}
+            labels={labels}
+            dashboardLabels={dashboardLabels}
+            eventLabel={eventLabels.wedding}
+            eventType="wedding"
+            entry={featuredWeddingEntry}
+          />
+        </section>
+      )}
+
+      {remainingEntries.length > 0 && (
+        <section className="mt-12 space-y-6">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+              {copy.collectionTitle}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-slate-300 sm:text-base">
+              {copy.collectionBody}
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {remainingEntries.map((entry) => (
+              <section key={entry.listId} className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-white sm:text-2xl">
-                    {eventLabels[eventType]}
-                  </h2>
+                  <h3 className="text-xl font-semibold text-white sm:text-2xl">
+                    {eventLabels[entry.eventType]}
+                  </h3>
                   <p className="mt-1 text-sm text-slate-300">
-                    {interpolateLabel(labels.sectionSubtitle, {
-                      event: eventLabels[eventType],
+                    {interpolateLabel(copy.sectionBody, {
+                      event: eventLabels[entry.eventType],
                     })}
                   </p>
                 </div>
-              </div>
 
-              <div className="grid gap-5">
-                {card.kind === 'entry' ? (
-                  <ShowcasePreviewCard
-                    locale={locale}
-                    labels={labels}
-                    dashboardLabels={dashboardLabels}
-                    eventLabel={eventLabels[eventType]}
-                    eventType={eventType}
-                    entry={card.entry}
-                  />
-                ) : (
-                  <article className="rounded-[2rem] border border-white/10 bg-slate-950/40 p-3 sm:p-4">
-                    <div className="event-canvas rounded-[1.7rem] border border-white/10 p-6 sm:p-8" data-event-theme="classic-wedding">
-                      <div className="rounded-[1.4rem] border border-dashed border-white/15 bg-white/5 p-6 text-slate-300">
-                        <div className="flex items-center gap-2">
-                          <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-200">
-                            {eventLabels[eventType]}
-                          </span>
-                          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-300">
-                            {labels.placeholderBadge}
-                          </span>
-                        </div>
-                        <h3 className="mt-5 text-2xl font-semibold text-white">
-                          {interpolateLabel(labels.placeholderTitle, { event: eventLabels[eventType] })}
-                        </h3>
-                        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-                          {interpolateLabel(labels.placeholderBody, { event: eventLabels[eventType] })}
-                        </p>
-                        <div className="mt-5">
-                          <Link
-                            href={`/${locale}/login`}
-                            className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                          >
-                            {labels.cardCtaAction}
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                )}
-              </div>
-            </section>
-          )
-        })}
-      </div>
+                <ShowcasePreviewCard
+                  locale={locale}
+                  labels={labels}
+                  dashboardLabels={dashboardLabels}
+                  eventLabel={eventLabels[entry.eventType]}
+                  eventType={entry.eventType}
+                  entry={entry}
+                />
+              </section>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!hasEntries && (
+        <section className="mt-10 rounded-[2rem] border border-white/10 bg-white/5 p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold text-white">{copy.emptyTitle}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-200 sm:text-base">
+            {copy.emptyBody}
+          </p>
+          <div className="mt-5">
+            <TrackedLink
+              href={`/${locale}/login`}
+              eventName="click_start_trial"
+              eventParams={{
+                locale,
+                placement: 'gallery_empty_state',
+              }}
+              className="inline-flex rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300"
+            >
+              {copy.emptyAction}
+            </TrackedLink>
+          </div>
+        </section>
+      )}
 
       <section className="mt-12 rounded-[2rem] border border-white/10 bg-white/5 p-6 sm:p-8">
         <h2 className="text-2xl font-semibold text-white">{labels.ctaTitle}</h2>
-        <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">
+        <p className="mt-3 max-w-3xl text-sm text-slate-200 sm:text-base">
           {labels.ctaBody}
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link
+          <TrackedLink
             href={`/${locale}/login`}
+            eventName="click_start_trial"
+            eventParams={{
+              locale,
+              placement: 'gallery_cta',
+            }}
             className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300"
           >
             {labels.ctaAction}
-          </Link>
-          <Link
+          </TrackedLink>
+          <TrackedLink
             href={`/${locale}/pricing`}
+            eventName="view_pricing"
+            eventParams={{
+              locale,
+              placement: 'gallery_cta',
+            }}
             className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
           >
             {labels.secondaryCtaAction}
-          </Link>
+          </TrackedLink>
         </div>
       </section>
+
+      <section className="mt-8 rounded-[2rem] border border-white/10 bg-slate-950/40 p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-white">{copy.supportTitle}</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-200 sm:text-base">
+          {interpolateLabel(copy.supportBody, { email: supportEmail })}
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <a
+            href={`mailto:${supportEmail}`}
+            className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            {copy.supportAction}
+          </a>
+          <TrackedLink
+            href={`/${locale}/login`}
+            eventName="click_start_trial"
+            eventParams={{
+              locale,
+              placement: 'gallery_support',
+            }}
+            className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300"
+          >
+            {labels.ctaAction}
+          </TrackedLink>
+        </div>
+      </section>
+
+      <LeadCaptureForm
+        locale={locale}
+        source="gallery"
+        title={copy.leadTitle}
+        body={copy.leadBody}
+        inputLabel={copy.leadInputLabel}
+        inputPlaceholder={copy.leadInputPlaceholder}
+        submitLabel={copy.leadSubmitLabel}
+        successMessage={copy.leadSuccessMessage}
+        errorMessage={copy.leadErrorMessage}
+        note={copy.leadNote}
+        privacyLabel={copy.leadPrivacyLabel}
+        className="mt-8"
+      />
     </div>
   )
 }

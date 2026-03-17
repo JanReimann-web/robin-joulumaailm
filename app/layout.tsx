@@ -2,20 +2,21 @@ import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk } from 'next/font/google'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import CookieConsentManager from '@/components/site/CookieConsentManager'
+import { buildAbsoluteUrl, getSiteUrl } from '@/lib/site/url'
 import './globals.css'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
+const SITE_URL = getSiteUrl()
 const SITE_TITLE = 'Giftlist Studio'
 const SITE_DESCRIPTION =
-  'Create shareable online gift lists for weddings, birthdays, kids parties, baby showers, graduations, housewarmings, and Christmas with guest reservations and event-ready designs.'
-const SHARE_IMAGE = '/images/Joulud.jpg'
+  'Create a beautiful wedding gift list or event gift page with duplicate-proof reservations, private sharing, and event-ready designs.'
+const SHARE_IMAGE = buildAbsoluteUrl('/images/Joulud.jpg')
 const BRAND_MARK = '/brand/giftlist-studio-mark.svg'
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: SITE_TITLE,
   url: SITE_URL,
-  logo: `${SITE_URL}${BRAND_MARK}`,
+  logo: buildAbsoluteUrl(BRAND_MARK),
 }
 const websiteSchema = {
   '@context': 'https://schema.org',

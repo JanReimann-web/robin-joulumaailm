@@ -103,6 +103,8 @@ import {
   ReferralCodeStatus,
   ReferralDashboardSummary,
 } from '@/lib/referrals'
+import { trackAnalyticsEvent } from '@/lib/site/analytics'
+import { buildPublicListUrl } from '@/lib/site/url'
 
 type ListWorkspaceProps = {
   locale: Locale
@@ -219,6 +221,60 @@ const withErrorDiagnostics = (
   }
 
   return segments.join(' ')
+}
+
+const PENDING_CHECKOUT_STORAGE_KEY = 'giftlist:pending-checkout'
+
+type PendingCheckoutTracking = {
+  listId: string
+  planId: BillingPlanId
+  referralCode: string | null
+}
+
+const readPendingCheckoutTracking = (): PendingCheckoutTracking | null => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const rawValue = window.sessionStorage.getItem(PENDING_CHECKOUT_STORAGE_KEY)
+    if (!rawValue) {
+      return null
+    }
+
+    const parsed = JSON.parse(rawValue) as Partial<PendingCheckoutTracking>
+    if (
+      typeof parsed.listId !== 'string'
+      || typeof parsed.planId !== 'string'
+      || !['base', 'premium', 'platinum'].includes(parsed.planId)
+    ) {
+      return null
+    }
+
+    return {
+      listId: parsed.listId,
+      planId: parsed.planId,
+      referralCode: typeof parsed.referralCode === 'string' ? parsed.referralCode : null,
+    }
+  } catch {
+    return null
+  }
+}
+
+const writePendingCheckoutTracking = (value: PendingCheckoutTracking) => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.setItem(PENDING_CHECKOUT_STORAGE_KEY, JSON.stringify(value))
+}
+
+const clearPendingCheckoutTracking = () => {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.sessionStorage.removeItem(PENDING_CHECKOUT_STORAGE_KEY)
 }
 
 const interpolateLabel = (
@@ -598,6 +654,8 @@ export default function ListWorkspace({
     }
 
     if (billingStatus === 'success') {
+      const pendingCheckout = readPendingCheckoutTracking()
+
       setListError(null)
       setListSuccess(null)
       setBillingFeedback({
@@ -605,6 +663,23 @@ export default function ListWorkspace({
         message: labels.billingSuccessReturn,
         listId: billingListId,
       })
+
+      trackAnalyticsEvent('purchase', {
+        locale,
+        list_id: billingListId,
+        plan_id: pendingCheckout?.planId,
+        purchase_mode: 'stripe',
+      })
+
+      if (pendingCheckout?.referralCode) {
+        trackAnalyticsEvent('referral_redeemed', {
+          locale,
+          list_id: billingListId,
+          code: pendingCheckout.referralCode,
+        })
+      }
+
+      clearPendingCheckoutTracking()
     } else {
       setListSuccess(null)
       setListError(null)
@@ -613,6 +688,8 @@ export default function ListWorkspace({
         message: labels.billingCancelReturn,
         listId: billingListId,
       })
+
+      clearPendingCheckoutTracking()
     }
 
     setHasHandledBillingReturn(true)
@@ -620,6 +697,7 @@ export default function ListWorkspace({
     billingListId,
     billingStatus,
     hasHandledBillingReturn,
+    locale,
     labels.billingCancelReturn,
     labels.billingSuccessReturn,
   ])
@@ -1247,15 +1325,6 @@ export default function ListWorkspace({
     setIntroEventLocation(selectedList.introEventLocation ?? '')
   }, [selectedList])
 
-  const getPublicListUrl = (slug: string) => {
-    const siteUrl = (
-      process.env.NEXT_PUBLIC_SITE_URL
-      || (typeof window !== 'undefined' ? window.location.origin : '')
-    ).replace(/\/$/, '')
-
-    return `${siteUrl}/${slug}`
-  }
-
   const buildProjectedMediaUsage = useCallback((params: {
     target: 'intro' | 'item' | 'story'
     uploadedMedia: UploadMediaMetadata
@@ -1377,7 +1446,7 @@ export default function ListWorkspace({
   }, [publicUrlCode, slug])
 
   const composedCreateUrl = useMemo(() => {
-    return getPublicListUrl(composedCreateSlug)
+    return buildPublicListUrl(composedCreateSlug)
   }, [composedCreateSlug])
   const isListSettingsSuccessVisible = listSuccess === labels.listSettingsSaved
   const globalListSuccess = isListSettingsSuccessVisible ? null : listSuccess
@@ -1617,7 +1686,12 @@ export default function ListWorkspace({
         idToken,
       })
 
-      setListSuccess(`${labels.listCreated} ${getPublicListUrl(result.slug)}`)
+      setListSuccess(`${labels.listCreated} ${buildPublicListUrl(result.slug)}`)
+      trackAnalyticsEvent('create_list', {
+        locale,
+        list_id: result.listId,
+        event_type: 'birthday',
+      })
       setTitle('')
       setSlug('')
       setIsSlugTouched(false)
@@ -1758,11 +1832,16 @@ export default function ListWorkspace({
   }
 
   const handleCopyPublicLink = async (list: GiftList) => {
-    const url = getPublicListUrl(list.slug)
+    const url = buildPublicListUrl(list.slug)
 
     try {
       await navigator.clipboard.writeText(url)
       setCopiedListId(list.id)
+      trackAnalyticsEvent('copy_link', {
+        locale,
+        list_id: list.id,
+        event_type: list.eventType,
+      })
       window.setTimeout(() => {
         setCopiedListId((current) => (current === list.id ? null : current))
       }, 1500)
@@ -1829,6 +1908,9 @@ export default function ListWorkspace({
       const idToken = await getCurrentUserIdToken()
       await generateReferralCode(idToken)
       setReferralSuccess(labels.referralGenerateSuccess)
+      trackAnalyticsEvent('referral_generated', {
+        locale,
+      })
       await loadReferralSummary()
     } catch (rawError) {
       if (rawError instanceof ReferralClientError) {
@@ -1900,7 +1982,7 @@ export default function ListWorkspace({
     setIsQrLoading(true)
 
     try {
-      const qrUrl = await QRCode.toDataURL(getPublicListUrl(list.slug), {
+      const qrUrl = await QRCode.toDataURL(buildPublicListUrl(list.slug), {
         errorCorrectionLevel: 'M',
         margin: 1,
         width: 220,
@@ -2042,6 +2124,12 @@ export default function ListWorkspace({
       }
 
       const idToken = await user.getIdToken()
+      trackAnalyticsEvent('begin_checkout', {
+        locale,
+        list_id: listId,
+        plan_id: planId,
+        has_referral: Boolean(appliedReferralCode?.code),
+      })
       const result = await startBillingCheckout({
         listId,
         planId,
@@ -2051,6 +2139,11 @@ export default function ListWorkspace({
       })
 
       if (result.mode === 'stripe') {
+        writePendingCheckoutTracking({
+          listId,
+          planId,
+          referralCode: appliedReferralCode?.code ?? null,
+        })
         setBillingFeedback({
           type: 'success',
           message: labels.redirectingToCheckout,
@@ -2065,6 +2158,21 @@ export default function ListWorkspace({
         message: labels.passActivated,
         listId,
       })
+      trackAnalyticsEvent('purchase', {
+        locale,
+        list_id: listId,
+        plan_id: planId,
+        purchase_mode: 'manual',
+      })
+
+      if (appliedReferralCode?.code) {
+        trackAnalyticsEvent('referral_redeemed', {
+          locale,
+          list_id: listId,
+          code: appliedReferralCode.code,
+        })
+      }
+
       setAppliedReferralCode(null)
       setReferralCodeInput('')
       await loadReferralSummary()

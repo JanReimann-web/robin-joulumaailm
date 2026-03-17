@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import ShowcaseGallery from '@/components/showcase/ShowcaseGallery'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
+import { SUPPORT_EMAIL } from '@/lib/site/contact'
+import { buildLocalizedUrl } from '@/lib/site/url'
 import { getPublishedShowcaseEntries } from '@/lib/showcase.server'
 
 type GalleryPageProps = {
@@ -11,14 +13,12 @@ type GalleryPageProps = {
   }
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
-
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: GalleryPageProps): Promise<Metadata> {
   const locale = isLocale(params.locale) ? params.locale : 'en'
   const dict = getDictionary(locale)
-  const url = `${SITE_URL}/${locale}/gallery`
+  const url = buildLocalizedUrl(locale, '/gallery')
 
   return {
     title: dict.gallery.seoTitle,
@@ -26,8 +26,8 @@ export async function generateMetadata({ params }: GalleryPageProps): Promise<Me
     alternates: {
       canonical: url,
       languages: {
-        en: `${SITE_URL}/en/gallery`,
-        et: `${SITE_URL}/et/gallery`,
+        en: buildLocalizedUrl('en', '/gallery'),
+        et: buildLocalizedUrl('et', '/gallery'),
       },
     },
     openGraph: {
@@ -60,6 +60,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
       eventLabels={dict.events}
       dashboardLabels={dict.dashboard}
       entries={entries}
+      supportEmail={SUPPORT_EMAIL}
     />
   )
 }

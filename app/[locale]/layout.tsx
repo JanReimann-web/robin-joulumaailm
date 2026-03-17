@@ -8,8 +8,10 @@ import SiteNavigation from '@/components/site/SiteNavigation'
 import { defaultLocale, isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { COMPANY_ADDRESS, COMPANY_NAME, getLegalCopy } from '@/lib/site/legal'
+import { SUPPORT_EMAIL, SUPPORT_EMAIL_HREF } from '@/lib/site/contact'
+import { buildLocalizedUrl, getSiteUrl } from '@/lib/site/url'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
+const SITE_URL = getSiteUrl()
 
 type LocaleLayoutProps = {
   children: React.ReactNode
@@ -30,10 +32,10 @@ export function generateMetadata({ params }: LocaleLayoutProps): Metadata {
     title: dict.brand,
     description: dict.hero.subtitle,
     alternates: {
-      canonical: `${SITE_URL}/${locale}`,
+      canonical: buildLocalizedUrl(locale),
       languages: {
-        en: `${SITE_URL}/en`,
-        et: `${SITE_URL}/et`,
+        en: buildLocalizedUrl('en'),
+        et: buildLocalizedUrl('et'),
       },
     },
   }
@@ -47,6 +49,7 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const locale = params.locale
   const dict = getDictionary(locale)
   const legalCopy = getLegalCopy(locale)
+  const contactLabel = locale === 'et' ? 'E-post' : 'Email'
 
   return (
     <div className="min-h-screen overflow-x-hidden" lang={locale}>
@@ -89,6 +92,12 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
               <p>
                 <span className="font-medium text-white/75">{legalCopy.footer.addressLabel}:</span>{' '}
                 {COMPANY_ADDRESS}
+              </p>
+              <p>
+                <span className="font-medium text-white/75">{contactLabel}:</span>{' '}
+                <a href={SUPPORT_EMAIL_HREF} className="transition hover:text-white">
+                  {SUPPORT_EMAIL}
+                </a>
               </p>
             </div>
 

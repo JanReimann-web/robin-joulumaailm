@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import LoginPanel from '@/components/auth/LoginPanel'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
+import { buildLocalizedUrl } from '@/lib/site/url'
 
 type LoginPageProps = {
   params: {
@@ -10,12 +11,10 @@ type LoginPageProps = {
   }
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
-
 export function generateMetadata({ params }: LoginPageProps): Metadata {
   const locale = isLocale(params.locale) ? params.locale : 'en'
   const dict = getDictionary(locale)
-  const url = `${SITE_URL}/${locale}/login`
+  const url = buildLocalizedUrl(locale, '/login')
 
   return {
     title: dict.login.title,
@@ -23,8 +22,8 @@ export function generateMetadata({ params }: LoginPageProps): Metadata {
     alternates: {
       canonical: url,
       languages: {
-        en: `${SITE_URL}/en/login`,
-        et: `${SITE_URL}/et/login`,
+        en: buildLocalizedUrl('en', '/login'),
+        et: buildLocalizedUrl('et', '/login'),
       },
     },
     robots: {

@@ -6,6 +6,7 @@ import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import DashboardShell from '@/components/auth/DashboardShell'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
+import { buildLocalizedUrl } from '@/lib/site/url'
 
 type DashboardPageProps = {
   params: {
@@ -16,8 +17,6 @@ type DashboardPageProps = {
     list?: string | string[]
   }
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 
 const getSingleSearchParam = (value: string | string[] | undefined) => {
   if (!value) {
@@ -30,7 +29,7 @@ const getSingleSearchParam = (value: string | string[] | undefined) => {
 export function generateMetadata({ params }: DashboardPageProps): Metadata {
   const locale = isLocale(params.locale) ? params.locale : 'en'
   const dict = getDictionary(locale)
-  const url = `${SITE_URL}/${locale}/dashboard`
+  const url = buildLocalizedUrl(locale, '/dashboard')
 
   return {
     title: dict.dashboard.title,
@@ -38,8 +37,8 @@ export function generateMetadata({ params }: DashboardPageProps): Metadata {
     alternates: {
       canonical: url,
       languages: {
-        en: `${SITE_URL}/en/dashboard`,
-        et: `${SITE_URL}/et/dashboard`,
+        en: buildLocalizedUrl('en', '/dashboard'),
+        et: buildLocalizedUrl('et', '/dashboard'),
       },
     },
     robots: {

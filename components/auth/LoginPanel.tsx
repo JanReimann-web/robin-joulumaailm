@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react'
 import { FirebaseError } from 'firebase/app'
+import { getAdditionalUserInfo } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -12,6 +13,7 @@ import {
   signInWithGoogle,
 } from '@/lib/auth/client'
 import { useAuth } from '@/components/auth/AuthProvider'
+import { trackAnalyticsEvent } from '@/lib/site/analytics'
 
 type LoginPanelProps = {
   locale: Locale
@@ -95,7 +97,20 @@ export default function LoginPanel({ locale, labels }: LoginPanelProps) {
 
   const handleGoogleSignIn = async () => {
     await withPendingState('google', async () => {
-      await signInWithGoogle()
+      trackAnalyticsEvent('begin_signup', {
+        locale,
+        method: 'google',
+      })
+
+      const credential = await signInWithGoogle()
+      const userInfo = getAdditionalUserInfo(credential)
+
+      if (userInfo?.isNewUser) {
+        trackAnalyticsEvent('create_account', {
+          locale,
+          method: 'google',
+        })
+      }
     })
   }
 
@@ -122,8 +137,17 @@ export default function LoginPanel({ locale, labels }: LoginPanelProps) {
       return
     }
 
+    trackAnalyticsEvent('begin_signup', {
+      locale,
+      method: 'email',
+    })
+
     await withPendingState('create', async () => {
       await createAccountWithEmail(trimmedEmail, password)
+      trackAnalyticsEvent('create_account', {
+        locale,
+        method: 'email',
+      })
     })
   }
 

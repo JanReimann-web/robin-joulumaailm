@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
+import TrackedLink from '@/components/site/TrackedLink'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
@@ -132,19 +132,32 @@ export default function ShowcasePreviewCard({
             </p>
 
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link
+              <TrackedLink
                 href={`/l/${entry.slug}?template=${previewTemplateId}&demo=gallery`}
+                eventName="view_example"
+                eventParams={{
+                  locale,
+                  placement: 'gallery_card',
+                  event_type: eventType,
+                  slug: entry.slug,
+                }}
                 className="event-accent-button rounded-full px-5 py-2.5 text-sm font-semibold"
               >
                 {labels.openExampleAction}
-              </Link>
+              </TrackedLink>
 
-              <Link
+              <TrackedLink
                 href={`/${locale}/login`}
+                eventName="click_start_trial"
+                eventParams={{
+                  locale,
+                  placement: 'gallery_card',
+                  event_type: eventType,
+                }}
                 className="rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 {labels.cardCtaAction}
-              </Link>
+              </TrackedLink>
             </div>
           </div>
         </div>

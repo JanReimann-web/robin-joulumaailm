@@ -15,35 +15,35 @@ export const enDictionary: Dictionary = {
     estonian: 'Estonian',
   },
   hero: {
-    badge: 'Online gift lists for weddings, birthdays, baby showers, and more',
-    title: 'Create a beautiful online gift list for any event',
+    badge: 'Wedding-first gift list pages for modern couples',
+    title: 'Create a beautiful wedding gift list that prevents duplicate gifts',
     subtitle:
-      'Build one shareable gift list page, choose a design that fits your event, and let guests reserve gifts before they buy so duplicate presents are avoided.',
+      'Share one elegant wedding gift page, let guests reserve gifts before they buy, and keep everything clear with private or password-protected sharing.',
     seoTitle:
-      'Online Gift List for Weddings, Birthdays, Baby Showers, Christmas, and More',
+      'Wedding Gift List and Registry Alternative | Giftlist Studio',
     seoDescription:
-      'Create a shareable online gift list with guest reservations, password protection, QR sharing, and event-ready designs. Built for weddings, birthdays, kids parties, baby showers, graduations, housewarmings, and Christmas.',
-    primaryCta: 'Start free trial',
-    secondaryCta: 'View pricing',
+      'Create a beautiful wedding gift list with guest reservations, password protection, QR sharing, and event-ready designs. A registry alternative for couples who want one elegant page guests can actually use.',
+    primaryCta: 'See live wedding example',
+    secondaryCta: 'Start free trial',
     proofPoints: [
-      '14-day free trial for every list',
-      'Reservation flow prevents duplicate gifts',
-      'QR sharing, password protection, and themed designs',
+      'Wedding-first experience with a live example page',
+      'Reservation flow prevents duplicate gifts before guests buy',
+      'Password protection, QR sharing, and event-ready designs',
     ],
   },
   highlights: {
-    title: 'Why hosts use Giftlist Studio',
+    title: 'Why couples use Giftlist Studio',
     subtitle:
-      'Everything you need to share one link, collect gift wishes, and keep guest reservations clear from start to finish.',
-    templateTitle: 'Event-based templates',
+      'Everything you need to share one wedding gift page, collect gift wishes, and keep guest reservations clear from engagement to event day.',
+    templateTitle: 'Wedding-first design',
     templateBody:
-      'Choose from focused designs for weddings, birthdays, kids birthdays, baby showers, graduations, housewarmings, and Christmas gift planning.',
-    reserveTitle: 'Duplicate-safe reservations',
+      'Start with a polished wedding page, then keep birthdays, baby showers, graduations, housewarmings, and Christmas as extra proof that the platform stays flexible.',
+    reserveTitle: 'Duplicate-proof reservations',
     reserveBody:
-      'Guests reserve gifts before they buy, and reservation actions are transaction-protected to avoid two people choosing the same item.',
-    trialTitle: 'Trial first, one-time payment later',
+      'Guests reserve gifts before they buy, and reservation actions are transaction-protected so two guests cannot accidentally choose the same item.',
+    trialTitle: 'Free setup, one-time activation later',
     trialBody:
-      'Set up your list during the free trial, then unlock a 90-day event pass with a one-time payment when you are ready to publish.',
+      'Build the full experience during the free trial, then activate a 90-day event hosting pass only when you are ready to publish.',
   },
   events: {
     title: 'Gift list templates by event type',
@@ -60,7 +60,7 @@ export const enDictionary: Dictionary = {
   home: {
     processTitle: 'How Giftlist Studio works',
     processSubtitle:
-      'Set up one page, share it once, and let guests see what is still available before they buy.',
+      'Build one wedding gift page, share it once, and let guests see what is still available before they buy.',
     processSteps: [
       {
         title: 'Create your event gift list',
@@ -82,7 +82,7 @@ export const enDictionary: Dictionary = {
       {
         question: 'Is Giftlist Studio only for wedding gift lists?',
         answer:
-          'No. Giftlist Studio works for weddings, birthdays, kids birthday parties, baby showers, graduations, housewarmings, and Christmas gift planning.',
+          'No, but weddings are the clearest starting point. Giftlist Studio also works for birthdays, kids birthday parties, baby showers, graduations, housewarmings, and Christmas gift planning.',
       },
       {
         question: 'Can guests reserve gifts before buying them?',
@@ -100,11 +100,11 @@ export const enDictionary: Dictionary = {
           'Yes. Every new list starts with a 14-day free trial so you can build the page, upload content, and preview the full experience before activation.',
       },
     ],
-    ctaTitle: 'Build your gift list before the event gets busy',
+    ctaTitle: 'Build your wedding gift page before guest questions start',
     ctaBody:
-      'Start with a free trial, choose an event page design, and publish when your guest list, gift ideas, and story content are ready.',
-    ctaPrimary: 'Create your list',
-    ctaSecondary: 'See live examples',
+      'Start with a free trial, choose a design, and publish when your wedding details, gift ideas, and story content are ready for guests.',
+    ctaPrimary: 'Start free trial',
+    ctaSecondary: 'See live wedding example',
   },
   eventPages: {
     readMoreAction: 'Explore page',
@@ -121,12 +121,12 @@ export const enDictionary: Dictionary = {
     ctaSecondary: 'View pricing',
     backHomeAction: 'Back to home',
     wedding: {
-      seoTitle: 'Wedding Gift List',
+      seoTitle: 'Wedding Gift List | Private Wedding Registry Alternative',
       seoDescription:
-        'Create a shareable wedding gift list with reservation tracking and no duplicate gifts.',
-      headline: 'Wedding gift list that stays organized',
+        'Create a beautiful wedding gift list and registry alternative with password protection, reservation tracking, and no duplicate gifts.',
+      headline: 'A beautiful wedding gift list guests will actually use',
       intro:
-        'Collect all wedding gift wishes in one place and let guests reserve items before buying.',
+        'Giftlist Studio gives couples one elegant wedding gift page with registry-style reservations, private sharing options, and no duplicate presents.',
       samples: [
         'Dinnerware set',
         'Linen and home textiles',
@@ -220,16 +220,16 @@ export const enDictionary: Dictionary = {
     },
   },
   pricing: {
-    title: 'Per-list pricing for event hosts',
+    title: 'Simple pricing for your 90-day event page',
     seoTitle: 'Gift List Pricing and Packages',
     seoDescription:
       'Compare Base, Premium, and Platinum pricing for your online gift list. See limits for photos, videos, password protection, and 90-day access.',
-    trialLine: 'Each list starts with a 14-day free trial.',
-    draftOnlyLine: 'During the free trial you can build and preview the list, but public publishing is locked.',
-    perListLine: 'Packages are list-based. If you create multiple gift lists, each list needs its own package.',
-    extensionLine: 'You can extend any package later if you want to keep the list live longer.',
-    retentionLine: 'After activation, the public page and reservations stay active for 90 days, then the list data is deleted.',
-    upgradeLine: 'If you later need a higher package, you can upgrade the same list instead of paying the full target price again.',
+    trialLine: 'Build everything free for 14 days before you activate hosting.',
+    draftOnlyLine: 'During trial you can design, preview, and test the full experience before public launch.',
+    perListLine: 'Each package applies to one event page.',
+    extensionLine: 'Need more time? Extend the same list later.',
+    retentionLine: 'After the active period ends, the list lifecycle rules and data cleanup described below apply.',
+    upgradeLine: 'If you outgrow a plan, upgrade the same list instead of starting over.',
     upgradeTitle: 'Upgrade pricing',
     upgradeResetLine: 'Every upgrade starts a fresh 90-day access period for that list.',
     upgradeBaseToPremium: 'Base → Premium',

@@ -1,4 +1,5 @@
 import type { Locale } from '@/lib/i18n/config'
+import type { AnalyticsEventName } from '@/lib/site/analytics'
 
 export const COMPANY_NAME = 'Robinio Invest OÜ'
 export const COMPANY_ADDRESS = 'Vesivärava 22-4, Tallinn, Estonia'
@@ -7,13 +8,31 @@ export const COOKIE_CONSENT_COOKIE_NAME = 'giftlist_consent'
 export const COOKIE_CONSENT_VERSION = 1
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
 
-const TRACKED_ANALYTICS_PAGE_MAP: Record<string, { locale: Locale; title: string }> = {
+type TrackedAnalyticsPageDefinition = {
+  locale: Locale
+  title: string
+  eventName?: AnalyticsEventName
+}
+
+const TRACKED_ANALYTICS_PAGE_MAP: Record<string, TrackedAnalyticsPageDefinition> = {
   '/en': { locale: 'en', title: 'Home' },
   '/et': { locale: 'et', title: 'Avaleht' },
-  '/en/pricing': { locale: 'en', title: 'Pricing' },
-  '/et/pricing': { locale: 'et', title: 'Hinnad' },
+  '/en/login': { locale: 'en', title: 'Login' },
+  '/et/login': { locale: 'et', title: 'Login' },
+  '/en/pricing': { locale: 'en', title: 'Pricing', eventName: 'view_pricing' },
+  '/et/pricing': { locale: 'et', title: 'Hinnad', eventName: 'view_pricing' },
   '/en/gallery': { locale: 'en', title: 'Gallery' },
   '/et/gallery': { locale: 'et', title: 'Galerii' },
+  '/en/events/wedding': { locale: 'en', title: 'Wedding Event Page' },
+  '/et/events/wedding': { locale: 'et', title: 'Pulmade sündmuse leht' },
+  '/en/wedding-gift-list': { locale: 'en', title: 'Wedding Gift List' },
+  '/et/wedding-gift-list': { locale: 'et', title: 'Pulmade kinginimekiri' },
+  '/en/private-wedding-registry': { locale: 'en', title: 'Private Wedding Registry' },
+  '/et/private-wedding-registry': { locale: 'et', title: 'Privaatne pulmaregister' },
+  '/en/wedding-registry-alternative': { locale: 'en', title: 'Wedding Registry Alternative' },
+  '/et/wedding-registry-alternative': { locale: 'et', title: 'Pulmaregistri alternatiiv' },
+  '/en/wedding-gift-page-for-guests': { locale: 'en', title: 'Wedding Gift Page for Guests' },
+  '/et/wedding-gift-page-for-guests': { locale: 'et', title: 'Pulmade kingileht külalistele' },
   '/en/dashboard': { locale: 'en', title: 'Dashboard' },
   '/et/dashboard': { locale: 'et', title: 'Töölaud' },
 }
@@ -242,6 +261,7 @@ export const getTrackedAnalyticsPage = (
   locale: Locale
   path: string
   title: string
+  eventName?: AnalyticsEventName
 } | null => {
   const normalizedPathname = normalizeTrackedPathname(pathname)
   const tracked = TRACKED_ANALYTICS_PAGE_MAP[normalizedPathname]
@@ -253,5 +273,6 @@ export const getTrackedAnalyticsPage = (
     locale: tracked.locale,
     path: normalizedPathname,
     title: tracked.title,
+    eventName: tracked.eventName,
   }
 }

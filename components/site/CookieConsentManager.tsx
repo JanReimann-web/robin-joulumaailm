@@ -182,6 +182,13 @@ export default function CookieConsentManager() {
       page_path: trackedPage.path,
       page_title: trackedPage.title,
     })
+
+    if (trackedPage.eventName) {
+      window.gtag('event', trackedPage.eventName, {
+        language: trackedPage.locale,
+        page_path: trackedPage.path,
+      })
+    }
   }, [isGaLoaded, preferences?.analytics, shouldRenderGaScript, trackedPage])
 
   useEffect(() => {

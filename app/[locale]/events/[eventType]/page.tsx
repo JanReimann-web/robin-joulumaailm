@@ -2,12 +2,12 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ShowcasePreviewCard from '@/components/showcase/ShowcasePreviewCard'
+import TrackedLink from '@/components/site/TrackedLink'
 import { isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventSlugToType, eventTypeToSlug, EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
+import { buildLocalizedUrl } from '@/lib/site/url'
 import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 
 type EventPageProps = {
   params: {
@@ -15,6 +15,29 @@ type EventPageProps = {
     eventType: string
   }
 }
+
+const weddingPageCopy = {
+  en: {
+    proofTitle: 'Why the wedding page works as a registry alternative',
+    proofBody:
+      'Giftlist Studio is strongest when the couple wants one elegant page with private sharing, duplicate-proof reservations, and a guest flow that feels simple.',
+    proofPoints: [
+      'Beautiful public page instead of a generic registry screen',
+      'Password protection when you want invited guests only',
+      'Reservations prevent duplicate gifts before guests buy',
+    ],
+  },
+  et: {
+    proofTitle: 'Miks pulmaleht töötab registri alternatiivina',
+    proofBody:
+      'Giftlist Studio on kõige tugevam siis, kui paar tahab ühte elegantset lehte koos privaatse jagamise, topeltkingitusi vältiva broneerimise ja külaliste jaoks lihtsa vooga.',
+    proofPoints: [
+      'Ilus avalik leht tavalise registrivaate asemel',
+      'Paroolikaitse siis, kui soovid ainult kutsutud külalisi',
+      'Broneeringud hoiavad topeltkingid ära enne ostu',
+    ],
+  },
+} as const
 
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
@@ -37,7 +60,7 @@ export function generateMetadata({ params }: EventPageProps): Metadata {
 
   const dict = getDictionary(params.locale)
   const content = dict.eventPages[mappedEventType]
-  const canonical = `${SITE_URL}/${params.locale}/events/${params.eventType}`
+  const canonical = buildLocalizedUrl(params.locale, `/events/${params.eventType}`)
 
   return {
     title: content.seoTitle,
@@ -45,8 +68,8 @@ export function generateMetadata({ params }: EventPageProps): Metadata {
     alternates: {
       canonical,
       languages: {
-        en: `${SITE_URL}/en/events/${eventTypeToSlug(mappedEventType)}`,
-        et: `${SITE_URL}/et/events/${eventTypeToSlug(mappedEventType)}`,
+        en: buildLocalizedUrl('en', `/events/${eventTypeToSlug(mappedEventType)}`),
+        et: buildLocalizedUrl('et', `/events/${eventTypeToSlug(mappedEventType)}`),
       },
     },
     openGraph: {
@@ -78,6 +101,33 @@ export default async function EventTypePage({ params }: EventPageProps) {
   const eventName = dict.events[mappedEventType]
   const content = dict.eventPages[mappedEventType]
   const showcaseEntry = await getPublishedShowcaseEntryForEvent(mappedEventType)
+  const isWeddingPage = mappedEventType === 'wedding'
+  const weddingCopy = weddingPageCopy[locale]
+  const weddingIntentLinks = locale === 'et'
+    ? [
+        { href: `/${locale}/wedding-gift-list`, label: 'Pulmade kinginimekiri' },
+        { href: `/${locale}/private-wedding-registry`, label: 'Privaatne pulmaregister' },
+        { href: `/${locale}/wedding-registry-alternative`, label: 'Pulmaregistri alternatiiv' },
+        { href: `/${locale}/wedding-gift-page-for-guests`, label: 'Pulmade kingileht külalistele' },
+      ]
+    : [
+        { href: `/${locale}/wedding-gift-list`, label: 'Wedding gift list' },
+        { href: `/${locale}/private-wedding-registry`, label: 'Private wedding registry' },
+        { href: `/${locale}/wedding-registry-alternative`, label: 'Wedding registry alternative' },
+        { href: `/${locale}/wedding-gift-page-for-guests`, label: 'Wedding gift page for guests' },
+      ]
+  const primaryActionHref = isWeddingPage && showcaseEntry
+    ? `/l/${showcaseEntry.slug}?template=${showcaseEntry.templateId}&demo=event-page`
+    : `/${locale}/login`
+  const primaryActionLabel = isWeddingPage && showcaseEntry
+    ? (locale === 'et' ? 'Vaata päris pulmanäidist' : 'See live wedding example')
+    : dict.eventPages.ctaPrimary
+  const secondaryActionHref = isWeddingPage
+    ? `/${locale}/login`
+    : `/${locale}/pricing`
+  const secondaryActionLabel = isWeddingPage
+    ? (locale === 'et' ? 'Alusta tasuta katseaega' : 'Start free trial')
+    : dict.eventPages.ctaSecondary
 
   return (
     <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
@@ -99,18 +149,31 @@ export default async function EventTypePage({ params }: EventPageProps) {
         <p className="mt-4 max-w-3xl text-base text-slate-200">{content.intro}</p>
 
         <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
-          <Link
-            href={`/${locale}/login`}
+          <TrackedLink
+            href={primaryActionHref}
+            eventName={isWeddingPage && showcaseEntry ? 'view_example' : 'click_start_trial'}
+            eventParams={{
+              locale,
+              placement: `${mappedEventType}_hero`,
+              event_type: mappedEventType,
+              slug: showcaseEntry?.slug,
+            }}
             className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-semibold text-black hover:bg-emerald-300 sm:text-left"
           >
-            {dict.eventPages.ctaPrimary}
-          </Link>
-          <Link
-            href={`/${locale}/pricing`}
+            {primaryActionLabel}
+          </TrackedLink>
+          <TrackedLink
+            href={secondaryActionHref}
+            eventName={isWeddingPage ? 'click_start_trial' : 'view_pricing'}
+            eventParams={{
+              locale,
+              placement: `${mappedEventType}_hero`,
+              event_type: mappedEventType,
+            }}
             className="rounded-full border border-white/20 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-white/10 sm:text-left"
           >
-            {dict.eventPages.ctaSecondary}
-          </Link>
+            {secondaryActionLabel}
+          </TrackedLink>
         </div>
       </div>
 
@@ -133,6 +196,36 @@ export default async function EventTypePage({ params }: EventPageProps) {
           </ul>
         </article>
       </div>
+
+      {isWeddingPage && (
+        <section className="mt-6 rounded-2xl border border-white/10 bg-slate-900/60 p-6">
+          <h2 className="text-lg font-semibold text-white">{weddingCopy.proofTitle}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
+            {weddingCopy.proofBody}
+          </p>
+          <ul className="mt-4 grid gap-3 md:grid-cols-3">
+            {weddingCopy.proofPoints.map((point) => (
+              <li
+                key={point}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-100"
+              >
+                {point}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {weddingIntentLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/90 transition hover:bg-white/10"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {showcaseEntry && (
         <section className="mt-8 space-y-4">

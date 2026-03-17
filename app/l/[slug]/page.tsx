@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import PublicGiftList from '@/components/public/PublicGiftList'
 import { getPublicListBySlug } from '@/lib/lists/public-server'
 import { sanitizeSlug } from '@/lib/lists/slug'
+import { buildPublicListUrl } from '@/lib/site/url'
 
 type PublicListPageProps = {
   params: {
@@ -12,8 +13,6 @@ type PublicListPageProps = {
     demo?: string | string[]
   }
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
 
 const eventDescriptionMap = {
   wedding: 'Wedding gift list',
@@ -36,7 +35,7 @@ export async function generateMetadata({
       title: 'Gift List',
       description: 'Gift list page',
       alternates: {
-        canonical: `${SITE_URL}/${slug}`,
+        canonical: buildPublicListUrl(slug),
       },
       robots: {
         index: false,
@@ -52,12 +51,12 @@ export async function generateMetadata({
     title: `${list.title} | Gift List`,
     description,
     alternates: {
-      canonical: `${SITE_URL}/${list.slug}`,
+      canonical: buildPublicListUrl(list.slug),
     },
     openGraph: {
       title: `${list.title} | Gift List`,
       description,
-      url: `${SITE_URL}/${list.slug}`,
+      url: buildPublicListUrl(list.slug),
       type: 'website',
     },
     twitter: {

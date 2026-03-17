@@ -15,34 +15,34 @@ export const etDictionary: Dictionary = {
     estonian: 'Eesti',
   },
   hero: {
-    badge: 'Veebipõhine kinginimekiri pulmadeks, sünnipäevaks ja teisteks sündmusteks',
-    title: 'Loo ilus veebipõhine kinginimekiri igale sündmusele',
+    badge: 'Pulmadele suunatud kinginimekirja lehed kaasaegsetele paaridele',
+    title: 'Loo ilus pulmade kinginimekiri, mis hoiab topeltkingid ära',
     subtitle:
-      'Koosta üks jagatav kinginimekirja leht, vali sündmusele sobiv kujundus ja lase külalistel kingitusi enne ostu broneerida, et topeltkingitusi ei tekiks.',
+      'Jaga ühte elegantset pulmade kingilehte, lase külalistel kingitusi enne ostu broneerida ning hoia kõik selge privaatse või parooliga kaitstud jagamisega.',
     seoTitle:
-      'Veebipõhine kinginimekiri pulmadeks, sünnipäevaks, baby showeriks ja jõuludeks',
+      'Pulmade kinginimekiri ja registri alternatiiv | Giftlist Studio',
     seoDescription:
-      'Loo jagatav veebipõhine kinginimekiri koos broneeringute, paroolikaitse, QR jagamise ja sündmusepõhiste kujundustega. Sobib pulmadeks, sünnipäevaks, laste peoks, baby showeriks, lõpetamiseks, soolaleivaks ja jõuludeks.',
-    primaryCta: 'Alusta tasuta katseaega',
-    secondaryCta: 'Vaata hindu',
+      'Loo ilus pulmade kinginimekiri külaliste broneeringute, paroolikaitse, QR-jagamise ja sündmuseks valmis kujundustega. Registri alternatiiv paaridele, kes tahavad ühte elegantset lehte, mida külalised päriselt kasutavad.',
+    primaryCta: 'Vaata päris pulmanäidist',
+    secondaryCta: 'Alusta tasuta katseaega',
     proofPoints: [
-      '14-päevane tasuta katseaeg igale nimekirjale',
-      'Broneerimisvoog hoiab topeltkingid ära',
-      'QR jagamine, paroolikaitse ja sündmusepõhised kujundused',
+      'Pulmadele suunatud kogemus koos päris näidislehega',
+      'Broneerimisvoog hoiab topeltkingid ära enne, kui külalised ostavad',
+      'Paroolikaitse, QR-jagamine ja sündmuseks valmis kujundused',
     ],
   },
   highlights: {
-    title: 'Miks korraldajad kasutavad Giftlist Studiot',
+    title: 'Miks paarid kasutavad Giftlist Studiot',
     subtitle:
-      'Kõik vajalik selleks, et jagada ühte linki, koguda kingisoovid kokku ja hoida külaliste broneeringud algusest lõpuni selgena.',
-    templateTitle: 'Sündmusepõhised kujundused',
-    templateBody: 'Vali valmis lahenduste seast pulmadeks, sünnipäevaks, laste sünnipäevaks, baby showeriks, lõpetamiseks, soolaleivaks ja jõuludeks.',
-    reserveTitle: 'Topeltbroneeringu kaitse',
+      'Kõik vajalik selleks, et jagada ühte pulmade kingilehte, koguda soovid kokku ja hoida külaliste broneeringud kihlusest pulmapäevani selgena.',
+    templateTitle: 'Pulmadele suunatud disain',
+    templateBody: 'Alusta viimistletud pulmalehest ning kasuta sünnipäevi, baby shower’eid, lõpetamisi, soolaleiba ja jõule tõendina, et platvorm töötab edasi ka järgmisteks sündmusteks.',
+    reserveTitle: 'Topeltkingitusi vältiv broneerimine',
     reserveBody:
-      'Külalised broneerivad kingituse enne ostu ning broneering tehakse transaktsiooniga, et sama ese ei satuks kahele inimesele.',
-    trialTitle: 'Alusta tasuta, maksa ühe korra',
+      'Külalised broneerivad kingituse enne ostu ning broneering on transaktsiooniga kaitstud, et sama ese ei satuks kogemata kahele inimesele.',
+    trialTitle: 'Tasuta ettevalmistus, hiljem ühekordne aktiveerimine',
     trialBody:
-      'Valmista nimekiri tasuta katseajal ette ja aktiveeri 90-päevane sündmusepass alles siis, kui oled valmis seda külalistega jagama.',
+      'Ehita kogu kogemus tasuta katseajal valmis ja aktiveeri 90-päevane sündmusepass alles siis, kui oled avalikustamiseks valmis.',
   },
   events: {
     title: 'Kinginimekirja mallid sündmuse järgi',
@@ -59,7 +59,7 @@ export const etDictionary: Dictionary = {
   home: {
     processTitle: 'Kuidas Giftlist Studio töötab',
     processSubtitle:
-      'Seadista üks leht, jaga seda ühe lingiga ja lase külalistel näha, mis on veel saadaval enne ostu tegemist.',
+      'Ehita üks pulmade kingileht, jaga seda ühe korra ja lase külalistel enne ostu näha, mis on veel saadaval.',
     processSteps: [
       {
         title: 'Koosta oma sündmuse kinginimekiri',
@@ -81,7 +81,7 @@ export const etDictionary: Dictionary = {
       {
         question: 'Kas Giftlist Studio on mõeldud ainult pulmade kinginimekirjale?',
         answer:
-          'Ei. Giftlist Studio sobib pulmadeks, sünnipäevaks, laste sünnipäevaks, baby showeriks, lõpetamiseks, soolaleivaks ja jõulude kinkide planeerimiseks.',
+          'Ei, kuid pulmad on kõige selgem alguspunkt. Giftlist Studio töötab ka sünnipäevade, laste sünnipäevade, baby shower’ite, lõpetamiste, soolaleiva ja jõulukingituste planeerimiseks.',
       },
       {
         question: 'Kas külalised saavad kingitusi enne ostu broneerida?',
@@ -99,10 +99,10 @@ export const etDictionary: Dictionary = {
           'Jah. Iga uus nimekiri alustab 14-päevase tasuta katseajaga, et saaksid lehe valmis ehitada, sisu üles laadida ja kogu kogemust enne aktiveerimist testida.',
       },
     ],
-    ctaTitle: 'Valmista kinginimekiri valmis enne, kui sündmus kiireks läheb',
+    ctaTitle: 'Pane pulmade kingileht valmis enne, kui külaliste küsimused algavad',
     ctaBody:
-      'Alusta tasuta katseajaga, vali sündmuse lehe kujundus ja avalikusta siis, kui külaliste nimekiri, kingisoovid ja loo sisu on valmis.',
-    ctaPrimary: 'Loo oma nimekiri',
+      'Alusta tasuta katseajaga, vali kujundus ja avalikusta alles siis, kui pulmade detailid, kingisoovid ja teie lugu on külaliste jaoks valmis.',
+    ctaPrimary: 'Alusta tasuta katseaega',
     ctaSecondary: 'Vaata päris näidiseid',
   },
   eventPages: {
@@ -120,12 +120,12 @@ export const etDictionary: Dictionary = {
     ctaSecondary: 'Vaata hinnastust',
     backHomeAction: 'Tagasi avalehele',
     wedding: {
-      seoTitle: 'Pulmade kinginimekiri',
+      seoTitle: 'Pulmade kinginimekiri | Privaatse pulmaregistri alternatiiv',
       seoDescription:
-        'Loo jagatav pulmade kinginimekiri broneeringute jälgimisega, et vältida topeltkingitusi.',
-      headline: 'Pulmade kinginimekiri, mis püsib korras',
+        'Loo ilus pulmade kinginimekiri ja pulmaregistri alternatiiv paroolikaitse, broneeringute jälgimise ja topeltkingituste vältimisega.',
+      headline: 'Ilus pulmade kinginimekiri, mida külalised päriselt kasutavad',
       intro:
-        'Koonda kõik pulmakingi soovid ühte kohta ja lase külalistel kingitusi enne ostu broneerida.',
+        'Giftlist Studio annab paaridele ühe elegantse pulmade kingilehe koos registri-stiilis broneerimise, privaatsete jagamisvalikute ja topeltkingitusteta.',
       samples: [
         'Lauanõude komplekt',
         'Voodipesu ja kodutekstiilid',
@@ -219,16 +219,16 @@ export const etDictionary: Dictionary = {
     },
   },
   pricing: {
-    title: 'Nimekirjapõhine hinnastus sündmuse korraldajale',
+    title: 'Lihtne hinnastus sinu 90-päevasele sündmuse lehele',
     seoTitle: 'Kinginimekirja hinnad ja paketid',
     seoDescription:
       'Võrdle Base, Premium ja Platinum pakette oma veebipõhise kinginimekirja jaoks. Vaata fotode, videote, paroolikaitse ja 90-päevase ligipääsu piire.',
-    trialLine: 'Iga nimekiri alustab 14-päevase tasuta katseajaga.',
-    draftOnlyLine: 'Tasuta katseajal saad nimekirja koostada ja eelvaadet testida, kuid avalikustamine on lukus.',
-    perListLine: 'Paketid on nimekirjapõhised. Kui lood mitu kinginimekirja, vajab iga nimekiri eraldi paketti.',
-    extensionLine: 'Soovi korral saad paketti hiljem pikendada, et nimekiri püsiks kauem aktiivne.',
-    retentionLine: 'Pärast aktiveerimist on avalik leht ja broneeringud aktiivsed 90 päeva ning seejärel nimekirja andmed kustutatakse.',
-    upgradeLine: 'Kui vajad hiljem suuremat paketti, saad sama nimekirja täiendada ilma, et peaksid sihtpaketi täishinna uuesti maksma.',
+    trialLine: 'Ehita kõik tasuta valmis 14 päeva jooksul enne hostingu aktiveerimist.',
+    draftOnlyLine: 'Katseajal saad kujundada, eelvaadata ja kogu kogemust testida enne avalikku käivitamist.',
+    perListLine: 'Iga pakett kehtib ühele sündmuse lehele.',
+    extensionLine: 'Kui vajad rohkem aega, saad sama nimekirja hiljem pikendada.',
+    retentionLine: 'Pärast aktiivse perioodi lõppu kehtivad allpool kirjeldatud nimekirja elutsükli ja andmete korrastamise reeglid.',
+    upgradeLine: 'Kui kasvate paketist välja, saad sama nimekirja uuendada ilma nullist alustamata.',
     upgradeTitle: 'Upgrade hinnad',
     upgradeResetLine: 'Iga upgrade käivitab sellele nimekirjale uue 90-päevase ligipääsuperioodi.',
     upgradeBaseToPremium: 'Base → Premium',
