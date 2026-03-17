@@ -45,8 +45,6 @@ type LegalPagesCopy = {
   backHomeAction: string
   faqTitle: string
   faqIntro: string
-  faqPlaceholderTitle: string
-  faqPlaceholderBody: string
   termsTitle: string
   termsIntro: string
   privacyTitle: string
@@ -66,13 +64,13 @@ export const LEGAL_COPY: Record<Locale, {
       addressLabel: 'Address',
       cookieSettings: 'Cookie settings',
       cookiePolicy: 'Cookie policy',
-      privacyPolicy: 'Privacy policy',
+      privacyPolicy: 'Privacy Policy',
       terms: 'Terms & Conditions',
       faq: 'FAQ',
     },
     consent: {
       title: 'We use cookies and browser storage',
-      body: 'Necessary cookies and browser storage keep sign-in, password-protected list access, and sample reservations working. Analytics stays off unless you allow it.',
+      body: 'Necessary cookies and browser storage keep sign-in, password-protected list access, consent choices, and gallery sample reservations working. Analytics stays off unless you allow it.',
       settingsAction: 'Cookie settings',
       acceptNecessaryAction: 'Use necessary only',
       acceptAllAction: 'Allow analytics',
@@ -90,15 +88,13 @@ export const LEGAL_COPY: Record<Locale, {
     pages: {
       backHomeAction: 'Back to home',
       faqTitle: 'FAQ',
-      faqIntro: 'This page is reserved for frequently asked questions and support guidance.',
-      faqPlaceholderTitle: 'FAQ content placeholder',
-      faqPlaceholderBody: 'Add your common questions here later, for example account setup, package activation, reservation flow, and public sharing tips.',
+      faqIntro: 'Helpful answers for hosts and guests using Giftlist Studio.',
       termsTitle: 'Terms & Conditions',
-      termsIntro: 'These terms describe the basic conditions for using Giftlist Studio.',
+      termsIntro: 'These terms explain how Giftlist Studio can be used, how access periods work, and what responsibilities apply to account owners and guests.',
       privacyTitle: 'Privacy Policy',
-      privacyIntro: 'This page explains what personal data is processed on Giftlist Studio, why it is processed, and which choices users have.',
+      privacyIntro: 'This policy explains what personal data Giftlist Studio processes, why it is processed, how long it is kept, and what choices users have.',
       cookiesTitle: 'Cookie Policy',
-      cookiesIntro: 'This page explains which cookies and browser storage technologies are used on Giftlist Studio and how consent works.',
+      cookiesIntro: 'This page explains which cookies and browser storage technologies Giftlist Studio uses and how consent works.',
     },
   },
   et: {
@@ -113,7 +109,7 @@ export const LEGAL_COPY: Record<Locale, {
     },
     consent: {
       title: 'Kasutame küpsiseid ja brauserisalvestust',
-      body: 'Hädavajalikud küpsised ja brauserisalvestus hoiavad töös sisselogimise, parooliga kaitstud nimekirjade ligipääsu ja näidisbroneeringute toimimise. Analüütika jääb välja, kuni sa selle lubad.',
+      body: 'Hädavajalikud küpsised ja brauserisalvestus hoiavad töös sisselogimise, parooliga kaitstud nimekirjad, küpsiste valiku ja galerii näidisbroneeringud. Analüütika jääb välja, kuni sa selle lubad.',
       settingsAction: 'Küpsiste seaded',
       acceptNecessaryAction: 'Kasuta ainult hädavajalikke',
       acceptAllAction: 'Luba analüütika',
@@ -131,13 +127,11 @@ export const LEGAL_COPY: Record<Locale, {
     pages: {
       backHomeAction: 'Tagasi avalehele',
       faqTitle: 'KKK',
-      faqIntro: 'See leht on mõeldud korduma kippuvate küsimuste ja tugijuhiste jaoks.',
-      faqPlaceholderTitle: 'KKK sisu placeholder',
-      faqPlaceholderBody: 'Lisa siia hiljem levinumad küsimused, näiteks konto loomise, paketi aktiveerimise, broneerimise voo ja avaliku jagamise kohta.',
+      faqIntro: 'Praktilised vastused Giftlist Studio kasutajatele ja külalistele.',
       termsTitle: 'Kasutustingimused',
-      termsIntro: 'Need tingimused kirjeldavad Giftlist Studio kasutamise põhireegleid.',
+      termsIntro: 'Need tingimused selgitavad, kuidas Giftlist Studiot võib kasutada, kuidas ligipääsuperioodid toimivad ja millised vastutused kehtivad konto omanikule ning külalistele.',
       privacyTitle: 'Privaatsuspoliitika',
-      privacyIntro: 'See leht selgitab, milliseid isikuandmeid Giftlist Studio töötleb, miks neid töödeldakse ja millised valikud kasutajal on.',
+      privacyIntro: 'See poliitika selgitab, milliseid isikuandmeid Giftlist Studio töötleb, miks neid töödeldakse, kui kaua neid säilitatakse ja millised valikud kasutajal on.',
       cookiesTitle: 'Küpsiste tingimused',
       cookiesIntro: 'See leht selgitab, milliseid küpsiseid ja brauserisalvestuse tehnoloogiaid Giftlist Studio kasutab ning kuidas nõusolek toimib.',
     },

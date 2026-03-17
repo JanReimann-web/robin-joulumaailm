@@ -19,10 +19,10 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
 }> = {
   en: {
     introPoints: [
-      'Giftlist Studio uses a combination of cookies and browser storage to keep the service secure and usable.',
-      'Necessary storage is always active. Analytics is optional and only starts after the visitor has given consent.',
+      'Giftlist Studio uses a small set of necessary cookies and browser storage technologies to keep the service secure and usable.',
+      'Analytics is optional, consent-based, and limited to selected non-public pages.',
     ],
-    necessaryTitle: 'Necessary storage currently used on the site',
+    necessaryTitle: 'Necessary storage used on the site',
     necessaryItems: [
       {
         name: COOKIE_CONSENT_COOKIE_NAME,
@@ -41,28 +41,28 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
       },
       {
         name: 'Demo reservation session storage',
-        purpose: 'Used on gallery sample pages so visitors can test the reservation flow without affecting the curator’s live list.',
-        duration: 'Current tab/session only',
+        purpose: 'Used on gallery sample pages so visitors can test the reservation flow without affecting the curator’s live example list.',
+        duration: 'Current tab or browser session',
       },
     ],
     analyticsTitle: 'Optional analytics',
     analyticsBody: [
       'If analytics consent is granted, Google Analytics 4 may be used on the homepage, pricing page, gallery page, and dashboard page.',
       'Public gift list pages under /l/[slug] are excluded from analytics page tracking.',
-      'Giftlist Studio is configured not to intentionally send list slugs, list titles, guest names, gift messages, emails, or other user-entered personal data to Google Analytics.',
+      'Giftlist Studio is configured not to intentionally send list slugs, list titles, guest names, gift messages, email addresses, or other user-entered personal data to Google Analytics.',
     ],
     manageTitle: 'How to manage your choice',
     manageBody: [
       'You can reopen Cookie settings at any time from the footer and change your analytics preference.',
-      `The data controller for this site is ${COMPANY_NAME}, ${COMPANY_ADDRESS}.`,
+      `The controller for this site is ${COMPANY_NAME}, ${COMPANY_ADDRESS}.`,
     ],
   },
   et: {
     introPoints: [
-      'Giftlist Studio kasutab teenuse turvaliseks ja toimivaks hoidmiseks nii küpsiseid kui ka brauserisalvestust.',
-      'Hädavajalik salvestus on alati aktiivne. Analüütika on valikuline ja käivitub alles pärast kasutaja nõusolekut.',
+      'Giftlist Studio kasutab väikest hulka hädavajalikke küpsiseid ja brauserisalvestust, et teenus püsiks turvaline ja kasutatav.',
+      'Analüütika on valikuline, nõusolekupõhine ja piiratud valitud mitteavalike lehtedega.',
     ],
-    necessaryTitle: 'Praegu kasutatav hädavajalik salvestus',
+    necessaryTitle: 'Lehel kasutatav hädavajalik salvestus',
     necessaryItems: [
       {
         name: COOKIE_CONSENT_COOKIE_NAME,
@@ -81,8 +81,8 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
       },
       {
         name: 'Näidisbroneeringute sessionStorage',
-        purpose: 'Kasutatakse galerii näidislehtedel, et külastaja saaks broneerimisvoogu testida ilma kuratori päris nimekirja muutmata.',
-        duration: 'Ainult praeguse vahelehe sessioon',
+        purpose: 'Kasutatakse galerii näidislehtedel, et külastaja saaks broneerimisvoogu testida ilma kuratori päris näidisnimekirja muutmata.',
+        duration: 'Praegune vaheleht või brauseri sessioon',
       },
     ],
     analyticsTitle: 'Valikuline analüütika',

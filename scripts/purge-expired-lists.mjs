@@ -87,6 +87,17 @@ const deleteSubcollection = async (collectionRef) => {
   }
 }
 
+const deleteOptionalSecret = async (listId) => {
+  const secretRef = db.collection('listAccessSecrets').doc(listId)
+  const snapshot = await secretRef.get()
+  if (!snapshot.exists) {
+    return 0
+  }
+
+  await secretRef.delete()
+  return 1
+}
+
 const deleteSlugClaimsForList = async (listId, slugFromList) => {
   if (slugFromList) {
     await db.collection('slugClaims').doc(slugFromList).delete().catch(() => null)
@@ -193,7 +204,10 @@ const run = async () => {
   let deletedLists = 0
   let deletedItems = 0
   let deletedReservations = 0
+  let deletedStories = 0
+  let deletedWheelEntries = 0
   let deletedSlugClaims = 0
+  let deletedSecrets = 0
   let deletedStorageFolders = 0
 
   for (const entry of dueEntries) {
@@ -206,18 +220,23 @@ const run = async () => {
 
     const itemsSnapshot = await entry.ref.collection('items').get()
     const reservationsSnapshot = await entry.ref.collection('reservations').get()
+    const storiesSnapshot = await entry.ref.collection('stories').get()
+    const wheelEntriesSnapshot = await entry.ref.collection('wheelEntries').get()
 
     if (dryRun) {
       log(
-        `DRY-RUN list=${listId} slug=${slug ?? '-'} items=${itemsSnapshot.size} reservations=${reservationsSnapshot.size}`
+        `DRY-RUN list=${listId} slug=${slug ?? '-'} items=${itemsSnapshot.size} reservations=${reservationsSnapshot.size} stories=${storiesSnapshot.size} wheelEntries=${wheelEntriesSnapshot.size}`
       )
       continue
     }
 
     await deleteSubcollection(entry.ref.collection('items'))
     await deleteSubcollection(entry.ref.collection('reservations'))
+    await deleteSubcollection(entry.ref.collection('stories'))
+    await deleteSubcollection(entry.ref.collection('wheelEntries'))
 
     const removedClaims = await deleteSlugClaimsForList(listId, slug)
+    const removedSecrets = await deleteOptionalSecret(listId)
     const removedStorage = await deleteListStorage(listId)
 
     await entry.ref.delete()
@@ -225,16 +244,21 @@ const run = async () => {
     deletedLists += 1
     deletedItems += itemsSnapshot.size
     deletedReservations += reservationsSnapshot.size
+    deletedStories += storiesSnapshot.size
+    deletedWheelEntries += wheelEntriesSnapshot.size
     deletedSlugClaims += removedClaims
+    deletedSecrets += removedSecrets
     if (removedStorage) {
       deletedStorageFolders += 1
     }
 
-    log(`Deleted list=${listId} slug=${slug ?? '-'} items=${itemsSnapshot.size} reservations=${reservationsSnapshot.size}`)
+    log(
+      `Deleted list=${listId} slug=${slug ?? '-'} items=${itemsSnapshot.size} reservations=${reservationsSnapshot.size} stories=${storiesSnapshot.size} wheelEntries=${wheelEntriesSnapshot.size}`
+    )
   }
 
   log(
-    `Finished purge. scanned=${scanned} deletedLists=${deletedLists} deletedItems=${deletedItems} deletedReservations=${deletedReservations} deletedSlugClaims=${deletedSlugClaims} deletedStorageFolders=${deletedStorageFolders}`
+    `Finished purge. scanned=${scanned} deletedLists=${deletedLists} deletedItems=${deletedItems} deletedReservations=${deletedReservations} deletedStories=${deletedStories} deletedWheelEntries=${deletedWheelEntries} deletedSlugClaims=${deletedSlugClaims} deletedSecrets=${deletedSecrets} deletedStorageFolders=${deletedStorageFolders}`
   )
 }
 
