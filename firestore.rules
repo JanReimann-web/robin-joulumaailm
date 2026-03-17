@@ -264,7 +264,7 @@ service cloud.firestore {
         && request.resource.data.trialEndsAt is timestamp
         && request.resource.data.paidAccessEndsAt == null
         && request.resource.data.purgeAt is timestamp
-        && request.resource.data.purgeAt == request.resource.data.trialEndsAt
+        && request.resource.data.purgeAt > request.resource.data.trialEndsAt
         && hasOptionalIntroFields(request.resource.data)
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
@@ -425,17 +425,20 @@ service cloud.firestore {
     match /lists/{listId} {
       allow create: if isSignedIn() && isValidListCreate();
       allow read: if isCurrentListOwner() || isCurrentListPublicWithAccess();
-      allow update: if isListOwner(listId) && isValidListOwnerUpdate();
+      allow update: if isListOwner(listId)
+        && hasActiveListAccess(listId)
+        && isValidListOwnerUpdate();
       allow delete: if isListOwner(listId);
     }
 
     match /lists/{listId}/items/{itemId} {
       allow create: if isListOwner(listId)
+        && hasActiveListAccess(listId)
         && request.resource.data.listId == listId;
       allow read: if isListOwner(listId) || isListPublic(listId);
-      allow update: if isListOwner(listId)
+      allow update: if (isListOwner(listId) && hasActiveListAccess(listId))
         || (isListPublic(listId) && isValidPublicItemReservationUpdate());
-      allow delete: if isListOwner(listId);
+      allow delete: if isListOwner(listId) && hasActiveListAccess(listId);
     }
 
     match /lists/{listId}/reservations/{reservationId} {
@@ -447,16 +450,18 @@ service cloud.firestore {
 
     match /lists/{listId}/stories/{storyId} {
       allow create: if isListOwner(listId)
+        && hasActiveListAccess(listId)
         && isValidStoryCreate(listId);
       allow read: if isListOwner(listId) || isListPublic(listId);
-      allow update, delete: if isListOwner(listId);
+      allow update, delete: if isListOwner(listId) && hasActiveListAccess(listId);
     }
 
     match /lists/{listId}/wheelEntries/{entryId} {
       allow create: if isListOwner(listId)
+        && hasActiveListAccess(listId)
         && isValidWheelEntryCreate(listId);
       allow read: if isListOwner(listId) || isListPublic(listId);
-      allow update, delete: if isListOwner(listId);
+      allow update, delete: if isListOwner(listId) && hasActiveListAccess(listId);
     }
 
     match /slugClaims/{slug} {

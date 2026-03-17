@@ -7,6 +7,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing'
 import { Timestamp, doc, setDoc } from 'firebase/firestore'
+import { getListPurgeDate } from '@/lib/lists/access'
 
 export const TEST_PROJECT_ID = 'demo-kingid-tests'
 export const TEST_STORAGE_BUCKET = `${TEST_PROJECT_ID}.appspot.com`
@@ -78,6 +79,11 @@ export const seedList = async (
 ) => {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore()
+    const trialEndsAt = params.trialEndsAt ?? futureTimestamp()
+    const paidAccessEndsAt = params.paidAccessEndsAt ?? null
+    const accessEndsAt = paidAccessEndsAt ?? trialEndsAt
+    const purgeAt = Timestamp.fromDate(getListPurgeDate(accessEndsAt.toDate()))
+
     await setDoc(doc(db, 'lists', params.listId), {
       ownerId: params.ownerId,
       title: 'Test List',
@@ -88,9 +94,9 @@ export const seedList = async (
       status: 'draft',
       billingModel: 'one_time_90d',
       billingPlanId: null,
-      trialEndsAt: params.trialEndsAt ?? futureTimestamp(),
-      paidAccessEndsAt: params.paidAccessEndsAt ?? null,
-      purgeAt: params.trialEndsAt ?? futureTimestamp(),
+      trialEndsAt,
+      paidAccessEndsAt,
+      purgeAt,
       introMediaSizeBytes: null,
       introMediaDurationSeconds: null,
       createdAt: futureTimestamp(0),

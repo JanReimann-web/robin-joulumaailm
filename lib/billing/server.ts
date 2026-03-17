@@ -12,7 +12,7 @@ import {
   toStripeCurrencyCode,
 } from '@/lib/billing/pricing'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
-import { addDays, PAID_ACCESS_DAYS } from '@/lib/lists/access'
+import { addDays, getListPurgeDate, PAID_ACCESS_DAYS } from '@/lib/lists/access'
 import { adminDb } from '@/lib/firebase/admin'
 import {
   FieldValue,
@@ -179,6 +179,7 @@ const grantListPass = async (params: {
       ? new Date(currentPaidAccessEndsAt)
       : new Date()
     const paidAccessEndsAt = Timestamp.fromDate(addDays(accessBaseDate, PAID_ACCESS_DAYS))
+    const purgeAt = Timestamp.fromDate(getListPurgeDate(paidAccessEndsAt.toDate()))
     const buyerReferralAccountSnapshot = await transaction.get(buyerReferralAccountRef)
     const buyerReferralData = buyerReferralAccountSnapshot.exists
       ? buyerReferralAccountSnapshot.data() as Record<string, unknown>
@@ -227,7 +228,7 @@ const grantListPass = async (params: {
     transaction.update(listRef, {
       billingPlanId: params.planId,
       paidAccessEndsAt,
-      purgeAt: paidAccessEndsAt,
+      purgeAt,
       updatedAt: FieldValue.serverTimestamp(),
       billingProvider: params.provider,
       lastPaymentRef: params.paymentRef,

@@ -36,6 +36,7 @@ describe('firestore rules', () => {
     const ownerId = 'owner-1'
     const listId = 'list-valid-create'
     const trialEndsAt = futureTimestamp(14)
+    const purgeAt = futureTimestamp(21)
 
     const ownerDb = testEnv.authenticatedContext(ownerId).firestore()
     await assertSucceeds(
@@ -50,7 +51,7 @@ describe('firestore rules', () => {
         billingModel: 'one_time_90d',
         trialEndsAt,
         paidAccessEndsAt: null,
-        purgeAt: trialEndsAt,
+        purgeAt,
         createdAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
       })
@@ -78,6 +79,44 @@ describe('firestore rules', () => {
         introMediaUrl: 'https://example.com/media.jpg',
         introMediaPath: 'lists/list-intro-update/intro/media.jpg',
         introMediaType: 'image/jpeg',
+        updatedAt: Timestamp.fromDate(new Date()),
+      })
+    )
+  })
+
+  it('blocks owner updates after list access has expired', async () => {
+    const ownerId = 'owner-expired'
+    const listId = 'list-expired-update'
+
+    await seedList(testEnv, {
+      listId,
+      ownerId,
+      visibility: 'public',
+      trialEndsAt: pastTimestamp(2),
+      paidAccessEndsAt: null,
+    })
+
+    const ownerDb = testEnv.authenticatedContext(ownerId).firestore()
+    const listRef = doc(ownerDb, 'lists', listId)
+    const storyRef = doc(ownerDb, 'lists', listId, 'stories', 'story-expired')
+
+    await assertFails(
+      updateDoc(listRef, {
+        introTitle: 'Should fail after expiry',
+        updatedAt: Timestamp.fromDate(new Date()),
+      })
+    )
+
+    await assertFails(
+      setDoc(storyRef, {
+        listId,
+        order: 0,
+        title: 'Expired story',
+        body: 'Should not be allowed',
+        mediaUrl: null,
+        mediaPath: null,
+        mediaType: null,
+        createdAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
       })
     )

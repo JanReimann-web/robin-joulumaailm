@@ -1,5 +1,6 @@
 export const TRIAL_DAYS = 14
 export const PAID_ACCESS_DAYS = 90
+export const PURGE_GRACE_DAYS = 7
 
 export type ListAccessStatus = 'trial' | 'active' | 'expired'
 
@@ -7,6 +8,10 @@ export const addDays = (base: Date, days: number) => {
   const next = new Date(base)
   next.setDate(next.getDate() + days)
   return next
+}
+
+export const getListPurgeDate = (accessEndsAt: Date) => {
+  return addDays(accessEndsAt, PURGE_GRACE_DAYS)
 }
 
 export const resolveListAccessStatus = (params: {

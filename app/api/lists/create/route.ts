@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
-import { addDays, TRIAL_DAYS } from '@/lib/lists/access'
+import { addDays, getListPurgeDate, TRIAL_DAYS } from '@/lib/lists/access'
 import { hashVisibilityPassword, isValidVisibilityPassword } from '@/lib/lists/password.server'
 import { isReservedSlug, isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
 import {
@@ -117,6 +117,7 @@ export async function POST(request: NextRequest) {
 
       const now = new Date()
       const trialEndsAt = Timestamp.fromDate(addDays(now, TRIAL_DAYS))
+      const purgeAt = Timestamp.fromDate(getListPurgeDate(trialEndsAt.toDate()))
 
       transaction.set(listRef, {
         ownerId: decodedToken.uid,
@@ -130,7 +131,7 @@ export async function POST(request: NextRequest) {
         billingPlanId: null,
         trialEndsAt,
         paidAccessEndsAt: null,
-        purgeAt: trialEndsAt,
+        purgeAt,
         introTitle: null,
         introBody: null,
         introEventDate: null,

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
-import { hasPublishedListAccess } from '@/lib/lists/access'
+import { hasPublishedListAccess, resolveListAccessStatus } from '@/lib/lists/access'
 import { hashVisibilityPassword, isValidVisibilityPassword } from '@/lib/lists/password.server'
 import { BILLING_PLAN_IDS, type BillingPlanId, isVisibilityAllowedForPlan } from '@/lib/lists/plans'
 import {
@@ -118,8 +118,18 @@ export async function POST(request: NextRequest, context: RouteContext) {
         throw new Error('forbidden')
       }
 
+      const trialEndsAt = toMillis(listData.trialEndsAt)
       const paidAccessEndsAt = toMillis(listData.paidAccessEndsAt)
       const billingPlanId = toBillingPlanId(listData.billingPlanId)
+      const listAccessStatus = resolveListAccessStatus({
+        trialEndsAt,
+        paidAccessEndsAt,
+        complimentaryAccess: hasComplimentaryAccess,
+      })
+
+      if (listAccessStatus === 'expired') {
+        throw new Error('access_expired')
+      }
 
       if (
         visibility === 'public_password'
@@ -195,6 +205,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (error instanceof Error && error.message === 'visibility_requires_premium') {
       return NextResponse.json({ error: 'visibility_requires_premium' }, { status: 400 })
+    }
+
+    if (error instanceof Error && error.message === 'access_expired') {
+      return NextResponse.json({ error: 'access_expired' }, { status: 403 })
     }
 
     return NextResponse.json({ error: 'update_failed' }, { status: 500 })

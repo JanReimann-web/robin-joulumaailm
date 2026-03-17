@@ -18,6 +18,7 @@ import {
 import { db } from '@/lib/firebase'
 import {
   addDays,
+  getListPurgeDate,
   resolveListAccessStatus,
   TRIAL_DAYS,
 } from '@/lib/lists/access'
@@ -340,6 +341,7 @@ export const createGiftList = async (
 
     const now = new Date()
     const trialEndsAt = Timestamp.fromDate(addDays(now, TRIAL_DAYS))
+    const purgeAt = Timestamp.fromDate(getListPurgeDate(trialEndsAt.toDate()))
 
     transaction.set(listRef, {
       ownerId: input.ownerId,
@@ -353,7 +355,7 @@ export const createGiftList = async (
       billingPlanId: null,
       trialEndsAt,
       paidAccessEndsAt: null,
-      purgeAt: trialEndsAt,
+      purgeAt,
       introTitle: null,
       introBody: null,
       introEventDate: null,
