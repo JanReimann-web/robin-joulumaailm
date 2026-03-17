@@ -154,7 +154,7 @@ export const etDictionary: Dictionary = {
   },
   pricing: {
     title: 'Nimekirjapõhine hinnastus sündmuse korraldajale',
-    trialLine: 'Iga konto alustab 14-päevase tasuta katseajaga.',
+    trialLine: 'Iga nimekiri alustab 14-päevase tasuta katseajaga.',
     draftOnlyLine: 'Tasuta katseajal saad nimekirja koostada ja eelvaadet testida, kuid avalikustamine on lukus.',
     perListLine: 'Paketid on nimekirjapõhised. Kui lood mitu kinginimekirja, vajab iga nimekiri eraldi paketti.',
     extensionLine: 'Soovi korral saad paketti hiljem pikendada, et nimekiri püsiks kauem aktiivne.',
@@ -166,7 +166,6 @@ export const etDictionary: Dictionary = {
     upgradeBaseToPlatinum: 'Base → Platinum',
     upgradePremiumToPlatinum: 'Premium → Platinum',
     launchRegionsLine: 'Checkout on praegu avatud klientidele Eestis, EU27 riikides ja Ameerika Ühendriikides.',
-    taxCollectionLine: 'Checkout kogub arveldusaadressi ja soovi korral Tax ID, et Stripe Tax saaks toetatud turgudel õige maksu arvutada.',
     marketUnsupportedNotice: 'Paketi ostmine ei ole sinu praegusest piirkonnast veel saadaval. Giftlist Studio müüb praegu ainult Eestis, EU27 riikides ja Ameerika Ühendriikides.',
     marketSanctionedNotice: 'Paketi ostmine on sinu praeguses piirkonnas blokeeritud, sest Giftlist Studio ei müü sanktsiooniturgudele, sealhulgas Valgevenesse, Kuubale, Iraani, Põhja-Koreasse, Venemaale ja Süüriasse.',
     marketUnknownNotice: 'Me ei suutnud selle päringu põhjal sinu müügipiirkonda kinnitada. Checkout jääb lukku seni, kuni piirkond on tuvastatav.',

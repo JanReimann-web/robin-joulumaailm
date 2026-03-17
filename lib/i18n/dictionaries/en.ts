@@ -154,7 +154,7 @@ export const enDictionary: Dictionary = {
   },
   pricing: {
     title: 'Per-list pricing for event hosts',
-    trialLine: 'Each account starts with a 14-day free trial.',
+    trialLine: 'Each list starts with a 14-day free trial.',
     draftOnlyLine: 'During the free trial you can build and preview the list, but public publishing is locked.',
     perListLine: 'Packages are list-based. If you create multiple gift lists, each list needs its own package.',
     extensionLine: 'You can extend any package later if you want to keep the list live longer.',
@@ -166,7 +166,6 @@ export const enDictionary: Dictionary = {
     upgradeBaseToPlatinum: 'Base → Platinum',
     upgradePremiumToPlatinum: 'Premium → Platinum',
     launchRegionsLine: 'Checkout is currently available for customers in Estonia, the EU27, and the United States.',
-    taxCollectionLine: 'Checkout collects the billing address and optional Tax ID so Stripe Tax can calculate the correct tax for supported markets.',
     marketUnsupportedNotice: 'Package purchases are not available from your current region yet. Giftlist Studio is currently selling only in Estonia, the EU27, and the United States.',
     marketSanctionedNotice: 'Package purchases are blocked in your current region because Giftlist Studio does not sell to sanctioned markets, including Belarus, Cuba, Iran, North Korea, Russia, and Syria.',
     marketUnknownNotice: 'We could not confirm your billing region from the current request. Checkout stays blocked until the region can be verified.',

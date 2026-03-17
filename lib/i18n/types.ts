@@ -110,7 +110,6 @@ export interface Dictionary {
     upgradeBaseToPlatinum: string
     upgradePremiumToPlatinum: string
     launchRegionsLine: string
-    taxCollectionLine: string
     marketUnsupportedNotice: string
     marketSanctionedNotice: string
     marketUnknownNotice: string

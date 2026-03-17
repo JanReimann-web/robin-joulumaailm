@@ -71,23 +71,12 @@ export default function PricingPage({ params }: PricingPageProps) {
       <p className="mt-1 text-sm text-slate-400">{dict.pricing.retentionLine}</p>
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.upgradeLine}</p>
       <p className="mt-3 text-sm text-emerald-200">{dict.pricing.launchRegionsLine}</p>
-      <p className="mt-1 text-sm text-slate-300">{dict.pricing.taxCollectionLine}</p>
 
       {marketNotice && (
         <p className="mt-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
           {marketNotice}
         </p>
       )}
-
-      <article className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
-        <h2 className="text-lg font-semibold text-white">{dict.pricing.upgradeTitle}</h2>
-        <p className="mt-2 text-sm text-slate-300">{dict.pricing.upgradeResetLine}</p>
-        <ul className="mt-3 space-y-2 text-sm text-slate-200">
-          <li>- {dict.pricing.upgradeBaseToPremium}: {formatBillingPriceCents(1295, billingCurrency, params.locale)}</li>
-          <li>- {dict.pricing.upgradeBaseToPlatinum}: {formatBillingPriceCents(2495, billingCurrency, params.locale)}</li>
-          <li>- {dict.pricing.upgradePremiumToPlatinum}: {formatBillingPriceCents(1295, billingCurrency, params.locale)}</li>
-        </ul>
-      </article>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
@@ -126,6 +115,16 @@ export default function PricingPage({ params }: PricingPageProps) {
           </ul>
         </article>
       </div>
+
+      <article className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+        <h2 className="text-lg font-semibold text-white">{dict.pricing.upgradeTitle}</h2>
+        <p className="mt-2 text-sm text-slate-300">{dict.pricing.upgradeResetLine}</p>
+        <ul className="mt-3 space-y-2 text-sm text-slate-200">
+          <li>- {dict.pricing.upgradeBaseToPremium}: {formatBillingPriceCents(1295, billingCurrency, params.locale)}</li>
+          <li>- {dict.pricing.upgradeBaseToPlatinum}: {formatBillingPriceCents(2495, billingCurrency, params.locale)}</li>
+          <li>- {dict.pricing.upgradePremiumToPlatinum}: {formatBillingPriceCents(1295, billingCurrency, params.locale)}</li>
+        </ul>
+      </article>
     </section>
   )
 }
