@@ -7,7 +7,7 @@ import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventSlugToType, eventTypeToSlug, EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
 import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 
 type EventPageProps = {
   params: {

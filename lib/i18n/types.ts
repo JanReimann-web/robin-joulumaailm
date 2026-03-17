@@ -16,11 +16,15 @@ export interface Dictionary {
     badge: string
     title: string
     subtitle: string
+    seoTitle: string
+    seoDescription: string
     primaryCta: string
     secondaryCta: string
+    proofPoints: string[]
   }
   highlights: {
     title: string
+    subtitle: string
     templateTitle: string
     templateBody: string
     reserveTitle: string
@@ -30,6 +34,7 @@ export interface Dictionary {
   }
   events: {
     title: string
+    subtitle: string
     wedding: string
     birthday: string
     kidsBirthday: string
@@ -37,6 +42,24 @@ export interface Dictionary {
     graduation: string
     housewarming: string
     christmas: string
+  }
+  home: {
+    processTitle: string
+    processSubtitle: string
+    processSteps: Array<{
+      title: string
+      body: string
+    }>
+    faqTitle: string
+    faqSubtitle: string
+    faqEntries: Array<{
+      question: string
+      answer: string
+    }>
+    ctaTitle: string
+    ctaBody: string
+    ctaPrimary: string
+    ctaSecondary: string
   }
   eventPages: {
     readMoreAction: string
@@ -100,6 +123,8 @@ export interface Dictionary {
   }
   pricing: {
     title: string
+    seoTitle: string
+    seoDescription: string
     trialLine: string
     draftOnlyLine: string
     perListLine: string
@@ -129,6 +154,8 @@ export interface Dictionary {
     eyebrow: string
     title: string
     subtitle: string
+    seoTitle: string
+    seoDescription: string
     themeHint: string
     sectionSubtitle: string
     entryBadge: string

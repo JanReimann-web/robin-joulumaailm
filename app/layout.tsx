@@ -4,10 +4,10 @@ import { AuthProvider } from '@/components/auth/AuthProvider'
 import CookieConsentManager from '@/components/site/CookieConsentManager'
 import './globals.css'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 const SITE_TITLE = 'Giftlist Studio'
 const SITE_DESCRIPTION =
-  'Create beautiful gift lists for weddings, birthdays, kids birthdays, baby showers, graduations, housewarming parties, and holidays.'
+  'Create shareable online gift lists for weddings, birthdays, kids parties, baby showers, graduations, housewarmings, and Christmas with guest reservations and event-ready designs.'
 const SHARE_IMAGE = '/images/Joulud.jpg'
 const BRAND_MARK = '/brand/giftlist-studio-mark.svg'
 const organizationSchema = {

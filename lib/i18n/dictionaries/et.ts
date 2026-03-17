@@ -15,24 +15,39 @@ export const etDictionary: Dictionary = {
     estonian: 'Eesti',
   },
   hero: {
-    badge: 'Kinginimekiri ilma topeltkingitusteta',
-    title: 'Loo jagatav kinginimekiri minutitega',
+    badge: 'Veebipõhine kinginimekiri pulmadeks, sünnipäevaks ja teisteks sündmusteks',
+    title: 'Loo ilus veebipõhine kinginimekiri igale sündmusele',
     subtitle:
-      'Loo sündmuse leht, vali kujundus ja lase külalistel kingitusi turvaliselt broneerida.',
+      'Koosta üks jagatav kinginimekirja leht, vali sündmusele sobiv kujundus ja lase külalistel kingitusi enne ostu broneerida, et topeltkingitusi ei tekiks.',
+    seoTitle:
+      'Veebipõhine kinginimekiri pulmadeks, sünnipäevaks, baby showeriks ja jõuludeks',
+    seoDescription:
+      'Loo jagatav veebipõhine kinginimekiri koos broneeringute, paroolikaitse, QR jagamise ja sündmusepõhiste kujundustega. Sobib pulmadeks, sünnipäevaks, laste peoks, baby showeriks, lõpetamiseks, soolaleivaks ja jõuludeks.',
     primaryCta: 'Alusta tasuta katseaega',
     secondaryCta: 'Vaata hindu',
+    proofPoints: [
+      '14-päevane tasuta katseaeg igale nimekirjale',
+      'Broneerimisvoog hoiab topeltkingid ära',
+      'QR jagamine, paroolikaitse ja sündmusepõhised kujundused',
+    ],
   },
   highlights: {
     title: 'Miks korraldajad kasutavad Giftlist Studiot',
+    subtitle:
+      'Kõik vajalik selleks, et jagada ühte linki, koguda kingisoovid kokku ja hoida külaliste broneeringud algusest lõpuni selgena.',
     templateTitle: 'Sündmusepõhised kujundused',
     templateBody: 'Vali valmis lahenduste seast pulmadeks, sünnipäevaks, laste sünnipäevaks, baby showeriks, lõpetamiseks, soolaleivaks ja jõuludeks.',
     reserveTitle: 'Topeltbroneeringu kaitse',
-    reserveBody: 'Broneeringud tehakse transaktsiooniga, et sama kingitus ei satuks kahele külalisele.',
+    reserveBody:
+      'Külalised broneerivad kingituse enne ostu ning broneering tehakse transaktsiooniga, et sama ese ei satuks kahele inimesele.',
     trialTitle: 'Alusta tasuta, maksa ühe korra',
-    trialBody: 'Valmista nimekiri katseajal ette ja ava seejärel 90-päevane sündmusepass ühekordse tasuga.',
+    trialBody:
+      'Valmista nimekiri tasuta katseajal ette ja aktiveeri 90-päevane sündmusepass alles siis, kui oled valmis seda külalistega jagama.',
   },
   events: {
-    title: 'Toetatud sündmused',
+    title: 'Kinginimekirja mallid sündmuse järgi',
+    subtitle:
+      'Alusta sündmuse lehega, mis on kohandatud pulmadele, sünnipäevale, laste peole, baby showerile, lõpetamisele, soolaleivale või jõuludele.',
     wedding: 'Pulm',
     birthday: 'Sünnipäev',
     kidsBirthday: 'Sünnipäev (lastele)',
@@ -40,6 +55,55 @@ export const etDictionary: Dictionary = {
     graduation: 'Lõpetamine',
     housewarming: 'Soolaleib',
     christmas: 'Jõulud',
+  },
+  home: {
+    processTitle: 'Kuidas Giftlist Studio töötab',
+    processSubtitle:
+      'Seadista üks leht, jaga seda ühe lingiga ja lase külalistel näha, mis on veel saadaval enne ostu tegemist.',
+    processSteps: [
+      {
+        title: 'Koosta oma sündmuse kinginimekiri',
+        body: 'Vali sündmuse tüüp, kujundus ja nähtavus ning lisa kingitused, pildid, loohetked ja soovi korral sündmuse detailid.',
+      },
+      {
+        title: 'Jaga ühte linki või QR-koodi',
+        body: 'Saada külalistele üks avalik või parooliga kaitstud link, et kõik jõuaksid sama ajakohase nimekirjani.',
+      },
+      {
+        title: 'Jälgi broneeringuid ilma topeltkingitusteta',
+        body: 'Külalised broneerivad kingitused enne ostu ja nimekirja looja näeb, kes mida valis ning millise sõnumi kaasa jättis.',
+      },
+    ],
+    faqTitle: 'Korduma kippuvad küsimused veebipõhise kinginimekirja kohta',
+    faqSubtitle:
+      'Lühikesed vastused küsimustele, mida enamik korraldajaid enne esimese nimekirja avalikustamist küsib.',
+    faqEntries: [
+      {
+        question: 'Kas Giftlist Studio on mõeldud ainult pulmade kinginimekirjale?',
+        answer:
+          'Ei. Giftlist Studio sobib pulmadeks, sünnipäevaks, laste sünnipäevaks, baby showeriks, lõpetamiseks, soolaleivaks ja jõulude kinkide planeerimiseks.',
+      },
+      {
+        question: 'Kas külalised saavad kingitusi enne ostu broneerida?',
+        answer:
+          'Jah. Külalised saavad avalikul lehel kingitusi broneerida, et nimekirja looja ja teised külalised näeksid, millised esemed on juba valitud.',
+      },
+      {
+        question: 'Kas ma saan avaliku nimekirja parooliga kaitsta?',
+        answer:
+          'Jah. Parooliga kaitstud avalik jagamine on olemas pakettides, mis seda toetavad, et nimekiri oleks nähtav ainult kutsutud külalistele.',
+      },
+      {
+        question: 'Kas ma saan lehte testida enne avalikustamist?',
+        answer:
+          'Jah. Iga uus nimekiri alustab 14-päevase tasuta katseajaga, et saaksid lehe valmis ehitada, sisu üles laadida ja kogu kogemust enne aktiveerimist testida.',
+      },
+    ],
+    ctaTitle: 'Valmista kinginimekiri valmis enne, kui sündmus kiireks läheb',
+    ctaBody:
+      'Alusta tasuta katseajaga, vali sündmuse lehe kujundus ja avalikusta siis, kui külaliste nimekiri, kingisoovid ja loo sisu on valmis.',
+    ctaPrimary: 'Loo oma nimekiri',
+    ctaSecondary: 'Vaata päris näidiseid',
   },
   eventPages: {
     readMoreAction: 'Ava alamleht',
@@ -156,6 +220,9 @@ export const etDictionary: Dictionary = {
   },
   pricing: {
     title: 'Nimekirjapõhine hinnastus sündmuse korraldajale',
+    seoTitle: 'Kinginimekirja hinnad ja paketid',
+    seoDescription:
+      'Võrdle Base, Premium ja Platinum pakette oma veebipõhise kinginimekirja jaoks. Vaata fotode, videote, paroolikaitse ja 90-päevase ligipääsu piire.',
     trialLine: 'Iga nimekiri alustab 14-päevase tasuta katseajaga.',
     draftOnlyLine: 'Tasuta katseajal saad nimekirja koostada ja eelvaadet testida, kuid avalikustamine on lukus.',
     perListLine: 'Paketid on nimekirjapõhised. Kui lood mitu kinginimekirja, vajab iga nimekiri eraldi paketti.',
@@ -185,6 +252,9 @@ export const etDictionary: Dictionary = {
     eyebrow: 'Inspiratsioonigalerii',
     title: 'Vaata valmis näidiseid enne oma nimekirja loomist',
     subtitle: 'Sirvi päris näidisnimekirju sündmuse kaupa, vaheta eelvaates kujundust ja võrdle, kuidas sama sisu eri taustadel mõjub.',
+    seoTitle: 'Kinginimekirja näidised ja inspiratsioon',
+    seoDescription:
+      'Sirvi päris kinginimekirja näidiseid pulmade, sünnipäevade, baby showerite, lõpetamiste, soolaleiva ja jõulude jaoks enne oma lehe loomist.',
     themeHint: 'Kujunduse muutmine siin mõjutab ainult eelvaatekaarti, et külastaja saaks enne alustamist stiile võrrelda.',
     sectionSubtitle: '{event} näidised ja placeholder-kohad.',
     entryBadge: 'Päris näidis',

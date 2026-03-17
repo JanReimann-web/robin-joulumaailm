@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import LegalPageShell from '@/components/site/LegalPageShell'
 import { isLocale, type Locale } from '@/lib/i18n/config'
@@ -478,6 +479,37 @@ type FaqPageProps = {
   }
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
+
+export function generateMetadata({ params }: FaqPageProps): Metadata {
+  const locale = isLocale(params.locale) ? params.locale : 'en'
+  const legalCopy = getLegalCopy(locale).pages
+  const url = `${SITE_URL}/${locale}/faq`
+
+  return {
+    title: legalCopy.faqTitle,
+    description: legalCopy.faqIntro,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `${SITE_URL}/en/faq`,
+        et: `${SITE_URL}/et/faq`,
+      },
+    },
+    openGraph: {
+      title: `${legalCopy.faqTitle} | Giftlist Studio`,
+      description: legalCopy.faqIntro,
+      url,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${legalCopy.faqTitle} | Giftlist Studio`,
+      description: legalCopy.faqIntro,
+    },
+  }
+}
+
 export default function FaqPage({ params }: FaqPageProps) {
   if (!isLocale(params.locale)) {
     notFound()
@@ -486,6 +518,20 @@ export default function FaqPage({ params }: FaqPageProps) {
   const locale = params.locale
   const legalCopy = getLegalCopy(locale).pages
   const content = FAQ_PAGE_CONTENT[locale]
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: content.sections.flatMap((section) =>
+      section.entries.map((entry) => ({
+        '@type': 'Question',
+        name: entry.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: entry.answer.join(' '),
+        },
+      }))
+    ),
+  }
 
   return (
     <LegalPageShell
@@ -493,6 +539,10 @@ export default function FaqPage({ params }: FaqPageProps) {
       title={legalCopy.faqTitle}
       intro={legalCopy.faqIntro}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr),minmax(0,2fr)]">
         <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/55">

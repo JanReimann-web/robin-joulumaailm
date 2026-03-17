@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { locales } from '@/lib/i18n/config'
 import { EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [

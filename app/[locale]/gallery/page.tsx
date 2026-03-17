@@ -11,7 +11,7 @@ type GalleryPageProps = {
   }
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: GalleryPageProps): Promise<Me
   const url = `${SITE_URL}/${locale}/gallery`
 
   return {
-    title: dict.gallery.title,
-    description: dict.gallery.subtitle,
+    title: dict.gallery.seoTitle,
+    description: dict.gallery.seoDescription,
     alternates: {
       canonical: url,
       languages: {
@@ -31,15 +31,15 @@ export async function generateMetadata({ params }: GalleryPageProps): Promise<Me
       },
     },
     openGraph: {
-      title: dict.gallery.title,
-      description: dict.gallery.subtitle,
+      title: dict.gallery.seoTitle,
+      description: dict.gallery.seoDescription,
       url,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: dict.gallery.title,
-      description: dict.gallery.subtitle,
+      title: dict.gallery.seoTitle,
+      description: dict.gallery.seoDescription,
     },
   }
 }

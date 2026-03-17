@@ -9,7 +9,7 @@ import { defaultLocale, isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { COMPANY_ADDRESS, COMPANY_NAME, getLegalCopy } from '@/lib/site/legal'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 
 type LocaleLayoutProps = {
   children: React.ReactNode

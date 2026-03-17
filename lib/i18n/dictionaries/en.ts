@@ -15,24 +15,40 @@ export const enDictionary: Dictionary = {
     estonian: 'Estonian',
   },
   hero: {
-    badge: 'Gift lists without duplicate presents',
-    title: 'Build a shareable gift list in minutes',
+    badge: 'Online gift lists for weddings, birthdays, baby showers, and more',
+    title: 'Create a beautiful online gift list for any event',
     subtitle:
-      'Create your event page, pick a design, and let guests reserve gifts safely.',
+      'Build one shareable gift list page, choose a design that fits your event, and let guests reserve gifts before they buy so duplicate presents are avoided.',
+    seoTitle:
+      'Online Gift List for Weddings, Birthdays, Baby Showers, Christmas, and More',
+    seoDescription:
+      'Create a shareable online gift list with guest reservations, password protection, QR sharing, and event-ready designs. Built for weddings, birthdays, kids parties, baby showers, graduations, housewarmings, and Christmas.',
     primaryCta: 'Start free trial',
     secondaryCta: 'View pricing',
+    proofPoints: [
+      '14-day free trial for every list',
+      'Reservation flow prevents duplicate gifts',
+      'QR sharing, password protection, and themed designs',
+    ],
   },
   highlights: {
     title: 'Why hosts use Giftlist Studio',
+    subtitle:
+      'Everything you need to share one link, collect gift wishes, and keep guest reservations clear from start to finish.',
     templateTitle: 'Event-based templates',
-    templateBody: 'Choose from focused designs for weddings, birthdays, kids birthdays, baby showers, graduations, housewarmings, and holidays.',
+    templateBody:
+      'Choose from focused designs for weddings, birthdays, kids birthdays, baby showers, graduations, housewarmings, and Christmas gift planning.',
     reserveTitle: 'Duplicate-safe reservations',
-    reserveBody: 'Reservation actions are transaction-protected to avoid two guests choosing the same gift.',
+    reserveBody:
+      'Guests reserve gifts before they buy, and reservation actions are transaction-protected to avoid two people choosing the same item.',
     trialTitle: 'Trial first, one-time payment later',
-    trialBody: 'Set up your list during trial, then unlock a 90-day event pass with a one-time payment.',
+    trialBody:
+      'Set up your list during the free trial, then unlock a 90-day event pass with a one-time payment when you are ready to publish.',
   },
   events: {
-    title: 'Supported event types',
+    title: 'Gift list templates by event type',
+    subtitle:
+      'Start with an event page built for weddings, birthdays, kids parties, baby showers, graduations, housewarmings, or Christmas.',
     wedding: 'Wedding',
     birthday: 'Birthday',
     kidsBirthday: 'Birthday (kids)',
@@ -40,6 +56,55 @@ export const enDictionary: Dictionary = {
     graduation: 'Graduation',
     housewarming: 'Housewarming',
     christmas: 'Christmas',
+  },
+  home: {
+    processTitle: 'How Giftlist Studio works',
+    processSubtitle:
+      'Set up one page, share it once, and let guests see what is still available before they buy.',
+    processSteps: [
+      {
+        title: 'Create your event gift list',
+        body: 'Choose the event type, design, and visibility, then add gifts, photos, stories, and optional event details.',
+      },
+      {
+        title: 'Share one link or QR code',
+        body: 'Send guests one public or password-protected link so everyone lands on the same up-to-date list.',
+      },
+      {
+        title: 'Track reservations without duplicate gifts',
+        body: 'Guests reserve items before purchasing, and the host sees who reserved what together with an optional message.',
+      },
+    ],
+    faqTitle: 'Frequently asked questions about online gift lists',
+    faqSubtitle:
+      'Quick answers to the questions most hosts ask before publishing their first list.',
+    faqEntries: [
+      {
+        question: 'Is Giftlist Studio only for wedding gift lists?',
+        answer:
+          'No. Giftlist Studio works for weddings, birthdays, kids birthday parties, baby showers, graduations, housewarmings, and Christmas gift planning.',
+      },
+      {
+        question: 'Can guests reserve gifts before buying them?',
+        answer:
+          'Yes. Guests can reserve gifts on the public page so the host and other guests can see which items are already taken.',
+      },
+      {
+        question: 'Can I password-protect my public gift list?',
+        answer:
+          'Yes. Password-protected public sharing is available on packages that support it, so you can share the list only with invited guests.',
+      },
+      {
+        question: 'Can I test the page before it goes public?',
+        answer:
+          'Yes. Every new list starts with a 14-day free trial so you can build the page, upload content, and preview the full experience before activation.',
+      },
+    ],
+    ctaTitle: 'Build your gift list before the event gets busy',
+    ctaBody:
+      'Start with a free trial, choose an event page design, and publish when your guest list, gift ideas, and story content are ready.',
+    ctaPrimary: 'Create your list',
+    ctaSecondary: 'See live examples',
   },
   eventPages: {
     readMoreAction: 'Explore page',
@@ -156,6 +221,9 @@ export const enDictionary: Dictionary = {
   },
   pricing: {
     title: 'Per-list pricing for event hosts',
+    seoTitle: 'Gift List Pricing and Packages',
+    seoDescription:
+      'Compare Base, Premium, and Platinum pricing for your online gift list. See limits for photos, videos, password protection, and 90-day access.',
     trialLine: 'Each list starts with a 14-day free trial.',
     draftOnlyLine: 'During the free trial you can build and preview the list, but public publishing is locked.',
     perListLine: 'Packages are list-based. If you create multiple gift lists, each list needs its own package.',
@@ -185,6 +253,9 @@ export const enDictionary: Dictionary = {
     eyebrow: 'Inspiration gallery',
     title: 'See finished examples before you build your own list',
     subtitle: 'Browse real sample lists by event type, switch the preview design, and compare how the same content feels in different themes.',
+    seoTitle: 'Gift List Example Gallery',
+    seoDescription:
+      'Browse real gift list examples for weddings, birthdays, baby showers, graduations, housewarmings, and Christmas before creating your own page.',
     themeHint: 'Changing the design here only updates the preview card so guests can compare styles before starting their own list.',
     sectionSubtitle: 'Examples and placeholder slots for {event}.',
     entryBadge: 'Live example',

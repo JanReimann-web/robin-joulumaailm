@@ -13,7 +13,7 @@ type PricingPageProps = {
   }
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://gifts.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://giftliststudio.com'
 
 export function generateMetadata({ params }: PricingPageProps): Metadata {
   const locale = isLocale(params.locale) ? params.locale : 'en'
@@ -21,8 +21,8 @@ export function generateMetadata({ params }: PricingPageProps): Metadata {
   const url = `${SITE_URL}/${locale}/pricing`
 
   return {
-    title: dict.pricing.title,
-    description: dict.pricing.retentionLine,
+    title: dict.pricing.seoTitle,
+    description: dict.pricing.seoDescription,
     alternates: {
       canonical: url,
       languages: {
@@ -31,15 +31,15 @@ export function generateMetadata({ params }: PricingPageProps): Metadata {
       },
     },
     openGraph: {
-      title: dict.pricing.title,
-      description: dict.pricing.retentionLine,
+      title: dict.pricing.seoTitle,
+      description: dict.pricing.seoDescription,
       url,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: dict.pricing.title,
-      description: dict.pricing.retentionLine,
+      title: dict.pricing.seoTitle,
+      description: dict.pricing.seoDescription,
     },
   }
 }
