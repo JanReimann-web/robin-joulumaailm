@@ -3,8 +3,12 @@ import Stripe from 'stripe'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { BillingMarketAvailability } from '@/lib/billing/markets'
 import {
+  BillingChargeMode,
   BillingCurrency,
+  isBillingPlanDowngrade,
+  isBillingPlanId,
   getBillingPlanPriceCents,
+  resolveBillingChargeQuote,
   toStripeCurrencyCode,
 } from '@/lib/billing/pricing'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
@@ -17,7 +21,6 @@ import {
 import { BillingCheckoutResult } from '@/lib/billing/types'
 import {
   BILLING_PLAN_DEFINITIONS,
-  BILLING_PLAN_IDS,
   BillingPlanId,
   getMediaUsageIssue,
   isBillingPlanEligible,
@@ -113,10 +116,6 @@ const resolvePlanDisplayName = (planId: BillingPlanId) => {
   return 'Platinum'
 }
 
-const isBillingPlanId = (value: string): value is BillingPlanId => {
-  return BILLING_PLAN_IDS.includes(value as BillingPlanId)
-}
-
 const validateListOwnership = async (listId: string, ownerId: string) => {
   const listRef = adminDb.collection('lists').doc(listId)
   const listSnapshot = await listRef.get()
@@ -144,6 +143,11 @@ const grantListPass = async (params: {
   provider: 'manual' | 'stripe'
   paymentRef: string
   amountCents: number
+  chargeAmountCents: number
+  catalogAmountCents: number
+  pricingMode: BillingChargeMode
+  upgradeFromPlanId: BillingPlanId | null
+  resetAccessPeriod: boolean
   discount: PreparedCheckoutDiscount
 }) => {
   const listRef = adminDb.collection('lists').doc(params.listId)
@@ -169,7 +173,9 @@ const grantListPass = async (params: {
     }
 
     const currentPaidAccessEndsAt = toMillis(payload.paidAccessEndsAt)
-    const accessBaseDate = currentPaidAccessEndsAt && currentPaidAccessEndsAt > Date.now()
+    const accessBaseDate = !params.resetAccessPeriod
+      && currentPaidAccessEndsAt
+      && currentPaidAccessEndsAt > Date.now()
       ? new Date(currentPaidAccessEndsAt)
       : new Date()
     const paidAccessEndsAt = Timestamp.fromDate(addDays(accessBaseDate, PAID_ACCESS_DAYS))
@@ -247,8 +253,11 @@ const grantListPass = async (params: {
       billingModel: 'one_time_90d',
       billingPlanId: params.planId,
       amountCents: params.amountCents,
-      originalAmountCents: getBillingPlanPriceCents(params.planId, params.currency),
+      originalAmountCents: params.chargeAmountCents,
+      catalogAmountCents: params.catalogAmountCents,
       currency: params.currency,
+      pricingMode: params.pricingMode,
+      upgradeFromPlanId: params.upgradeFromPlanId,
       discountType: params.discount.discountType,
       discountPercent: params.discount.discountPercent,
       rewardCreditsConsumed,
@@ -353,6 +362,23 @@ export const startListCheckout = async (params: {
   }
 
   const { listData } = await validateListOwnership(params.listId, params.ownerId)
+  const currentPaidAccessEndsAt = toMillis(listData.paidAccessEndsAt)
+  const currentBillingPlanId = (
+    typeof listData.billingPlanId === 'string'
+    && isBillingPlanId(listData.billingPlanId)
+    && currentPaidAccessEndsAt !== null
+    && currentPaidAccessEndsAt > Date.now()
+  )
+    ? listData.billingPlanId
+    : null
+
+  if (
+    currentBillingPlanId
+    && isBillingPlanDowngrade(currentBillingPlanId, params.planId)
+  ) {
+    throw new Error('plan_downgrade_not_allowed')
+  }
+
   const hasComplimentaryAccess = await hasServerSideComplimentaryEntitlement(params.ownerId)
   if (hasComplimentaryAccess) {
     return {
@@ -390,6 +416,13 @@ export const startListCheckout = async (params: {
     throw new Error('plan_too_small')
   }
 
+  const chargeQuote = resolveBillingChargeQuote({
+    targetPlanId: params.planId,
+    currentPlanId: currentBillingPlanId,
+    hasActivePaidPlan: Boolean(currentBillingPlanId),
+    currency: params.currency,
+  })
+
   let preparedDiscount: PreparedCheckoutDiscount
   try {
     preparedDiscount = await prepareCheckoutDiscount({
@@ -404,7 +437,7 @@ export const startListCheckout = async (params: {
     throw error
   }
 
-  const originalAmountCents = getBillingPlanPriceCents(params.planId, params.currency)
+  const originalAmountCents = chargeQuote.priceCents
   const discountedAmountCents = applyPercentageDiscount(
     originalAmountCents,
     preparedDiscount.discountPercent
@@ -424,6 +457,11 @@ export const startListCheckout = async (params: {
       provider: 'manual',
       paymentRef,
       amountCents: discountedAmountCents,
+      chargeAmountCents: chargeQuote.priceCents,
+      catalogAmountCents: chargeQuote.catalogPriceCents,
+      pricingMode: chargeQuote.mode,
+      upgradeFromPlanId: chargeQuote.upgradeFromPlanId,
+      resetAccessPeriod: chargeQuote.resetsAccessPeriod,
       discount: preparedDiscount,
     })
 
@@ -438,6 +476,13 @@ export const startListCheckout = async (params: {
   const cancelUrl = `${SITE_URL}/${locale}/dashboard?billing=cancel&list=${params.listId}`
   const priceId = resolveStripePriceId(params.planId, params.currency)
   const stripeCurrency = toStripeCurrencyCode(params.currency)
+  const shouldUseCatalogPrice = preparedDiscount.discountType === 'none' && chargeQuote.mode === 'full' && Boolean(priceId)
+  const checkoutProductName = chargeQuote.mode === 'upgrade'
+    ? `Giftlist Studio ${resolvePlanDisplayName(params.planId)} upgrade`
+    : `Giftlist Studio ${resolvePlanDisplayName(params.planId)} package`
+  const checkoutDescription = chargeQuote.mode === 'upgrade' && chargeQuote.upgradeFromPlanId
+    ? `90-day upgrade from ${resolvePlanDisplayName(chargeQuote.upgradeFromPlanId)}`
+    : '90-day per-list package'
 
   const session = await stripeClient!.checkout.sessions.create({
     mode: 'payment',
@@ -451,7 +496,7 @@ export const startListCheckout = async (params: {
     automatic_tax: {
       enabled: STRIPE_TAX_ENABLED,
     },
-    line_items: preparedDiscount.discountType === 'none' && priceId
+    line_items: shouldUseCatalogPrice
       ? [
           {
             price: priceId,
@@ -464,8 +509,8 @@ export const startListCheckout = async (params: {
               currency: stripeCurrency,
               unit_amount: discountedAmountCents,
               product_data: {
-                name: `Giftlist Studio ${resolvePlanDisplayName(params.planId)} package`,
-                description: '90-day per-list package',
+                name: checkoutProductName,
+                description: checkoutDescription,
               },
             },
             quantity: 1,
@@ -482,9 +527,11 @@ export const startListCheckout = async (params: {
       referralCodeId: preparedDiscount.referralCodeId ?? '',
       referralCode: preparedDiscount.referralCode ?? '',
       referralOwnerUserId: preparedDiscount.referralOwnerUserId ?? '',
-      currentBillingPlanId: typeof listData.billingPlanId === 'string'
-        ? listData.billingPlanId
-        : '',
+      currentBillingPlanId: currentBillingPlanId ?? '',
+      pricingMode: chargeQuote.mode,
+      upgradeFromPlanId: chargeQuote.upgradeFromPlanId ?? '',
+      chargeAmountCents: String(chargeQuote.priceCents),
+      catalogAmountCents: String(chargeQuote.catalogPriceCents),
       currency: params.currency,
       marketAvailability: params.marketAvailability,
       marketCountryCode: params.marketCountryCode ?? '',
@@ -526,6 +573,9 @@ export const startListCheckout = async (params: {
     amountTotal: session.amount_total ?? null,
     amountCents: discountedAmountCents,
     originalAmountCents,
+    catalogAmountCents: chargeQuote.catalogPriceCents,
+    pricingMode: chargeQuote.mode,
+    upgradeFromPlanId: chargeQuote.upgradeFromPlanId,
     discountType: preparedDiscount.discountType,
     discountPercent: preparedDiscount.discountPercent,
     rewardCreditsToConsume: preparedDiscount.rewardCreditsToConsume,
@@ -587,12 +637,19 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
       const listId = session.metadata?.listId
       const ownerId = session.metadata?.ownerId
       const planId = session.metadata?.plan
+      const pricingMode = session.metadata?.pricingMode === 'upgrade' ? 'upgrade' : 'full'
       const discountType = session.metadata?.discountType
       const discountPercent = Number.parseInt(session.metadata?.discountPercent ?? '0', 10)
       const rewardCreditsToConsume = Number.parseInt(session.metadata?.rewardCreditsToConsume ?? '0', 10)
       const referralCodeId = session.metadata?.referralCodeId?.trim() || null
       const referralCode = session.metadata?.referralCode?.trim() || null
       const referralOwnerUserId = session.metadata?.referralOwnerUserId?.trim() || null
+      const upgradeFromPlanIdRaw = session.metadata?.upgradeFromPlanId ?? ''
+      const upgradeFromPlanId = isBillingPlanId(upgradeFromPlanIdRaw)
+        ? upgradeFromPlanIdRaw
+        : null
+      const chargeAmountCents = Number.parseInt(session.metadata?.chargeAmountCents ?? '0', 10)
+      const catalogAmountCents = Number.parseInt(session.metadata?.catalogAmountCents ?? '0', 10)
 
       if (!listId || !ownerId || !planId || !isBillingPlanId(planId)) {
         throw new Error('missing_metadata')
@@ -606,6 +663,18 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
         provider: 'stripe',
         paymentRef: session.id,
         amountCents: session.amount_total ?? BILLING_PLAN_DEFINITIONS[planId].priceCents,
+        chargeAmountCents: Number.isFinite(chargeAmountCents) && chargeAmountCents > 0
+          ? chargeAmountCents
+          : BILLING_PLAN_DEFINITIONS[planId].priceCents,
+        catalogAmountCents: Number.isFinite(catalogAmountCents) && catalogAmountCents > 0
+          ? catalogAmountCents
+          : getBillingPlanPriceCents(
+              planId,
+              session.currency?.toUpperCase() === 'EUR' ? 'EUR' : 'USD'
+            ),
+        pricingMode,
+        upgradeFromPlanId,
+        resetAccessPeriod: pricingMode === 'upgrade',
         discount: {
           discountType: discountType === 'referral' || discountType === 'reward'
             ? discountType

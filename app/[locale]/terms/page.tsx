@@ -99,6 +99,7 @@ const TERMS_PAGE_CONTENT: Record<Locale, {
         points: [
           'When paid checkout is enabled, package activation is processed through the configured payment provider, currently Stripe.',
           'Displayed currency may vary by the visitor’s detected region. At checkout, the live checkout page and final payment confirmation control the amount and currency actually charged.',
+          'Supported package upgrades may be offered at a lower upgrade price instead of the full target package price. At the time of these terms, Base to Premium is 12.95, Base to Platinum is 24.95, and Premium to Platinum is 12.95 in the checkout currency, and each upgrade starts a fresh 90-day access period.',
           'Referral discounts, reward credits, complimentary access, and other promotions are subject to the live product rules and may be limited, changed, or removed over time.',
           'If a payment is completed successfully, the corresponding list access period is activated according to the applicable package rules.',
         ],
@@ -235,6 +236,7 @@ const TERMS_PAGE_CONTENT: Record<Locale, {
         points: [
           'Kui tasuline checkout on aktiveeritud, töödeldakse paketi aktiveerimine seadistatud makseteenuse pakkuja kaudu, praegu Stripe’is.',
           'Kuvatav valuuta võib sõltuda külastaja tuvastatud piirkonnast. Ostu puhul määrab tegelikult rakenduva summa ja valuuta live checkouti leht ning lõplik maksekinnitus.',
+          'Toetatud paketi upgrade võib kasutada väiksemat upgrade hinda sihtpaketi täishinna asemel. Nende tingimuste hetkel on Base → Premium 12.95, Base → Platinum 24.95 ja Premium → Platinum 12.95 checkoutis kasutatavas valuutas ning iga upgrade käivitab uue 90-päevase ligipääsuperioodi.',
           'Referral soodustused, reward credit’id, tasuta ligipääs ja muud kampaaniad alluvad teenuse live reeglitele ning neid võidakse ajas muuta, piirata või eemaldada.',
           'Kui makse õnnestub, aktiveeritakse vastava nimekirja ligipääsuperiood kohaldatava paketi reeglite järgi.',
         ],

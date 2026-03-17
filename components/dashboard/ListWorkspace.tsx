@@ -10,7 +10,12 @@ import {
 } from '@/lib/account-entitlements'
 import { subscribeToAccountEntitlement } from '@/lib/account-entitlements.client'
 import { BillingMarketAvailability } from '@/lib/billing/markets'
-import { BillingCurrency, formatBillingPlanPrice } from '@/lib/billing/pricing'
+import {
+  BillingCurrency,
+  formatBillingPriceCents,
+  isBillingPlanDowngrade,
+  resolveBillingChargeQuote,
+} from '@/lib/billing/pricing'
 import QRCode from 'qrcode'
 import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
@@ -931,24 +936,19 @@ export default function ListWorkspace({
     {
       id: 'base' as BillingPlanId,
       name: labels.planBaseName,
-      price: formatBillingPlanPrice('base', billingCurrency, locale),
       features: labels.planBaseFeatures,
     },
     {
       id: 'premium' as BillingPlanId,
       name: labels.planPremiumName,
-      price: formatBillingPlanPrice('premium', billingCurrency, locale),
       features: labels.planPremiumFeatures,
     },
     {
       id: 'platinum' as BillingPlanId,
       name: labels.planPlatinumName,
-      price: formatBillingPlanPrice('platinum', billingCurrency, locale),
       features: labels.planPlatinumFeatures,
     },
   ]), [
-    billingCurrency,
-    locale,
     labels.planBaseFeatures,
     labels.planBaseName,
     labels.planPlatinumFeatures,
@@ -1090,6 +1090,20 @@ export default function ListWorkspace({
     () => getMediaUsageIssue(selectedListMediaUsage),
     [selectedListMediaUsage]
   )
+  const selectedListActiveBillingPlanId = useMemo(() => {
+    if (
+      !selectedList
+      || hasComplimentaryAccess
+      || !selectedList.billingPlanId
+      || selectedList.accessStatus !== 'active'
+      || !selectedList.paidAccessEndsAt
+      || selectedList.paidAccessEndsAt <= Date.now()
+    ) {
+      return null
+    }
+
+    return selectedList.billingPlanId
+  }, [hasComplimentaryAccess, selectedList])
   const isPasswordVisibilityBlockedByCurrentPlan = Boolean(
     selectedList
     && visibility === 'public_password'
@@ -1127,6 +1141,26 @@ export default function ListWorkspace({
     labels.billingMarketSanctionedNotice,
     labels.billingMarketUnknownNotice,
     labels.billingMarketUnsupportedNotice,
+  ])
+  const selectedListCurrentPlanLabel = useMemo(() => {
+    if (!selectedListActiveBillingPlanId) {
+      return null
+    }
+
+    if (selectedListActiveBillingPlanId === 'base') {
+      return labels.planBaseName
+    }
+
+    if (selectedListActiveBillingPlanId === 'premium') {
+      return labels.planPremiumName
+    }
+
+    return labels.planPlatinumName
+  }, [
+    labels.planBaseName,
+    labels.planPlatinumName,
+    labels.planPremiumName,
+    selectedListActiveBillingPlanId,
   ])
   const referralActiveCountLabel = useMemo(() => {
     return referralSummary
@@ -2103,6 +2137,15 @@ export default function ListWorkspace({
           setBillingFeedback({
             type: 'error',
             message: labels.errorBillingMarketUnknown,
+            listId,
+          })
+          return
+        }
+
+        if (rawError.code === 'plan_downgrade_not_allowed') {
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorPlanDowngradeNotAllowed,
             listId,
           })
           return
@@ -3638,17 +3681,9 @@ export default function ListWorkspace({
                       }
                     </span>
                   )}
-                  {!hasComplimentaryAccess && selectedList.billingPlanId && (
+                  {!hasComplimentaryAccess && selectedListCurrentPlanLabel && (
                     <span className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 text-emerald-100">
-                      {labels.currentPlanTag}: {
-                        selectedList.billingPlanId === 'base'
-                          ? labels.planBaseName
-                          : (
-                            selectedList.billingPlanId === 'premium'
-                              ? labels.planPremiumName
-                              : labels.planPlatinumName
-                          )
-                      }
+                      {labels.currentPlanTag}: {selectedListCurrentPlanLabel}
                     </span>
                   )}
                 </div>
@@ -3668,6 +3703,24 @@ export default function ListWorkspace({
                   <p className="mt-3 rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
                     {billingMarketNotice}
                   </p>
+                )}
+
+                {!hasComplimentaryAccess && (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <h4 className="text-sm font-semibold text-white">{labels.billingUpgradeTitle}</h4>
+                    <p className="mt-2 text-sm text-slate-300">{labels.billingUpgradeResetNotice}</p>
+                    <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                      <li>
+                        - {labels.billingUpgradeBaseToPremium}: {formatBillingPriceCents(1295, billingCurrency, locale)}
+                      </li>
+                      <li>
+                        - {labels.billingUpgradeBaseToPlatinum}: {formatBillingPriceCents(2495, billingCurrency, locale)}
+                      </li>
+                      <li>
+                        - {labels.billingUpgradePremiumToPlatinum}: {formatBillingPriceCents(1295, billingCurrency, locale)}
+                      </li>
+                    </ul>
+                  </div>
                 )}
 
                 {!hasComplimentaryAccess && selectedListMediaUsageIssue === 'media_limit_exceeded' && (
@@ -3895,10 +3948,33 @@ export default function ListWorkspace({
                 ) : (
                   <div className="mt-4 grid gap-3">
                     {billingPlans.map((plan) => {
-                      const isCurrentPlan = selectedList.billingPlanId === plan.id && selectedList.accessStatus === 'active'
+                      const chargeQuote = resolveBillingChargeQuote({
+                        targetPlanId: plan.id,
+                        currentPlanId: selectedListActiveBillingPlanId,
+                        hasActivePaidPlan: Boolean(selectedListActiveBillingPlanId),
+                        currency: billingCurrency,
+                      })
+                      const isCurrentPlan = selectedListActiveBillingPlanId === plan.id
                       const isRecommendedPlan = selectedListRequiredPlanId === plan.id
                       const isEligiblePlan = isBillingPlanEligible(plan.id, selectedListMediaUsage, { visibility })
+                      const isPlanDowngrade = Boolean(
+                        selectedListActiveBillingPlanId
+                        && isBillingPlanDowngrade(selectedListActiveBillingPlanId, plan.id)
+                      )
+                      const isUpgrade = chargeQuote.mode === 'upgrade'
                       const isPlanActionLoading = activatingPlanTarget === `${selectedList.id}:${plan.id}`
+                      const actionLabel = isCurrentPlan
+                        ? labels.extendPlanAction
+                        : isUpgrade
+                          ? labels.upgradePlanAction
+                          : labels.activatePlanAction
+                      const planHint = isPlanDowngrade
+                        ? labels.billingDowngradeNotAvailableHint
+                        : !isEligiblePlan
+                          ? labels.billingPlanTooSmallHint
+                          : isUpgrade
+                            ? labels.billingUpgradeCurrentHint
+                            : null
 
                       return (
                         <article
@@ -3918,6 +3994,11 @@ export default function ListWorkspace({
                                     {labels.billingRecommendedBadge}
                                   </span>
                                 )}
+                                {isUpgrade && (
+                                  <span className="rounded-full border border-sky-300/40 bg-sky-300/10 px-2 py-0.5 text-[11px] font-semibold text-sky-100">
+                                    {labels.billingUpgradeBadge}
+                                  </span>
+                                )}
                                 {isCurrentPlan && (
                                   <span className="rounded-full border border-white/20 px-2 py-0.5 text-[11px] font-semibold text-slate-100">
                                     {labels.billingCurrentPlanBadge}
@@ -3925,7 +4006,9 @@ export default function ListWorkspace({
                                 )}
                               </div>
 
-                              <p className="mt-2 text-lg font-bold text-white">{plan.price}</p>
+                              <p className="mt-2 text-lg font-bold text-white">
+                                {formatBillingPriceCents(chargeQuote.priceCents, billingCurrency, locale)}
+                              </p>
 
                               <ul className="mt-3 space-y-2 text-sm text-slate-200">
                                 {plan.features.map((feature) => (
@@ -3939,30 +4022,28 @@ export default function ListWorkspace({
                                 type="button"
                                 onClick={() => handleActivatePass(selectedList.id, plan.id)}
                                 disabled={
-                                  isSelectedListExpired
-                                  || isPlanActionLoading
+                                  isPlanActionLoading
                                   || Boolean(selectedListMediaUsageIssue)
                                   || !isEligiblePlan
                                   || isBillingCheckoutBlocked
+                                  || isPlanDowngrade
                                 }
                                 className={`w-full rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto lg:min-w-[11rem] ${
                                   isCurrentPlan
                                     ? 'border border-white/20 bg-white text-black'
-                                    : 'border border-emerald-300/40 text-emerald-100'
+                                    : isUpgrade
+                                      ? 'border border-sky-300/40 text-sky-100'
+                                      : 'border border-emerald-300/40 text-emerald-100'
                                 }`}
                               >
                                 {isPlanActionLoading
                                   ? labels.activatingPass
-                                  : (
-                                    isCurrentPlan
-                                      ? labels.extendPlanAction
-                                      : labels.activatePlanAction
-                                  )}
+                                  : actionLabel}
                               </button>
 
-                              {!isEligiblePlan && (
+                              {planHint && (
                                 <p className="text-xs text-amber-100 lg:max-w-[14rem] lg:text-right">
-                                  {labels.billingPlanTooSmallHint}
+                                  {planHint}
                                 </p>
                               )}
                             </div>

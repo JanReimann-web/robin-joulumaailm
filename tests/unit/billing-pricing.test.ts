@@ -1,5 +1,8 @@
 import {
   formatBillingPlanPrice,
+  getBillingUpgradePriceCents,
+  isBillingPlanDowngrade,
+  resolveBillingChargeQuote,
   resolveBillingCurrencyFromCountryCode,
 } from '@/lib/billing/pricing'
 
@@ -19,5 +22,83 @@ describe('billing pricing helpers', () => {
   it('formats billing prices with the selected currency and locale duration label', () => {
     expect(formatBillingPlanPrice('base', 'EUR', 'et')).toBe('9.95 EUR / 90 päeva')
     expect(formatBillingPlanPrice('premium', 'USD', 'en')).toBe('19.95 USD / 90 days')
+  })
+
+  it('returns configured upgrade prices for supported upgrade paths', () => {
+    expect(getBillingUpgradePriceCents('base', 'premium', 'EUR')).toBe(1295)
+    expect(getBillingUpgradePriceCents('base', 'platinum', 'USD')).toBe(2495)
+    expect(getBillingUpgradePriceCents('premium', 'platinum', 'EUR')).toBe(1295)
+  })
+
+  it('returns full price for a new plan purchase or same-plan extension', () => {
+    expect(resolveBillingChargeQuote({
+      targetPlanId: 'base',
+      currentPlanId: null,
+      hasActivePaidPlan: false,
+      currency: 'EUR',
+    })).toMatchObject({
+      mode: 'full',
+      priceCents: 995,
+      catalogPriceCents: 995,
+      upgradeFromPlanId: null,
+      resetsAccessPeriod: false,
+    })
+
+    expect(resolveBillingChargeQuote({
+      targetPlanId: 'premium',
+      currentPlanId: 'premium',
+      hasActivePaidPlan: true,
+      currency: 'USD',
+    })).toMatchObject({
+      mode: 'full',
+      priceCents: 1995,
+      catalogPriceCents: 1995,
+      upgradeFromPlanId: null,
+      resetsAccessPeriod: false,
+    })
+  })
+
+  it('returns upgrade pricing for supported active-plan upgrades', () => {
+    expect(resolveBillingChargeQuote({
+      targetPlanId: 'premium',
+      currentPlanId: 'base',
+      hasActivePaidPlan: true,
+      currency: 'EUR',
+    })).toMatchObject({
+      mode: 'upgrade',
+      priceCents: 1295,
+      catalogPriceCents: 1995,
+      upgradeFromPlanId: 'base',
+      resetsAccessPeriod: true,
+    })
+
+    expect(resolveBillingChargeQuote({
+      targetPlanId: 'platinum',
+      currentPlanId: 'base',
+      hasActivePaidPlan: true,
+      currency: 'USD',
+    })).toMatchObject({
+      mode: 'upgrade',
+      priceCents: 2495,
+      catalogPriceCents: 2995,
+      upgradeFromPlanId: 'base',
+      resetsAccessPeriod: true,
+    })
+  })
+
+  it('keeps downgrade detection separate from charge quoting', () => {
+    expect(isBillingPlanDowngrade('premium', 'base')).toBe(true)
+    expect(resolveBillingChargeQuote({
+      targetPlanId: 'base',
+      currentPlanId: 'premium',
+      hasActivePaidPlan: true,
+      currency: 'EUR',
+    })).toMatchObject({
+      mode: 'full',
+      priceCents: 995,
+      catalogPriceCents: 995,
+      upgradeFromPlanId: null,
+      resetsAccessPeriod: false,
+    })
   })
 })

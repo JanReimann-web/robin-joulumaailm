@@ -72,6 +72,13 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
             ],
           },
           {
+            question: 'What happens if I upgrade to a higher package later?',
+            answer: [
+              'Supported upgrade paths use a lower upgrade price instead of charging the full target package price again.',
+              'The current upgrade prices are Base to Premium 12.95, Base to Platinum 24.95, and Premium to Platinum 12.95 in the checkout currency. An upgrade starts a fresh 90-day access period for that list.',
+            ],
+          },
+          {
             question: 'Why do I sometimes see prices in EUR and sometimes in USD?',
             answer: [
               'Giftlist Studio currently resolves pricing currency from the visitor region. European traffic is shown EUR pricing and other regions are shown USD pricing.',
@@ -287,6 +294,13 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
             answer: [
               'Tasuline pakett aktiveerib praegu ühe nimekirja 90 päevaks.',
               'Kui tasuline ligipääsuperiood lõpeb, võivad avalik hostimine ja sellega seotud funktsioonid aeguda vastavalt töölaual kuvatud elutsükli reeglitele.',
+            ],
+          },
+          {
+            question: 'Mis juhtub siis, kui tahan hiljem kõrgemale paketile upgrade’i teha?',
+            answer: [
+              'Toetatud upgrade teed kasutavad väiksemat upgrade hinda ega küsi sihtpaketi täishinda uuesti.',
+              'Praegused upgrade hinnad on Base → Premium 12.95, Base → Platinum 24.95 ja Premium → Platinum 12.95 vastavalt checkoutis kasutatavale valuutale. Upgrade käivitab sellele nimekirjale uue 90-päevase ligipääsuperioodi.',
             ],
           },
           {

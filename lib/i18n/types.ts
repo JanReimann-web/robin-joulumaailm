@@ -103,6 +103,12 @@ export interface Dictionary {
     perListLine: string
     extensionLine: string
     retentionLine: string
+    upgradeLine: string
+    upgradeTitle: string
+    upgradeResetLine: string
+    upgradeBaseToPremium: string
+    upgradeBaseToPlatinum: string
+    upgradePremiumToPlatinum: string
     launchRegionsLine: string
     taxCollectionLine: string
     marketUnsupportedNotice: string
@@ -258,6 +264,11 @@ export interface Dictionary {
     billingVideoLengthTag: string
     billingRecommendedPlanTag: string
     billingCustomPlanRequired: string
+    billingUpgradeTitle: string
+    billingUpgradeResetNotice: string
+    billingUpgradeBaseToPremium: string
+    billingUpgradeBaseToPlatinum: string
+    billingUpgradePremiumToPlatinum: string
     billingVideoNotice: string
     billingPasswordNotice: string
     billingLaunchRegionsNotice: string
@@ -265,6 +276,9 @@ export interface Dictionary {
     billingMarketUnsupportedNotice: string
     billingMarketSanctionedNotice: string
     billingMarketUnknownNotice: string
+    billingUpgradeBadge: string
+    billingUpgradeCurrentHint: string
+    billingDowngradeNotAvailableHint: string
     billingRecommendedBadge: string
     billingCurrentPlanBadge: string
     currentPlanTag: string
@@ -302,6 +316,7 @@ export interface Dictionary {
     referralLoadFailed: string
     activatePlanAction: string
     extendPlanAction: string
+    upgradePlanAction: string
     billingPlanTooSmallHint: string
     planBaseName: string
     planBasePrice: string
@@ -317,6 +332,7 @@ export interface Dictionary {
     errorBillingMarketUnsupported: string
     errorBillingMarketSanctioned: string
     errorBillingMarketUnknown: string
+    errorPlanDowngradeNotAllowed: string
     errorMediaProcessingReasonPrefix: string
     listSelectorLabel: string
     listSettingsTitle: string

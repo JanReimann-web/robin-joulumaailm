@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { resolveBillingMarketFromHeaders } from '@/lib/billing/markets.server'
-import { formatBillingPlanPrice } from '@/lib/billing/pricing'
+import { formatBillingPlanPrice, formatBillingPriceCents } from '@/lib/billing/pricing'
 import { resolveBillingCurrencyFromHeaders } from '@/lib/billing/pricing.server'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
@@ -69,6 +69,7 @@ export default function PricingPage({ params }: PricingPageProps) {
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.perListLine}</p>
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.extensionLine}</p>
       <p className="mt-1 text-sm text-slate-400">{dict.pricing.retentionLine}</p>
+      <p className="mt-1 text-sm text-slate-300">{dict.pricing.upgradeLine}</p>
       <p className="mt-3 text-sm text-emerald-200">{dict.pricing.launchRegionsLine}</p>
       <p className="mt-1 text-sm text-slate-300">{dict.pricing.taxCollectionLine}</p>
 
@@ -77,6 +78,16 @@ export default function PricingPage({ params }: PricingPageProps) {
           {marketNotice}
         </p>
       )}
+
+      <article className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+        <h2 className="text-lg font-semibold text-white">{dict.pricing.upgradeTitle}</h2>
+        <p className="mt-2 text-sm text-slate-300">{dict.pricing.upgradeResetLine}</p>
+        <ul className="mt-3 space-y-2 text-sm text-slate-200">
+          <li>- {dict.pricing.upgradeBaseToPremium}: {formatBillingPriceCents(1295, billingCurrency, params.locale)}</li>
+          <li>- {dict.pricing.upgradeBaseToPlatinum}: {formatBillingPriceCents(2495, billingCurrency, params.locale)}</li>
+          <li>- {dict.pricing.upgradePremiumToPlatinum}: {formatBillingPriceCents(1295, billingCurrency, params.locale)}</li>
+        </ul>
+      </article>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         <article className="rounded-2xl border border-white/10 bg-white/5 p-6">
