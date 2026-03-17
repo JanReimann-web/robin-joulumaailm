@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import LeadCaptureForm from '@/components/marketing/LeadCaptureForm'
 import TrackedLink from '@/components/site/TrackedLink'
-import BrandLogo from '@/components/site/BrandLogo'
 import ShowcasePreviewCard from '@/components/showcase/ShowcasePreviewCard'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
@@ -28,9 +27,9 @@ const eventKeyOrder = [
 
 const homeMarketingCopy = {
   en: {
-    showcaseTitle: 'See the wedding example before you commit',
+    showcaseTitle: 'See the wedding experience before you commit',
     showcaseBody:
-      'The fastest way to understand the product is to open a finished wedding page and see how gifts, stories, and reservations work together.',
+      'This is more than a gift list. It brings together your story, photos, video, gift reservations, and playful guest moments on one elegant wedding page.',
     testimonialsTitle: 'What early couples care about',
     testimonials: [
       {
@@ -38,11 +37,11 @@ const homeMarketingCopy = {
         author: 'Early wedding tester',
       },
       {
-        quote: 'The reservation flow makes the page feel usable for guests, not just pretty for us.',
+        quote: 'The page felt like part wedding story, part gift guide, and part guest experience.',
         author: 'Couple in private beta',
       },
       {
-        quote: 'Wedding was the first use case, but we can already see birthdays and baby showers as the next purchases.',
+        quote: 'Wedding was the first use case, but you can already see birthdays and baby showers as the next purchases.',
         author: 'US launch interview',
       },
     ],
@@ -75,9 +74,9 @@ const homeMarketingCopy = {
     leadPrivacyLabel: 'Privacy policy',
   },
   et: {
-    showcaseTitle: 'Vaata pulmanäidist enne, kui otsustad',
+    showcaseTitle: 'Vaata pulmakogemust enne, kui otsustad',
     showcaseBody:
-      'Kõige kiirem viis tootest aru saada on avada valmis pulmaleht ja näha, kuidas kingitused, lood ja broneeringud koos töötavad.',
+      'See on rohkem kui kinginimekiri. Ühele elegantsele pulmalehele tulevad kokku teie lugu, fotod, video, kingituste broneeringud ja mängulised külaliste hetked.',
     testimonialsTitle: 'Mis on varastele paaridele oluline',
     testimonials: [
       {
@@ -85,7 +84,7 @@ const homeMarketingCopy = {
         author: 'Varajane pulmatestija',
       },
       {
-        quote: 'Broneerimisvoog teeb selle külaliste jaoks päriselt kasutatavaks, mitte lihtsalt ilusaks.',
+        quote: 'See tundus korraga pulma looleht, kingiabi ja külaliste kogemus, mitte lihtsalt nimekiri.',
         author: 'Privaatse beetaga paar',
       },
       {
@@ -207,17 +206,9 @@ export default async function HomePage({ params }: LocalePageProps) {
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:pb-12 sm:pt-14">
         <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 sm:p-8 md:p-10">
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr),30rem]">
+          <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr),30rem]">
             <div>
-              <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <BrandLogo
-                  href={`/${locale}`}
-                  tone="header"
-                  size="lg"
-                  showTagline
-                  className="max-w-full"
-                />
-
+              <div className="mb-5">
                 <p className="inline-flex rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
                   {dict.hero.badge}
                 </p>
@@ -271,7 +262,7 @@ export default async function HomePage({ params }: LocalePageProps) {
             </div>
 
             {weddingShowcaseEntry && (
-              <div className="space-y-4">
+              <div className="space-y-4 self-start">
                 <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5">
                   <h2 className="text-xl font-semibold text-white">{copy.showcaseTitle}</h2>
                   <p className="mt-3 text-sm leading-7 text-slate-300">{copy.showcaseBody}</p>
@@ -284,7 +275,6 @@ export default async function HomePage({ params }: LocalePageProps) {
                   eventLabel={dict.events.wedding}
                   eventType="wedding"
                   entry={weddingShowcaseEntry}
-                  className="h-full"
                 />
               </div>
             )}

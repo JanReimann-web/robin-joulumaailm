@@ -91,7 +91,7 @@ export default function WeddingIntentLanding({
                 }}
                 className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-semibold text-black hover:bg-emerald-300 sm:text-left"
               >
-                {locale === 'et' ? 'Vaata päris pulmanäidist' : 'See live wedding example'}
+                {locale === 'et' ? 'Vaata päris pulmalehte' : 'See live wedding page'}
               </TrackedLink>
               <TrackedLink
                 href={`/${locale}/login`}

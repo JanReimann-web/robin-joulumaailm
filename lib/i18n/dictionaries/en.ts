@@ -15,35 +15,35 @@ export const enDictionary: Dictionary = {
     estonian: 'Estonian',
   },
   hero: {
-    badge: 'Wedding-first gift list pages for modern couples',
-    title: 'Create a beautiful wedding gift list that prevents duplicate gifts',
+    badge: 'Wedding-first story and gift pages for modern couples',
+    title: 'Create a wedding page that tells your story and guides gifts beautifully',
     subtitle:
-      'Share one elegant wedding gift page, let guests reserve gifts before they buy, and keep everything clear with private or password-protected sharing.',
+      'Bring together photos, videos, your story, gift ideas, and playful guest moments on one elegant page. Guests can reserve gifts before they buy, so the experience stays magical and organized.',
     seoTitle:
-      'Wedding Gift List and Registry Alternative | Giftlist Studio',
+      'Wedding Page and Gift List Alternative | Giftlist Studio',
     seoDescription:
-      'Create a beautiful wedding gift list with guest reservations, password protection, QR sharing, and event-ready designs. A registry alternative for couples who want one elegant page guests can actually use.',
-    primaryCta: 'See live wedding example',
+      'Create a beautiful wedding page with your story, photos, videos, gift reservations, password protection, and QR sharing. A registry alternative couples can actually make their own.',
+    primaryCta: 'See live wedding page',
     secondaryCta: 'Start free trial',
     proofPoints: [
-      'Wedding-first experience with a live example page',
+      'Photos, videos, story sections, and a live example page',
       'Reservation flow prevents duplicate gifts before guests buy',
-      'Password protection, QR sharing, and event-ready designs',
+      'Password protection, QR sharing, and guest-friendly design',
     ],
   },
   highlights: {
-    title: 'Why couples use Giftlist Studio',
+    title: 'Why couples choose Giftlist Studio as more than a gift list',
     subtitle:
-      'Everything you need to share one wedding gift page, collect gift wishes, and keep guest reservations clear from engagement to event day.',
-    templateTitle: 'Wedding-first design',
+      'The experience works as a wedding story page, a guest experience, and a registry alternative in one place.',
+    templateTitle: 'Storytelling wedding page',
     templateBody:
-      'Start with a polished wedding page, then keep birthdays, baby showers, graduations, housewarmings, and Christmas as extra proof that the platform stays flexible.',
-    reserveTitle: 'Duplicate-proof reservations',
+      'Share photos, video, event details, and your couple story on one polished page guests will actually enjoy browsing.',
+    reserveTitle: 'Duplicate-proof gift reservations',
     reserveBody:
       'Guests reserve gifts before they buy, and reservation actions are transaction-protected so two guests cannot accidentally choose the same item.',
-    trialTitle: 'Free setup, one-time activation later',
+    trialTitle: 'Playful guest experience',
     trialBody:
-      'Build the full experience during the free trial, then activate a 90-day event hosting pass only when you are ready to publish.',
+      'Add a question wheel and interactive touches so the page feels memorable, not transactional.',
   },
   events: {
     title: 'Gift list templates by event type',
@@ -60,11 +60,11 @@ export const enDictionary: Dictionary = {
   home: {
     processTitle: 'How Giftlist Studio works',
     processSubtitle:
-      'Build one wedding gift page, share it once, and let guests see what is still available before they buy.',
+      'Build one wedding experience page, share it once, and let guests explore your story while seeing what is still available before they buy.',
     processSteps: [
       {
         title: 'Create your event gift list',
-        body: 'Choose the event type, design, and visibility, then add gifts, photos, stories, and optional event details.',
+        body: 'Choose the event type, design, and visibility, then add gifts, photos, videos, story content, and optional event details.',
       },
       {
         title: 'Share one link or QR code',
@@ -72,7 +72,7 @@ export const enDictionary: Dictionary = {
       },
       {
         title: 'Track reservations without duplicate gifts',
-        body: 'Guests reserve items before purchasing, and the host sees who reserved what together with an optional message.',
+        body: 'Guests reserve items before purchasing, and the host sees who reserved what while visitors can also enjoy the story and interactive extras.',
       },
     ],
     faqTitle: 'Frequently asked questions about online gift lists',
@@ -124,9 +124,9 @@ export const enDictionary: Dictionary = {
       seoTitle: 'Wedding Gift List | Private Wedding Registry Alternative',
       seoDescription:
         'Create a beautiful wedding gift list and registry alternative with password protection, reservation tracking, and no duplicate gifts.',
-      headline: 'A beautiful wedding gift list guests will actually use',
+      headline: 'A beautiful wedding page guests will actually use',
       intro:
-        'Giftlist Studio gives couples one elegant wedding gift page with registry-style reservations, private sharing options, and no duplicate presents.',
+        'Giftlist Studio gives couples one elegant wedding page for photos, videos, story content, registry-style reservations, and playful guest interaction without duplicate presents.',
       samples: [
         'Dinnerware set',
         'Linen and home textiles',

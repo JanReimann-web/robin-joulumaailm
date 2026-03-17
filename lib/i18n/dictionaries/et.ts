@@ -15,34 +15,34 @@ export const etDictionary: Dictionary = {
     estonian: 'Eesti',
   },
   hero: {
-    badge: 'Pulmadele suunatud kinginimekirja lehed kaasaegsetele paaridele',
-    title: 'Loo ilus pulmade kinginimekiri, mis hoiab topeltkingid ära',
+    badge: 'Pulmadele suunatud loo- ja kingilehed kaasaegsetele paaridele',
+    title: 'Loo pulmaleht, mis räägib teie loo ja juhatab kingitusteni kaunilt',
     subtitle:
-      'Jaga ühte elegantset pulmade kingilehte, lase külalistel kingitusi enne ostu broneerida ning hoia kõik selge privaatse või parooliga kaitstud jagamisega.',
+      'Too ühele elegantsele lehele kokku fotod, videod, teie lugu, kingiideed ja mängulised külaliste hetked. Külalised saavad kingitusi enne ostu broneerida, nii et kogemus jääb maagiline ja korras.',
     seoTitle:
-      'Pulmade kinginimekiri ja registri alternatiiv | Giftlist Studio',
+      'Pulmaleht ja kinginimekirja alternatiiv | Giftlist Studio',
     seoDescription:
-      'Loo ilus pulmade kinginimekiri külaliste broneeringute, paroolikaitse, QR-jagamise ja sündmuseks valmis kujundustega. Registri alternatiiv paaridele, kes tahavad ühte elegantset lehte, mida külalised päriselt kasutavad.',
-    primaryCta: 'Vaata päris pulmanäidist',
+      'Loo ilus pulmaleht oma loo, fotode, videote, kingituste broneeringute, paroolikaitse ja QR-jagamisega. Registri alternatiiv, mille paar saab päriselt enda nägu teha.',
+    primaryCta: 'Vaata päris pulmalehte',
     secondaryCta: 'Alusta tasuta katseaega',
     proofPoints: [
-      'Pulmadele suunatud kogemus koos päris näidislehega',
+      'Fotod, videod, loo sektsioonid ja päris näidisleht',
       'Broneerimisvoog hoiab topeltkingid ära enne, kui külalised ostavad',
-      'Paroolikaitse, QR-jagamine ja sündmuseks valmis kujundused',
+      'Paroolikaitse, QR-jagamine ja külalistele mugav disain',
     ],
   },
   highlights: {
-    title: 'Miks paarid kasutavad Giftlist Studiot',
+    title: 'Miks paarid valivad Giftlist Studio millegi enamana kui kinginimekiri',
     subtitle:
-      'Kõik vajalik selleks, et jagada ühte pulmade kingilehte, koguda soovid kokku ja hoida külaliste broneeringud kihlusest pulmapäevani selgena.',
-    templateTitle: 'Pulmadele suunatud disain',
-    templateBody: 'Alusta viimistletud pulmalehest ning kasuta sünnipäevi, baby shower’eid, lõpetamisi, soolaleiba ja jõule tõendina, et platvorm töötab edasi ka järgmisteks sündmusteks.',
-    reserveTitle: 'Topeltkingitusi vältiv broneerimine',
+      'See töötab korraga pulma loolehe, külaliste kogemuse ja registri alternatiivina.',
+    templateTitle: 'Loojutustav pulmaleht',
+    templateBody: 'Jaga fotosid, videot, sündmuse detaile ja teie lugu ühel viimistletud lehel, mida külalised päriselt tahavad vaadata.',
+    reserveTitle: 'Topeltkingitusi vältiv kingibroneerimine',
     reserveBody:
       'Külalised broneerivad kingituse enne ostu ning broneering on transaktsiooniga kaitstud, et sama ese ei satuks kogemata kahele inimesele.',
-    trialTitle: 'Tasuta ettevalmistus, hiljem ühekordne aktiveerimine',
+    trialTitle: 'Mänguline külaliste kogemus',
     trialBody:
-      'Ehita kogu kogemus tasuta katseajal valmis ja aktiveeri 90-päevane sündmusepass alles siis, kui oled avalikustamiseks valmis.',
+      'Lisa tarkuseratas ja interaktiivsed puudutused, et leht tunduks meeldejääv, mitte lihtsalt tehniline.',
   },
   events: {
     title: 'Kinginimekirja mallid sündmuse järgi',
@@ -59,11 +59,11 @@ export const etDictionary: Dictionary = {
   home: {
     processTitle: 'Kuidas Giftlist Studio töötab',
     processSubtitle:
-      'Ehita üks pulmade kingileht, jaga seda ühe korra ja lase külalistel enne ostu näha, mis on veel saadaval.',
+      'Ehita üks pulmakogemuse leht, jaga seda ühe korra ja lase külalistel teie lugu avastada ning enne ostu näha, mis on veel saadaval.',
     processSteps: [
       {
         title: 'Koosta oma sündmuse kinginimekiri',
-        body: 'Vali sündmuse tüüp, kujundus ja nähtavus ning lisa kingitused, pildid, loohetked ja soovi korral sündmuse detailid.',
+        body: 'Vali sündmuse tüüp, kujundus ja nähtavus ning lisa kingitused, pildid, videod, loohetked ja soovi korral sündmuse detailid.',
       },
       {
         title: 'Jaga ühte linki või QR-koodi',
@@ -71,7 +71,7 @@ export const etDictionary: Dictionary = {
       },
       {
         title: 'Jälgi broneeringuid ilma topeltkingitusteta',
-        body: 'Külalised broneerivad kingitused enne ostu ja nimekirja looja näeb, kes mida valis ning millise sõnumi kaasa jättis.',
+        body: 'Külalised broneerivad kingitused enne ostu ja lehe looja näeb, kes mida valis, samal ajal kui külastajad saavad kogeda ka loo- ja mängulist sisu.',
       },
     ],
     faqTitle: 'Korduma kippuvad küsimused veebipõhise kinginimekirja kohta',
@@ -123,9 +123,9 @@ export const etDictionary: Dictionary = {
       seoTitle: 'Pulmade kinginimekiri | Privaatse pulmaregistri alternatiiv',
       seoDescription:
         'Loo ilus pulmade kinginimekiri ja pulmaregistri alternatiiv paroolikaitse, broneeringute jälgimise ja topeltkingituste vältimisega.',
-      headline: 'Ilus pulmade kinginimekiri, mida külalised päriselt kasutavad',
+      headline: 'Ilus pulmaleht, mida külalised päriselt kasutavad',
       intro:
-        'Giftlist Studio annab paaridele ühe elegantse pulmade kingilehe koos registri-stiilis broneerimise, privaatsete jagamisvalikute ja topeltkingitusteta.',
+        'Giftlist Studio annab paaridele ühe elegantse pulmalehe fotode, videote, loo sisu, registri-stiilis broneerimise ja mängulise külaliskogemusega ilma topeltkingitusteta.',
       samples: [
         'Lauanõude komplekt',
         'Voodipesu ja kodutekstiilid',

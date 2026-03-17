@@ -120,7 +120,7 @@ export default async function EventTypePage({ params }: EventPageProps) {
     ? `/l/${showcaseEntry.slug}?template=${showcaseEntry.templateId}&demo=event-page`
     : `/${locale}/login`
   const primaryActionLabel = isWeddingPage && showcaseEntry
-    ? (locale === 'et' ? 'Vaata päris pulmanäidist' : 'See live wedding example')
+    ? (locale === 'et' ? 'Vaata päris pulmalehte' : 'See live wedding page')
     : dict.eventPages.ctaPrimary
   const secondaryActionHref = isWeddingPage
     ? `/${locale}/login`
