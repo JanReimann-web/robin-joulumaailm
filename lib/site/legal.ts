@@ -5,7 +5,7 @@ export const COMPANY_NAME = 'Robinio Invest OÜ'
 export const COMPANY_ADDRESS = 'Vesivärava 22-4, Tallinn, Estonia'
 export const COOKIE_SETTINGS_EVENT = 'giftlist:open-cookie-settings'
 export const COOKIE_CONSENT_COOKIE_NAME = 'giftlist_consent'
-export const COOKIE_CONSENT_VERSION = 1
+export const COOKIE_CONSENT_VERSION = 2
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
 
 type TrackedAnalyticsPageDefinition = {
@@ -143,8 +143,8 @@ export const LEGAL_COPY: Record<Locale, {
       necessaryTitle: 'Necessary',
       necessaryBody: 'Required for sign-in persistence, password-protected public lists, consent storage, and sample reservation resets.',
       analyticsTitle: 'Analytics',
-      analyticsBody: 'Google Analytics 4 can be used only after your consent and only on the homepage, pricing, gallery, and dashboard pages.',
-      analyticsHint: 'Public gift list pages are excluded from analytics page tracking to avoid collecting personal page details.',
+      analyticsBody: 'Google Analytics 4 can be used only after your consent and only on selected marketing, login, and dashboard pages.',
+      analyticsHint: 'Public gift list pages under /l/[slug] are excluded, and Giftlist Studio is configured not to intentionally send list slugs or other user-entered personal data to analytics.',
       cancelAction: 'Cancel',
       saveAction: 'Save settings',
       policyAction: 'Read cookie policy',
@@ -182,8 +182,8 @@ export const LEGAL_COPY: Record<Locale, {
       necessaryTitle: 'Hädavajalik',
       necessaryBody: 'Vajalik sisselogimise püsimiseks, parooliga avalike nimekirjade jaoks, küpsiste valiku salvestamiseks ja näidisbroneeringute automaatseks lähtestamiseks.',
       analyticsTitle: 'Analüütika',
-      analyticsBody: 'Google Analytics 4 võib töötada ainult sinu nõusoleku järel ja ainult avalehel, hinnastuse, galerii ja töölaua lehtedel.',
-      analyticsHint: 'Avalikke kinginimekirja lehti analüütikaga ei mõõdeta, et vältida isikustatud leheandmete kogumist.',
+      analyticsBody: 'Google Analytics 4 võib töötada ainult sinu nõusoleku järel ja ainult valitud turundus-, sisselogimis- ja töölaua lehtedel.',
+      analyticsHint: 'Avalikke kinginimekirja lehti aadressi all /l/[slug] ei mõõdeta ning analüütikasse ei saadeta teadlikult slug-e ega muud kasutaja sisestatud isikuinfot.',
       cancelAction: 'Tühista',
       saveAction: 'Salvesta seaded',
       policyAction: 'Vaata küpsiste tingimusi',

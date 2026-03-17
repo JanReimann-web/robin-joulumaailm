@@ -24,7 +24,7 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
 }> = repairLegalContent({
   en: {
     updatedLabel: 'Last updated',
-    updatedValue: 'March 16, 2026',
+    updatedValue: 'March 17, 2026',
     sectionJumpLabel: 'Jump to a topic',
     sections: [
       {
@@ -227,7 +227,7 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
             question: 'Do you track public gift list pages with Google Analytics?',
             answer: [
               'No. Public gift list pages are intentionally excluded from analytics page tracking.',
-              'If analytics is enabled in the future, it only runs after consent and only on selected marketing and dashboard pages.',
+              'Analytics runs only after consent and only on selected marketing, login, wedding landing, and dashboard pages.',
             ],
           },
           {
@@ -249,7 +249,7 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
   },
   et: {
     updatedLabel: 'Viimati uuendatud',
-    updatedValue: '16. märts 2026',
+    updatedValue: '17. märts 2026',
     sectionJumpLabel: 'Liigu teema juurde',
     sections: [
       {
@@ -452,7 +452,7 @@ const FAQ_PAGE_CONTENT: Record<Locale, {
             question: 'Kas avalikke kinginimekirja lehti mõõdetakse Google Analyticsiga?',
             answer: [
               'Ei. Avalikud kinginimekirja lehed on teadlikult analüütika lehevaadete jälgimisest välja jäetud.',
-              'Kui analüütika on tulevikus aktiveeritud, töötab see ainult nõusoleku alusel ja ainult valitud turundus- ning töölaua lehtedel.',
+              'Analüütika töötab ainult nõusoleku alusel ja ainult valitud turundus-, sisselogimis-, pulma-landing- ning töölaua lehtedel.',
             ],
           },
           {

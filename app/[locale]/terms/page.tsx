@@ -18,7 +18,7 @@ const TERMS_PAGE_CONTENT: Record<Locale, {
 }> = repairLegalContent({
   en: {
     updatedLabel: 'Last updated',
-    updatedValue: 'March 16, 2026',
+    updatedValue: 'March 17, 2026',
     summaryTitle: 'What these terms cover',
     summaryBody: 'These terms apply to the hosted Giftlist Studio service, including user accounts, dashboard tools, public list pages, media uploads, referrals, gallery examples, and package checkout or activation flows.',
     sections: [
@@ -155,7 +155,7 @@ const TERMS_PAGE_CONTENT: Record<Locale, {
   },
   et: {
     updatedLabel: 'Viimati uuendatud',
-    updatedValue: '16. märts 2026',
+    updatedValue: '17. märts 2026',
     summaryTitle: 'Mida need tingimused katavad',
     summaryBody: 'Need tingimused kehtivad Giftlist Studio hostitud teenusele, sealhulgas kasutajakontodele, töölaua tööriistadele, avalikele nimekirjadele, meedia üleslaadimisele, referral loogikale, galerii näidetele ning pakettide checkouti ja aktiveerimise voogudele.',
     sections: [

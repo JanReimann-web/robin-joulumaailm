@@ -18,16 +18,16 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
 }> = repairLegalContent({
   en: {
     updatedLabel: 'Last updated',
-    updatedValue: 'March 16, 2026',
+    updatedValue: 'March 17, 2026',
     summaryTitle: 'Quick summary',
-    summaryBody: 'Giftlist Studio processes account data, gift list content, reservation details, media metadata, billing metadata, and consent settings to operate the service. Public gift list pages are intentionally excluded from analytics page tracking.',
+    summaryBody: 'Giftlist Studio processes account data, gift list content, reservation details, media metadata, billing metadata, launch update sign-up data, and consent settings to operate the service. Public gift list pages are intentionally excluded from analytics page tracking.',
     sections: [
       {
         title: '1. Data controller and scope',
         paragraphs: [
           `${COMPANY_NAME} is the data controller for the Giftlist Studio website, dashboard, gallery, pricing page, login flows, and hosted public gift list pages.`,
           `Registered address: ${COMPANY_ADDRESS}.`,
-          'This policy applies to data processed when you create an account, build or share a list, upload media, collect reservations, browse the marketing site, or interact with a public list as a guest.',
+          'This policy applies to data processed when you create an account, build or share a list, upload media, collect reservations, browse the marketing site, join a launch update list, or interact with a public list as a guest.',
         ],
       },
       {
@@ -38,6 +38,7 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
           'Hosted media metadata such as storage path, file type, file size, and video duration. Images may be optimized and videos may be processed to MP4 for supported plans.',
           'Reservation data entered by guests, including the guest name, optional message, whether the guest allowed public name display, reservation timestamp, and the reserved item.',
           'Billing and referral data such as selected package, currency, amount, checkout session identifiers, payment references, referral codes, referral reward balances, and access period timestamps.',
+          'Marketing lead data such as email address, locale, signup source, and submission timestamps when a visitor requests launch, pricing, or product updates.',
           'Technical and security data such as sign-in persistence, password-protected list access cookies, consent preferences, server logs, and abuse-prevention or troubleshooting metadata.',
           'Limited analytics data on selected pages only if the visitor has granted analytics consent.',
         ],
@@ -60,8 +61,9 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
           'To process gift reservations, prevent duplicate reservations, and show reservation status to guests and hosts.',
           'To activate paid or complimentary access periods, calculate package eligibility, and manage package lifecycle events such as trial end and purge scheduling.',
           'To process referral discounts and reward credits.',
+          'To collect and manage launch, pricing, and product update signups submitted through lead capture forms.',
           'To keep the service secure, detect misuse, enforce technical limits, and troubleshoot failures.',
-          'To measure the homepage, pricing, gallery, and dashboard pages if analytics consent has been granted.',
+          'To measure selected marketing, login, wedding landing, and dashboard pages if analytics consent has been granted.',
         ],
       },
       {
@@ -99,6 +101,7 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
           'Gift list content is retained while the list is active, during the applicable trial or paid access period, and until the host deletes the list or the service lifecycle removes hosted list content after the configured access period ends.',
           'Deleting a list from the dashboard is designed to remove the list document, hosted list media, stories, wheel entries, reservation records, password secret, and public slug claim associated with that list.',
           'Billing, fraud-prevention, and accounting metadata may be retained longer where necessary for legitimate business or legal reasons.',
+          'Marketing lead sign-up records are kept until the recipient unsubscribes, asks for deletion, or the launch update list is no longer needed.',
           'Cookie preferences are stored for 180 days unless cleared earlier. Demo reservation session storage is temporary and tied to the visitor’s current browser session.',
         ],
       },
@@ -116,6 +119,7 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
         points: [
           'You can accept only necessary storage and keep analytics disabled.',
           'You can reopen Cookie settings from the footer at any time and update your analytics preference.',
+          'If you joined a launch update form, you can ask us to remove your email from that list.',
           'Hosts can edit or delete their lists from the dashboard.',
           'Subject to applicable law, you may have rights to access, correct, erase, restrict, or object to the processing of your personal data and to lodge a complaint with the competent supervisory authority.',
           `For privacy-related follow-up, contact ${COMPANY_NAME} using the company details shown on this page.`,
@@ -131,16 +135,16 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
   },
   et: {
     updatedLabel: 'Viimati uuendatud',
-    updatedValue: '16. märts 2026',
+    updatedValue: '17. märts 2026',
     summaryTitle: 'Lühikokkuvõte',
-    summaryBody: 'Giftlist Studio töötleb kontoandmeid, kinginimekirja sisu, broneeringu detaile, meedia metaandmeid, arvelduse metaandmeid ja küpsiste valikuid selleks, et teenus töötaks. Avalikke kinginimekirja lehti analüütikaga ei mõõdeta.',
+    summaryBody: 'Giftlist Studio töötleb kontoandmeid, kinginimekirja sisu, broneeringu detaile, meedia metaandmeid, arvelduse metaandmeid, launch-uudiste liitumisandmeid ja küpsiste valikuid selleks, et teenus töötaks. Avalikke kinginimekirja lehti analüütikaga ei mõõdeta.',
     sections: [
       {
         title: '1. Andmetöötleja ja ulatus',
         paragraphs: [
           `${COMPANY_NAME} on Giftlist Studio veebilehe, töölaua, galerii, hinnastuse, sisselogimise ja hostitud avalike kinginimekirjade andmetöötleja.`,
           `Registreeritud aadress: ${COMPANY_ADDRESS}.`,
-          'See poliitika kehtib andmetele, mida töödeldakse konto loomisel, nimekirja koostamisel või jagamisel, meedia üleslaadimisel, broneeringute kogumisel, turunduslehtede külastamisel või avaliku nimekirja kasutamisel külalisena.',
+          'See poliitika kehtib andmetele, mida töödeldakse konto loomisel, nimekirja koostamisel või jagamisel, meedia üleslaadimisel, broneeringute kogumisel, turunduslehtede külastamisel, launch-uudiste nimekirjaga liitumisel või avaliku nimekirja kasutamisel külalisena.',
         ],
       },
       {
@@ -151,6 +155,7 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
           'Hostitud meedia metaandmed, näiteks failitee, failitüüp, faili suurus ja video kestus. Pilte võidakse optimeerida ja videoid võidakse toetatud pakettides töödelda MP4 formaati.',
           'Külaliste sisestatud broneeringuandmed, sealhulgas nimi, valikuline sõnum, valik kas nimi võib olla avalikult nähtav, broneeringu aeg ja valitud kingitus.',
           'Arvelduse ja referral andmed, näiteks valitud pakett, valuuta, summa, checkouti identifikaatorid, makseviited, referral koodid, reward-saldo ja ligipääsuperioodi ajatemplid.',
+          'Turundusliku lead capture’i andmed, näiteks e-posti aadress, locale, liitumise lähteleht ja saatmise ajatemplid siis, kui külastaja küsib launchi, hinnastuse või tooteuuendusi.',
           'Tehnilised ja turvaandmed, näiteks sisselogimise püsimine, parooliga nimekirja ligipääsu-küpsis, küpsiste valik, serverilogid ning kuritarvituse tõkestamise või veaotsingu metaandmed.',
           'Piiratud analüütikaandmed ainult valitud lehtedel ja ainult siis, kui külastaja on andnud analüütika nõusoleku.',
         ],
@@ -173,8 +178,9 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
           'Kingituste broneeringute töötlemiseks, topeltbroneeringute vältimiseks ja õige staatuse kuvamiseks nii külalistele kui nimekirja loojale.',
           'Tasulise või tasuta piiramatu ligipääsu aktiveerimiseks, paketi sobivuse arvutamiseks ja teenuse elutsükli sündmuste, näiteks triali lõpu ja purge ajastuse haldamiseks.',
           'Referral soodustuste ja reward credit’ite töötlemiseks.',
+          'Launchi, hinnastuse ja tooteuuenduste liitumiste kogumiseks ning haldamiseks lead capture vormide kaudu.',
           'Teenuse turvalisuse hoidmiseks, väärkasutuse tuvastamiseks, tehniliste piirangute jõustamiseks ja vigade lahendamiseks.',
-          'Avalehe, hinnastuse, galerii ja töölaua lehtede mõõtmiseks siis, kui analüütika nõusolek on antud.',
+          'Valitud turundus-, sisselogimis-, pulma-landing- ja töölaua lehtede mõõtmiseks siis, kui analüütika nõusolek on antud.',
         ],
       },
       {
@@ -212,6 +218,7 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
           'Kinginimekirja sisu säilitatakse nimekirja aktiivsuse ajal, kohaldatava triali või tasulise ligipääsu perioodi jooksul ning kuni nimekirja looja selle kustutab või teenuse elutsükkel eemaldab hostitud nimekirja sisu pärast seadistatud ligipääsuperioodi lõppu.',
           'Nimekirja kustutamine töölaualt on mõeldud eemaldama nimekirja dokumendi, hostitud nimekirja meedia, lood, ratta küsimused, broneeringud, paroolisaladuse ja avaliku slug-viite.',
           'Arvelduse, pettuse ennetuse ja raamatupidamise metaandmeid võidakse säilitada kauem, kui see on vajalik õigustatud ärihuvi või seadusest tuleneva kohustuse täitmiseks.',
+          'Launch-uudiste liitumisandmeid säilitatakse kuni inimene loobub neist, palub kustutamist või kuni launch-uudiste nimekirja pole enam vaja.',
           'Küpsiste valikut säilitatakse 180 päeva, kui seda varem ei kustutata. Näidisbroneeringute sessionStorage on ajutine ja seotud külastaja praeguse brauseri sessiooniga.',
         ],
       },
@@ -229,6 +236,7 @@ const PRIVACY_PAGE_CONTENT: Record<Locale, {
         points: [
           'Saad lubada ainult hädavajaliku salvestuse ja hoida analüütika välja lülitatuna.',
           'Saad footerist igal ajal avada Küpsiste seaded ja muuta oma analüütika valikut.',
+          'Kui liitusid launch-uudiste vormiga, saad paluda oma e-posti sealt eemaldada.',
           'Nimekirja looja saab töölaual oma nimekirju muuta või kustutada.',
           'Kohaldatava õiguse järgi võivad sul olla õigus küsida ligipääsu oma andmetele, nende parandamist, kustutamist, töötlemise piiramist või töötlemisele vastuväite esitamist ning esitada kaebus pädevale järelevalveasutusele.',
           `Privaatsusega seotud järelpäringute jaoks võta ühendust ${COMPANY_NAME}-ga sellel lehel toodud ettevõtte andmete kaudu.`,

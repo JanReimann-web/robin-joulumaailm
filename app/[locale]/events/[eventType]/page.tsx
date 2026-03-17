@@ -156,7 +156,6 @@ export default async function EventTypePage({ params }: EventPageProps) {
               locale,
               placement: `${mappedEventType}_hero`,
               event_type: mappedEventType,
-              slug: showcaseEntry?.slug,
             }}
             className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-semibold text-black hover:bg-emerald-300 sm:text-left"
           >

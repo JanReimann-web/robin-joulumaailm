@@ -223,60 +223,6 @@ const withErrorDiagnostics = (
   return segments.join(' ')
 }
 
-const PENDING_CHECKOUT_STORAGE_KEY = 'giftlist:pending-checkout'
-
-type PendingCheckoutTracking = {
-  listId: string
-  planId: BillingPlanId
-  referralCode: string | null
-}
-
-const readPendingCheckoutTracking = (): PendingCheckoutTracking | null => {
-  if (typeof window === 'undefined') {
-    return null
-  }
-
-  try {
-    const rawValue = window.sessionStorage.getItem(PENDING_CHECKOUT_STORAGE_KEY)
-    if (!rawValue) {
-      return null
-    }
-
-    const parsed = JSON.parse(rawValue) as Partial<PendingCheckoutTracking>
-    if (
-      typeof parsed.listId !== 'string'
-      || typeof parsed.planId !== 'string'
-      || !['base', 'premium', 'platinum'].includes(parsed.planId)
-    ) {
-      return null
-    }
-
-    return {
-      listId: parsed.listId,
-      planId: parsed.planId,
-      referralCode: typeof parsed.referralCode === 'string' ? parsed.referralCode : null,
-    }
-  } catch {
-    return null
-  }
-}
-
-const writePendingCheckoutTracking = (value: PendingCheckoutTracking) => {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  window.sessionStorage.setItem(PENDING_CHECKOUT_STORAGE_KEY, JSON.stringify(value))
-}
-
-const clearPendingCheckoutTracking = () => {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  window.sessionStorage.removeItem(PENDING_CHECKOUT_STORAGE_KEY)
-}
-
 const interpolateLabel = (
   template: string,
   replacements: Record<string, string | number>
@@ -654,8 +600,6 @@ export default function ListWorkspace({
     }
 
     if (billingStatus === 'success') {
-      const pendingCheckout = readPendingCheckoutTracking()
-
       setListError(null)
       setListSuccess(null)
       setBillingFeedback({
@@ -666,20 +610,8 @@ export default function ListWorkspace({
 
       trackAnalyticsEvent('purchase', {
         locale,
-        list_id: billingListId,
-        plan_id: pendingCheckout?.planId,
         purchase_mode: 'stripe',
       })
-
-      if (pendingCheckout?.referralCode) {
-        trackAnalyticsEvent('referral_redeemed', {
-          locale,
-          list_id: billingListId,
-          code: pendingCheckout.referralCode,
-        })
-      }
-
-      clearPendingCheckoutTracking()
     } else {
       setListSuccess(null)
       setListError(null)
@@ -688,8 +620,6 @@ export default function ListWorkspace({
         message: labels.billingCancelReturn,
         listId: billingListId,
       })
-
-      clearPendingCheckoutTracking()
     }
 
     setHasHandledBillingReturn(true)
@@ -1689,7 +1619,6 @@ export default function ListWorkspace({
       setListSuccess(`${labels.listCreated} ${buildPublicListUrl(result.slug)}`)
       trackAnalyticsEvent('create_list', {
         locale,
-        list_id: result.listId,
         event_type: 'birthday',
       })
       setTitle('')
@@ -1839,7 +1768,6 @@ export default function ListWorkspace({
       setCopiedListId(list.id)
       trackAnalyticsEvent('copy_link', {
         locale,
-        list_id: list.id,
         event_type: list.eventType,
       })
       window.setTimeout(() => {
@@ -2126,7 +2054,6 @@ export default function ListWorkspace({
       const idToken = await user.getIdToken()
       trackAnalyticsEvent('begin_checkout', {
         locale,
-        list_id: listId,
         plan_id: planId,
         has_referral: Boolean(appliedReferralCode?.code),
       })
@@ -2139,11 +2066,6 @@ export default function ListWorkspace({
       })
 
       if (result.mode === 'stripe') {
-        writePendingCheckoutTracking({
-          listId,
-          planId,
-          referralCode: appliedReferralCode?.code ?? null,
-        })
         setBillingFeedback({
           type: 'success',
           message: labels.redirectingToCheckout,
@@ -2160,7 +2082,6 @@ export default function ListWorkspace({
       })
       trackAnalyticsEvent('purchase', {
         locale,
-        list_id: listId,
         plan_id: planId,
         purchase_mode: 'manual',
       })
@@ -2168,8 +2089,8 @@ export default function ListWorkspace({
       if (appliedReferralCode?.code) {
         trackAnalyticsEvent('referral_redeemed', {
           locale,
-          list_id: listId,
-          code: appliedReferralCode.code,
+          plan_id: planId,
+          purchase_mode: 'manual',
         })
       }
 

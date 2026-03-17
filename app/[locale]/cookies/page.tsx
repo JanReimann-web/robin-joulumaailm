@@ -21,7 +21,7 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
   en: {
     introPoints: [
       'Giftlist Studio uses a small set of necessary cookies and browser storage technologies to keep the service secure and usable.',
-      'Analytics is optional, consent-based, and limited to selected non-public pages.',
+      'Analytics is optional, consent-based, and limited to selected marketing, login, and dashboard pages.',
     ],
     necessaryTitle: 'Necessary storage used on the site',
     necessaryItems: [
@@ -48,9 +48,9 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
     ],
     analyticsTitle: 'Optional analytics',
     analyticsBody: [
-      'If analytics consent is granted, Google Analytics 4 may be used on the homepage, pricing page, gallery page, and dashboard page.',
+      'If analytics consent is granted, Google Analytics 4 may be used on selected marketing, login, wedding landing, and dashboard pages.',
       'Public gift list pages under /l/[slug] are excluded from analytics page tracking.',
-      'Giftlist Studio is configured not to intentionally send list slugs, list titles, guest names, gift messages, email addresses, or other user-entered personal data to Google Analytics.',
+      'Giftlist Studio is configured not to intentionally send list slugs, list titles, guest names, gift messages, email addresses, referral codes, or other user-entered personal data to Google Analytics.',
     ],
     manageTitle: 'How to manage your choice',
     manageBody: [
@@ -61,7 +61,7 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
   et: {
     introPoints: [
       'Giftlist Studio kasutab väikest hulka hädavajalikke küpsiseid ja brauserisalvestust, et teenus püsiks turvaline ja kasutatav.',
-      'Analüütika on valikuline, nõusolekupõhine ja piiratud valitud mitteavalike lehtedega.',
+      'Analüütika on valikuline, nõusolekupõhine ja piiratud valitud turundus-, sisselogimis- ja töölaua lehtedega.',
     ],
     necessaryTitle: 'Lehel kasutatav hädavajalik salvestus',
     necessaryItems: [
@@ -88,9 +88,9 @@ const COOKIE_PAGE_CONTENT: Record<Locale, {
     ],
     analyticsTitle: 'Valikuline analüütika',
     analyticsBody: [
-      'Kui analüütika nõusolek on antud, võib Google Analytics 4 töötada avalehel, hinnastuse, galerii ja töölaua lehel.',
+      'Kui analüütika nõusolek on antud, võib Google Analytics 4 töötada valitud turundus-, sisselogimis-, pulma-landing- ja töölaua lehtedel.',
       'Avalikud kinginimekirja lehed aadressi all /l/[slug] on analüütika lehevaadete mõõtmisest välja jäetud.',
-      'Giftlist Studio on seadistatud nii, et Google Analyticsisse ei saadeta teadlikult nimekirja slug’e, nimekirja pealkirju, külaliste nimesid, kingituste sõnumeid, e-posti aadresse ega muud kasutaja sisestatud isikuinfot.',
+      'Giftlist Studio on seadistatud nii, et Google Analyticsisse ei saadeta teadlikult nimekirja slug’e, nimekirja pealkirju, külaliste nimesid, kingituste sõnumeid, e-posti aadresse, referral koode ega muud kasutaja sisestatud isikuinfot.',
     ],
     manageTitle: 'Kuidas oma valikut hallata',
     manageBody: [

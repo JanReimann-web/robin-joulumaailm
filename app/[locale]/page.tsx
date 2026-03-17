@@ -230,7 +230,6 @@ export default async function HomePage({ params }: LocalePageProps) {
                     locale,
                     placement: 'home_hero',
                     event_type: 'wedding',
-                    slug: weddingShowcaseEntry?.slug ?? 'gallery',
                   }}
                   className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-semibold text-black hover:bg-emerald-300 sm:text-left"
                 >

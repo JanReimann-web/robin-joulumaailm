@@ -87,7 +87,6 @@ export default function WeddingIntentLanding({
                   locale,
                   placement: slug,
                   event_type: 'wedding',
-                  slug: showcaseEntry?.slug ?? 'gallery',
                 }}
                 className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-semibold text-black hover:bg-emerald-300 sm:text-left"
               >

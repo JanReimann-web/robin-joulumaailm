@@ -139,7 +139,6 @@ export default function ShowcasePreviewCard({
                   locale,
                   placement: 'gallery_card',
                   event_type: eventType,
-                  slug: entry.slug,
                 }}
                 className="event-accent-button rounded-full px-5 py-2.5 text-sm font-semibold"
               >
