@@ -481,7 +481,7 @@ export const etDictionary: Dictionary = {
     heroTitleLabel: 'Hero pealkiri',
     heroBodyLabel: 'Hero tekst',
     heroDateLabel: 'Toimumise kuupäev',
-    heroDatePlaceholder: 'Vali kuupäev kalendrist',
+    heroDatePlaceholder: 'Vali kuupäev',
     heroDateHint: 'Vali kuupäev kalendrist.',
     heroDateClearAction: 'Eemalda kuupäev',
     heroTimeLabel: 'Toimumise kellaaeg',

@@ -482,7 +482,7 @@ export const enDictionary: Dictionary = {
     heroTitleLabel: 'Hero headline',
     heroBodyLabel: 'Hero text',
     heroDateLabel: 'Event date',
-    heroDatePlaceholder: 'Select a date from the calendar',
+    heroDatePlaceholder: 'Select date',
     heroDateHint: 'Pick the date from the calendar.',
     heroDateClearAction: 'Clear date',
     heroTimeLabel: 'Event time',
