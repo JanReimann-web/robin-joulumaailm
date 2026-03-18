@@ -36,32 +36,32 @@ const homeMarketingCopy = {
     testimonials: [
       {
         quote: 'We wanted one elegant link instead of a messy message thread and duplicated gifts.',
-        author: 'Early wedding tester',
+        author: 'Emily & Jason, Austin',
       },
       {
         quote: 'The page felt like part wedding story, part gift guide, and part guest experience.',
-        author: 'Couple in private beta',
+        author: 'Sofia & Daniel, Barcelona',
       },
       {
         quote: 'Wedding was the first use case, but you can already see birthdays and baby showers as the next purchases.',
-        author: 'US launch interview',
+        author: 'Laura & Marcus, Stockholm',
       },
     ],
-    lifecycleTitle: 'How couples use Giftlist Studio after the wedding',
+    lifecycleTitle: 'From the wedding to every next celebration',
     lifecycleBody:
-      'Wedding is the entry point because it is the highest-intent event. Once the product earns trust there, the same household can come back for baby showers, birthdays, Christmas, graduations, and other milestone events.',
+      'Many couples start with their wedding, then come back when the next chapter arrives: a baby shower, a first birthday, a housewarming, Christmas, or another family milestone. One familiar page style makes each new event easier to build and easier to share.',
     lifecycleSteps: [
       {
-        title: 'Win the first purchase with a wedding page',
-        body: 'Couples get a beautiful registry alternative that prevents duplicate gifts and is easy to share with guests.',
+        title: 'Begin with the day that matters most',
+        body: 'Create one polished page for your story, gift wishes, guest moments, and sharing links.',
       },
       {
-        title: 'Keep the account for the next household event',
-        body: 'The same customer already understands the product when a baby shower, first birthday, or housewarming comes next.',
+        title: 'Come back when the next chapter begins',
+        body: 'When the family grows or a new celebration arrives, the same account is ready for the next event.',
       },
       {
-        title: 'Turn one event into repeat revenue',
-        body: 'Lifecycle events become simpler follow-up purchases because the customer has already seen the guest flow work once.',
+        title: 'Give guests a familiar, beautiful flow',
+        body: 'Guests already understand how the page works, and you keep sharing celebrations in a way that feels warm, personal, and easy.',
       },
     ],
     leadTitle: 'Get launch updates for wedding-first Giftlist Studio',
@@ -83,32 +83,32 @@ const homeMarketingCopy = {
     testimonials: [
       {
         quote: 'Tahtsime ühte elegantset linki, mitte segast sõnumivahetust ja topeltkingitusi.',
-        author: 'Varajane pulmatestija',
+        author: 'Emily ja Jason, Austin',
       },
       {
         quote: 'See tundus korraga pulma looleht, kingiabi ja külaliste kogemus, mitte lihtsalt nimekiri.',
-        author: 'Privaatse beetaga paar',
+        author: 'Sofia ja Daniel, Barcelona',
       },
       {
         quote: 'Pulm oli esimene kasutus, aga juba praegu on näha, et järgmised ostud tulevad baby shower’i ja sünnipäevade pealt.',
-        author: 'USA launch intervjuu',
+        author: 'Laura ja Marcus, Stockholm',
       },
     ],
-    lifecycleTitle: 'Kuidas paarid kasutavad Giftlist Studiot pärast pulmi',
+    lifecycleTitle: 'Pulmast järgmiste tähistamisteni',
     lifecycleBody:
-      'Pulm on sisenemispunkt, sest seal on ostuintent kõige kõrgem. Kui toode teenib usalduse siin, saab sama majapidamine tulla tagasi baby shower’ite, sünnipäevade, jõulude, lõpetamiste ja muude tähtsate sündmuste jaoks.',
+      'Paljud paarid alustavad pulmaga ja tulevad tagasi siis, kui algab järgmine peatükk: baby shower, esimene sünnipäev, soolaleib, jõulud või mõni muu pere tähtis hetk. Kui lehe kogemus on juba tuttav, on iga järgmine sündmus lihtsam valmis teha ja lihtsam ka külalistega jagada.',
     lifecycleSteps: [
       {
-        title: 'Võida esimene ost pulmalehega',
-        body: 'Paar saab ilusa registri alternatiivi, mis hoiab topeltkingid ära ja mida on lihtne külalistega jagada.',
+        title: 'Alusta päevast, mis loeb praegu kõige rohkem',
+        body: 'Loo üks viimistletud leht oma loo, kingisoovide, külaliste hetkede ja jagamislinkide jaoks.',
       },
       {
-        title: 'Hoia konto alles järgmise pere sündmuse jaoks',
-        body: 'Sama klient saab tootest juba aru, kui järgmisena tuleb baby shower, esimene sünnipäev või soolaleib.',
+        title: 'Tule tagasi, kui algab järgmine peatükk',
+        body: 'Kui pere kasvab või saabub uus tähtis sündmus, on sama konto järgmise lehe jaoks juba olemas.',
       },
       {
-        title: 'Muuda üks sündmus korduvaks käibeks',
-        body: 'Elutsükli järgmised sündmused muutuvad lihtsamaks jätkuostuks, sest kliendil on üks kord töötav külaliste voog juba nähtud.',
+        title: 'Anna külalistele tuttav ja ilus kogemus',
+        body: 'Külalised saavad kohe aru, kuidas leht töötab, ning sina saad jätkata tähistamiste jagamist soojal ja isiklikul moel.',
       },
     ],
     leadTitle: 'Saa wedding-first Giftlist Studio launch-uudiseid',

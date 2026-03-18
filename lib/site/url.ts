@@ -1,7 +1,7 @@
 import { locales } from '@/lib/i18n/config'
 import { sanitizeSlug } from '@/lib/lists/slug'
 
-const DEFAULT_SITE_URL = 'https://giftliststudio.com'
+const DEFAULT_SITE_URL = 'https://www.giftliststudio.com'
 
 const trimTrailingSlashes = (value: string) => value.replace(/\/+$/, '')
 

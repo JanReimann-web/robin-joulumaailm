@@ -1273,7 +1273,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "babyShower": "Vauvan suihku",
       "graduation": "Valmistuminen",
       "housewarming": "Kotona lämpeneminen",
-      "christmas": "joulu"
+      "christmas": "Joulu"
     },
     "home": {
       "processTitle": "Kuinka Giftlist Studio toimii",
@@ -1809,7 +1809,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorWheelAnswerRequired": "Lisää tekstivastaus ennen pyöräkysymyksen tallentamista.",
       "errorWheelLimitReached": "Pyörässä voi olla enintään 12 kysymystä kerrallaan.",
       "errorMediaUnsupportedType": "Mediatyyppiä ei tueta. Käytä kuvaa tai videota.",
-      "errorMediaTooLarge": "Valittu tiedosto on liian suuri ladattavaksi.",
+      "errorMediaTooLarge": "Valittu tiedosto on liian suuri lähetettäväksi.",
       "errorMediaProcessingFailed": "Videon käsittely epäonnistui. Kokeile lyhyempää tai yksinkertaisempaa tiedostoa ja lataa se uudelleen.",
       "errorMediaVideoTooLong": "Videot voivat olla jopa 60 sekunnin pituisia.",
       "errorMediaVideoCountExceeded": "Platinum tukee jopa 20 videota. Poista yksi tai useampi video ennen tallentamista.",
@@ -3777,7 +3777,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "liveExampleTitle": "Live-Beispielseite für diese Veranstaltung",
       "liveExampleBody": "Sehen Sie sich die fertige Beispielliste für dieselbe Veranstaltung an, probieren Sie verschiedene Designs aus und öffnen Sie die Beispielseite direkt von hier aus.",
       "ctaPrimary": "Beginnen Sie mit Ihrer Liste",
-      "ctaSecondary": "Preise ansehen",
+      "ctaSecondary": "Preise anzeigen",
       "backHomeAction": "Zurück nach Hause",
       "wedding": {
         "seoTitle": "Hochzeitsgeschenkliste | Private Hochzeitsregister-Alternative",
@@ -3926,7 +3926,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "ctaTitle": "Sind Sie bereit, Ihre eigene Eventseite zu erstellen?",
       "ctaBody": "Beginnen Sie mit einer kostenlosen Testversion, wählen Sie ein Thema und erstellen Sie eine Geschenkliste, die zu Ihrem Veranstaltungsstil passt.",
       "ctaAction": "Beginnen Sie mit Ihrer Liste",
-      "secondaryCtaAction": "Preise ansehen"
+      "secondaryCtaAction": "Preise anzeigen"
     },
     "login": {
       "title": "Melden Sie sich an, um Ihre Listen zu verwalten",
@@ -5528,7 +5528,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "badge": "História do casamento e páginas de presentes para casais modernos",
       "title": "Crie uma página de casamento que conte sua história e oriente lindamente os presentes",
       "subtitle": "Reúna fotos, vídeos, sua história, ideias para presentes e momentos divertidos dos convidados em uma página elegante. Os hóspedes podem reservar os presentes antes de comprar, para que a experiência permaneça mágica e organizada.",
-      "seoTitle": "Wedding Page and Gift List Alternative | Giftlist Studio",
+      "seoTitle": "Alternativa para página de casamento e lista de presentes | Giftlist Studio",
       "seoDescription": "Crie uma linda página de casamento com sua história, fotos, vídeos, reservas de presentes, proteção por senha e compartilhamento de QR. Um registro alternativo para casais pode realmente fazer o seu próprio.",
       "primaryCta": "Veja a página do casamento ao vivo",
       "secondaryCta": "Iniciar teste gratuito",
@@ -5541,15 +5541,15 @@ export const dictionaries: Record<Locale, Dictionary> = {
     "highlights": {
       "title": "Por que os casais escolhem Giftlist Studio como mais do que uma lista de presentes",
       "subtitle": "A experiência funciona como uma página de história de casamento, uma experiência de convidado e uma alternativa de registro em um só lugar.",
-      "templateTitle": "Storytelling wedding page",
+      "templateTitle": "Página de casamento contando histórias",
       "templateBody": "Compartilhe fotos, vídeos, detalhes do evento e a história do seu casal em uma página sofisticada que os hóspedes irão realmente gostar de navegar.",
-      "reserveTitle": "Duplicate-proof gift reservations",
+      "reserveTitle": "Reservas de presentes à prova de duplicação",
       "reserveBody": "Os hóspedes reservam os presentes antes de comprar, e as ações de reserva são protegidas pela transação, para que dois convidados não possam escolher acidentalmente o mesmo item.",
       "trialTitle": "Experiência lúdica do hóspede",
       "trialBody": "Adicione uma roda de perguntas e toques interativos para que a página pareça memorável, não transacional."
     },
     "events": {
-      "title": "Gift list templates by event type",
+      "title": "Modelos de lista de presentes por tipo de evento",
       "subtitle": "Comece com uma página de evento criada para casamentos, aniversários, festas infantis, chás de bebê, formaturas, inaugurações de casa ou Natal.",
       "wedding": "Casamento",
       "birthday": "Aniversário",
@@ -5564,15 +5564,15 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "processSubtitle": "Crie uma página de experiência de casamento, compartilhe-a uma vez e deixe os convidados explorarem sua história enquanto veem o que ainda está disponível antes de comprarem.",
       "processSteps": [
         {
-          "title": "Create your event gift list",
+          "title": "Crie sua lista de presentes para eventos",
           "body": "Escolha o tipo, design e visibilidade do evento e, em seguida, adicione presentes, fotos, vídeos, conteúdo da história e detalhes opcionais do evento."
         },
         {
-          "title": "Share one link or QR code",
+          "title": "Compartilhe um link ou código QR",
           "body": "Envie aos convidados um link público ou protegido por senha para que todos acessem a mesma lista atualizada."
         },
         {
-          "title": "Track reservations without duplicate gifts",
+          "title": "Rastreie reservas sem presentes duplicados",
           "body": "Os hóspedes reservam os itens antes de comprar, e o anfitrião vê quem reservou o quê, enquanto os visitantes também podem aproveitar a história e os extras interativos."
         }
       ],
@@ -5580,19 +5580,19 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "faqSubtitle": "Respostas rápidas às perguntas que a maioria dos anfitriões faz antes de publicar a sua primeira lista.",
       "faqEntries": [
         {
-          "question": "Is Giftlist Studio only for wedding gift lists?",
+          "question": "Giftlist Studio serve apenas para listas de presentes de casamento?",
           "answer": "Não, mas os casamentos são o ponto de partida mais claro. Giftlist Studio também funciona para aniversários, festas de aniversário infantis, chás de bebê, formaturas, inaugurações de casa e planejamento de presentes de Natal."
         },
         {
-          "question": "Can guests reserve gifts before buying them?",
+          "question": "Os convidados podem reservar presentes antes de comprá-los?",
           "answer": "Sim. Os convidados podem reservar presentes na página pública para que o anfitrião e outros convidados possam ver quais itens já foram levados."
         },
         {
-          "question": "Can I password-protect my public gift list?",
+          "question": "Posso proteger com senha minha lista pública de presentes?",
           "answer": "Sim. O compartilhamento público protegido por senha está disponível em pacotes que o suportam, para que você possa compartilhar a lista apenas com convidados."
         },
         {
-          "question": "Can I test the page before it goes public?",
+          "question": "Posso testar a página antes de se tornar pública?",
           "answer": "Sim. Cada nova lista começa com um teste gratuito de 14 dias para que você possa criar a página, fazer upload de conteúdo e visualizar a experiência completa antes da ativação."
         }
       ],
@@ -5603,20 +5603,20 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     "eventPages": {
       "readMoreAction": "Explorar página",
-      "processTitle": "How it works for this event",
+      "processTitle": "Como funciona para este evento",
       "processSteps": [
         "Crie sua lista e escolha um estilo que combine com o evento.",
         "Compartilhe um link público ou código QR com todos os convidados.",
         "Os convidados reservam presentes para evitar presentes duplicados."
       ],
       "sampleTitle": "Ideias populares para presentes",
-      "liveExampleTitle": "Live example page for this event",
+      "liveExampleTitle": "Página de exemplo ao vivo para este evento",
       "liveExampleBody": "Explore a lista de exemplos finalizada para o mesmo evento, experimente designs diferentes e abra a página de exemplo diretamente daqui.",
       "ctaPrimary": "Comece sua lista",
       "ctaSecondary": "Ver preços",
       "backHomeAction": "De volta para casa",
       "wedding": {
-        "seoTitle": "Lista de presentes de casamento | Private Wedding Registry Alternative",
+        "seoTitle": "Lista de presentes de casamento | Alternativa de registro de casamento privado",
         "seoDescription": "Crie uma linda lista de presentes de casamento e uma alternativa de registro com proteção por senha, rastreamento de reservas e sem presentes duplicados.",
         "headline": "Uma linda página de casamento que os convidados realmente usarão",
         "intro": "Giftlist Studio oferece aos casais uma página de casamento elegante para fotos, vídeos, conteúdo de histórias, reservas em estilo de registro e interação divertida com os convidados, sem presentes duplicados.",
@@ -5630,7 +5630,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "birthday": {
         "seoTitle": "Lista de presentes de aniversário",
         "seoDescription": "Crie uma página de lista de desejos de aniversário e permita que os convidados reservem presentes sem sobreposição.",
-        "headline": "Birthday gift list for stress-free planning",
+        "headline": "Lista de presentes de aniversário para um planejamento sem estresse",
         "intro": "Compartilhe um link de lista de aniversários com amigos e familiares para que todos possam escolher um presente exclusivo.",
         "samples": [
           "Jogo de tabuleiro",
@@ -5696,18 +5696,18 @@ export const dictionaries: Record<Locale, Dictionary> = {
           "Roupas quentes de inverno",
           "Itens de decoração para casa",
           "Jogo de café ou chá",
-          "Gift cards for experiences"
+          "Vales-presente para experiências"
         ]
       }
     },
     "pricing": {
-      "title": "Simple pricing for your 90-day event page",
-      "seoTitle": "Gift List Pricing and Packages",
+      "title": "Preços simples para sua página de evento de 90 dias",
+      "seoTitle": "Preços e pacotes da lista de presentes",
       "seoDescription": "Compare os preços Base, Premium e Platinum para sua lista de presentes online. Veja limites para fotos, vídeos, proteção por senha e acesso de 90 dias.",
       "trialLine": "Crie tudo gratuitamente por 14 dias antes de ativar a hospedagem.",
       "draftOnlyLine": "Durante a avaliação, você pode projetar, visualizar e testar a experiência completa antes do lançamento público.",
-      "perListLine": "Each package applies to one event page.",
-      "extensionLine": "Precisa de mais tempo? Extend the same list later.",
+      "perListLine": "Cada pacote se aplica a uma página do evento.",
+      "extensionLine": "Precisa de mais tempo? Estenda a mesma lista mais tarde.",
       "retentionLine": "Após o término do período ativo, as regras do ciclo de vida da lista e a limpeza de dados descritas abaixo serão aplicadas.",
       "upgradeLine": "Se você superar um plano, atualize a mesma lista em vez de começar de novo.",
       "upgradeTitle": "Preços de atualização",
@@ -5724,49 +5724,49 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "baseFeatures": [
         "Até 25 fotos",
         "Apenas imagens",
-        "One public list for 90 days"
+        "Uma lista pública por 90 dias"
       ],
       "premiumName": "Prêmio",
       "premiumPrice": "19,95 euros / 90 dias",
       "premiumFeatures": [
         "Até 50 fotos",
         "Apenas imagens",
-        "Password protection for the public list"
+        "Proteção por senha para a lista pública"
       ],
       "platinumName": "Platina",
       "platinumPrice": "29,95 euros / 90 dias",
       "platinumFeatures": [
-        "Up to 200 media files total",
-        "Up to 20 of them can be videos",
-        "Each video can be up to 60 seconds"
+        "Até 200 arquivos de mídia no total",
+        "Até 20 deles podem ser vídeos",
+        "Cada vídeo pode ter até 60 segundos"
       ]
     },
     "gallery": {
       "eyebrow": "Galeria de inspiração",
       "title": "Veja exemplos finalizados antes de criar sua própria lista",
       "subtitle": "Navegue por listas de exemplos reais por tipo de evento, altere o design de visualização e compare a sensação do mesmo conteúdo em temas diferentes.",
-      "seoTitle": "Gift List Example Gallery",
+      "seoTitle": "Galeria de exemplos de lista de presentes",
       "seoDescription": "Procure exemplos reais de listas de presentes para casamentos, aniversários, chás de bebê, formaturas, inaugurações de casa e Natal antes de criar sua própria página.",
       "themeHint": "Alterar o design aqui apenas atualiza o cartão de visualização para que os convidados possam comparar estilos antes de iniciar sua própria lista.",
-      "sectionSubtitle": "Examples and placeholder slots for {event}.",
+      "sectionSubtitle": "Exemplos e espaços reservados para {event}.",
       "entryBadge": "Exemplo ao vivo",
       "placeholderBadge": "Espaço reservado",
       "themeLabel": "Visualizar design",
       "previewPlaceholderMedia": "Layout de visualização",
       "placeholderTitle": "Slot de amostra {event}",
       "placeholderBody": "Publique uma lista pública de exemplos no painel para substituir este espaço reservado e mostrar aos visitantes como pode ser a aparência desta página do evento.",
-      "entryFallbackBody": "This sample list is ready to explore. Abra-o para ver presentes, histórias e a roda na página ao vivo.",
+      "entryFallbackBody": "Esta lista de exemplos está pronta para ser explorada. Abra-o para ver presentes, histórias e a roda na página ao vivo.",
       "openExampleAction": "Exemplo aberto",
       "placeholderAction": "Espaço de exemplo",
       "cardCtaAction": "Comece sua própria lista",
-      "ctaTitle": "Ready to create your own event page?",
+      "ctaTitle": "Pronto para criar sua própria página de evento?",
       "ctaBody": "Comece com uma avaliação gratuita, escolha um tema e crie uma lista de presentes adequada ao seu estilo de evento.",
       "ctaAction": "Comece sua lista",
       "secondaryCtaAction": "Ver preços"
     },
     "login": {
-      "title": "Sign in to manage your lists",
-      "subtitle": "Use Google or your email account to continue.",
+      "title": "Faça login para gerenciar suas listas",
+      "subtitle": "Use o Google ou sua conta de e-mail para continuar.",
       "googleButton": "Continuar com o Google",
       "emailButton": "Ou continue com e-mail",
       "emailLabel": "Endereço de e-mail",
@@ -5777,28 +5777,28 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "signingIn": "Fazendo login...",
       "creatingAccount": "Criando conta...",
       "resettingPassword": "Enviando e-mail de redefinição...",
-      "resetPasswordSent": "Password reset email sent.",
-      "signedInRedirect": "Signed in. Redirecting...",
-      "accountCreated": "Conta criada. Check your email for verification and continue.",
+      "resetPasswordSent": "E-mail de redefinição de senha enviado.",
+      "signedInRedirect": "Conectado. Redirecionando...",
+      "accountCreated": "Conta criada. Verifique seu e-mail para verificação e continue.",
       "errorGeneric": "Falha na autenticação. Por favor, tente novamente.",
-      "errorInvalidCredentials": "Incorrect email or password.",
-      "errorInvalidEmail": "Please enter a valid email address.",
-      "errorEmailInUse": "This email is already in use.",
-      "errorWeakPassword": "A senha é muito fraca. Use at least 6 characters.",
+      "errorInvalidCredentials": "E-mail ou senha incorretos.",
+      "errorInvalidEmail": "Insira um endereço de e-mail válido.",
+      "errorEmailInUse": "Este e-mail já está em uso.",
+      "errorWeakPassword": "A senha é muito fraca. Use pelo menos 6 caracteres.",
       "errorEmailPasswordDisabled": "O login por e-mail/senha não está ativado no Firebase Auth."
     },
     "dashboard": {
       "title": "Painel",
-      "subtitle": "Create and manage your event gift lists.",
+      "subtitle": "Crie e gerencie suas listas de presentes para eventos.",
       "loadingAuth": "Verificando sua sessão...",
-      "redirecting": "You are not signed in. Redirecting to login...",
+      "redirecting": "Você não está conectado. Redirecionando para login...",
       "signedInAs": "Conectado como",
       "signOutAction": "Sair",
       "signingOut": "Saindo...",
       "builderTitle": "Crie uma nova lista de presentes",
-      "builderSubtitle": "Set the list name and public URL. Evento, design e visibilidade podem ser alterados no lado direito.",
+      "builderSubtitle": "Defina o nome da lista e o URL público. Evento, design e visibilidade podem ser alterados no lado direito.",
       "listNameLabel": "Nome da lista",
-      "listNamePlaceholder": "Example: Marko & Anna Wedding",
+      "listNamePlaceholder": "Exemplo: Casamento de Marko e Anna",
       "slugLabel": "URL público",
       "urlNameLabel": "Nome do URL",
       "urlNamePlaceholder": "casamento-marko-anna",
@@ -5821,16 +5821,16 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityPublicPassword": "Público (senha)",
       "visibilityPrivate": "Privado",
       "visibilityHelpPublic": "Público: os convidados podem abrir seu link de compartilhamento, visualizar a lista e reservar presentes.",
-      "visibilityHelpPublicPassword": "Público (senha): os hóspedes abrem o link de compartilhamento, mas devem inserir sua senha antes de poder visualizar e reservar. This requires at least Premium.",
+      "visibilityHelpPublicPassword": "Público (senha): os hóspedes abrem o link de compartilhamento, mas devem inserir sua senha antes de poder visualizar e reservar. Isso requer pelo menos Premium.",
       "visibilityHelpPrivate": "Privado: somente você pode visualizar e gerenciar esta lista em seu painel.",
       "visibilityPasswordLabel": "Listar senha",
       "visibilityPasswordPlaceholder": "Definir senha de acesso",
-      "visibilityPasswordHint": "Use at least 6 characters. Share this password only with invited guests. A proteção por senha em uma lista pública requer pelo menos Premium.",
+      "visibilityPasswordHint": "Use pelo menos 6 caracteres. Compartilhe esta senha apenas com convidados. A proteção por senha em uma lista pública requer pelo menos Premium.",
       "createListAction": "Criar lista",
       "creatingList": "Criando lista...",
-      "listCreated": "List created successfully.",
+      "listCreated": "Lista criada com sucesso.",
       "myListsTitle": "Minhas listas",
-      "emptyLists": "Ainda não há listas. Create your first list above.",
+      "emptyLists": "Ainda não há listas. Crie sua primeira lista acima.",
       "eventTag": "Evento",
       "visibilityTag": "Visibilidade",
       "slugTag": "Nome do URL",
@@ -5925,14 +5925,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralStatusActive": "Ativo",
       "referralStatusReserved": "Reservado",
       "referralStatusRedeemed": "Usado",
-      "referralCodeInputLabel": "Use a referral code on this purchase",
+      "referralCodeInputLabel": "Use um código de referência nesta compra",
       "referralCodeInputPlaceholder": "ABCD-1234",
       "referralApplyAction": "Aplicar",
       "referralApplying": "Verificando...",
       "referralApplied": "Aplicado: {code} dá {discount}% de desconto nesta compra.",
       "referralRewardSavedHint": "Sua recompensa de indicação ganha permanece salva para uma compra posterior enquanto este código de indicação for aplicado.",
       "referralClearAction": "Remover código",
-      "referralLoadFailed": "Failed to load referral details.",
+      "referralLoadFailed": "Falha ao carregar detalhes de referência.",
       "activatePlanAction": "Ativar 90 dias",
       "extendPlanAction": "Estender 90 dias",
       "upgradePlanAction": "Pacote de atualização",
@@ -5942,27 +5942,27 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "planBaseFeatures": [
         "Até 25 fotos",
         "Apenas imagens",
-        "One public list for 90 days"
+        "Uma lista pública por 90 dias"
       ],
       "planPremiumName": "Prêmio",
       "planPremiumPrice": "19,95 euros / 90 dias",
       "planPremiumFeatures": [
         "Até 50 fotos",
         "Apenas imagens",
-        "Password protection for the public list"
+        "Proteção por senha para a lista pública"
       ],
       "planPlatinumName": "Platina",
       "planPlatinumPrice": "29,95 euros / 90 dias",
       "planPlatinumFeatures": [
-        "Up to 200 media files total",
+        "Até 200 arquivos de mídia no total",
         "Até 20 vídeos",
         "Vídeos de até 60 segundos"
       ],
       "errorSessionExpired": "Sua sessão expirou. Faça login novamente.",
       "errorActivatePass": "Falha ao ativar o passe.",
       "errorBillingMarketUnsupported": "A finalização da compra ainda não está disponível na sua região atual.",
-      "errorBillingMarketSanctioned": "Checkout is blocked in your current region.",
-      "errorBillingMarketUnknown": "We could not confirm your billing region. Please try again from a supported network.",
+      "errorBillingMarketSanctioned": "A finalização da compra está bloqueada na sua região atual.",
+      "errorBillingMarketUnknown": "Não foi possível confirmar sua região de faturamento. Tente novamente em uma rede compatível.",
       "errorPlanDowngradeNotAllowed": "Não há suporte para downgrade de um pacote ativo.",
       "errorMediaProcessingReasonPrefix": "Razão",
       "listSelectorLabel": "Lista ativa",
@@ -5977,8 +5977,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "deleteListModalBody": "Esta ação exclui permanentemente a lista e todos os presentes, histórias, entradas de roda, reservas e arquivos de mídia relacionados do Firestore e do Storage.",
       "deleteListCancelAction": "Cancelar",
       "deleteListConfirmAction": "Excluir permanentemente",
-      "listDeleted": "List deleted permanently.",
-      "errorListSettingsUpdate": "Failed to update list settings.",
+      "listDeleted": "Lista excluída permanentemente.",
+      "errorListSettingsUpdate": "Falha ao atualizar as configurações da lista.",
       "errorDeleteList": "Falha ao excluir lista.",
       "heroEditorTitle": "Introdução pública (herói)",
       "heroEditorSubtitle": "Mostrado aos convidados antes de abrirem presentes, histórias e rodarem.",
@@ -6089,7 +6089,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorDeleteStory": "Falha ao excluir o momento da história.",
       "errorAddWheelEntry": "Falha ao adicionar a pergunta da roda.",
       "errorUpdateWheelEntry": "Falha ao atualizar a pergunta da roda.",
-      "errorDeleteWheelEntry": "Failed to delete wheel question.",
+      "errorDeleteWheelEntry": "Falha ao excluir a pergunta da roda.",
       "errorWheelAnswerRequired": "Adicione uma resposta de texto antes de salvar a pergunta da roda.",
       "errorWheelLimitReached": "A roda pode conter até 12 perguntas por vez.",
       "errorMediaUnsupportedType": "Tipo de mídia não suportado. Use imagem ou vídeo.",
@@ -9084,7 +9084,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "saveItemChangesAction": "Išsaugoti pakeitimus",
       "deleteItemAction": "Ištrinti",
       "deletingItem": "Ištrinama...",
-      "statusAvailable": "Galima",
+      "statusAvailable": "Yra",
       "statusReserved": "Rezervuota",
       "statusGifted": "Gabus",
       "releaseReservationAction": "Išleidimo rezervacija",
@@ -9192,31 +9192,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "We wanted one elegant link instead of a messy message thread and duplicated gifts.",
-        "author": "Early wedding tester"
+        "author": "Emily & Jason, Austin"
       },
       {
         "quote": "The page felt like part wedding story, part gift guide, and part guest experience.",
-        "author": "Couple in private beta"
+        "author": "Sofia & Daniel, Barcelona"
       },
       {
         "quote": "Wedding was the first use case, but you can already see birthdays and baby showers as the next purchases.",
-        "author": "US launch interview"
+        "author": "Laura & Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "How couples use Giftlist Studio after the wedding",
-    "lifecycleBody": "Wedding is the entry point because it is the highest-intent event. Once the product earns trust there, the same household can come back for baby showers, birthdays, Christmas, graduations, and other milestone events.",
+    "lifecycleTitle": "From the wedding to every next celebration",
+    "lifecycleBody": "Many couples start with their wedding, then come back when the next chapter arrives: a baby shower, a first birthday, a housewarming, Christmas, or another family milestone. One familiar page style makes each new event easier to build and easier to share.",
     "lifecycleSteps": [
       {
-        "title": "Win the first purchase with a wedding page",
-        "body": "Couples get a beautiful registry alternative that prevents duplicate gifts and is easy to share with guests."
+        "title": "Begin with the day that matters most",
+        "body": "Create one polished page for your story, gift wishes, guest moments, and sharing links."
       },
       {
-        "title": "Keep the account for the next household event",
-        "body": "The same customer already understands the product when a baby shower, first birthday, or housewarming comes next."
+        "title": "Come back when the next chapter begins",
+        "body": "When the family grows or a new celebration arrives, the same account is ready for the next event."
       },
       {
-        "title": "Turn one event into repeat revenue",
-        "body": "Lifecycle events become simpler follow-up purchases because the customer has already seen the guest flow work once."
+        "title": "Give guests a familiar, beautiful flow",
+        "body": "Guests already understand how the page works, and you keep sharing celebrations in a way that feels warm, personal, and easy."
       }
     ],
     "leadTitle": "Get launch updates for wedding-first Giftlist Studio",
@@ -9236,31 +9236,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Tahtsime ühte elegantset linki, mitte segast sõnumivahetust ja topeltkingitusi.",
-        "author": "Varajane pulmatestija"
+        "author": "Emily ja Jason, Austin"
       },
       {
         "quote": "See tundus korraga pulma looleht, kingiabi ja külaliste kogemus, mitte lihtsalt nimekiri.",
-        "author": "Privaatse beetaga paar"
+        "author": "Sofia ja Daniel, Barcelona"
       },
       {
         "quote": "Pulm oli esimene kasutus, aga juba praegu on näha, et järgmised ostud tulevad baby shower’i ja sünnipäevade pealt.",
-        "author": "USA launch intervjuu"
+        "author": "Laura ja Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "Kuidas paarid kasutavad Giftlist Studiot pärast pulmi",
-    "lifecycleBody": "Pulm on sisenemispunkt, sest seal on ostuintent kõige kõrgem. Kui toode teenib usalduse siin, saab sama majapidamine tulla tagasi baby shower’ite, sünnipäevade, jõulude, lõpetamiste ja muude tähtsate sündmuste jaoks.",
+    "lifecycleTitle": "Pulmast järgmiste tähistamisteni",
+    "lifecycleBody": "Paljud paarid alustavad pulmaga ja tulevad tagasi siis, kui algab järgmine peatükk: baby shower, esimene sünnipäev, soolaleib, jõulud või mõni muu pere tähtis hetk. Kui lehe kogemus on juba tuttav, on iga järgmine sündmus lihtsam valmis teha ja lihtsam ka külalistega jagada.",
     "lifecycleSteps": [
       {
-        "title": "Võida esimene ost pulmalehega",
-        "body": "Paar saab ilusa registri alternatiivi, mis hoiab topeltkingid ära ja mida on lihtne külalistega jagada."
+        "title": "Alusta päevast, mis loeb praegu kõige rohkem",
+        "body": "Loo üks viimistletud leht oma loo, kingisoovide, külaliste hetkede ja jagamislinkide jaoks."
       },
       {
-        "title": "Hoia konto alles järgmise pere sündmuse jaoks",
-        "body": "Sama klient saab tootest juba aru, kui järgmisena tuleb baby shower, esimene sünnipäev või soolaleib."
+        "title": "Tule tagasi, kui algab järgmine peatükk",
+        "body": "Kui pere kasvab või saabub uus tähtis sündmus, on sama konto järgmise lehe jaoks juba olemas."
       },
       {
-        "title": "Muuda üks sündmus korduvaks käibeks",
-        "body": "Elutsükli järgmised sündmused muutuvad lihtsamaks jätkuostuks, sest kliendil on üks kord töötav külaliste voog juba nähtud."
+        "title": "Anna külalistele tuttav ja ilus kogemus",
+        "body": "Külalised saavad kohe aru, kuidas leht töötab, ning sina saad jätkata tähistamiste jagamist soojal ja isiklikul moel."
       }
     ],
     "leadTitle": "Saa wedding-first Giftlist Studio launch-uudiseid",
@@ -9280,31 +9280,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Halusimme yhden tyylikkään linkin sotkuisen viestiketjun ja päällekkäisten lahjojen sijaan.",
-        "author": "Varhaisten häiden testaaja"
+        "author": "Emily & Jason, Austin"
       },
       {
         "quote": "Sivu tuntui osittain häätarinalta, osittain lahjaoppaalta ja osittain vieraskokemukselta.",
-        "author": "Pari yksityisessä betaversiossa"
+        "author": "Sofia & Daniel, Barcelona"
       },
       {
         "quote": "Häät olivat ensimmäinen käyttötapaus, mutta seuraavina ostoina näet jo syntymäpäivät ja vauvajuhlat.",
-        "author": "Yhdysvaltain aloitushaastattelu"
+        "author": "Laura & Marcus, Tukholma"
       }
     ],
-    "lifecycleTitle": "Kuinka parit käyttävät Giftlist Studioia häiden jälkeen",
-    "lifecycleBody": "Häät ovat lähtökohta, koska se on korkein tarkoitus. Kun tuote ansaitsee luottamuksen siellä, sama kotitalous voi palata vauvajuhliin, syntymäpäiviin, jouluun, valmistujaisiin ja muihin virstanpylväisiin.",
+    "lifecycleTitle": "Häistä jokaiseen seuraavaan juhlaan",
+    "lifecycleBody": "Monet parit aloittavat häistä ja palaavat takaisin, kun seuraava luku saapuu: vauvajuhlat, ensimmäinen syntymäpäivä, kotilämmittely, joulu tai jokin muu perheen virstanpylväs. Yksi tuttu sivutyyli tekee jokaisen uuden tapahtuman rakentamisen ja jakamisen helpommaksi.",
     "lifecycleSteps": [
       {
-        "title": "Voita ensimmäinen ostos hääsivulla",
-        "body": "Pariskunnat saavat kauniin rekisterivaihtoehdon, joka estää päällekkäiset lahjat ja on helppo jakaa vieraiden kanssa."
+        "title": "Aloita päivästä, joka on tärkein",
+        "body": "Luo yksi hiottu sivu tarinallesi, lahjatoiveillesi, vierashetkellesi ja jakamislinkeille."
       },
       {
-        "title": "Pidä tili seuraavaa kotitaloustapahtumaa varten",
-        "body": "Sama asiakas ymmärtää tuotteen jo, kun seuraavana on vauvajuhla, ensimmäinen syntymäpäivä tai kotoa."
+        "title": "Palaa, kun seuraava luku alkaa",
+        "body": "Kun perhe kasvaa tai uusi juhla saapuu, sama tili on valmis seuraavaan tapahtumaan."
       },
       {
-        "title": "Muuta yksi tapahtuma toistuvaksi tuloksi",
-        "body": "Elinkaaritapahtumista tulee yksinkertaisempia jatkohankintoja, koska asiakas on nähnyt vierasvirran toimivan jo kerran."
+        "title": "Anna vieraille tuttu, kaunis virtaus",
+        "body": "Vieraat ymmärtävät jo sivun toiminnan, ja jatkat juhlien jakamista tavalla, joka tuntuu lämpimältä, henkilökohtaiselta ja helpolta."
       }
     ],
     "leadTitle": "Hanki julkaisupäivityksiä häät-ensimmäiselle Giftlist Studioille",
@@ -9324,31 +9324,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Vi ville ha en elegant länk istället för en rörig meddelandetråd och duplicerade presenter.",
-        "author": "Tidig bröllopstestare"
+        "author": "Emily & Jason, Austin"
       },
       {
         "quote": "Sidan kändes som dels bröllopsberättelse, dels presentguide och dels gästupplevelse.",
-        "author": "Par i privat beta"
+        "author": "Sofia & Daniel, Barcelona"
       },
       {
         "quote": "Bröllop var det första användningsfallet, men du kan redan se födelsedagar och babyshower som nästa köp.",
-        "author": "USA lanseringsintervju"
+        "author": "Laura & Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "Hur par använder Giftlist Studio efter bröllopet",
-    "lifecycleBody": "Bröllop är startpunkten eftersom det är händelsen med högsta avsikt. När produkten väl har fått förtroende där, kan samma hushåll komma tillbaka för babyshower, födelsedagar, jul, examen och andra milstolpeevenemang.",
+    "lifecycleTitle": "Från bröllopet till varje nästa fest",
+    "lifecycleBody": "Många par börjar med sitt bröllop och kommer sedan tillbaka när nästa kapitel kommer: en babyshower, en första födelsedag, en inflyttningsfest, jul eller en annan milstolpe i familjen. En välbekant sidstil gör varje ny händelse lättare att bygga och lättare att dela.",
     "lifecycleSteps": [
       {
-        "title": "Vinn det första köpet med en bröllopssida",
-        "body": "Par får ett vackert registeralternativ som förhindrar dubbletter av gåvor och är lätt att dela med gäster."
+        "title": "Börja med dagen som betyder mest",
+        "body": "Skapa en snygg sida för din berättelse, presentönskningar, gäststunder och delningslänkar."
       },
       {
-        "title": "Spara kontot för nästa hushållsevenemang",
-        "body": "Samma kund förstår redan produkten när en babyshower, första födelsedag eller inflyttningsfest kommer härnäst."
+        "title": "Återkom när nästa kapitel börjar",
+        "body": "När familjen växer eller ett nytt firande anländer är samma konto redo för nästa evenemang."
       },
       {
-        "title": "Förvandla en händelse till återkommande intäkter",
-        "body": "Livscykelhändelser blir enklare uppföljningsköp eftersom kunden redan har sett gästflödet fungera en gång."
+        "title": "Ge gästerna ett välbekant, vackert flöde",
+        "body": "Gästerna förstår redan hur sidan fungerar, och du fortsätter att dela firandet på ett sätt som känns varmt, personligt och enkelt."
       }
     ],
     "leadTitle": "Få lanseringsuppdateringar för bröllopets första Giftlist Studio",
@@ -9368,31 +9368,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Vi ønsket en elegant lenke i stedet for en rotete meldingstråd og dupliserte gaver.",
-        "author": "Tidlig bryllupstester"
+        "author": "Emily og Jason, Austin"
       },
       {
         "quote": "Siden føltes som delvis bryllupshistorie, delvis gaveguide og delvis gjesteopplevelse.",
-        "author": "Par i privat beta"
+        "author": "Sofia og Daniel, Barcelona"
       },
       {
         "quote": "Bryllup var den første bruken, men du kan allerede se bursdager og babyshower som de neste kjøpene.",
-        "author": "Amerikansk lanseringsintervju"
+        "author": "Laura & Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "Hvordan par bruker Giftlist Studio etter bryllupet",
-    "lifecycleBody": "Bryllup er inngangspunktet fordi det er den høyeste hensikten. Når produktet får tillit der, kan den samme husstanden komme tilbake for babyshower, bursdager, jul, konfirmasjoner og andre milepælsbegivenheter.",
+    "lifecycleTitle": "Fra bryllupet til hver neste feiring",
+    "lifecycleBody": "Mange par starter med bryllupet sitt, for så å komme tilbake når neste kapittel kommer: en babyshower, en første bursdag, en housewarming, jul eller en annen familiemilepæl. Én kjent sidestil gjør hver ny hendelse enklere å bygge og enklere å dele.",
     "lifecycleSteps": [
       {
-        "title": "Vinn det første kjøpet med en bryllupsside",
-        "body": "Par får et vakkert registeralternativ som forhindrer dupliserte gaver og er lett å dele med gjester."
+        "title": "Begynn med dagen som betyr mest",
+        "body": "Lag én polert side for historien din, gaveønsker, gjesteøyeblikk og deling av linker."
       },
       {
-        "title": "Ta vare på kontoen for neste husholdningsarrangement",
-        "body": "Den samme kunden forstår allerede produktet når en babyshower, første bursdag eller housewarming kommer neste gang."
+        "title": "Kom tilbake når neste kapittel begynner",
+        "body": "Når familien vokser eller en ny feiring kommer, er den samme kontoen klar for neste arrangement."
       },
       {
-        "title": "Gjør én begivenhet til gjentatte inntekter",
-        "body": "Livssyklushendelser blir enklere oppfølgingskjøp fordi kunden allerede har sett gjesteflyten fungere én gang."
+        "title": "Gi gjestene en kjent, vakker flyt",
+        "body": "Gjester forstår allerede hvordan siden fungerer, og du fortsetter å dele feiringer på en måte som føles varm, personlig og enkel."
       }
     ],
     "leadTitle": "Få lanseringsoppdateringer for bryllupsførste Giftlist Studio",
@@ -9412,31 +9412,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Vi ønskede et elegant link i stedet for en rodet beskedtråd og duplikerede gaver.",
-        "author": "Tidlig bryllup tester"
+        "author": "Emily & Jason, Austin"
       },
       {
         "quote": "Siden føltes som dels bryllupshistorie, dels gaveguide og dels gæsteoplevelse.",
-        "author": "Par i privat beta"
+        "author": "Sofia og Daniel, Barcelona"
       },
       {
         "quote": "Bryllup var den første use case, men du kan allerede nu se fødselsdage og babyshower som de næste køb.",
-        "author": "US lanceringsinterview"
+        "author": "Laura & Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "Sådan bruger par Giftlist Studio efter brylluppet",
-    "lifecycleBody": "Bryllup er indgangspunktet, fordi det er begivenheden med højeste hensigt. Når først produktet opnår tillid der, kan den samme husstand komme tilbage til babyshower, fødselsdage, jul, dimissioner og andre milepælsbegivenheder.",
+    "lifecycleTitle": "Fra brylluppet til hver næste fest",
+    "lifecycleBody": "Mange par starter med deres bryllup og vender så tilbage, når det næste kapitel kommer: en babyshower, en første fødselsdag, en housewarming, jul eller en anden familiemilepæl. Én velkendt sidestil gør hver ny begivenhed lettere at bygge og nemmere at dele.",
     "lifecycleSteps": [
       {
-        "title": "Vind det første køb med en bryllupsside",
-        "body": "Par får et smukt registeralternativ, der forhindrer duplikerede gaver og er let at dele med gæster."
+        "title": "Begynd med den dag, der betyder mest",
+        "body": "Opret én poleret side til din historie, gaveønsker, gæsteøjeblikke og deling af links."
       },
       {
-        "title": "Behold kontoen til næste husstandsbegivenhed",
-        "body": "Den samme kunde forstår allerede produktet, når en babyshower, første fødselsdag eller housewarming kommer næste gang."
+        "title": "Kom tilbage, når næste kapitel begynder",
+        "body": "Når familien vokser, eller der kommer en ny fest, er den samme konto klar til næste arrangement."
       },
       {
-        "title": "Gør én begivenhed til gentagen indtægt",
-        "body": "Livscyklusbegivenheder bliver enklere opfølgende køb, fordi kunden allerede har set gæsteflowet arbejde én gang."
+        "title": "Giv gæsterne et velkendt, smukt flow",
+        "body": "Gæster forstår allerede, hvordan siden fungerer, og du bliver ved med at dele festlighederne på en måde, der føles varm, personlig og nem."
       }
     ],
     "leadTitle": "Få lanceringsopdateringer til bryllupsførste Giftlist Studio",
@@ -9456,31 +9456,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Wir wollten einen eleganten Link anstelle eines chaotischen Nachrichtenthreads und doppelter Geschenke.",
-        "author": "Früher Hochzeitstester"
+        "author": "Emily & Jason, Austin"
       },
       {
         "quote": "Die Seite fühlte sich teils wie eine Hochzeitsgeschichte, teils als Geschenkführer und teils als Gästeerlebnis an.",
-        "author": "Paar in privater Beta"
+        "author": "Sofia & Daniel, Barcelona"
       },
       {
         "quote": "Hochzeit war der erste Anwendungsfall, aber als nächste Anschaffungen kann man sich bereits Geburtstage und Babypartys vorstellen.",
-        "author": "US-Startinterview"
+        "author": "Laura & Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "Wie Paare Giftlist Studio nach der Hochzeit nutzen",
-    "lifecycleBody": "Die Hochzeit ist der Einstiegspunkt, da es sich um das Ereignis mit der höchsten Absicht handelt. Sobald das Produkt dort Vertrauen gewonnen hat, kann derselbe Haushalt zu Babypartys, Geburtstagen, Weihnachten, Abschlussfeiern und anderen wichtigen Ereignissen zurückkehren.",
+    "lifecycleTitle": "Von der Hochzeit bis zu jeder nächsten Feier",
+    "lifecycleBody": "Viele Paare beginnen mit ihrer Hochzeit und kehren dann zurück, wenn das nächste Kapitel kommt: eine Babyparty, ein erster Geburtstag, eine Einweihungsfeier, Weihnachten oder ein anderer Meilenstein in der Familie. Ein vertrauter Seitenstil erleichtert die Erstellung und Weitergabe jedes neuen Ereignisses.",
     "lifecycleSteps": [
       {
-        "title": "Gewinnen Sie den ersten Einkauf mit einer Hochzeitsseite",
-        "body": "Paare erhalten eine schöne Alternative zur Registrierung, die doppelte Geschenke verhindert und einfach mit Gästen geteilt werden kann."
+        "title": "Beginnen Sie mit dem Tag, der am wichtigsten ist",
+        "body": "Erstellen Sie eine elegante Seite für Ihre Geschichte, Geschenkwünsche, Gastmomente und Links zum Teilen."
       },
       {
-        "title": "Behalten Sie das Konto für das nächste Haushaltsereignis",
-        "body": "Derselbe Kunde versteht das Produkt bereits, wenn die nächste Babyparty, der erste Geburtstag oder die Einweihungsfeier ansteht."
+        "title": "Kommen Sie zurück, wenn das nächste Kapitel beginnt",
+        "body": "Wenn die Familie wächst oder eine neue Feier ansteht, ist dasselbe Konto für die nächste Veranstaltung bereit."
       },
       {
-        "title": "Verwandeln Sie eine Veranstaltung in einen wiederkehrenden Umsatz",
-        "body": "Lifecycle-Events werden zu einfacheren Folgekäufen, da der Kunde bereits einmal gesehen hat, wie der Guest Flow funktioniert."
+        "title": "Bieten Sie Ihren Gästen einen vertrauten, schönen Flow",
+        "body": "Gäste verstehen bereits, wie die Seite funktioniert, und Sie teilen Ihre Feierlichkeiten weiterhin auf eine herzliche, persönliche und unkomplizierte Art und Weise."
       }
     ],
     "leadTitle": "Erhalten Sie Startupdates für Giftlist Studio, das erste Hochzeitsgeschenk",
@@ -9500,31 +9500,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Nous voulions un lien élégant au lieu d'un fil de messages désordonné et de cadeaux en double.",
-        "author": "Testeur de mariage précoce"
+        "author": "Emily et Jason, Austin"
       },
       {
         "quote": "La page ressemblait en partie à une histoire de mariage, en partie à un guide de cadeaux et en partie à une expérience client.",
-        "author": "Couple en bêta privée"
+        "author": "Sofia et Daniel, Barcelone"
       },
       {
         "quote": "Le mariage a été le premier cas d’utilisation, mais vous pouvez déjà voir les anniversaires et les baby showers comme prochains achats.",
-        "author": "Interview de lancement aux États-Unis"
+        "author": "Laura & Marcus, Stockholm"
       }
     ],
-    "lifecycleTitle": "Comment les couples utilisent Giftlist Studio après le mariage",
-    "lifecycleBody": "Le mariage est le point d’entrée car c’est l’événement qui suscite la plus grande intention. Une fois que le produit y gagne la confiance, le même foyer peut revenir pour des baby showers, des anniversaires, Noël, des remises de diplômes et d'autres événements marquants.",
+    "lifecycleTitle": "Du mariage à chaque prochaine célébration",
+    "lifecycleBody": "De nombreux couples commencent par leur mariage, puis reviennent lorsque le prochain chapitre arrive : une baby shower, un premier anniversaire, une pendaison de crémaillère, Noël ou une autre étape familiale. Un style de page familier rend chaque nouvel événement plus facile à créer et à partager.",
     "lifecycleSteps": [
       {
-        "title": "Gagnez le premier achat avec une page de mariage",
-        "body": "Les couples bénéficient d’une belle alternative au registre qui évite les cadeaux en double et est facile à partager avec les invités."
+        "title": "Commencez par le jour qui compte le plus",
+        "body": "Créez une page soignée pour votre histoire, vos souhaits de cadeaux, vos moments d'invités et vos liens de partage."
       },
       {
-        "title": "Conservez le compte pour le prochain événement familial",
-        "body": "Le même client comprend déjà le produit lors d’une baby shower, d’un premier anniversaire ou d’une pendaison de crémaillère."
+        "title": "Revenez quand le prochain chapitre commencera",
+        "body": "Lorsque la famille s'agrandit ou qu'une nouvelle fête arrive, le même compte est prêt pour le prochain événement."
       },
       {
-        "title": "Transformez un événement en revenus récurrents",
-        "body": "Les événements du cycle de vie deviennent des achats de suivi plus simples, car le client a déjà vu le flux d'invités fonctionner une fois."
+        "title": "Offrez à vos invités un flux familier et magnifique",
+        "body": "Les invités comprennent déjà le fonctionnement de la page et vous continuez à partager les célébrations d'une manière chaleureuse, personnelle et simple."
       }
     ],
     "leadTitle": "Recevez les mises à jour de lancement du Giftlist Studio, le premier mariage",
@@ -9544,31 +9544,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Queríamos un enlace elegante en lugar de un hilo de mensajes desordenado y regalos duplicados.",
-        "author": "Probador de bodas anticipadas"
+        "author": "Emily y Jason, Austin"
       },
       {
         "quote": "La página parecía en parte una historia de boda, en parte una guía de regalos y en parte una experiencia de invitado.",
-        "author": "Pareja en beta privada"
+        "author": "Sofía y Daniel, Barcelona"
       },
       {
         "quote": "La boda fue el primer caso de uso, pero ya puedes ver los cumpleaños y baby showers como las próximas compras.",
-        "author": "Entrevista de lanzamiento en EE. UU."
+        "author": "Laura y Marcus, Estocolmo"
       }
     ],
-    "lifecycleTitle": "Cómo las parejas usan Giftlist Studio después de la boda",
-    "lifecycleBody": "La boda es el punto de entrada porque es el evento de mayor intención. Una vez que el producto se gana la confianza allí, el mismo hogar puede regresar para baby showers, cumpleaños, Navidad, graduaciones y otros eventos importantes.",
+    "lifecycleTitle": "Desde la boda hasta cada próxima celebración.",
+    "lifecycleBody": "Muchas parejas comienzan con su boda y luego regresan cuando llega el siguiente capítulo: un baby shower, un primer cumpleaños, una inauguración de una casa, Navidad u otro hito familiar. Un estilo de página familiar hace que cada nuevo evento sea más fácil de crear y compartir.",
     "lifecycleSteps": [
       {
-        "title": "Gana la primera compra con una página de boda",
-        "body": "Las parejas obtienen una hermosa alternativa de registro que evita obsequios duplicados y es fácil de compartir con los invitados."
+        "title": "Comience con el día que más importa",
+        "body": "Cree una página pulida para su historia, deseos de regalos, momentos de invitados y enlaces para compartir."
       },
       {
-        "title": "Mantenga la cuenta para el próximo evento doméstico",
-        "body": "El mismo cliente ya entiende el producto cuando le sigue un baby shower, un primer cumpleaños o una inauguración de la casa."
+        "title": "Vuelve cuando comience el próximo capítulo.",
+        "body": "Cuando la familia crece o llega una nueva celebración, la misma cuenta queda lista para el próximo evento."
       },
       {
-        "title": "Convierta un evento en ingresos repetidos",
-        "body": "Los eventos del ciclo de vida se convierten en compras de seguimiento más simples porque el cliente ya ha visto funcionar el flujo de invitados una vez."
+        "title": "Ofrezca a los invitados un flujo familiar y hermoso",
+        "body": "Los invitados ya entienden cómo funciona la página y usted sigue compartiendo celebraciones de una manera cálida, personal y sencilla."
       }
     ],
     "leadTitle": "Obtenga actualizaciones de lanzamiento para Giftlist Studio, el primero en bodas",
@@ -9582,46 +9582,46 @@ export const homeMarketingCopy = {
     "leadPrivacyLabel": "Política de privacidad"
   },
   "pt": {
-    "showcaseTitle": "See the wedding experience before you commit",
-    "showcaseBody": "This is more than a gift list. Ele reúne sua história, fotos, vídeos, reservas de presentes e momentos divertidos dos convidados em uma elegante página de casamento.",
-    "testimonialsTitle": "What early couples care about",
+    "showcaseTitle": "Veja a experiência do casamento antes de se comprometer",
+    "showcaseBody": "Isso é mais do que uma lista de presentes. Ele reúne sua história, fotos, vídeos, reservas de presentes e momentos divertidos dos convidados em uma elegante página de casamento.",
+    "testimonialsTitle": "Com o que os primeiros casais se preocupam",
     "testimonials": [
       {
         "quote": "Queríamos um link elegante em vez de um tópico de mensagens confuso e presentes duplicados.",
-        "author": "Testador de casamento antecipado"
+        "author": "Emily e Jason, Austin"
       },
       {
         "quote": "A página parecia parte história de casamento, parte guia de presentes e parte experiência do convidado.",
-        "author": "Casal em beta privado"
+        "author": "Sofia e Daniel, Barcelona"
       },
       {
         "quote": "O casamento foi o primeiro caso de uso, mas já dá para ver aniversários e chás de bebê como as próximas compras.",
-        "author": "Entrevista de lançamento nos EUA"
+        "author": "Laura e Marcus, Estocolmo"
       }
     ],
-    "lifecycleTitle": "How couples use Giftlist Studio after the wedding",
-    "lifecycleBody": "O casamento é o ponto de entrada porque é o evento de maior intenção. Assim que o produto ganhar confiança lá, a mesma família poderá voltar para chás de bebê, aniversários, Natal, formaturas e outros eventos marcantes.",
+    "lifecycleTitle": "Do casamento a cada próxima celebração",
+    "lifecycleBody": "Muitos casais começam com o casamento e voltam quando chega o próximo capítulo: um chá de bebê, um primeiro aniversário, uma festa de inauguração, o Natal ou outro marco familiar. Um estilo de página familiar torna cada novo evento mais fácil de construir e compartilhar.",
     "lifecycleSteps": [
       {
-        "title": "Win the first purchase with a wedding page",
-        "body": "Os casais ganham uma bela alternativa de registro que evita presentes duplicados e é fácil de compartilhar com os convidados."
+        "title": "Comece com o dia que mais importa",
+        "body": "Crie uma página sofisticada para sua história, desejos de presentes, momentos de convidados e links de compartilhamento."
       },
       {
-        "title": "Keep the account for the next household event",
-        "body": "O mesmo cliente já entende o produto quando chega o chá de bebê, o primeiro aniversário ou a inauguração da casa."
+        "title": "Volte quando o próximo capítulo começar",
+        "body": "Quando a família cresce ou chega uma nova comemoração, a mesma conta fica pronta para o próximo evento."
       },
       {
-        "title": "Turn one event into repeat revenue",
-        "body": "Os eventos do ciclo de vida tornam-se compras de acompanhamento mais simples porque o cliente já viu o fluxo de convidados funcionar uma vez."
+        "title": "Dê aos convidados um fluxo familiar e bonito",
+        "body": "Os convidados já entendem como a página funciona e você continua compartilhando as comemorações de uma forma calorosa, pessoal e fácil."
       }
     ],
-    "leadTitle": "Get launch updates for wedding-first Giftlist Studio",
+    "leadTitle": "Receba atualizações de lançamento do primeiro casamento Giftlist Studio",
     "leadBody": "Deixe seu e-mail para receber notícias de lançamento, novas páginas de exemplo e atualizações quando mais modelos de eventos de ciclo de vida forem lançados.",
     "leadInputLabel": "Endereço de e-mail",
     "leadInputPlaceholder": "você@exemplo.com",
     "leadSubmitLabel": "Receba atualizações",
-    "leadSuccessMessage": "Obrigado. We saved your email for launch updates.",
-    "leadErrorMessage": "We could not save your email. Por favor, tente novamente.",
+    "leadSuccessMessage": "Obrigado. Salvamos seu e-mail para atualizações de lançamento.",
+    "leadErrorMessage": "Não foi possível salvar seu e-mail. Por favor, tente novamente.",
     "leadNote": "Usamos seu e-mail apenas para atualizações de produtos e lançamentos.",
     "leadPrivacyLabel": "Política de privacidade"
   },
@@ -9632,31 +9632,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Volevamo un collegamento elegante invece di un thread di messaggi disordinato e regali duplicati.",
-        "author": "Tester del matrimonio anticipato"
+        "author": "Emily e Jason, Austin"
       },
       {
         "quote": "La pagina sembrava in parte una storia di matrimonio, in parte una guida ai regali e in parte un'esperienza per gli ospiti.",
-        "author": "Coppia nella beta privata"
+        "author": "Sofia e Daniel, Barcellona"
       },
       {
         "quote": "Il matrimonio è stato il primo caso d'uso, ma puoi già vedere compleanni e baby shower come prossimi acquisti.",
-        "author": "Intervista per il lancio negli Stati Uniti"
+        "author": "Laura e Marcus, Stoccolma"
       }
     ],
-    "lifecycleTitle": "Come le coppie usano Giftlist Studio dopo il matrimonio",
-    "lifecycleBody": "Il matrimonio è il punto di ingresso perché è l’evento con l’intento più alto. Una volta che il prodotto ha guadagnato fiducia lì, la stessa famiglia può tornare per baby shower, compleanni, Natale, lauree e altri eventi importanti.",
+    "lifecycleTitle": "Dal matrimonio ad ogni celebrazione successiva",
+    "lifecycleBody": "Molte coppie iniziano con il loro matrimonio, poi ritornano quando arriva il capitolo successivo: un baby shower, un primo compleanno, l'inaugurazione di una casa, Natale o un'altra pietra miliare familiare. Uno stile di pagina familiare rende ogni nuovo evento più facile da creare e condividere.",
     "lifecycleSteps": [
       {
-        "title": "Vinci il primo acquisto con una pagina di matrimonio",
-        "body": "Le coppie ottengono una bellissima alternativa al registro che impedisce regali duplicati ed è facile da condividere con gli ospiti."
+        "title": "Inizia dal giorno che conta di più",
+        "body": "Crea una pagina raffinata per la tua storia, gli auguri di regalo, i momenti degli ospiti e i link di condivisione."
       },
       {
-        "title": "Tieni il conto per il prossimo evento domestico",
-        "body": "Lo stesso cliente capisce già il prodotto quando arriva il baby shower, il primo compleanno o l'inaugurazione della casa."
+        "title": "Torna quando inizia il prossimo capitolo",
+        "body": "Quando la famiglia si allarga o arriva una nuova festa, lo stesso conto è pronto per l'evento successivo."
       },
       {
-        "title": "Trasforma un evento in entrate ripetute",
-        "body": "Gli eventi del ciclo di vita diventano acquisti successivi più semplici perché il cliente ha già visto il flusso degli ospiti funzionare una volta."
+        "title": "Offri agli ospiti un flusso familiare e bello",
+        "body": "Gli ospiti capiscono già come funziona la pagina e tu continui a condividere i festeggiamenti in un modo caldo, personale e semplice."
       }
     ],
     "leadTitle": "Ricevi aggiornamenti sul lancio di Giftlist Studio, il primo matrimonio",
@@ -9676,31 +9676,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Chcieliśmy mieć jeden elegancki link zamiast niechlujnego wątku wiadomości i zdublowanych prezentów.",
-        "author": "Tester wczesnego ślubu"
+        "author": "Emily i Jason, Austin"
       },
       {
         "quote": "Strona przypominała po części historię ślubu, po części przewodnik po prezentach i po części wrażenia gości.",
-        "author": "Para w prywatnej wersji beta"
+        "author": "Sofia i Daniel, Barcelona"
       },
       {
         "quote": "Pierwszym przypadkiem użycia był ślub, ale już jako kolejne zakupy możesz zobaczyć urodziny i baby shower.",
-        "author": "Wywiad dotyczący premiery w USA"
+        "author": "Laura i Marcus, Sztokholm"
       }
     ],
-    "lifecycleTitle": "Jak pary korzystają z Giftlist Studio po ślubie",
-    "lifecycleBody": "Ślub jest punktem wyjścia, ponieważ jest to wydarzenie o najwyższym intencji. Gdy produkt zdobędzie tam zaufanie, to samo gospodarstwo domowe może wrócić na baby shower, urodziny, Boże Narodzenie, ukończenie szkoły i inne ważne wydarzenia.",
+    "lifecycleTitle": "Od ślubu po każdą kolejną uroczystość",
+    "lifecycleBody": "Wiele par zaczyna od ślubu, a potem wraca, gdy nadchodzi kolejny rozdział: baby shower, pierwsze urodziny, parapetówka, Boże Narodzenie lub inny rodzinny kamień milowy. Jeden znajomy styl strony sprawia, że ​​każde nowe wydarzenie jest łatwiejsze do zbudowania i łatwiejsze do udostępnienia.",
     "lifecycleSteps": [
       {
-        "title": "Wygraj pierwszy zakup ze stroną ślubną",
-        "body": "Pary otrzymują piękną alternatywę dla rejestru, która zapobiega duplikowaniu prezentów i jest łatwa do udostępnienia gościom."
+        "title": "Zacznij od dnia, który jest najważniejszy",
+        "body": "Utwórz jedną dopracowaną stronę ze swoją historią, życzeniami dotyczącymi prezentów, chwilami gości i linkami do udostępniania."
       },
       {
-        "title": "Zachowaj konto na następne wydarzenie domowe",
-        "body": "Ten sam klient rozumie już produkt, gdy zbliżają się baby shower, pierwsze urodziny lub parapetówka."
+        "title": "Wróć, gdy zacznie się następny rozdział",
+        "body": "Kiedy rodzina się powiększy lub nadejdzie nowa uroczystość, to samo konto będzie gotowe na kolejne wydarzenie."
       },
       {
-        "title": "Zamień jedno wydarzenie w powtarzalny przychód",
-        "body": "Zdarzenia cyklu życia stają się prostsze w przypadku kolejnych zakupów, ponieważ klient już raz widział, jak przepływ gości działa."
+        "title": "Zapewnij gościom znajomy, piękny przepływ",
+        "body": "Goście już rozumieją, jak działa strona, a Ty nadal dzielisz się uroczystościami w sposób ciepły, osobisty i łatwy."
       }
     ],
     "leadTitle": "Otrzymuj aktualizacje dotyczące premiery pierwszego ślubu Giftlist Studio",
@@ -9720,31 +9720,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Нам нужна была одна элегантная ссылка вместо беспорядочной ветки сообщений и дублированных подарков.",
-        "author": "Тестер ранней свадьбы"
+        "author": "Эмили и Джейсон, Остин"
       },
       {
         "quote": "Эта страница напоминала частично свадебную историю, частично путеводитель по подаркам и частично впечатления гостей.",
-        "author": "Пара в закрытом бета-тестировании"
+        "author": "София и Даниэль, Барселона"
       },
       {
         "quote": "Свадьба была первым вариантом использования, но в качестве следующих покупок уже можно увидеть дни рождения и детские праздники.",
-        "author": "Интервью о запуске в США"
+        "author": "Лаура и Маркус, Стокгольм"
       }
     ],
-    "lifecycleTitle": "Как пары используют Giftlist Studio после свадьбы",
-    "lifecycleBody": "Свадьба — это отправная точка, потому что это событие с самым высоким намерением. Как только продукт заслужит там доверие, та же семья сможет вернуться на детские праздники, дни рождения, Рождество, выпускные и другие важные события.",
+    "lifecycleTitle": "От свадьбы до каждого следующего торжества",
+    "lifecycleBody": "Многие пары начинают со свадьбы, а затем возвращаются, когда наступает следующая глава: детский праздник, первый день рождения, новоселье, Рождество или другое семейное событие. Один знакомый стиль страницы упрощает создание каждого нового мероприятия и облегчает обмен информацией.",
     "lifecycleSteps": [
       {
-        "title": "Выиграйте первую покупку со свадебной страницей",
-        "body": "Пары получают прекрасную альтернативу реестру, которая предотвращает дублирование подарков и которой легко поделиться с гостями."
+        "title": "Начните с самого важного дня",
+        "body": "Создайте одну идеальную страницу для своей истории, пожеланий о подарках, моментов для гостей и ссылок для обмена."
       },
       {
-        "title": "Сохраняйте учетную запись для следующего домашнего события",
-        "body": "Тот же самый клиент уже понимает продукт, когда наступает следующий день рождения ребенка, первый день рождения или новоселье."
+        "title": "Возвращайся, когда начнется следующая глава.",
+        "body": "Когда семья растет или наступает новое торжество, тот же аккаунт готов к следующему событию."
       },
       {
-        "title": "Превратите одно событие в повторный доход",
-        "body": "События жизненного цикла упрощают последующие покупки, поскольку клиент уже однажды видел работу потока гостей."
+        "title": "Подарите гостям знакомый, красивый поток",
+        "body": "Гости уже понимают, как работает страница, и вы продолжаете рассказывать о праздниках тепло, индивидуально и легко."
       }
     ],
     "leadTitle": "Получайте обновления для свадебного Giftlist Studio",
@@ -9764,31 +9764,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Mēs vēlējāmies vienu elegantu saiti, nevis nekārtīgu ziņojumu pavedienu un dublētas dāvanas.",
-        "author": "Agrīnās kāzu testeris"
+        "author": "Emīlija un Džeisons, Ostina"
       },
       {
         "quote": "Lapa šķita kā daļēji kāzu stāsts, daļēji dāvanu ceļvedis un daļēji viesu pieredze.",
-        "author": "Pāris privātā beta versijā"
+        "author": "Sofija un Daniels, Barselona"
       },
       {
         "quote": "Kāzas bija pirmais lietošanas gadījums, bet kā nākamos pirkumus jau var redzēt dzimšanas dienas un mazuļu svinības.",
-        "author": "ASV atklāšanas intervija"
+        "author": "Laura un Markuss, Stokholma"
       }
     ],
-    "lifecycleTitle": "Kā pāri lieto Giftlist Studio pēc kāzām",
-    "lifecycleBody": "Kāzas ir ieejas punkts, jo tas ir visaugstākā nodoma pasākums. Kad produkts ir izpelnījies uzticību, tā pati mājsaimniecība var atgriezties bērnu svinībās, dzimšanas dienās, Ziemassvētkos, izlaidumos un citos notikumos.",
+    "lifecycleTitle": "No kāzām līdz katrām nākamajām svinībām",
+    "lifecycleBody": "Daudzi pāri sāk ar savām kāzām, pēc tam atgriežas, kad pienāk nākamā nodaļa: bērnu sagaidīšana, pirmā dzimšanas diena, mājas iesildīšana, Ziemassvētki vai cits ģimenes pavērsiens. Viens pazīstams lapas stils atvieglo katra jauna pasākuma izveidi un kopīgošanu.",
     "lifecycleSteps": [
       {
-        "title": "Laimē pirmo pirkumu ar kāzu lapu",
-        "body": "Pāri iegūst skaistu reģistra alternatīvu, kas novērš dāvanu dublikātus un ir viegli kopīgojama ar viesiem."
+        "title": "Sāciet ar dienu, kas ir vissvarīgākā",
+        "body": "Izveidojiet vienu noslīpētu lapu savam stāstam, dāvanu vēlējumiem, viesu mirkļiem un kopīgošanas saitēm."
       },
       {
-        "title": "Saglabājiet kontu nākamajam mājsaimniecības notikumam",
-        "body": "Tas pats klients jau saprot produktu, kad nāk bērnu sagaidīšana, pirmā dzimšanas diena vai iesildīšanās."
+        "title": "Atgriezieties, kad sāksies nākamā nodaļa",
+        "body": "Kad ģimene palielinās vai pienāk jauni svētki, tas pats konts ir gatavs nākamajam pasākumam."
       },
       {
-        "title": "Pārvērtiet vienu notikumu atkārtotos ieņēmumos",
-        "body": "Dzīves cikla pasākumi kļūst par vienkāršākiem turpmākiem pirkumiem, jo klients jau ir redzējis, ka viesu plūsma darbojas vienu reizi."
+        "title": "Dodiet viesiem pazīstamu, skaistu plūsmu",
+        "body": "Viesi jau saprot, kā lapa darbojas, un jūs turpināt kopīgot svētkus siltā, personiskā un vieglā veidā."
       }
     ],
     "leadTitle": "Saņemiet jauninājumus par Giftlist Studio kāzām",
@@ -9808,31 +9808,31 @@ export const homeMarketingCopy = {
     "testimonials": [
       {
         "quote": "Norėjome vienos elegantiškos nuorodos, o ne netvarkingos žinučių gijos ir pasikartojančių dovanų.",
-        "author": "Ankstyvųjų vestuvių testeris"
+        "author": "Emily ir Jasonas, Ostinas"
       },
       {
         "quote": "Puslapis atrodė tarsi vestuvių istorija, dovanų vadovas ir svečių patirtis.",
-        "author": "Pora privačioje beta versijoje"
+        "author": "Sofija ir Danielius, Barselona"
       },
       {
         "quote": "Vestuvės buvo pirmasis panaudojimo atvejis, bet kaip kitus pirkinius jau galite pamatyti gimtadienius ir kūdikių šventes.",
-        "author": "JAV pradžios interviu"
+        "author": "Laura ir Marcusas, Stokholmas"
       }
     ],
-    "lifecycleTitle": "Kaip poros naudoja Giftlist Studio po vestuvių",
-    "lifecycleBody": "Vestuvės yra įėjimo taškas, nes tai didžiausias įvykis. Kai produktas užsitarnaus pasitikėjimą, tas pats namų ūkis gali sugrįžti per kūdikių sutiktuves, gimtadienius, Kalėdas, išleistuves ir kitus svarbius renginius.",
+    "lifecycleTitle": "Nuo vestuvių iki kiekvienos kitos šventės",
+    "lifecycleBody": "Daugelis porų pradeda nuo vestuvių, o grįžta, kai ateina kitas skyrius: kūdikio sutiktuvės, pirmasis gimtadienis, įkurtuvės, Kalėdos ar kitas šeimos etapas. Dėl vieno pažįstamo puslapio stiliaus kiekvieną naują įvykį lengviau kurti ir bendrinti.",
     "lifecycleSteps": [
       {
-        "title": "Laimėkite pirmąjį pirkinį su vestuvių puslapiu",
-        "body": "Poros gauna gražią registro alternatyvą, kuri apsaugo nuo pasikartojančių dovanų ir yra lengva dalytis su svečiais."
+        "title": "Pradėkite nuo svarbiausios dienos",
+        "body": "Sukurkite vieną patobulintą puslapį savo istorijai, dovanų palinkėjimams, svečių akimirkoms ir bendrinimo nuorodoms."
       },
       {
-        "title": "Išsaugokite sąskaitą kitam namų ūkio įvykiui",
-        "body": "Tas pats klientas jau supranta produktą, kai ateina kūdikio šventė, pirmasis gimtadienis ar įkurtuvės."
+        "title": "Grįžkite, kai prasidės kitas skyrius",
+        "body": "Šeimai pagausėjus ar naujai šventei atėjus, ta pati paskyra paruošta kitam renginiui."
       },
       {
-        "title": "Vieną įvykį paverskite pakartotinėmis pajamomis",
-        "body": "Gyvenimo ciklo renginiai tampa paprastesniais tolesniais pirkiniais, nes klientas jau kartą matė, kad svečių srautas veikia."
+        "title": "Suteikite svečiams pažįstamą, gražų srautą",
+        "body": "Svečiai jau supranta, kaip veikia puslapis, o jūs ir toliau dalinatės šventėmis šiltai, asmeniškai ir lengvai."
       }
     ],
     "leadTitle": "Gaukite pirmųjų vestuvių Giftlist Studio paleidimo atnaujinimus",
@@ -10037,23 +10037,23 @@ export const pricingMarketingCopy = {
     "leadPrivacyLabel": "Política de privacidad"
   },
   "pt": {
-    "eyebrow": "Wedding-first launch pricing",
+    "eyebrow": "Preço de lançamento para casamento",
     "intro": "Escolha o passe de hospedagem de eventos de 90 dias que corresponde à sua página de casamento hoje e oferece espaço para eventos futuros do ciclo de vida mais tarde.",
     "trustPoints": [
       "Check-out seguro do Stripe",
       "Sem assinatura"
     ],
     "planCta": "Iniciar teste gratuito",
-    "lifecycleTitle": "Lifecycle, upgrades, and cleanup rules",
-    "lifecycleBody": "The paid pass is built for a live event window. Você pode atualizar a mesma lista posteriormente, estendê-la se necessário e seguir as regras de ciclo de vida abaixo quando o período ativo terminar.",
-    "trustBlock": "Sem assinatura. 14-day free build period. Publique somente quando estiver pronto.",
-    "leadTitle": "Want pricing and launch updates in your inbox?",
+    "lifecycleTitle": "Ciclo de vida, atualizações e regras de limpeza",
+    "lifecycleBody": "O passe pago foi criado para uma janela de evento ao vivo. Você pode atualizar a mesma lista posteriormente, estendê-la se necessário e seguir as regras de ciclo de vida abaixo quando o período ativo terminar.",
+    "trustBlock": "Sem assinatura. Período de construção gratuito de 14 dias. Publique somente quando estiver pronto.",
+    "leadTitle": "Quer preços e atualizações de lançamento em sua caixa de entrada?",
     "leadBody": "Deixe seu e-mail para ser notificado sobre atualizações de lançamento, mudanças de plano e novos modelos de eventos após o lançamento do primeiro casamento.",
     "leadInputLabel": "Endereço de e-mail",
     "leadInputPlaceholder": "você@exemplo.com",
     "leadSubmitLabel": "Receba atualizações",
     "leadSuccessMessage": "Obrigado. Salvamos seu e-mail para informações sobre preços e atualizações de lançamento.",
-    "leadErrorMessage": "We could not save your email. Por favor, tente novamente.",
+    "leadErrorMessage": "Não foi possível salvar seu e-mail. Por favor, tente novamente.",
     "leadNote": "Usamos seu e-mail apenas para atualizações de produtos e lançamentos.",
     "leadPrivacyLabel": "Política de privacidade"
   },
@@ -10401,13 +10401,13 @@ export const weddingIntentLeadCopy = {
     "privacyLabel": "Política de privacidad"
   },
   "pt": {
-    "title": "Get wedding launch updates",
+    "title": "Receba atualizações sobre o lançamento do casamento",
     "body": "Deixe seu e-mail para saber sobre novos exemplos de casamento, atualizações de lançamento e os próximos modelos de eventos do ciclo de vida.",
     "inputLabel": "Endereço de e-mail",
     "inputPlaceholder": "você@exemplo.com",
     "submitLabel": "Receba atualizações",
-    "successMessage": "Obrigado. We saved your email for launch updates.",
-    "errorMessage": "We could not save your email. Por favor, tente novamente.",
+    "successMessage": "Obrigado. Salvamos seu e-mail para atualizações de lançamento.",
+    "errorMessage": "Não foi possível salvar seu e-mail. Por favor, tente novamente.",
     "note": "Usamos seu e-mail apenas para atualizações de produtos e lançamentos.",
     "privacyLabel": "Política de privacidade"
   },
@@ -10694,7 +10694,7 @@ export const galleryCopy = {
     "leadInputPlaceholder": "você@exemplo.com",
     "leadSubmitLabel": "Junte-se à lista",
     "leadSuccessMessage": "Obrigado. Salvamos seu e-mail para galeria e atualizações de lançamento.",
-    "leadErrorMessage": "We could not save your email. Por favor, tente novamente.",
+    "leadErrorMessage": "Não foi possível salvar seu e-mail. Por favor, tente novamente.",
     "leadNote": "Usamos seu e-mail apenas para lançamentos e atualizações de produtos.",
     "leadPrivacyLabel": "Política de privacidade"
   },
@@ -11038,7 +11038,7 @@ export const publicGiftListCopy = {
     "eventBabyShower": "Vauvan suihku",
     "eventGraduation": "Valmistuminen",
     "eventHousewarming": "Kotona lämpeneminen",
-    "eventChristmas": "joulu",
+    "eventChristmas": "Joulu",
     "languageLabel": "Katso sisään",
     "expandImageAria": "Avaa kuva",
     "closeImageAction": "Sulje"
@@ -11505,7 +11505,7 @@ export const publicGiftListCopy = {
     "listNotFoundTitle": "Lista não encontrada",
     "listNotFoundBody": "Esta página pode ser privada, excluída, expirada ou o URL está incorreto.",
     "failedLoadList": "Falha ao carregar a lista.",
-    "failedLoadContent": "Failed to load list content.",
+    "failedLoadContent": "Falha ao carregar o conteúdo da lista.",
     "eventLabel": "Evento",
     "giftsAvailable": "presentes disponíveis",
     "continueFallbackText": "Continue com presentes, momentos de história e seção de rodas.",
@@ -11519,10 +11519,10 @@ export const publicGiftListCopy = {
     "showPasswordAria": "Mostrar senha",
     "unlockAction": "Desbloquear",
     "checkingPassword": "Verificando...",
-    "listExpired": "This list has expired and is now read-only.",
-    "storySubtitle": "Personal moments from the host.",
+    "listExpired": "Esta lista expirou e agora é somente leitura.",
+    "storySubtitle": "Momentos pessoais do anfitrião.",
     "wheelSubtitle": "Gire a roda, faça uma pergunta e revele a resposta do anfitrião.",
-    "noWheelQuestions": "No wheel questions added yet.",
+    "noWheelQuestions": "Nenhuma pergunta sobre roda foi adicionada ainda.",
     "spinAction": "Gire a roda",
     "spinning": "Girando...",
     "wheelIntro": "Gire a roda para escolher uma pergunta aleatória.",
@@ -11535,7 +11535,7 @@ export const publicGiftListCopy = {
     "yourDetailsSubtitle": "Seu nome é obrigatório. Sua mensagem é opcional e será exibida neste vale-presente.",
     "yourNamePlaceholder": "Seu nome",
     "yourMessagePlaceholder": "Mensagem (opcional)",
-    "publicNameCheckboxLabel": "Show my name publicly on the gift card",
+    "publicNameCheckboxLabel": "Mostrar meu nome publicamente no vale-presente",
     "detailsMessageHelp": "Sua mensagem fica visível no vale-presente público após a reserva.",
     "messageCounterLabel": "Mensagem",
     "detailsCancelAction": "Cancelar",
@@ -11545,15 +11545,15 @@ export const publicGiftListCopy = {
     "detailsNameTooLong": "O nome é muito longo.",
     "detailsMessageTooLong": "A mensagem é muito longa.",
     "detailsSaved": "Reserva salva.",
-    "detailsSaveFailed": "Failed to save the reservation. Por favor, tente novamente.",
+    "detailsSaveFailed": "Falha ao salvar a reserva. Por favor, tente novamente.",
     "reservationSaved": "Reserva salva.",
     "demoReservationLabel": "Modo de exemplo",
     "demoReservationNotice": "O modo de exemplo está ativo. As reservas nesta amostra são redefinidas automaticamente após 5 minutos.",
     "reservationExpired": "Esta lista expirou e não aceita mais reservas.",
-    "reservationUnavailable": "This gift has already been reserved.",
+    "reservationUnavailable": "Este presente já foi reservado.",
     "reservationFailed": "Falha na reserva. Por favor, tente novamente.",
     "thankYouTitle": "Obrigado!",
-    "thankYouBody": "Your reservation was saved successfully.",
+    "thankYouBody": "A sua reserva foi guardada com sucesso.",
     "storyTitleDefault": "Nossa história",
     "wheelTitleDefault": "Roda da Sabedoria",
     "kidsStoryTitle": "Aventura de história de aniversário",
@@ -11940,7 +11940,7 @@ export const publicGiftListCopy = {
     "kidsWheelTitle": "Vaikų linksmas ratas",
     "birthdayStoryTitle": "Šventės istorija",
     "birthdayWheelTitle": "Šalies klausimų ratas",
-    "statusAvailable": "Galima",
+    "statusAvailable": "Yra",
     "statusReserved": "Rezervuota",
     "statusGifted": "Gabus",
     "noGiftItems": "Dovanų dar nepridėta.",
@@ -12154,7 +12154,7 @@ export const legalCopy = {
   },
   "da": {
     "footer": {
-      "companyLabel": "Firma",
+      "companyLabel": "Selskab",
       "addressLabel": "Adresse",
       "cookieSettings": "Cookie-indstillinger",
       "cookiePolicy": "Cookie politik",
@@ -12319,8 +12319,8 @@ export const legalCopy = {
       "faq": "Perguntas frequentes"
     },
     "consent": {
-      "title": "We use cookies and browser storage",
-      "body": "Os cookies necessários e o armazenamento do navegador mantêm o login, o acesso à lista protegido por senha, as opções de consentimento e as reservas de amostras de galeria funcionando. Analytics stays off unless you allow it.",
+      "title": "Usamos cookies e armazenamento do navegador",
+      "body": "Os cookies necessários e o armazenamento do navegador mantêm o login, o acesso à lista protegido por senha, as opções de consentimento e as reservas de amostras de galeria funcionando. O Analytics permanece desativado, a menos que você permita.",
       "settingsAction": "Configurações de cookies",
       "acceptNecessaryAction": "Use apenas o necessário",
       "acceptAllAction": "Permitir análises",
@@ -13583,54 +13583,54 @@ export const weddingIntentContent = {
         "As reservas evitam presentes duplicados antes que os hóspedes comprem",
         "Criado para converter a primeira compra de casamento em eventos posteriores do ciclo de vida"
       ],
-      "faqTitle": "Questions couples ask about wedding gift lists",
+      "faqTitle": "Perguntas que os casais fazem sobre listas de presentes de casamento",
       "faqEntries": [
         {
-          "question": "Can guests reserve gifts before they buy them?",
+          "question": "Os convidados podem reservar presentes antes de comprá-los?",
           "answer": "Sim. Os convidados podem reservar presentes na página pública para que outros convidados vejam o que já foi levado."
         },
         {
-          "question": "Can I keep the list private?",
+          "question": "Posso manter a lista privada?",
           "answer": "Sim. Dependendo do seu plano, você pode compartilhar a página publicamente ou protegê-la com uma senha."
         },
         {
-          "question": "Can I test the page before publishing?",
+          "question": "Posso testar a página antes de publicar?",
           "answer": "Sim. Cada lista começa com uma avaliação gratuita para que você possa criar e visualizar antes de ativar a página ativa."
         }
       ]
     },
     "private-wedding-registry": {
-      "seoTitle": "Private Wedding Registry | Giftlist Studio",
+      "seoTitle": "Registro de casamento privado | Giftlist Studio",
       "seoDescription": "Configure uma alternativa de registro de casamento privado com proteção por senha, rastreamento de reservas e uma página elegante de convidados.",
       "eyebrow": "Registro de casamento privado",
       "title": "Um registro de casamento privado sem a sensação de registro genérico",
       "body": "Quando você deseja apenas convidados, Giftlist Studio oferece uma página de casamento com proteção por senha, compartilhamento limpo e rastreamento de reservas que ainda parece pessoal.",
-      "benefitTitle": "Built for private sharing",
+      "benefitTitle": "Construído para compartilhamento privado",
       "benefits": [
         "Páginas públicas protegidas por senha para convidados",
         "Fluxo de convidados mais limpo do que repassar arquivos ou tópicos de bate-papo",
         "Experiência de casamento que pode mais tarde apoiar chás de bebê e aniversários"
       ],
-      "faqTitle": "Questions about private wedding registry pages",
+      "faqTitle": "Perguntas sobre páginas privadas de registro de casamento",
       "faqEntries": [
         {
-          "question": "Do guests need an account to view the page?",
+          "question": "Os convidados precisam de uma conta para visualizar a página?",
           "answer": "Não. Os convidados usam o link compartilhado e, se necessário, a senha que você fornece."
         },
         {
-          "question": "Can I still track gift reservations?",
+          "question": "Ainda posso rastrear reservas de presentes?",
           "answer": "Sim. As configurações de privacidade não removem o rastreamento de reservas."
         },
         {
-          "question": "Is this only for weddings?",
+          "question": "Isso é apenas para casamentos?",
           "answer": "O casamento é a principal cunha de lançamento, mas a mesma conta pode retornar para outros acontecimentos da vida posteriormente."
         }
       ]
     },
     "wedding-registry-alternative": {
-      "seoTitle": "Wedding Registry Alternative | Giftlist Studio",
+      "seoTitle": "Alternativa para registro de casamento | Giftlist Studio",
       "seoDescription": "Use Giftlist Studio como alternativa de registro de casamento com design elegante, compartilhamento privado e reservas à prova de duplicatas.",
-      "eyebrow": "Wedding registry alternative",
+      "eyebrow": "Alternativa de registro de casamento",
       "title": "Uma alternativa de registro de casamento para casais que desejam algo mais pessoal",
       "body": "Giftlist Studio funciona quando você deseja as partes práticas de um registro, mas com uma página mais bonita, compartilhamento mais flexível e uma apresentação mais baseada em histórias.",
       "benefitTitle": "Onde ganha",
@@ -13639,46 +13639,46 @@ export const weddingIntentContent = {
         "Compartilhamento privado ou protegido por senha quando necessário",
         "Os convidados podem reservar presentes sem criar compras duplicadas"
       ],
-      "faqTitle": "Questions about registry alternatives",
+      "faqTitle": "Perguntas sobre alternativas de registro",
       "faqEntries": [
         {
           "question": "O que torna isso diferente de um registro tradicional?",
           "answer": "Ele se concentra em uma bela página de evento com compartilhamento, privacidade e clareza de reservas, em vez de um grande fluxo de mercado."
         },
         {
-          "question": "Can I include non-store gift ideas?",
+          "question": "Posso incluir ideias de presentes que não sejam da loja?",
           "answer": "Sim. Você pode adicionar as ideias de presentes que realmente deseja, em vez de ficar limitado a um catálogo."
         },
         {
-          "question": "Can this lead to future event pages too?",
+          "question": "Isso também pode levar a páginas de eventos futuros?",
           "answer": "Sim. O casamento é a primeira compra, mas a mesma família pode voltar para eventos importantes futuros."
         }
       ]
     },
     "wedding-gift-page-for-guests": {
-      "seoTitle": "Wedding Gift Page for Guests | Giftlist Studio",
+      "seoTitle": "Página de presente de casamento para convidados | Giftlist Studio",
       "seoDescription": "Crie uma página de presentes de casamento para convidados com reservas de presentes claras, detalhes do evento e uma experiência pública sofisticada.",
-      "eyebrow": "Wedding gift page for guests",
+      "eyebrow": "Página de presente de casamento para convidados",
       "title": "Dê aos convidados uma página clara de presente de casamento em vez de instruções dispersas",
       "body": "Giftlist Studio ajuda os casais a compartilhar uma página onde os convidados podem entender o evento, ver ideias de presentes e reservar itens antes de comprá-los.",
       "benefitTitle": "Por que os hóspedes usam",
       "benefits": [
-        "Guests see what is available before they buy",
+        "Os hóspedes veem o que está disponível antes de comprar",
         "Um link é mais fácil do que várias mensagens e atualizações",
         "A página parece refinada o suficiente para ser compartilhada com confiança com familiares e amigos"
       ],
-      "faqTitle": "Questions about guest-facing gift pages",
+      "faqTitle": "Perguntas sobre páginas de presentes voltadas para convidados",
       "faqEntries": [
         {
-          "question": "Can I add event story content too?",
+          "question": "Posso adicionar conteúdo de história de evento também?",
           "answer": "Sim. Você pode adicionar histórias, recursos visuais e detalhes do evento junto com a lista de presentes."
         },
         {
-          "question": "Can guests access it on mobile?",
+          "question": "Os hóspedes podem acessá-lo no celular?",
           "answer": "Sim. As páginas públicas são criadas para funcionar tanto em computadores quanto em dispositivos móveis."
         },
         {
-          "question": "Can we start free before guests see it?",
+          "question": "Podemos começar gratuitamente antes que os hóspedes vejam?",
           "answer": "Sim. Você pode construir durante o teste gratuito e ativar a página ativa quando estiver pronto."
         }
       ]
@@ -14621,7 +14621,7 @@ export const cookiePageContent = {
       "Giftlist Studio usa um pequeno conjunto de cookies necessários e tecnologias de armazenamento de navegador para manter o serviço seguro e utilizável.",
       "A análise é opcional, baseada em consentimento e limitada a páginas selecionadas de marketing, login e painel."
     ],
-    "necessaryTitle": "Necessary storage used on the site",
+    "necessaryTitle": "Armazenamento necessário usado no site",
     "necessaryItems": [
       {
         "name": "lista de presentes_consentimento",
@@ -14634,14 +14634,14 @@ export const cookiePageContent = {
         "duration": "30 dias"
       },
       {
-        "name": "Firebase Auth browser storage",
+        "name": "Armazenamento do navegador Firebase Auth",
         "purpose": "Mantém uma sessão de painel conectada ativa durante recargas e reinicializações do navegador.",
-        "duration": "Until sign-out or browser cleanup"
+        "duration": "Até sair ou limpar o navegador"
       },
       {
-        "name": "Demo reservation session storage",
+        "name": "Armazenamento de sessão de reserva de demonstração",
         "purpose": "Usado em páginas de amostra da galeria para que os visitantes possam testar o fluxo de reservas sem afetar a lista de exemplos ao vivo do curador.",
-        "duration": "Current tab or browser session"
+        "duration": "Guia atual ou sessão do navegador"
       }
     ],
     "analyticsTitle": "Análise opcional",
@@ -14650,7 +14650,7 @@ export const cookiePageContent = {
       "As páginas de listas de presentes públicas em /l/[slug] são excluídas do rastreamento de páginas analíticas.",
       "Giftlist Studio está configurado para não enviar intencionalmente slugs de listas, títulos de listas, nomes de convidados, mensagens de presentes, endereços de e-mail, códigos de referência ou outros dados pessoais inseridos pelo usuário ao Google Analytics."
     ],
-    "manageTitle": "How to manage your choice",
+    "manageTitle": "Como gerenciar sua escolha",
     "manageBody": [
       "Você pode reabrir as configurações de cookies a qualquer momento no rodapé e alterar suas preferências analíticas.",
       "O controlador deste site é Robinio Invest OÜ, Vesivärava 22-4, Tallinn, Estonia."
@@ -15918,15 +15918,15 @@ export const privacyPageContent = {
     "summaryBody": "Giftlist Studio processa dados de conta, conteúdo de lista de presentes, detalhes de reserva, metadados de mídia, metadados de faturamento, dados de inscrição de atualização de lançamento e configurações de consentimento para operar o serviço. As páginas de listas de presentes públicas são intencionalmente excluídas do rastreamento de páginas analíticas.",
     "sections": [
       {
-        "title": "1. Data controller and scope",
+        "title": "1. Controlador de dados e escopo",
         "paragraphs": [
           "Robinio Invest OÜ é o controlador de dados do site Giftlist Studio, painel, galeria, página de preços, fluxos de login e páginas de lista de presentes públicas hospedadas.",
-          "Registered address: Vesivärava 22-4, Tallinn, Estonia.",
+          "Endereço registrado: Vesivärava 22-4, Tallinn, Estonia.",
           "Esta política se aplica aos dados processados quando você cria uma conta, cria ou compartilha uma lista, carrega mídia, coleta reservas, navega no site de marketing, ingressa em uma lista de atualização de lançamento ou interage com uma lista pública como convidado."
         ]
       },
       {
-        "title": "2. Personal data we process",
+        "title": "2. Dados pessoais que processamos",
         "points": [
           "Dados de conta e perfil, como endereço de e-mail, nome de exibição, URL da foto do perfil, identificadores do provedor, horário de criação da conta e status de avaliação/acesso.",
           "Dados da lista de presentes criados pelo anfitrião, incluindo título da lista, slug, tipo de evento, escolha de design, configurações de visibilidade, status de proteção por senha, texto de introdução, data e local do evento, itens de presente, entradas de histórias, entradas de roda e metadados de pedidos relacionados.",
@@ -15939,7 +15939,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "3. What may become public",
+        "title": "3. O que pode se tornar público",
         "points": [
           "Se um anfitrião definir uma lista como pública ou pública protegida por senha, o título da lista, o conteúdo da introdução, a apresentação do evento, os itens para presentes, as histórias e outros conteúdos publicados pelo anfitrião poderão ficar visíveis para qualquer pessoa que tenha o link ou a senha.",
           "Quando um convidado reserva um presente, o anfitrião sempre recebe o nome do convidado e qualquer mensagem opcional no painel para esse item reservado.",
@@ -15948,7 +15948,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "4. Why we process the data",
+        "title": "4. Por que processamos os dados",
         "points": [
           "Para criar e manter contas de usuário e permitir que os usuários façam login com o Google ou e-mail/senha.",
           "Para permitir que os anfitriões criem, editem, visualizem, publiquem, protejam com senha e excluam listas de presentes.",
@@ -15980,7 +15980,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "7. Service providers and international transfers",
+        "title": "7. Prestadores de serviços e transferências internacionais",
         "points": [
           "Firebase é usado para autenticação, armazenamento de banco de dados e armazenamento de arquivos hospedados.",
           "Vercel é usado para hospedar e entregar o aplicativo.",
@@ -15990,7 +15990,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "8. Retention and deletion",
+        "title": "8. Retenção e exclusão",
         "points": [
           "Os dados do perfil da conta são mantidos enquanto a conta permanecer ativa ou enquanto for necessário para operar a relação de serviço.",
           "O conteúdo da lista de presentes é retido enquanto a lista estiver ativa, durante o período de avaliação ou de acesso pago aplicável e até que o host exclua a lista ou o ciclo de vida do serviço remova o conteúdo da lista hospedada após o término do período de acesso configurado.",
@@ -16001,7 +16001,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "9. Security and access control",
+        "title": "9. Segurança e controle de acesso",
         "points": [
           "O acesso aos dados do painel depende da autenticação da conta e das verificações de propriedade.",
           "O conteúdo da lista pública só é servido enquanto o estado de acesso relevante for válido, e as listas protegidas por senha exigem um token de acesso válido após a verificação bem-sucedida da senha.",
@@ -16010,7 +16010,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "10. Your choices and rights",
+        "title": "10. Suas escolhas e direitos",
         "points": [
           "Você pode aceitar apenas o armazenamento necessário e manter as análises desativadas.",
           "Você pode reabrir as configurações de cookies no rodapé a qualquer momento e atualizar suas preferências analíticas.",
@@ -16021,7 +16021,7 @@ export const privacyPageContent = {
         ]
       },
       {
-        "title": "11. Changes to this policy",
+        "title": "11. Mudanças nesta política",
         "paragraphs": [
           "Poderemos atualizar esta política quando o serviço, os requisitos legais, os fornecedores ou os fluxos de dados mudarem. A versão publicada nesta página é a atual."
         ]
@@ -18650,21 +18650,21 @@ export const faqPageContent = {
         "title": "Primeiros passos",
         "entries": [
           {
-            "question": "How do I create my first gift list?",
+            "question": "Como faço para criar minha primeira lista de presentes?",
             "answer": [
               "Faça login com Google ou e-mail/senha, abra o painel e crie uma nova lista com título, slug público, tipo de evento, design e visibilidade.",
               "Cada nova lista começa com um teste de 14 dias para que você possa criar e visualizar a experiência antes de ativar um período de acesso pago."
             ]
           },
           {
-            "question": "Can I edit the design and event settings later?",
+            "question": "Posso editar as configurações de design e evento posteriormente?",
             "answer": [
               "Sim. Você pode alterar o tipo de evento, design, texto de introdução, mídia e configurações de visibilidade no painel após a criação da lista.",
               "Se uma configuração exigir um nível de pacote mais alto, o painel solicitará que você ative primeiro um pacote adequado."
             ]
           },
           {
-            "question": "What is visible during the 14-day trial?",
+            "question": "O que é visível durante o teste de 14 dias?",
             "answer": [
               "Durante o teste, você pode criar a lista, fazer upload de conteúdo e visualizar a aparência da página.",
               "A hospedagem pública depende de a lista ter um estado de acesso publicado ativo. A avaliação serve principalmente para configuração e visualização antes que o período pago de 90 dias seja ativado."
@@ -18677,15 +18677,15 @@ export const faqPageContent = {
         "title": "Pacotes e preços",
         "entries": [
           {
-            "question": "What are the current package differences?",
+            "question": "Quais são as diferenças atuais dos pacotes?",
             "answer": [
-              "Base supports up to 25 photos.",
+              "A base suporta até 25 fotos.",
               "Premium suporta até 50 fotos e adiciona compartilhamento público protegido por senha.",
               "Platinum suporta até 200 arquivos de mídia no total, incluindo até 20 vídeos."
             ]
           },
           {
-            "question": "How long does paid access last?",
+            "question": "Quanto tempo dura o acesso pago?",
             "answer": [
               "Atualmente, um pacote pago ativa uma lista por 90 dias.",
               "Quando o período de acesso pago terminar, a hospedagem pública e o acesso relacionado poderão expirar de acordo com as regras do ciclo de vida do produto mostradas no painel."
@@ -18706,9 +18706,9 @@ export const faqPageContent = {
             ]
           },
           {
-            "question": "Can I keep my list private without paying?",
+            "question": "Posso manter minha lista privada sem pagar?",
             "answer": [
-              "Private mode is kept as a visibility option. Destina-se à elaboração e acesso do lado do proprietário.",
+              "O modo privado é mantido como opção de visibilidade. Destina-se à elaboração e acesso do lado do proprietário.",
               "O compartilhamento público e alguns recursos do painel dependem do estado de acesso atual e das regras do pacote que se aplicam à sua lista."
             ]
           }
@@ -18722,12 +18722,12 @@ export const faqPageContent = {
             "question": "Qual é a diferença entre público, protegido por senha e privado?",
             "answer": [
               "Público significa que a lista pode ser aberta com seu link direto enquanto o período de acesso à lista estiver ativo.",
-              "Público protegido por senha significa que o convidado deve inserir a senha correta antes de visualizar a lista. This currently requires Premium or Platinum.",
+              "Público protegido por senha significa que o convidado deve inserir a senha correta antes de visualizar a lista. Atualmente, isso requer Premium ou Platinum.",
               "Privado é para edição e visualização do lado do proprietário, em vez de acesso aberto para convidados."
             ]
           },
           {
-            "question": "How does password protection work for guests?",
+            "question": "Como funciona a proteção por senha para convidados?",
             "answer": [
               "Depois que um convidado digita a senha correta, o site armazena um cookie de acesso técnico para que o convidado não precise digitar a senha novamente a cada clique.",
               "Esse acesso é temporário e o cookie foi concebido para expirar automaticamente após o seu período de validade."
@@ -18747,9 +18747,9 @@ export const faqPageContent = {
         "title": "Reservas de presentes",
         "entries": [
           {
-            "question": "What must a guest enter when reserving a gift?",
+            "question": "O que um hóspede deve informar ao reservar um presente?",
             "answer": [
-              "The guest name is required.",
+              "O nome do convidado é obrigatório.",
               "A mensagem é opcional e o hóspede também pode escolher se seu nome será mostrado publicamente no vale-presente reservado."
             ]
           },
@@ -18781,10 +18781,10 @@ export const faqPageContent = {
         "title": "Carregamentos de mídia",
         "entries": [
           {
-            "question": "Which media can I upload?",
+            "question": "Quais mídias posso enviar?",
             "answer": [
               "Giftlist Studio oferece suporte a imagens em toda a experiência da lista. O suporte de vídeo está disponível em planos que permitem isso.",
-              "Images may be optimized automatically. Os vídeos suportados são processados ​​no servidor em um formato MP4 compatível com a web."
+              "As imagens podem ser otimizadas automaticamente. Os vídeos suportados são processados ​​no servidor em um formato MP4 compatível com a web."
             ]
           },
           {
@@ -18795,14 +18795,14 @@ export const faqPageContent = {
             ]
           },
           {
-            "question": "Why did my video upload fail?",
+            "question": "Por que o upload do meu vídeo falhou?",
             "answer": [
               "As causas comuns são formatos não suportados, vídeos com mais de 60 segundos, limites de pacote ou falhas de processamento no servidor durante a conversão.",
               "Se um vídeo falhar, tente um clipe mais curto, uma exportação mais simples ou um arquivo MP4/H.264 padrão antes de enviar novamente."
             ]
           },
           {
-            "question": "Do large photos count against a raw storage cap?",
+            "question": "Fotos grandes contam para um limite de armazenamento bruto?",
             "answer": [
               "O modelo de produto visível agora é baseado principalmente na contagem de arquivos, não apenas em megabytes brutos.",
               "No entanto, o serviço ainda aplica limites técnicos de tamanho de arquivo e processamento em segundo plano para manter os uploads estáveis e confiáveis."
@@ -18822,16 +18822,16 @@ export const faqPageContent = {
             ]
           },
           {
-            "question": "How do referral codes work?",
+            "question": "Como funcionam os códigos de referência?",
             "answer": [
               "Os usuários qualificados podem gerar até 3 códigos de referência ativos. Um código de referência válido dá ao comprador 20% de desconto em uma compra qualificada.",
               "Cada indicação resgatada com sucesso dá ao proprietário do código 10% de crédito de recompensa para uma compra futura, até um desconto de 30% em um pedido."
             ]
           },
           {
-            "question": "Can I use my own referral code?",
+            "question": "Posso usar meu próprio código de referência?",
             "answer": [
-              "No. Self-referral is blocked.",
+              "Não. A auto-referência está bloqueada.",
               "A disponibilidade de referências também pode ser restrita para contas gratuitas ou para compradores que já usaram uma indicação, conforme definido pelas regras do produto ativo."
             ]
           }
@@ -18855,7 +18855,7 @@ export const faqPageContent = {
             ]
           },
           {
-            "question": "What happens when I delete a list?",
+            "question": "O que acontece quando excluo uma lista?",
             "answer": [
               "A exclusão de uma lista do painel foi projetada para remover o conteúdo da lista hospedada, as reservas relacionadas, a reivindicação de slug público, o segredo da senha e a mídia associada do ambiente de serviço ativo.",
               "Alguns metadados de faturamento ou auditoria ainda poderão ser retidos quando necessário por motivos legais ou operacionais."
@@ -21242,7 +21242,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "2. Account access and eligibility",
+        "title": "2. Acesso e elegibilidade da conta",
         "points": [
           "Você é responsável pelas atividades realizadas por meio de sua conta e por manter seu método de login seguro.",
           "Giftlist Studio atualmente suporta login através do Google e credenciais de conta de e-mail/senha.",
@@ -21250,7 +21250,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "3. What the service is and is not",
+        "title": "3. O que é e o que não é o serviço",
         "points": [
           "Giftlist Studio ajuda os anfitriões a apresentar desejos de presentes, histórias, detalhes de eventos e status de reserva em um local compartilhável.",
           "Giftlist Studio não vende, entrega ou entrega itens para presentes de terceiros vinculados a uma lista. Se um item de presente estiver vinculado a outro site ou comerciante, qualquer compra será realizada com esse terceiro, não com Giftlist Studio.",
@@ -21258,7 +21258,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "4. Host content and permissions",
+        "title": "4. Hospedar conteúdo e permissões",
         "points": [
           "Você mantém a propriedade do texto, mídia e outros conteúdos que carrega ou publica, mas concede à Giftlist Studio o direito de hospedar, processar, copiar, redimensionar, codificar, exibir e entregar esse conteúdo conforme necessário para operar o serviço.",
           "Você confirma que possui os direitos e permissões necessários para qualquer texto, fotos, vídeos, nomes, detalhes de eventos ou links de terceiros que publicar por meio do serviço.",
@@ -21266,7 +21266,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "5. Visibility, passwords, and public sharing",
+        "title": "5. Visibilidade, senhas e compartilhamento público",
         "points": [
           "As listas podem ser configuradas como privadas, públicas ou públicas protegidas por senha, dependendo das regras atuais do produto e da elegibilidade do pacote.",
           "O modo privado destina-se ao trabalho e à visualização do lado do host. A hospedagem pública requer um estado de acesso publicado ativo para a lista.",
@@ -21275,17 +21275,17 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "6. Reservations and guest interactions",
+        "title": "6. Reservas e interações dos hóspedes",
         "points": [
           "Os convidados podem reservar presentes por meio do fluxo de lista pública, onde esse recurso estiver disponível.",
           "O status da reserva de presentes foi projetado para evitar reservas ativas duplicadas no mesmo item.",
           "O anfitrião vê os detalhes da reserva no painel, incluindo o nome do hóspede e qualquer mensagem opcional associada ao item reservado.",
           "Os hóspedes podem escolher se o seu nome será exibido publicamente no cartão-presente reservado. As mensagens também poderão aparecer no cartão público dependendo do fluxo de reserva.",
-          "Gallery example pages may run in sample mode. As reservas de amostra não são reservas de lista reais e foram projetadas para serem redefinidas automaticamente."
+          "As páginas de exemplo da galeria podem ser executadas no modo de amostra. As reservas de amostra não são reservas de lista reais e foram projetadas para serem redefinidas automaticamente."
         ]
       },
       {
-        "title": "7. Packages, trials, and access periods",
+        "title": "7. Pacotes, testes e períodos de acesso",
         "points": [
           "Atualmente, novas listas começam com um período de teste de 14 dias para construção e visualização.",
           "O acesso pago está atualmente ativado por lista por um período de 90 dias, a menos que se aplique acesso gratuito ou uma oferta ao vivo diferente.",
@@ -21295,7 +21295,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "8. Media limits and processing",
+        "title": "8. Limites e processamento de mídia",
         "points": [
           "Atualmente, os limites do pacote dependem da contagem de mídia e do suporte de vídeo, e não apenas do tamanho bruto do armazenamento.",
           "No momento destes termos, o Base suporta até 25 fotos, o Premium suporta até 50 fotos e proteção por senha e o Platinum suporta até 200 arquivos de mídia, incluindo até 20 vídeos.",
@@ -21304,7 +21304,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "9. Pricing, currency, and payment",
+        "title": "9. Preço, moeda e pagamento",
         "points": [
           "Quando o checkout pago está habilitado, a ativação do pacote é processada através do provedor de pagamento configurado, atualmente Stripe.",
           "A moeda exibida pode variar de acordo com a região detectada do visitante. Na finalização da compra, a página de finalização da compra e a confirmação do pagamento final controlam o valor e a moeda realmente cobrados.",
@@ -21330,7 +21330,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "12. Availability, maintenance, and changes",
+        "title": "12. Disponibilidade, manutenção e alterações",
         "points": [
           "Giftlist Studio pode alterar, melhorar, suspender ou remover recursos ao longo do tempo.",
           "Ocasionalmente, o serviço pode ser afetado por problemas de hospedagem, interrupções do provedor, janelas de manutenção, falhas no processamento de mídia ou ações de segurança.",
@@ -21338,7 +21338,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "13. Suspension, deletion, and termination",
+        "title": "13. Suspensão, exclusão e rescisão",
         "points": [
           "Os hosts podem excluir suas próprias listas do painel.",
           "Giftlist Studio pode suspender ou remover o acesso ao serviço ou a conteúdo específico quando necessário para segurança, prevenção de abusos, conformidade legal ou violação destes termos.",
@@ -21346,7 +21346,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "14. Liability and consumer protections",
+        "title": "14. Responsabilidade e proteção ao consumidor",
         "points": [
           "Giftlist Studio é fornecido como um serviço digital hospedado. Na extensão máxima permitida por lei, não somos responsáveis ​​por perdas indiretas, incidentais ou de terceiros decorrentes de links comerciais, comportamento de visitantes ou conteúdo publicado por usuários.",
           "Nada nestes termos exclui direitos que não possam ser legalmente excluídos ao abrigo da legislação aplicável do consumidor ou obrigatória.",
@@ -21354,10 +21354,10 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "15. Governing law and contact",
+        "title": "15. Lei aplicável e contato",
         "points": [
           "A menos que a lei obrigatória exija o contrário, estes termos são regidos pelas leis da Estónia.",
-          "Robinio Invest OÜ operates Giftlist Studio. Os dados da empresa são apresentados no rodapé do site e nas páginas jurídicas."
+          "Robinio Invest OÜ opera Giftlist Studio. Os dados da empresa são apresentados no rodapé do site e nas páginas jurídicas."
         ]
       }
     ]

@@ -90,6 +90,40 @@ const placeholderPattern = /\{[^}]+\}|\/l\/\[slug\]|Giftlist Studio|Robinio Inve
 
 const valueCache = new Map()
 
+const inferLoader = (entryPath) => {
+  const extension = path.extname(entryPath).toLowerCase()
+
+  if (extension === '.tsx') {
+    return 'tsx'
+  }
+
+  if (extension === '.ts') {
+    return 'ts'
+  }
+
+  if (extension === '.jsx') {
+    return 'jsx'
+  }
+
+  return 'js'
+}
+
+const ensureNamedExport = (source, exportName) => {
+  const hasNamedExport = new RegExp(`export\\s+(const|function|class)\\s+${exportName}\\b`).test(source)
+    || new RegExp(`export\\s*\\{[^}]*\\b${exportName}\\b[^}]*\\}`).test(source)
+
+  if (hasNamedExport) {
+    return source
+  }
+
+  const hasDeclaration = new RegExp(`\\bconst\\s+${exportName}\\b|\\bfunction\\s+${exportName}\\b|\\bclass\\s+${exportName}\\b`).test(source)
+  if (!hasDeclaration) {
+    return source
+  }
+
+  return `${source}\nexport { ${exportName} }\n`
+}
+
 const ensureTmpDir = async () => {
   await fs.mkdir(tmpDir, { recursive: true })
   await fs.writeFile(path.join(tmpDir, 'server-only-stub.mjs'), 'export {};\n', 'utf8')
@@ -144,8 +178,15 @@ const loadModuleExport = async (relativePath, exportName) => {
   await ensureTmpDir()
 
   const entryPath = path.join(workspaceRoot, relativePath)
+  const source = await fs.readFile(entryPath, 'utf8')
+  const exportReadySource = ensureNamedExport(source, exportName)
   const bundleResult = await build({
-    entryPoints: [entryPath],
+    stdin: {
+      contents: exportReadySource,
+      resolveDir: path.dirname(entryPath),
+      sourcefile: entryPath,
+      loader: inferLoader(entryPath),
+    },
     bundle: true,
     platform: 'node',
     format: 'esm',

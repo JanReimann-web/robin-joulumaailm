@@ -12,6 +12,7 @@ import { SUPPORT_EMAIL, SUPPORT_EMAIL_HREF } from '@/lib/site/contact'
 import { buildLocalizedAlternates, buildLocalizedUrl, getSiteUrl } from '@/lib/site/url'
 
 const SITE_URL = getSiteUrl()
+const SITE_URL_LABEL = SITE_URL.replace(/^https?:\/\//, '')
 
 type LocaleLayoutProps = {
   children: React.ReactNode
@@ -133,7 +134,12 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps) {
           </div>
 
           <div className="flex items-center justify-between text-xs text-white/45">
-            <p>{SITE_URL}</p>
+            <a
+              href={SITE_URL}
+              className="transition hover:text-white"
+            >
+              {SITE_URL_LABEL}
+            </a>
             <p>2026</p>
           </div>
         </div>
