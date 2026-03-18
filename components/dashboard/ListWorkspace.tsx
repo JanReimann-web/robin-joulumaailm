@@ -4125,7 +4125,7 @@ export default function ListWorkspace({
                 />
               </label>
 
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2">
                 <label className="grid gap-2 text-sm text-slate-200">
                   <span>{labels.heroDateLabel}</span>
                   <div className="grid gap-2">
@@ -4205,7 +4205,7 @@ export default function ListWorkspace({
                   </div>
                 </label>
 
-                <label className="grid gap-2 text-sm text-slate-200">
+                <label className="grid gap-2 text-sm text-slate-200 md:col-span-2">
                   <span>{labels.heroLocationLabel}</span>
                   <input
                     value={introEventLocation}
