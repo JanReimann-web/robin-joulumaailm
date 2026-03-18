@@ -4,6 +4,10 @@
   "framework": "nextjs",
   "rewrites": [
     {
+      "source": "/:locale/__/auth/:path*",
+      "destination": "https://kingid-5582a.firebaseapp.com/__/auth/:path*"
+    },
+    {
       "source": "/__/auth/:path*",
       "destination": "https://kingid-5582a.firebaseapp.com/__/auth/:path*"
     }
