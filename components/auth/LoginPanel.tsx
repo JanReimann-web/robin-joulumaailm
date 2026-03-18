@@ -49,8 +49,14 @@ const mapFirebaseAuthError = (
       return labels.errorWeakPassword
     case 'auth/operation-not-allowed':
       return labels.errorEmailPasswordDisabled
+    case 'auth/unauthorized-domain':
+    case 'auth/popup-blocked':
+    case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
+    case 'auth/account-exists-with-different-credential':
+      return `${labels.errorGeneric} (${error.code})`
     default:
-      return labels.errorGeneric
+      return `${labels.errorGeneric} (${error.code})`
   }
 }
 
@@ -89,6 +95,7 @@ export default function LoginPanel({ locale, labels }: LoginPanelProps) {
         router.replace(redirectPath)
       }
     } catch (nextError) {
+      console.error('Authentication failed', nextError)
       setError(mapFirebaseAuthError(nextError, labels))
     } finally {
       setPendingAction(null)
