@@ -1,5 +1,8 @@
 import { BillingPlanId } from '@/lib/lists/plans'
-import { BillingCheckoutResult } from '@/lib/billing/types'
+import {
+  BillingCheckoutResult,
+  BillingReturnConfirmationResult,
+} from '@/lib/billing/types'
 
 export class BillingCheckoutError extends Error {
   code: string
@@ -54,6 +57,41 @@ export const startBillingCheckout = async (params: {
   return {
     mode: 'manual',
     activated: true,
+  }
+}
+
+export const confirmBillingReturn = async (params: {
+  sessionId: string
+  listId: string | null
+  idToken: string
+}): Promise<BillingReturnConfirmationResult> => {
+  const response = await fetch('/api/billing/confirm', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${params.idToken}`,
+    },
+    body: JSON.stringify({
+      sessionId: params.sessionId,
+      listId: params.listId ?? undefined,
+    }),
+  })
+
+  const payload = await response.json() as Partial<BillingReturnConfirmationResult> & {
+    error?: string
+  }
+
+  if (!response.ok) {
+    throw new BillingCheckoutError(payload.error ?? 'billing_failed')
+  }
+
+  if (!payload.sessionId) {
+    throw new BillingCheckoutError('invalid_checkout_confirmation')
+  }
+
+  return {
+    confirmed: payload.confirmed === true,
+    sessionId: payload.sessionId,
   }
 }
 

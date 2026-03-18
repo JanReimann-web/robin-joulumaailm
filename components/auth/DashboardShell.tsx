@@ -18,6 +18,7 @@ type DashboardShellProps = {
   billingMarketAvailability: BillingMarketAvailability
   billingStatus: 'success' | 'cancel' | null
   billingListId: string | null
+  billingSessionId: string | null
 }
 
 export default function DashboardShell({
@@ -28,6 +29,7 @@ export default function DashboardShell({
   billingMarketAvailability,
   billingStatus,
   billingListId,
+  billingSessionId,
 }: DashboardShellProps) {
   const router = useRouter()
   const { user, loading } = useAuth()
@@ -97,6 +99,7 @@ export default function DashboardShell({
         billingMarketAvailability={billingMarketAvailability}
         billingStatus={billingStatus}
         billingListId={billingListId}
+        billingSessionId={billingSessionId}
       />
     </section>
   )

@@ -15,6 +15,7 @@ type DashboardPageProps = {
   searchParams?: {
     billing?: string | string[]
     list?: string | string[]
+    session_id?: string | string[]
   }
 }
 
@@ -57,6 +58,7 @@ export default function DashboardPage({ params, searchParams }: DashboardPagePro
   const billingMarket = resolveBillingMarketFromHeaders(requestHeaders)
   const billingRaw = getSingleSearchParam(searchParams?.billing)
   const listIdRaw = getSingleSearchParam(searchParams?.list)
+  const sessionIdRaw = getSingleSearchParam(searchParams?.session_id)
   const billingStatus = billingRaw === 'success' || billingRaw === 'cancel'
     ? billingRaw
     : null
@@ -70,6 +72,7 @@ export default function DashboardPage({ params, searchParams }: DashboardPagePro
       billingMarketAvailability={billingMarket.availability}
       billingStatus={billingStatus}
       billingListId={listIdRaw}
+      billingSessionId={sessionIdRaw}
     />
   )
 }

@@ -21,6 +21,7 @@ import { Locale } from '@/lib/i18n/config'
 import { Dictionary } from '@/lib/i18n/types'
 import {
   BillingCheckoutError,
+  confirmBillingReturn,
   startBillingCheckout,
 } from '@/lib/billing/client'
 import { auth } from '@/lib/firebase'
@@ -115,6 +116,7 @@ type ListWorkspaceProps = {
   billingMarketAvailability: BillingMarketAvailability
   billingStatus: 'success' | 'cancel' | null
   billingListId: string | null
+  billingSessionId: string | null
 }
 
 const templateLabelMap = (
@@ -384,6 +386,7 @@ export default function ListWorkspace({
   billingMarketAvailability,
   billingStatus,
   billingListId,
+  billingSessionId,
 }: ListWorkspaceProps) {
   const [lists, setLists] = useState<GiftList[]>([])
   const [items, setItems] = useState<GiftListItem[]>([])
@@ -599,20 +602,7 @@ export default function ListWorkspace({
       return
     }
 
-    if (billingStatus === 'success') {
-      setListError(null)
-      setListSuccess(null)
-      setBillingFeedback({
-        type: 'success',
-        message: labels.billingSuccessReturn,
-        listId: billingListId,
-      })
-
-      trackAnalyticsEvent('purchase', {
-        locale,
-        purchase_mode: 'stripe',
-      })
-    } else {
+    if (billingStatus === 'cancel') {
       setListSuccess(null)
       setListError(null)
       setBillingFeedback({
@@ -620,16 +610,128 @@ export default function ListWorkspace({
         message: labels.billingCancelReturn,
         listId: billingListId,
       })
+      setHasHandledBillingReturn(true)
+      return
     }
 
-    setHasHandledBillingReturn(true)
+    let cancelled = false
+
+    const confirmReturn = async () => {
+      setListError(null)
+      setListSuccess(null)
+      setBillingFeedback({
+        type: 'success',
+        message: labels.activatingPass,
+        listId: billingListId,
+      })
+
+      if (!billingSessionId) {
+        setBillingFeedback({
+          type: 'error',
+          message: withErrorDiagnostics(
+            labels.errorActivatePass,
+            labels.errorMediaProcessingReasonPrefix,
+            { code: 'missing_session_id' }
+          ),
+          listId: billingListId,
+        })
+        setHasHandledBillingReturn(true)
+        return
+      }
+
+      const user = auth.currentUser
+      if (!user) {
+        setBillingFeedback({
+          type: 'error',
+          message: labels.errorSessionExpired,
+          listId: billingListId,
+        })
+        setHasHandledBillingReturn(true)
+        return
+      }
+
+      try {
+        const idToken = await user.getIdToken()
+        const result = await confirmBillingReturn({
+          sessionId: billingSessionId,
+          listId: billingListId,
+          idToken,
+        })
+
+        if (cancelled) {
+          return
+        }
+
+        if (!result.confirmed) {
+          setBillingFeedback({
+            type: 'error',
+            message: withErrorDiagnostics(
+              labels.errorActivatePass,
+              labels.errorMediaProcessingReasonPrefix,
+              { code: 'payment_not_confirmed' }
+            ),
+            listId: billingListId,
+          })
+          setHasHandledBillingReturn(true)
+          return
+        }
+
+        setBillingFeedback({
+          type: 'success',
+          message: labels.billingSuccessReturn,
+          listId: billingListId,
+        })
+
+        trackAnalyticsEvent('purchase', {
+          locale,
+          purchase_mode: 'stripe',
+        })
+      } catch (rawError) {
+        if (cancelled) {
+          return
+        }
+
+        if (rawError instanceof BillingCheckoutError) {
+          if (rawError.code === 'missing_auth' || rawError.code === 'invalid_auth') {
+            setBillingFeedback({
+              type: 'error',
+              message: labels.errorSessionExpired,
+              listId: billingListId,
+            })
+            setHasHandledBillingReturn(true)
+            return
+          }
+        }
+
+        setBillingFeedback({
+          type: 'error',
+          message: withErrorCode(labels.errorActivatePass, rawError),
+          listId: billingListId,
+        })
+      } finally {
+        if (!cancelled) {
+          setHasHandledBillingReturn(true)
+        }
+      }
+    }
+
+    void confirmReturn()
+
+    return () => {
+      cancelled = true
+    }
   }, [
     billingListId,
+    billingSessionId,
     billingStatus,
     hasHandledBillingReturn,
+    labels.activatingPass,
     locale,
     labels.billingCancelReturn,
     labels.billingSuccessReturn,
+    labels.errorActivatePass,
+    labels.errorMediaProcessingReasonPrefix,
+    labels.errorSessionExpired,
   ])
 
   useEffect(() => {
@@ -865,10 +967,10 @@ export default function ListWorkspace({
   }, [loadReferralSummary])
 
   useEffect(() => {
-    if (billingStatus === 'success') {
+    if (billingStatus === 'success' && hasHandledBillingReturn) {
       void loadReferralSummary()
     }
-  }, [billingStatus, loadReferralSummary])
+  }, [billingStatus, hasHandledBillingReturn, loadReferralSummary])
 
   useEffect(() => {
     void loadShowcaseState()

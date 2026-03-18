@@ -39,8 +39,9 @@ import {
   releaseReferralCodeReservation,
   reserveReferralCodeForCheckout,
 } from '@/lib/referrals.server'
+import { getSiteUrl } from '@/lib/site/url'
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+const SITE_URL = getSiteUrl()
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY ?? ''
 const STRIPE_PRICE_ID_90D = process.env.STRIPE_PRICE_ID_90D ?? ''
 const STRIPE_PRICE_ID_90D_USD = process.env.STRIPE_PRICE_ID_90D_USD ?? ''
@@ -135,6 +136,74 @@ const validateListOwnership = async (listId: string, ownerId: string) => {
   }
 }
 
+type StripeCheckoutGrantPayload = {
+  listId: string
+  ownerId: string
+  planId: BillingPlanId
+  currency: BillingCurrency
+  amountCents: number
+  chargeAmountCents: number
+  catalogAmountCents: number
+  pricingMode: BillingChargeMode
+  upgradeFromPlanId: BillingPlanId | null
+  discount: PreparedCheckoutDiscount
+}
+
+const parseStripeCheckoutGrantPayload = (
+  session: Stripe.Checkout.Session
+): StripeCheckoutGrantPayload => {
+  const listId = session.metadata?.listId?.trim()
+  const ownerId = session.metadata?.ownerId?.trim()
+  const planId = session.metadata?.plan?.trim()
+  const pricingMode = session.metadata?.pricingMode === 'upgrade' ? 'upgrade' : 'full'
+  const discountType = session.metadata?.discountType
+  const discountPercent = Number.parseInt(session.metadata?.discountPercent ?? '0', 10)
+  const rewardCreditsToConsume = Number.parseInt(session.metadata?.rewardCreditsToConsume ?? '0', 10)
+  const referralCodeId = session.metadata?.referralCodeId?.trim() || null
+  const referralCode = session.metadata?.referralCode?.trim() || null
+  const referralOwnerUserId = session.metadata?.referralOwnerUserId?.trim() || null
+  const upgradeFromPlanIdRaw = session.metadata?.upgradeFromPlanId ?? ''
+  const upgradeFromPlanId = isBillingPlanId(upgradeFromPlanIdRaw)
+    ? upgradeFromPlanIdRaw
+    : null
+  const chargeAmountCents = Number.parseInt(session.metadata?.chargeAmountCents ?? '0', 10)
+  const catalogAmountCents = Number.parseInt(session.metadata?.catalogAmountCents ?? '0', 10)
+
+  if (!listId || !ownerId || !planId || !isBillingPlanId(planId)) {
+    throw new Error('missing_metadata')
+  }
+
+  const currency = session.currency?.toUpperCase() === 'EUR' ? 'EUR' : 'USD'
+
+  return {
+    listId,
+    ownerId,
+    planId,
+    currency,
+    amountCents: session.amount_total ?? BILLING_PLAN_DEFINITIONS[planId].priceCents,
+    chargeAmountCents: Number.isFinite(chargeAmountCents) && chargeAmountCents > 0
+      ? chargeAmountCents
+      : BILLING_PLAN_DEFINITIONS[planId].priceCents,
+    catalogAmountCents: Number.isFinite(catalogAmountCents) && catalogAmountCents > 0
+      ? catalogAmountCents
+      : getBillingPlanPriceCents(planId, currency),
+    pricingMode,
+    upgradeFromPlanId,
+    discount: {
+      discountType: discountType === 'referral' || discountType === 'reward'
+        ? discountType
+        : 'none',
+      discountPercent: Number.isFinite(discountPercent) ? Math.max(0, discountPercent) : 0,
+      rewardCreditsToConsume: Number.isFinite(rewardCreditsToConsume)
+        ? Math.max(0, rewardCreditsToConsume)
+        : 0,
+      referralCodeId,
+      referralCode,
+      referralOwnerUserId,
+    },
+  }
+}
+
 const grantListPass = async (params: {
   listId: string
   ownerId: string
@@ -153,6 +222,9 @@ const grantListPass = async (params: {
   const listRef = adminDb.collection('lists').doc(params.listId)
   const subscriptionRef = adminDb.collection('subscriptions').doc(params.ownerId)
   const paymentRecordRef = adminDb.collection('billingPayments').doc()
+  const processedPaymentRef = adminDb
+    .collection('billingProcessedPayments')
+    .doc(`${params.provider}_${params.paymentRef}`)
   const buyerReferralAccountRef = getReferralAccountRef(params.ownerId)
   const referralCodeRef = params.discount.referralCodeId
     ? getReferralCodeRef(params.discount.referralCodeId)
@@ -162,6 +234,11 @@ const grantListPass = async (params: {
     : null
 
   await adminDb.runTransaction(async (transaction) => {
+    const processedPaymentSnapshot = await transaction.get(processedPaymentRef)
+    if (processedPaymentSnapshot.exists) {
+      return
+    }
+
     const listSnapshot = await transaction.get(listRef)
     if (!listSnapshot.exists) {
       throw new Error('list_not_found')
@@ -307,6 +384,21 @@ const grantListPass = async (params: {
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true })
     }
+
+    transaction.set(processedPaymentRef, {
+      listId: params.listId,
+      ownerId: params.ownerId,
+      provider: params.provider,
+      paymentRef: params.paymentRef,
+      billingPlanId: params.planId,
+      amountCents: params.amountCents,
+      chargeAmountCents: params.chargeAmountCents,
+      catalogAmountCents: params.catalogAmountCents,
+      currency: params.currency,
+      pricingMode: params.pricingMode,
+      upgradeFromPlanId: params.upgradeFromPlanId,
+      processedAt: FieldValue.serverTimestamp(),
+    })
   })
 }
 
@@ -635,59 +727,22 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
   try {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session
-      const listId = session.metadata?.listId
-      const ownerId = session.metadata?.ownerId
-      const planId = session.metadata?.plan
-      const pricingMode = session.metadata?.pricingMode === 'upgrade' ? 'upgrade' : 'full'
-      const discountType = session.metadata?.discountType
-      const discountPercent = Number.parseInt(session.metadata?.discountPercent ?? '0', 10)
-      const rewardCreditsToConsume = Number.parseInt(session.metadata?.rewardCreditsToConsume ?? '0', 10)
-      const referralCodeId = session.metadata?.referralCodeId?.trim() || null
-      const referralCode = session.metadata?.referralCode?.trim() || null
-      const referralOwnerUserId = session.metadata?.referralOwnerUserId?.trim() || null
-      const upgradeFromPlanIdRaw = session.metadata?.upgradeFromPlanId ?? ''
-      const upgradeFromPlanId = isBillingPlanId(upgradeFromPlanIdRaw)
-        ? upgradeFromPlanIdRaw
-        : null
-      const chargeAmountCents = Number.parseInt(session.metadata?.chargeAmountCents ?? '0', 10)
-      const catalogAmountCents = Number.parseInt(session.metadata?.catalogAmountCents ?? '0', 10)
-
-      if (!listId || !ownerId || !planId || !isBillingPlanId(planId)) {
-        throw new Error('missing_metadata')
-      }
+      const grantPayload = parseStripeCheckoutGrantPayload(session)
 
       await grantListPass({
-        listId,
-        ownerId,
-        planId,
-        currency: session.currency?.toUpperCase() === 'EUR' ? 'EUR' : 'USD',
+        listId: grantPayload.listId,
+        ownerId: grantPayload.ownerId,
+        planId: grantPayload.planId,
+        currency: grantPayload.currency,
         provider: 'stripe',
         paymentRef: session.id,
-        amountCents: session.amount_total ?? BILLING_PLAN_DEFINITIONS[planId].priceCents,
-        chargeAmountCents: Number.isFinite(chargeAmountCents) && chargeAmountCents > 0
-          ? chargeAmountCents
-          : BILLING_PLAN_DEFINITIONS[planId].priceCents,
-        catalogAmountCents: Number.isFinite(catalogAmountCents) && catalogAmountCents > 0
-          ? catalogAmountCents
-          : getBillingPlanPriceCents(
-              planId,
-              session.currency?.toUpperCase() === 'EUR' ? 'EUR' : 'USD'
-            ),
-        pricingMode,
-        upgradeFromPlanId,
-        resetAccessPeriod: pricingMode === 'upgrade',
-        discount: {
-          discountType: discountType === 'referral' || discountType === 'reward'
-            ? discountType
-            : 'none',
-          discountPercent: Number.isFinite(discountPercent) ? Math.max(0, discountPercent) : 0,
-          rewardCreditsToConsume: Number.isFinite(rewardCreditsToConsume)
-            ? Math.max(0, rewardCreditsToConsume)
-            : 0,
-          referralCodeId,
-          referralCode,
-          referralOwnerUserId,
-        },
+        amountCents: grantPayload.amountCents,
+        chargeAmountCents: grantPayload.chargeAmountCents,
+        catalogAmountCents: grantPayload.catalogAmountCents,
+        pricingMode: grantPayload.pricingMode,
+        upgradeFromPlanId: grantPayload.upgradeFromPlanId,
+        resetAccessPeriod: grantPayload.pricingMode === 'upgrade',
+        discount: grantPayload.discount,
       })
 
       await markCheckoutSession(session.id, {
@@ -734,5 +789,67 @@ export const processStripeWebhook = async (rawBody: string, signature: string) =
     }, { merge: true })
 
     throw error
+  }
+}
+
+export const confirmStripeCheckoutSession = async (params: {
+  sessionId: string
+  ownerId: string
+  listId?: string | null
+}) => {
+  if (!stripeClient) {
+    throw new Error('billing_unavailable')
+  }
+
+  const session = await stripeClient.checkout.sessions.retrieve(params.sessionId)
+  const grantPayload = parseStripeCheckoutGrantPayload(session)
+
+  if (grantPayload.ownerId !== params.ownerId) {
+    throw new Error('forbidden')
+  }
+
+  if (params.listId && grantPayload.listId !== params.listId) {
+    throw new Error('forbidden')
+  }
+
+  if (session.payment_status !== 'paid') {
+    await markCheckoutSession(session.id, {
+      status: session.status ?? 'open',
+      paymentStatus: session.payment_status ?? null,
+      lastConfirmationAttemptAt: FieldValue.serverTimestamp(),
+    })
+
+    return {
+      confirmed: false,
+      sessionId: session.id,
+    }
+  }
+
+  await grantListPass({
+    listId: grantPayload.listId,
+    ownerId: grantPayload.ownerId,
+    planId: grantPayload.planId,
+    currency: grantPayload.currency,
+    provider: 'stripe',
+    paymentRef: session.id,
+    amountCents: grantPayload.amountCents,
+    chargeAmountCents: grantPayload.chargeAmountCents,
+    catalogAmountCents: grantPayload.catalogAmountCents,
+    pricingMode: grantPayload.pricingMode,
+    upgradeFromPlanId: grantPayload.upgradeFromPlanId,
+    resetAccessPeriod: grantPayload.pricingMode === 'upgrade',
+    discount: grantPayload.discount,
+  })
+
+  await markCheckoutSession(session.id, {
+    status: 'completed',
+    completedAt: FieldValue.serverTimestamp(),
+    paymentStatus: session.payment_status ?? null,
+    confirmedVia: 'return',
+  })
+
+  return {
+    confirmed: true,
+    sessionId: session.id,
   }
 }
