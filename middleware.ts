@@ -5,9 +5,28 @@ import { defaultLocale, isLocale } from '@/lib/i18n/config'
 const PUBLIC_FILE = /\.[^/]+$/
 const BYPASS_PREFIXES = ['/api', '/_next', '/l']
 const RESERVED_ROOT_SEGMENTS = new Set(['pricing', 'login', 'dashboard'])
+const CANONICAL_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.trim() ?? ''
+const CANONICAL_SITE_HOST = CANONICAL_SITE_URL
+  ? new URL(CANONICAL_SITE_URL).host
+  : null
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const requestHost = request.headers.get('host')
+
+  if (
+    process.env.VERCEL_ENV === 'production'
+    && CANONICAL_SITE_HOST
+    && requestHost
+    && requestHost !== CANONICAL_SITE_HOST
+  ) {
+    const canonicalUrl = request.nextUrl.clone()
+    const targetUrl = new URL(CANONICAL_SITE_URL)
+    canonicalUrl.protocol = targetUrl.protocol
+    canonicalUrl.hostname = targetUrl.hostname
+    canonicalUrl.port = targetUrl.port
+    return NextResponse.redirect(canonicalUrl)
+  }
 
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     const url = request.nextUrl.clone()
