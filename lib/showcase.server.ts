@@ -20,6 +20,14 @@ type ShowcaseRecord = {
   updatedAt: number | null
 }
 
+const isFirebaseCredentialError = (error: unknown) => {
+  if (!(error instanceof Error)) {
+    return false
+  }
+
+  return error.message.includes('Could not load the default credentials')
+}
+
 const toMillis = (value: unknown) => {
   if (value instanceof Timestamp) {
     return value.toMillis()
@@ -103,68 +111,84 @@ const toActivePublicGalleryEntry = async (
 }
 
 export const getPublishedShowcaseEntries = async (): Promise<ShowcaseGalleryEntry[]> => {
-  const showcaseSnap = await adminDb.collection('galleryExamples').get()
-  const showcaseRecords = showcaseSnap.docs
-    .map((entry) => mapShowcaseRecord(entry.id, entry.data() as Record<string, unknown>))
-    .filter((entry): entry is ShowcaseRecord => Boolean(entry))
+  try {
+    const showcaseSnap = await adminDb.collection('galleryExamples').get()
+    const showcaseRecords = showcaseSnap.docs
+      .map((entry) => mapShowcaseRecord(entry.id, entry.data() as Record<string, unknown>))
+      .filter((entry): entry is ShowcaseRecord => Boolean(entry))
 
-  if (showcaseRecords.length === 0) {
-    return []
+    if (showcaseRecords.length === 0) {
+      return []
+    }
+
+    const listRefs = showcaseRecords.map((entry) => adminDb.collection('lists').doc(entry.listId))
+    const listSnaps = await adminDb.getAll(...listRefs)
+    const listSnapById = new Map(
+      listSnaps
+        .filter((entry) => entry.exists)
+        .map((entry) => [entry.id, entry.data() as Record<string, unknown>])
+    )
+
+    const entitlementCache = new Map<string, boolean>()
+    const galleryEntries = await Promise.all(
+      showcaseRecords.map(async (showcase) => {
+        const listData = listSnapById.get(showcase.listId)
+        if (!listData) {
+          return null
+        }
+
+        return await toActivePublicGalleryEntry(showcase, listData, entitlementCache)
+      })
+    )
+
+    return galleryEntries
+      .filter((entry): entry is ShowcaseGalleryEntry => Boolean(entry?.slug && entry.title))
+  } catch (error) {
+    if (isFirebaseCredentialError(error)) {
+      return []
+    }
+
+    throw error
   }
-
-  const listRefs = showcaseRecords.map((entry) => adminDb.collection('lists').doc(entry.listId))
-  const listSnaps = await adminDb.getAll(...listRefs)
-  const listSnapById = new Map(
-    listSnaps
-      .filter((entry) => entry.exists)
-      .map((entry) => [entry.id, entry.data() as Record<string, unknown>])
-  )
-
-  const entitlementCache = new Map<string, boolean>()
-  const galleryEntries = await Promise.all(
-    showcaseRecords.map(async (showcase) => {
-      const listData = listSnapById.get(showcase.listId)
-      if (!listData) {
-        return null
-      }
-
-      return await toActivePublicGalleryEntry(showcase, listData, entitlementCache)
-    })
-  )
-
-  return galleryEntries
-    .filter((entry): entry is ShowcaseGalleryEntry => Boolean(entry?.slug && entry.title))
 }
 
 export const getPublishedShowcaseEntryForEvent = async (
   eventType: EventType
 ): Promise<ShowcaseGalleryEntry | null> => {
-  const showcaseSnapshot = await adminDb.collection('galleryExamples').doc(eventType).get()
+  try {
+    const showcaseSnapshot = await adminDb.collection('galleryExamples').doc(eventType).get()
 
-  if (!showcaseSnapshot.exists) {
-    return null
+    if (!showcaseSnapshot.exists) {
+      return null
+    }
+
+    const showcaseRecord = mapShowcaseRecord(
+      showcaseSnapshot.id,
+      showcaseSnapshot.data() as Record<string, unknown>
+    )
+
+    if (!showcaseRecord) {
+      return null
+    }
+
+    const listSnapshot = await adminDb.collection('lists').doc(showcaseRecord.listId).get()
+    if (!listSnapshot.exists) {
+      return null
+    }
+
+    const entitlementCache = new Map<string, boolean>()
+    const entry = await toActivePublicGalleryEntry(
+      showcaseRecord,
+      listSnapshot.data() as Record<string, unknown>,
+      entitlementCache
+    )
+
+    return entry?.slug && entry.title ? entry : null
+  } catch (error) {
+    if (isFirebaseCredentialError(error)) {
+      return null
+    }
+
+    throw error
   }
-
-  const showcaseRecord = mapShowcaseRecord(
-    showcaseSnapshot.id,
-    showcaseSnapshot.data() as Record<string, unknown>
-  )
-
-  if (!showcaseRecord) {
-    return null
-  }
-
-  const listSnapshot = await adminDb.collection('lists').doc(showcaseRecord.listId).get()
-  if (!listSnapshot.exists) {
-    return null
-  }
-
-  const entitlementCache = new Map<string, boolean>()
-  const entry = await toActivePublicGalleryEntry(
-    showcaseRecord,
-    listSnapshot.data() as Record<string, unknown>,
-    entitlementCache
-  )
-
-  return entry?.slug && entry.title ? entry : null
 }
