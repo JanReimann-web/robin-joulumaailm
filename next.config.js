@@ -23,6 +23,7 @@ const nextConfig = {
   // GitHub Pages jaoks (kui vaja)
   output: process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true' ? 'export' : undefined,
   basePath: process.env.GITHUB_PAGES === 'true' ? '/robin-joulumaailm' : '',
+  skipTrailingSlashRedirect: true,
   trailingSlash: true,
 }
 
