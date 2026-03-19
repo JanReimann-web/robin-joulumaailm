@@ -60,7 +60,11 @@ export const proxyFirebaseAuthHelperRequest = async (
     redirect: 'manual',
   })
 
-  return new NextResponse(upstreamResponse.body, {
+  const responseBody = request.method === 'HEAD'
+    ? null
+    : await upstreamResponse.arrayBuffer()
+
+  return new NextResponse(responseBody, {
     status: upstreamResponse.status,
     headers: copyResponseHeaders(upstreamResponse),
   })
