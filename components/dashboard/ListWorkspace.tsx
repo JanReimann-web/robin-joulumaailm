@@ -578,6 +578,8 @@ export default function ListWorkspace({
   const [wheelSuccess, setWheelSuccess] = useState<string | null>(null)
   const [billingFeedback, setBillingFeedback] = useState<BillingFeedbackState | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
+  const [hasResolvedClientAuth, setHasResolvedClientAuth] = useState(Boolean(auth.currentUser))
+  const [hasClientAuthUser, setHasClientAuthUser] = useState(Boolean(auth.currentUser))
   const [openAccordionSections, setOpenAccordionSections] = useState<Record<DashboardAccordionSectionId, boolean>>({
     create: false,
     settings: false,
@@ -648,6 +650,55 @@ export default function ListWorkspace({
       ...current,
       [section]: !current[section],
     }))
+  }, [])
+
+  useEffect(() => {
+    const authWithReady = auth as typeof auth & {
+      authStateReady?: () => Promise<void>
+    }
+    let isActive = true
+
+    const syncResolvedAuth = () => {
+      if (!isActive) {
+        return
+      }
+
+      setHasClientAuthUser(Boolean(auth.currentUser))
+      setHasResolvedClientAuth(true)
+    }
+
+    if (typeof authWithReady.authStateReady === 'function') {
+      void authWithReady.authStateReady()
+        .then(syncResolvedAuth)
+        .catch(syncResolvedAuth)
+    } else {
+      syncResolvedAuth()
+    }
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        if (!isActive) {
+          return
+        }
+
+        setHasClientAuthUser(Boolean(user))
+        setHasResolvedClientAuth(true)
+      },
+      () => {
+        if (!isActive) {
+          return
+        }
+
+        setHasClientAuthUser(false)
+        setHasResolvedClientAuth(true)
+      }
+    )
+
+    return () => {
+      isActive = false
+      unsubscribe()
+    }
   }, [])
 
   useEffect(() => {
@@ -1050,18 +1101,45 @@ export default function ListWorkspace({
   ])
 
   useEffect(() => {
+    if (!hasResolvedClientAuth) {
+      return
+    }
+
+    if (!hasClientAuthUser) {
+      setReferralSummary(null)
+      setReferralError(null)
+      setIsReferralLoading(false)
+      return
+    }
+
     void loadReferralSummary()
-  }, [loadReferralSummary])
+  }, [hasClientAuthUser, hasResolvedClientAuth, loadReferralSummary])
 
   useEffect(() => {
-    if (billingStatus === 'success' && hasHandledBillingReturn) {
+    if (
+      billingStatus === 'success'
+      && hasHandledBillingReturn
+      && hasResolvedClientAuth
+      && hasClientAuthUser
+    ) {
       void loadReferralSummary()
     }
-  }, [billingStatus, hasHandledBillingReturn, loadReferralSummary])
+  }, [billingStatus, hasClientAuthUser, hasHandledBillingReturn, hasResolvedClientAuth, loadReferralSummary])
 
   useEffect(() => {
+    if (!hasResolvedClientAuth) {
+      return
+    }
+
+    if (!hasClientAuthUser) {
+      setCanManageGallery(false)
+      setShowcaseListIds([])
+      setIsShowcaseLoading(false)
+      return
+    }
+
     void loadShowcaseState()
-  }, [loadShowcaseState])
+  }, [hasClientAuthUser, hasResolvedClientAuth, loadShowcaseState])
 
   const resetDesktopPreviewFlow = useCallback(() => {
     setIsDesktopPreviewEntered(false)
