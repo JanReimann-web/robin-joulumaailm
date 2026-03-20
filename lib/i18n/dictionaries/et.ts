@@ -476,7 +476,7 @@ export const etDictionary: Dictionary = {
     listDeleted: 'Nimekiri on jäädavalt kustutatud.',
     errorListSettingsUpdate: 'Nimekirja seadete uuendamine ebaõnnestus.',
     errorDeleteList: 'Nimekirja kustutamine ebaõnnestus.',
-    heroEditorTitle: 'Avalehe hero',
+    heroEditorTitle: 'Avalik intro',
     heroEditorSubtitle: 'Seda näevad külalised esimesena enne kingitusi, lugu ja ratast.',
     heroTitleLabel: 'Hero pealkiri',
     heroBodyLabel: 'Hero tekst',

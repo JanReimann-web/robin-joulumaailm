@@ -477,7 +477,7 @@ export const enDictionary: Dictionary = {
     listDeleted: 'List deleted permanently.',
     errorListSettingsUpdate: 'Failed to update list settings.',
     errorDeleteList: 'Failed to delete list.',
-    heroEditorTitle: 'Public intro (hero)',
+    heroEditorTitle: 'Public intro',
     heroEditorSubtitle: 'Shown to guests before they open gifts, stories, and wheel.',
     heroTitleLabel: 'Hero headline',
     heroBodyLabel: 'Hero text',

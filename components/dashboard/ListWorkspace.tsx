@@ -2,7 +2,7 @@
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { CalendarDays, Clock3, Copy, Eye, EyeOff, Gift, GripVertical, MapPin, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
+import { CalendarDays, ChevronDown, Clock3, Copy, Eye, EyeOff, Gift, GripVertical, MapPin, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import {
   AccountEntitlement,
@@ -298,6 +298,15 @@ type BillingFeedbackState = {
   listId: string | null
 }
 
+type DashboardAccordionSectionId =
+  | 'create'
+  | 'settings'
+  | 'billing'
+  | 'intro'
+  | 'items'
+  | 'stories'
+  | 'wheel'
+
 type ListFeedbackSection = 'create' | 'lists' | 'settings'
 
 type ListFeedbackState = {
@@ -338,6 +347,45 @@ const DashboardActionButton = ({
       {icon && <span className="shrink-0">{icon}</span>}
       <span className="truncate">{children}</span>
     </button>
+  )
+}
+
+type DashboardAccordionSectionProps = {
+  title: string
+  isOpen: boolean
+  onToggle: () => void
+  children: ReactNode
+  className?: string
+}
+
+const DashboardAccordionSection = ({
+  title,
+  isOpen,
+  onToggle,
+  children,
+  className = '',
+}: DashboardAccordionSectionProps) => {
+  return (
+    <section className={`rounded-xl border border-white/10 bg-slate-950/40 p-4 ${className}`.trim()}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-3 text-left"
+        aria-expanded={isOpen}
+      >
+        <h3 className="text-lg font-semibold text-white">{title}</h3>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-slate-300 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="mt-4 border-t border-white/10 pt-4">
+          {children}
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -530,6 +578,15 @@ export default function ListWorkspace({
   const [wheelSuccess, setWheelSuccess] = useState<string | null>(null)
   const [billingFeedback, setBillingFeedback] = useState<BillingFeedbackState | null>(null)
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
+  const [openAccordionSections, setOpenAccordionSections] = useState<Record<DashboardAccordionSectionId, boolean>>({
+    create: false,
+    settings: false,
+    billing: false,
+    intro: false,
+    items: false,
+    stories: false,
+    wheel: false,
+  })
   const [isUploadingMedia, setIsUploadingMedia] = useState(false)
   const [isUploadingStoryMedia, setIsUploadingStoryMedia] = useState(false)
   const [dragOverEntryId, setDragOverEntryId] = useState<string | null>(null)
@@ -584,6 +641,13 @@ export default function ListWorkspace({
   const clearScopedListFeedback = useCallback((section: ListFeedbackSection) => {
     setListError((current) => current?.section === section ? null : current)
     setListSuccess((current) => current?.section === section ? null : current)
+  }, [])
+
+  const toggleAccordionSection = useCallback((section: DashboardAccordionSectionId) => {
+    setOpenAccordionSections((current) => ({
+      ...current,
+      [section]: !current[section],
+    }))
   }, [])
 
   useEffect(() => {
@@ -3419,9 +3483,21 @@ export default function ListWorkspace({
   return (
     <div className="mt-6 grid min-w-0 gap-4 overflow-x-hidden lg:grid-cols-[1.2fr,1fr] lg:gap-6">
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-        <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
-        <p className="mt-2 text-xs text-emerald-200">{labels.trialNotice}</p>
+        <button
+          type="button"
+          onClick={() => toggleAccordionSection('create')}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={openAccordionSections.create}
+        >
+          <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
+          <ChevronDown
+            size={20}
+            className={`shrink-0 text-slate-300 transition-transform ${openAccordionSections.create ? 'rotate-180' : ''}`}
+          />
+        </button>
 
+        {openAccordionSections.create && (
+          <>
         <form onSubmit={handleCreateList} className="mt-6 grid gap-4">
           <label className="grid gap-1 text-sm text-slate-200">
             <span>{labels.listNameLabel}</span>
@@ -3520,6 +3596,8 @@ export default function ListWorkspace({
             </div>
           )}
         </section>
+          </>
+        )}
       </section>
 
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
@@ -3674,9 +3752,13 @@ export default function ListWorkspace({
             </select>
           </label>
 
-          <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
-            <h3 className="text-lg font-semibold text-white">{labels.listSettingsTitle}</h3>
-            <p className="mt-2 text-sm text-slate-300">{labels.listSettingsSubtitle}</p>
+          <DashboardAccordionSection
+            title={labels.listSettingsTitle}
+            isOpen={openAccordionSections.settings}
+            onToggle={() => toggleAccordionSection('settings')}
+            className="mt-6"
+          >
+            <p className="text-sm text-slate-300">{labels.listSettingsSubtitle}</p>
 
             <form onSubmit={handleSaveListSettings} className="mt-4 grid gap-3">
               <div className="grid gap-3 sm:grid-cols-2">
@@ -3812,11 +3894,15 @@ export default function ListWorkspace({
                 </p>
               )}
             </form>
-          </div>
+          </DashboardAccordionSection>
 
-          <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
-            <h3 className="text-lg font-semibold text-white">{labels.billingPlanTitle}</h3>
-            <p className="mt-2 text-sm text-slate-300">{labels.billingPlanSubtitle}</p>
+          <DashboardAccordionSection
+            title={labels.billingPlanTitle}
+            isOpen={openAccordionSections.billing}
+            onToggle={() => toggleAccordionSection('billing')}
+            className="mt-6"
+          >
+            <p className="text-sm text-slate-300">{labels.billingPlanSubtitle}</p>
 
             {isAccountEntitlementLoading ? (
               <p className="mt-4 text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -4246,11 +4332,15 @@ export default function ListWorkspace({
                 )}
               </>
             )}
-          </div>
+          </DashboardAccordionSection>
 
-          <div className="mt-6 rounded-xl border border-white/10 bg-slate-950/40 p-4">
-            <h3 className="text-lg font-semibold text-white">{labels.heroEditorTitle}</h3>
-            <p className="mt-2 text-sm text-slate-300">{labels.heroEditorSubtitle}</p>
+          <DashboardAccordionSection
+            title={labels.heroEditorTitle}
+            isOpen={openAccordionSections.intro}
+            onToggle={() => toggleAccordionSection('intro')}
+            className="mt-6"
+          >
+            <p className="text-sm text-slate-300">{labels.heroEditorSubtitle}</p>
 
             <form onSubmit={handleSaveIntro} className="mt-4 grid gap-3">
               <label className="grid gap-1 text-sm text-slate-200">
@@ -4457,9 +4547,14 @@ export default function ListWorkspace({
                 {introError}
               </p>
             )}
-          </div>
+          </DashboardAccordionSection>
 
-          <h3 className="mt-8 text-lg font-semibold text-white">{labels.itemsTitle}</h3>
+          <DashboardAccordionSection
+            title={labels.itemsTitle}
+            isOpen={openAccordionSections.items}
+            onToggle={() => toggleAccordionSection('items')}
+            className="mt-6"
+          >
 
           <form ref={itemFormRef} onSubmit={handleAddItem} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
@@ -4715,11 +4810,15 @@ export default function ListWorkspace({
               </article>
             ))}
           </div>
-        </div>
+          </DashboardAccordionSection>
 
-        <div className="mt-8 border-t border-white/10 pt-6">
-          <h3 className="text-lg font-semibold text-white">{labels.storiesTitle}</h3>
-          <p className="mt-2 text-sm text-slate-300">{labels.storiesSubtitle}</p>
+        <DashboardAccordionSection
+          title={labels.storiesTitle}
+          isOpen={openAccordionSections.stories}
+          onToggle={() => toggleAccordionSection('stories')}
+          className="mt-6"
+        >
+          <p className="text-sm text-slate-300">{labels.storiesSubtitle}</p>
 
           <form ref={storyFormRef} onSubmit={handleAddStory} className="mt-4 grid gap-3">
             <label className="grid gap-1 text-sm text-slate-200">
@@ -4882,11 +4981,15 @@ export default function ListWorkspace({
               </article>
             ))}
           </div>
-        </div>
+        </DashboardAccordionSection>
 
-        <div className="mt-8 border-t border-white/10 pt-6">
-          <h3 className="text-lg font-semibold text-white">{labels.wheelTitle}</h3>
-          <p className="mt-2 text-sm text-slate-300">{labels.wheelSubtitle}</p>
+        <DashboardAccordionSection
+          title={labels.wheelTitle}
+          isOpen={openAccordionSections.wheel}
+          onToggle={() => toggleAccordionSection('wheel')}
+          className="mt-6"
+        >
+          <p className="text-sm text-slate-300">{labels.wheelSubtitle}</p>
           <p className="mt-3 text-xs text-slate-400">
             {labels.wheelLimitHint.replace('{count}', String(wheelEntries.length)).replace('{max}', String(MAX_WHEEL_ENTRIES))}
           </p>
@@ -4998,6 +5101,7 @@ export default function ListWorkspace({
               </article>
             ))}
           </div>
+        </DashboardAccordionSection>
         </div>
       </section>
 
