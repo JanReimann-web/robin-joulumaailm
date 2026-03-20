@@ -236,6 +236,14 @@ const interpolateLabel = (
 }
 
 const resolveCurrentUserIdToken = async () => {
+  const authWithReady = auth as typeof auth & {
+    authStateReady?: () => Promise<void>
+  }
+
+  if (typeof authWithReady.authStateReady === 'function') {
+    await authWithReady.authStateReady()
+  }
+
   if (auth.currentUser) {
     return await auth.currentUser.getIdToken()
   }
@@ -288,6 +296,13 @@ type BillingFeedbackState = {
   type: 'success' | 'error'
   message: string
   listId: string | null
+}
+
+type ListFeedbackSection = 'create' | 'lists' | 'settings'
+
+type ListFeedbackState = {
+  section: ListFeedbackSection
+  message: string
 }
 
 const dashboardActionButtonClassName = (variant: DashboardActionButtonProps['variant'] = 'secondary') => {
@@ -505,8 +520,8 @@ export default function ListWorkspace({
   const [draggingWheelEntryId, setDraggingWheelEntryId] = useState<string | null>(null)
   const wheelFormRef = useRef<HTMLFormElement | null>(null)
 
-  const [listError, setListError] = useState<string | null>(null)
-  const [listSuccess, setListSuccess] = useState<string | null>(null)
+  const [listError, setListError] = useState<ListFeedbackState | null>(null)
+  const [listSuccess, setListSuccess] = useState<ListFeedbackState | null>(null)
   const [itemError, setItemError] = useState<string | null>(null)
   const [itemSuccess, setItemSuccess] = useState<string | null>(null)
   const [storyError, setStoryError] = useState<string | null>(null)
@@ -558,6 +573,19 @@ export default function ListWorkspace({
     setQrError(null)
   }, [locale])
 
+  const setScopedListError = useCallback((section: ListFeedbackSection, message: string) => {
+    setListError({ section, message })
+  }, [])
+
+  const setScopedListSuccess = useCallback((section: ListFeedbackSection, message: string) => {
+    setListSuccess({ section, message })
+  }, [])
+
+  const clearScopedListFeedback = useCallback((section: ListFeedbackSection) => {
+    setListError((current) => current?.section === section ? null : current)
+    setListSuccess((current) => current?.section === section ? null : current)
+  }, [])
+
   useEffect(() => {
     if (visibility !== 'public_password') {
       setVisibilityPassword('')
@@ -581,13 +609,13 @@ export default function ListWorkspace({
         setIsListsLoading(false)
       },
       () => {
-        setListError(labels.errorCreateFailed)
+        setScopedListError('lists', labels.errorCreateFailed)
         setIsListsLoading(false)
       }
     )
 
     return () => unsubscribe()
-  }, [labels.errorCreateFailed, ownerId])
+  }, [labels.errorCreateFailed, ownerId, setScopedListError])
 
   useEffect(() => {
     const unsubscribe = subscribeToAccountEntitlement(
@@ -634,8 +662,6 @@ export default function ListWorkspace({
     }
 
     if (billingStatus === 'cancel') {
-      setListSuccess(null)
-      setListError(null)
       setBillingFeedback({
         type: 'error',
         message: labels.billingCancelReturn,
@@ -648,8 +674,6 @@ export default function ListWorkspace({
     let cancelled = false
 
     const confirmReturn = async () => {
-      setListError(null)
-      setListSuccess(null)
       setBillingFeedback({
         type: 'success',
         message: labels.activatingPass,
@@ -945,11 +969,11 @@ export default function ListWorkspace({
       setShowcaseListIds([])
 
       if (rawError instanceof ShowcaseClientError) {
-        setListError(getShowcaseErrorMessage(rawError.code))
+        setScopedListError('lists', getShowcaseErrorMessage(rawError.code))
       } else if (rawError instanceof Error) {
-        setListError(getShowcaseErrorMessage(rawError.message))
+        setScopedListError('lists', getShowcaseErrorMessage(rawError.message))
       } else {
-        setListError(labels.errorShowcaseLoadFailed)
+        setScopedListError('lists', labels.errorShowcaseLoadFailed)
       }
     } finally {
       setIsShowcaseLoading(false)
@@ -958,6 +982,7 @@ export default function ListWorkspace({
     getCurrentUserIdToken,
     getShowcaseErrorMessage,
     labels.errorShowcaseLoadFailed,
+    setScopedListError,
   ])
 
   useEffect(() => {
@@ -1478,8 +1503,11 @@ export default function ListWorkspace({
   const composedCreateUrl = useMemo(() => {
     return buildPublicListUrl(composedCreateSlug)
   }, [composedCreateSlug])
-  const isListSettingsSuccessVisible = listSuccess === labels.listSettingsSaved
-  const globalListSuccess = isListSettingsSuccessVisible ? null : listSuccess
+  const createListSuccess = listSuccess?.section === 'create' ? listSuccess.message : null
+  const createListError = listError?.section === 'create' ? listError.message : null
+  const listCollectionError = listError?.section === 'lists' ? listError.message : null
+  const listSettingsSuccess = listSuccess?.section === 'settings' ? listSuccess.message : null
+  const listSettingsError = listError?.section === 'settings' ? listError.message : null
 
   const handleTitleChange = (value: string) => {
     setTitle(value)
@@ -1687,25 +1715,18 @@ export default function ListWorkspace({
 
   const handleCreateList = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setListError(null)
-    setListSuccess(null)
+    clearScopedListFeedback('create')
 
     const normalizedUrlName = sanitizeSlug(slug)
     if (!isValidSlug(normalizedUrlName)) {
-      setListError(labels.errorInvalidSlug)
-      return
-    }
-
-    const user = auth.currentUser
-    if (!user) {
-      setListError(labels.errorSessionExpired)
+      setScopedListError('create', labels.errorInvalidSlug)
       return
     }
 
     setIsCreatingList(true)
 
     try {
-      const idToken = await user.getIdToken()
+      const idToken = await getCurrentUserIdToken()
       const result = await createGiftList({
         ownerId,
         title,
@@ -1716,7 +1737,7 @@ export default function ListWorkspace({
         idToken,
       })
 
-      setListSuccess(`${labels.listCreated} ${buildPublicListUrl(result.slug)}`)
+      setScopedListSuccess('create', `${labels.listCreated} ${buildPublicListUrl(result.slug)}`)
       trackAnalyticsEvent('create_list', {
         locale,
         event_type: 'birthday',
@@ -1728,15 +1749,20 @@ export default function ListWorkspace({
       setSelectedListId(result.listId)
     } catch (rawError) {
       if (rawError instanceof InvalidSlugError) {
-        setListError(labels.errorInvalidSlug)
+        setScopedListError('create', labels.errorInvalidSlug)
       } else if (rawError instanceof ReservedSlugError) {
-        setListError(labels.errorSlugReserved)
+        setScopedListError('create', labels.errorSlugReserved)
       } else if (rawError instanceof SlugTakenError) {
-        setListError(labels.errorSlugTaken)
+        setScopedListError('create', labels.errorSlugTaken)
       } else if (rawError instanceof VisibilityPasswordRequiredError) {
-        setListError(labels.errorVisibilityPasswordRequired)
+        setScopedListError('create', labels.errorVisibilityPasswordRequired)
+      } else if (
+        rawError instanceof Error
+        && (rawError.message === 'missing_auth' || rawError.message === 'invalid_auth')
+      ) {
+        setScopedListError('create', labels.errorSessionExpired)
       } else {
-        setListError(labels.errorCreateFailed)
+        setScopedListError('create', labels.errorCreateFailed)
       }
     } finally {
       setIsCreatingList(false)
@@ -1745,17 +1771,16 @@ export default function ListWorkspace({
 
   const handleSaveListSettings = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setListError(null)
-    setListSuccess(null)
+    clearScopedListFeedback('settings')
 
     if (!selectedList) {
-      setListError(labels.errorSelectList)
+      setScopedListError('settings', labels.errorSelectList)
       return
     }
 
     const normalizedPassword = visibilityPassword.trim()
     if (isSwitchingToPasswordProtected && normalizedPassword.length < 6) {
-      setListError(labels.errorVisibilityPasswordRequired)
+      setScopedListError('settings', labels.errorVisibilityPasswordRequired)
       return
     }
 
@@ -1765,25 +1790,19 @@ export default function ListWorkspace({
       && normalizedPassword.length > 0
       && normalizedPassword.length < 6
     ) {
-      setListError(labels.errorVisibilityPasswordRequired)
+      setScopedListError('settings', labels.errorVisibilityPasswordRequired)
       return
     }
 
     if (isPasswordVisibilityBlockedByCurrentPlan) {
-      setListError(labels.errorVisibilityRequiresPremium)
+      setScopedListError('settings', labels.errorVisibilityRequiresPremium)
       return
     }
 
     setIsSavingListSettings(true)
 
     try {
-      const user = auth.currentUser
-      if (!user) {
-        setListError(labels.errorSessionExpired)
-        return
-      }
-
-      const idToken = await user.getIdToken()
+      const idToken = await getCurrentUserIdToken()
       await updateGiftListSettings({
         listId: selectedList.id,
         eventType,
@@ -1807,15 +1826,20 @@ export default function ListWorkspace({
       )
       setVisibilityPassword('')
       setIsVisibilityPasswordVisible(false)
-      setListSuccess(labels.listSettingsSaved)
+      setScopedListSuccess('settings', labels.listSettingsSaved)
     } catch (rawError) {
       if (rawError instanceof VisibilityPasswordRequiredError) {
         setVisibility(selectedList.visibility)
-        setListError(labels.errorVisibilityPasswordRequired)
+        setScopedListError('settings', labels.errorVisibilityPasswordRequired)
       } else if (rawError instanceof Error && rawError.message === 'visibility_requires_premium') {
-        setListError(labels.errorVisibilityRequiresPremium)
+        setScopedListError('settings', labels.errorVisibilityRequiresPremium)
+      } else if (
+        rawError instanceof Error
+        && (rawError.message === 'missing_auth' || rawError.message === 'invalid_auth')
+      ) {
+        setScopedListError('settings', labels.errorSessionExpired)
       } else {
-        setListError(withErrorCode(labels.errorListSettingsUpdate, rawError))
+        setScopedListError('settings', withErrorCode(labels.errorListSettingsUpdate, rawError))
       }
     } finally {
       setIsSavingListSettings(false)
@@ -1824,22 +1848,15 @@ export default function ListWorkspace({
 
   const handleDeleteList = async () => {
     if (!selectedList) {
-      setListError(labels.errorSelectList)
+      setScopedListError('settings', labels.errorSelectList)
       return
     }
 
-    setListError(null)
-    setListSuccess(null)
+    clearScopedListFeedback('settings')
     setIsDeletingList(true)
 
     try {
-      const user = auth.currentUser
-      if (!user) {
-        setListError(labels.errorSessionExpired)
-        return
-      }
-
-      const idToken = await user.getIdToken()
+      const idToken = await getCurrentUserIdToken()
       await deleteGiftList({
         listId: selectedList.id,
         idToken,
@@ -1852,9 +1869,16 @@ export default function ListWorkspace({
       setQrDataUrl(null)
       setCopiedListId((current) => (current === selectedList.id ? null : current))
       setIsDeleteListConfirmOpen(false)
-      setListSuccess(labels.listDeleted)
+      setScopedListSuccess('settings', labels.listDeleted)
     } catch (rawError) {
-      setListError(withErrorCode(labels.errorDeleteList, rawError))
+      if (
+        rawError instanceof Error
+        && (rawError.message === 'missing_auth' || rawError.message === 'invalid_auth')
+      ) {
+        setScopedListError('settings', labels.errorSessionExpired)
+      } else {
+        setScopedListError('settings', withErrorCode(labels.errorDeleteList, rawError))
+      }
     } finally {
       setIsDeletingList(false)
     }
@@ -1874,21 +1898,21 @@ export default function ListWorkspace({
         setCopiedListId((current) => (current === list.id ? null : current))
       }, 1500)
     } catch {
-      setListError(labels.errorCreateFailed)
+      setScopedListError('lists', labels.errorCreateFailed)
     }
   }
 
   const handleToggleShowcase = async (list: GiftList) => {
-    setListError(null)
+    clearScopedListFeedback('lists')
 
     if (!canManageGallery) {
-      setListError(labels.errorShowcaseNotAllowed)
+      setScopedListError('lists', labels.errorShowcaseNotAllowed)
       return
     }
 
     const isCurrentlyShowcased = showcasedListIdSet.has(list.id)
     if (!isCurrentlyShowcased && list.visibility !== 'public') {
-      setListError(labels.errorShowcaseRequiresPublic)
+      setScopedListError('lists', labels.errorShowcaseRequiresPublic)
       return
     }
 
@@ -1904,11 +1928,11 @@ export default function ListWorkspace({
       await loadShowcaseState()
     } catch (rawError) {
       if (rawError instanceof ShowcaseClientError) {
-        setListError(getShowcaseErrorMessage(rawError.code))
+        setScopedListError('lists', getShowcaseErrorMessage(rawError.code))
       } else if (rawError instanceof Error) {
-        setListError(getShowcaseErrorMessage(rawError.message))
+        setScopedListError('lists', getShowcaseErrorMessage(rawError.message))
       } else {
-        setListError(labels.errorShowcaseUpdateFailed)
+        setScopedListError('lists', labels.errorShowcaseUpdateFailed)
       }
     } finally {
       setShowcaseUpdatingListId(null)
@@ -2133,8 +2157,6 @@ export default function ListWorkspace({
   }
 
   const handleActivatePass = async (listId: string, planId: BillingPlanId) => {
-    setListError(null)
-    setListSuccess(null)
     setBillingFeedback(null)
     setReferralError(null)
     setActivatingPlanTarget(`${listId}:${planId}`)
@@ -2149,17 +2171,7 @@ export default function ListWorkspace({
         return
       }
 
-      const user = auth.currentUser
-      if (!user) {
-        setBillingFeedback({
-          type: 'error',
-          message: labels.errorSessionExpired,
-          listId,
-        })
-        return
-      }
-
-      const idToken = await user.getIdToken()
+      const idToken = await getCurrentUserIdToken()
       trackAnalyticsEvent('begin_checkout', {
         locale,
         plan_id: planId,
@@ -2206,6 +2218,18 @@ export default function ListWorkspace({
       setReferralCodeInput('')
       await loadReferralSummary()
     } catch (rawError) {
+      if (
+        rawError instanceof Error
+        && (rawError.message === 'missing_auth' || rawError.message === 'invalid_auth')
+      ) {
+        setBillingFeedback({
+          type: 'error',
+          message: labels.errorSessionExpired,
+          listId,
+        })
+        return
+      }
+
       if (rawError instanceof BillingCheckoutError) {
         if (rawError.code === 'missing_auth' || rawError.code === 'invalid_auth') {
           setBillingFeedback({
@@ -3435,15 +3459,15 @@ export default function ListWorkspace({
           </button>
         </form>
 
-        {globalListSuccess && (
+        {createListSuccess && (
           <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
-            {globalListSuccess}
+            {createListSuccess}
           </p>
         )}
 
-        {listError && (
+        {createListError && (
           <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
-            {listError}
+            {createListError}
           </p>
         )}
 
@@ -3500,6 +3524,13 @@ export default function ListWorkspace({
 
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.myListsTitle}</h2>
+
+        {listCollectionError && (
+          <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+            {listCollectionError}
+          </p>
+        )}
+
         <div className="mt-4 grid gap-3">
           {isListsLoading && (
             <p className="text-sm text-slate-300">{labels.loadingAuth}</p>
@@ -3769,9 +3800,15 @@ export default function ListWorkspace({
                 </button>
               </div>
 
-              {isListSettingsSuccessVisible && (
+              {listSettingsSuccess && (
                 <p className="rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
-                  {listSuccess}
+                  {listSettingsSuccess}
+                </p>
+              )}
+
+              {listSettingsError && (
+                <p className="rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                  {listSettingsError}
                 </p>
               )}
             </form>
