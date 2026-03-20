@@ -25,6 +25,10 @@ const buildTrialEnd = () => {
   return Timestamp.fromDate(date)
 }
 
+const ensureFreshUserIdToken = async (user: User) => {
+  await user.getIdToken()
+}
+
 const upsertUserProfile = async (user: User, isNewUser: boolean) => {
   const userRef = doc(db, 'users', user.uid)
   const payload: Record<string, unknown> = {
@@ -49,6 +53,7 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
   const credential = await signInWithPopup(auth, googleProvider)
   const userInfo = getAdditionalUserInfo(credential)
 
+  await ensureFreshUserIdToken(credential.user)
   await upsertUserProfile(credential.user, Boolean(userInfo?.isNewUser))
   return credential
 }
@@ -58,6 +63,7 @@ export const signInWithEmail = async (
   password: string
 ): Promise<UserCredential> => {
   const credential = await signInWithEmailAndPassword(auth, email, password)
+  await ensureFreshUserIdToken(credential.user)
   await upsertUserProfile(credential.user, false)
   return credential
 }
@@ -67,6 +73,7 @@ export const createAccountWithEmail = async (
   password: string
 ): Promise<UserCredential> => {
   const credential = await createUserWithEmailAndPassword(auth, email, password)
+  await ensureFreshUserIdToken(credential.user)
   await upsertUserProfile(credential.user, true)
 
   try {

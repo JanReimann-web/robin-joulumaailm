@@ -1,7 +1,7 @@
 'use client'
 
 import { DragEvent, FormEvent, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onIdTokenChanged } from 'firebase/auth'
 import { CalendarDays, ChevronDown, Clock3, Copy, Eye, EyeOff, Gift, GripVertical, MapPin, PencilLine, RotateCcw, Sparkles, Trash2 } from 'lucide-react'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import {
@@ -235,6 +235,34 @@ const interpolateLabel = (
   }, template)
 }
 
+const waitForNextIdTokenChange = (timeoutMs: number) => {
+  return new Promise<void>((resolve) => {
+    let resolved = false
+
+    const finish = () => {
+      if (resolved) {
+        return
+      }
+
+      resolved = true
+      globalThis.clearTimeout(timeoutId)
+      unsubscribe()
+      resolve()
+    }
+
+    const timeoutId = globalThis.setTimeout(finish, timeoutMs)
+    const unsubscribe = onIdTokenChanged(
+      auth,
+      () => {
+        finish()
+      },
+      () => {
+        finish()
+      }
+    )
+  })
+}
+
 const resolveCurrentUserIdToken = async () => {
   const authWithReady = auth as typeof auth & {
     authStateReady?: () => Promise<void>
@@ -244,33 +272,36 @@ const resolveCurrentUserIdToken = async () => {
     await authWithReady.authStateReady()
   }
 
-  if (auth.currentUser) {
-    return await auth.currentUser.getIdToken()
+  let lastTokenError: unknown = null
+
+  for (let attempt = 0; attempt < 15; attempt += 1) {
+    const currentUser = auth.currentUser
+
+    if (currentUser) {
+      try {
+        const idToken = await currentUser.getIdToken()
+        if (idToken.trim().length > 0) {
+          return idToken
+        }
+      } catch (error) {
+        lastTokenError = error
+      }
+    }
+
+    if (attempt < 14) {
+      await waitForNextIdTokenChange(150)
+    }
   }
 
-  return await new Promise<string>((resolve, reject) => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (user) => {
-        unsubscribe()
+  if (!auth.currentUser) {
+    throw new Error('missing_auth')
+  }
 
-        if (!user) {
-          reject(new Error('missing_auth'))
-          return
-        }
-
-        try {
-          resolve(await user.getIdToken())
-        } catch {
-          reject(new Error('invalid_auth'))
-        }
-      },
-      () => {
-        unsubscribe()
-        reject(new Error('invalid_auth'))
-      }
-    )
-  })
+  try {
+    return await auth.currentUser.getIdToken(true)
+  } catch {
+    throw new Error(lastTokenError instanceof Error ? 'invalid_auth' : 'invalid_auth')
+  }
 }
 
 
@@ -675,7 +706,7 @@ export default function ListWorkspace({
       syncResolvedAuth()
     }
 
-    const unsubscribe = onAuthStateChanged(
+    const unsubscribe = onIdTokenChanged(
       auth,
       (user) => {
         if (!isActive) {
@@ -1079,6 +1110,13 @@ export default function ListWorkspace({
       const showcaseState = await fetchShowcaseListIds(idToken)
       setCanManageGallery(showcaseState.canManageGallery)
       setShowcaseListIds(showcaseState.listIds)
+      setListError((current) => {
+        if (current?.section !== 'lists') {
+          return current
+        }
+
+        return current.message === labels.errorCreateFailed ? current : null
+      })
     } catch (rawError) {
       setCanManageGallery(false)
       setShowcaseListIds([])
@@ -1095,6 +1133,7 @@ export default function ListWorkspace({
     }
   }, [
     getCurrentUserIdToken,
+    labels.errorCreateFailed,
     getShowcaseErrorMessage,
     labels.errorShowcaseLoadFailed,
     setScopedListError,
