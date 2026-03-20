@@ -1313,13 +1313,34 @@ export default function PublicGiftList({
     )
   }
 
+  const renderBrandLoadingScreen = (message: string) => {
+    return (
+      <div className="relative min-h-screen w-full overflow-hidden px-4 py-6 sm:px-6 sm:py-8">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_14%,rgba(52,211,153,0.16),transparent_34%),radial-gradient(circle_at_82%_2%,rgba(125,211,252,0.14),transparent_30%)]" />
+
+        <main className="relative mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
+          <section className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-slate-950/40 px-6 py-10 shadow-[0_30px_80px_rgba(2,6,23,0.45)] backdrop-blur-xl sm:px-8 sm:py-12">
+            <div className="flex flex-col items-center gap-5 text-center">
+              <BrandLogo
+                tone="header"
+                size="lg"
+                animated
+                className="flex-col justify-center gap-4 sm:flex-row sm:items-center sm:gap-5"
+                wordmarkClassName="text-center sm:text-left"
+              />
+
+              <p className="text-sm font-medium text-white/65">
+                {message}
+              </p>
+            </div>
+          </section>
+        </main>
+      </div>
+    )
+  }
+
   if (metaLoading) {
-    return renderLoadingShell({
-      themeId: 'wedding-minimal',
-      message: copy.loadingList,
-      title: 'Giftlist Studio',
-      body: copy.loadingContent,
-    })
+    return renderBrandLoadingScreen(copy.loadingList)
   }
 
   if (notFound || !meta) {
