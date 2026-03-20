@@ -1,8 +1,11 @@
 import {
   applyPercentageDiscount,
+  countReferralCodesTowardActiveLimit,
+  doesReferralCodeCountTowardActiveLimit,
   formatReferralCode,
   getRewardCreditsToConsume,
   getRewardDiscountPercentFromCredits,
+  isReferralCodeCopyable,
   normalizeReferralCode,
 } from '@/lib/referrals'
 
@@ -33,5 +36,26 @@ describe('referral helpers', () => {
     expect(applyPercentageDiscount(1995, 20)).toBe(1596)
     expect(applyPercentageDiscount(2995, 30)).toBe(2097)
     expect(applyPercentageDiscount(995, 0)).toBe(995)
+  })
+
+  it('counts only active and reserved codes toward the generation limit', () => {
+    expect(doesReferralCodeCountTowardActiveLimit('active')).toBe(true)
+    expect(doesReferralCodeCountTowardActiveLimit('reserved')).toBe(true)
+    expect(doesReferralCodeCountTowardActiveLimit('redeemed')).toBe(false)
+    expect(doesReferralCodeCountTowardActiveLimit('revoked')).toBe(false)
+
+    expect(countReferralCodesTowardActiveLimit([
+      { status: 'active' },
+      { status: 'reserved' },
+      { status: 'redeemed' },
+      { status: 'revoked' },
+    ])).toBe(2)
+  })
+
+  it('allows copying only active referral codes', () => {
+    expect(isReferralCodeCopyable('active')).toBe(true)
+    expect(isReferralCodeCopyable('reserved')).toBe(false)
+    expect(isReferralCodeCopyable('redeemed')).toBe(false)
+    expect(isReferralCodeCopyable('revoked')).toBe(false)
   })
 })

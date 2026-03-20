@@ -432,7 +432,7 @@ export const enDictionary: Dictionary = {
     referralCopyAction: 'Copy code',
     referralCopied: 'Copied',
     referralStatusActive: 'Active',
-    referralStatusReserved: 'Reserved',
+    referralStatusReserved: 'Awaiting payment',
     referralStatusRedeemed: 'Used',
     referralCodeInputLabel: 'Use a referral code on this purchase',
     referralCodeInputPlaceholder: 'ABCD-1234',

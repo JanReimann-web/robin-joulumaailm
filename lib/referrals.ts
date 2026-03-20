@@ -43,6 +43,24 @@ export type ReferralDashboardSummary = {
   codes: ReferralCodeSummary[]
 }
 
+export const doesReferralCodeCountTowardActiveLimit = (
+  status: ReferralCodeStatus
+) => {
+  return status === 'active' || status === 'reserved'
+}
+
+export const countReferralCodesTowardActiveLimit = (
+  codes: Array<Pick<ReferralCodeSummary, 'status'>>
+) => {
+  return codes.reduce((count, code) => {
+    return count + (doesReferralCodeCountTowardActiveLimit(code.status) ? 1 : 0)
+  }, 0)
+}
+
+export const isReferralCodeCopyable = (status: ReferralCodeStatus) => {
+  return status === 'active'
+}
+
 const REFERRAL_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 export const normalizeReferralCode = (value: string) => {

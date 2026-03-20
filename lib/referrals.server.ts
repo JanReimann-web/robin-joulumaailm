@@ -3,6 +3,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { adminDb } from '@/lib/firebase/admin'
 import {
+  countReferralCodesTowardActiveLimit,
   createReferralCode,
   formatReferralCode,
   getRewardCreditsToConsume,
@@ -119,10 +120,10 @@ const getReferralAccountRecord = async (userId: string) => {
   )
 }
 
-const listActiveReferralCodesForUser = async (userId: string) => {
+const listVisibleReferralCodesForUser = async (userId: string) => {
   const snapshot = await referralCodesCollection
     .where('ownerUserId', '==', userId)
-    .where('status', 'in', ['active', 'reserved'])
+    .where('status', 'in', ['active', 'reserved', 'redeemed'])
     .get()
 
   return snapshot.docs
@@ -136,9 +137,10 @@ export const getReferralDashboardSummary = async (
   const [isComplimentaryAccount, referralAccount, codes, eligibleFromPayments] = await Promise.all([
     hasServerSideComplimentaryEntitlement(userId),
     getReferralAccountRecord(userId),
-    listActiveReferralCodesForUser(userId),
+    listVisibleReferralCodesForUser(userId),
     hasSuccessfulPaidPurchase(userId),
   ])
+  const activeCodeCount = countReferralCodesTowardActiveLimit(codes)
 
   const totalSuccessfulPaidPurchases = Math.max(
     referralAccount.totalSuccessfulPaidPurchases,
@@ -149,9 +151,9 @@ export const getReferralDashboardSummary = async (
   return {
     isEligible,
     isComplimentaryAccount,
-    activeCodeCount: codes.length,
+    activeCodeCount,
     maxActiveCodes: REFERRAL_MAX_ACTIVE_CODES,
-    canGenerate: isEligible && codes.length < REFERRAL_MAX_ACTIVE_CODES,
+    canGenerate: isEligible && activeCodeCount < REFERRAL_MAX_ACTIVE_CODES,
     pendingRewardCredits: referralAccount.pendingRewardCredits,
     nextRewardDiscountPercent: getRewardDiscountPercentFromCredits(
       referralAccount.pendingRewardCredits

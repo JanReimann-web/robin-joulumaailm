@@ -265,6 +265,12 @@ const grantListPass = async (params: {
       params.discount.rewardCreditsToConsume,
       toCount(buyerReferralData.pendingRewardCredits)
     )
+    const referralOwnerSnapshot = referralOwnerAccountRef
+      ? await transaction.get(referralOwnerAccountRef)
+      : null
+    const referralOwnerData = referralOwnerSnapshot?.exists
+      ? referralOwnerSnapshot.data() as Record<string, unknown>
+      : {}
 
     if (referralCodeRef) {
       const referralCodeSnapshot = await transaction.get(referralCodeRef)
@@ -365,11 +371,6 @@ const grantListPass = async (params: {
     }, { merge: true })
 
     if (referralOwnerAccountRef && params.discount.referralOwnerUserId) {
-      const referralOwnerSnapshot = await transaction.get(referralOwnerAccountRef)
-      const referralOwnerData = referralOwnerSnapshot.exists
-        ? referralOwnerSnapshot.data() as Record<string, unknown>
-        : {}
-
       transaction.set(referralOwnerAccountRef, {
         userId: params.discount.referralOwnerUserId,
         pendingRewardCredits: toCount(referralOwnerData.pendingRewardCredits) + 1,
@@ -378,7 +379,7 @@ const grantListPass = async (params: {
         totalSuccessfulPaidPurchases: toCount(referralOwnerData.totalSuccessfulPaidPurchases),
         totalReferralPurchasesAsBuyer: toCount(referralOwnerData.totalReferralPurchasesAsBuyer),
         totalRedeemedCodesAsOwner: toCount(referralOwnerData.totalRedeemedCodesAsOwner) + 1,
-        createdAt: referralOwnerSnapshot.exists
+        createdAt: referralOwnerSnapshot?.exists
           ? (referralOwnerData.createdAt ?? FieldValue.serverTimestamp())
           : FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),

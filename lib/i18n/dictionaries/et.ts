@@ -431,7 +431,7 @@ export const etDictionary: Dictionary = {
     referralCopyAction: 'Kopeeri kood',
     referralCopied: 'Kopeeritud',
     referralStatusActive: 'Aktiivne',
-    referralStatusReserved: 'Broneeritud',
+    referralStatusReserved: 'Maksmist ootab',
     referralStatusRedeemed: 'Kasutatud',
     referralCodeInputLabel: 'Kasuta selle ostu jaoks referral koodi',
     referralCodeInputPlaceholder: 'ABCD-1234',

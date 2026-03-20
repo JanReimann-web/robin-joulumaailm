@@ -5,6 +5,7 @@ import {
   resolveBillingChargeQuote,
   resolveBillingCurrencyFromCountryCode,
 } from '@/lib/billing/pricing'
+import { applyPercentageDiscount } from '@/lib/referrals'
 
 describe('billing pricing helpers', () => {
   it('uses EUR for EU27 countries', () => {
@@ -84,6 +85,19 @@ describe('billing pricing helpers', () => {
       upgradeFromPlanId: 'base',
       resetsAccessPeriod: true,
     })
+  })
+
+  it('supports applying referral and reward discounts to upgrade quotes', () => {
+    const premiumUpgrade = resolveBillingChargeQuote({
+      targetPlanId: 'premium',
+      currentPlanId: 'base',
+      hasActivePaidPlan: true,
+      currency: 'EUR',
+    })
+
+    expect(premiumUpgrade.mode).toBe('upgrade')
+    expect(applyPercentageDiscount(premiumUpgrade.priceCents, 20)).toBe(1036)
+    expect(applyPercentageDiscount(premiumUpgrade.priceCents, 10)).toBe(1166)
   })
 
   it('keeps downgrade detection separate from charge quoting', () => {

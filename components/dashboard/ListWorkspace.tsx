@@ -101,6 +101,7 @@ import {
 import { formatHeroEventDate, formatHeroEventTime } from '@/lib/lists/hero'
 import { resolveEventThemeId } from '@/lib/lists/event-theme'
 import {
+  isReferralCodeCopyable,
   ReferralCodeStatus,
   ReferralDashboardSummary,
 } from '@/lib/referrals'
@@ -232,6 +233,36 @@ const interpolateLabel = (
   return Object.entries(replacements).reduce((nextTemplate, [key, value]) => {
     return nextTemplate.replace(`{${key}}`, String(value))
   }, template)
+}
+
+const resolveCurrentUserIdToken = async () => {
+  if (auth.currentUser) {
+    return await auth.currentUser.getIdToken()
+  }
+
+  return await new Promise<string>((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      async (user) => {
+        unsubscribe()
+
+        if (!user) {
+          reject(new Error('missing_auth'))
+          return
+        }
+
+        try {
+          resolve(await user.getIdToken())
+        } catch {
+          reject(new Error('invalid_auth'))
+        }
+      },
+      () => {
+        unsubscribe()
+        reject(new Error('invalid_auth'))
+      }
+    )
+  })
 }
 
 
@@ -639,19 +670,8 @@ export default function ListWorkspace({
         return
       }
 
-      const user = auth.currentUser
-      if (!user) {
-        setBillingFeedback({
-          type: 'error',
-          message: labels.errorSessionExpired,
-          listId: billingListId,
-        })
-        setHasHandledBillingReturn(true)
-        return
-      }
-
       try {
-        const idToken = await user.getIdToken()
+        const idToken = await resolveCurrentUserIdToken()
         const result = await confirmBillingReturn({
           sessionId: billingSessionId,
           listId: billingListId,
@@ -691,16 +711,20 @@ export default function ListWorkspace({
           return
         }
 
-        if (rawError instanceof BillingCheckoutError) {
-          if (rawError.code === 'missing_auth' || rawError.code === 'invalid_auth') {
-            setBillingFeedback({
-              type: 'error',
-              message: labels.errorSessionExpired,
-              listId: billingListId,
-            })
-            setHasHandledBillingReturn(true)
-            return
-          }
+        const errorCode = rawError instanceof BillingCheckoutError
+          ? rawError.code
+          : rawError instanceof Error
+            ? rawError.message
+            : null
+
+        if (errorCode === 'missing_auth' || errorCode === 'invalid_auth') {
+          setBillingFeedback({
+            type: 'error',
+            message: labels.errorSessionExpired,
+            listId: billingListId,
+          })
+          setHasHandledBillingReturn(true)
+          return
         }
 
         setBillingFeedback({
@@ -726,12 +750,12 @@ export default function ListWorkspace({
     billingStatus,
     hasHandledBillingReturn,
     labels.activatingPass,
-    locale,
     labels.billingCancelReturn,
     labels.billingSuccessReturn,
     labels.errorActivatePass,
     labels.errorMediaProcessingReasonPrefix,
     labels.errorSessionExpired,
+    locale,
   ])
 
   useEffect(() => {
@@ -807,33 +831,7 @@ export default function ListWorkspace({
   }, [labels.errorAddWheelEntry, selectedListId])
 
   const getCurrentUserIdToken = useCallback(async () => {
-    if (auth.currentUser) {
-      return await auth.currentUser.getIdToken()
-    }
-
-    return await new Promise<string>((resolve, reject) => {
-      const unsubscribe = onAuthStateChanged(
-        auth,
-        async (user) => {
-          unsubscribe()
-
-          if (!user) {
-            reject(new Error('missing_auth'))
-            return
-          }
-
-          try {
-            resolve(await user.getIdToken())
-          } catch {
-            reject(new Error('invalid_auth'))
-          }
-        },
-        () => {
-          unsubscribe()
-          reject(new Error('invalid_auth'))
-        }
-      )
-    })
+    return await resolveCurrentUserIdToken()
   }, [])
 
   const getReferralErrorMessage = useCallback((code: string) => {
@@ -1917,7 +1915,15 @@ export default function ListWorkspace({
     }
   }
 
-  const handleCopyReferralCode = async (codeId: string, code: string) => {
+  const handleCopyReferralCode = async (
+    codeId: string,
+    code: string,
+    status: ReferralCodeStatus
+  ) => {
+    if (!isReferralCodeCopyable(status)) {
+      return
+    }
+
     try {
       await navigator.clipboard.writeText(code)
       setCopiedReferralCodeId(codeId)
@@ -4040,16 +4046,21 @@ export default function ListWorkspace({
                                           </p>
                                         </div>
 
-                                        <DashboardActionButton
-                                          onClick={() => handleCopyReferralCode(codeEntry.id, codeEntry.code)}
-                                          disabled={false}
-                                          icon={<Copy size={14} />}
-                                          className="w-full shrink-0 sm:w-auto"
-                                        >
-                                          {copiedReferralCodeId === codeEntry.id
-                                            ? labels.referralCopied
-                                            : labels.referralCopyAction}
-                                        </DashboardActionButton>
+                                        {isReferralCodeCopyable(codeEntry.status) ? (
+                                          <DashboardActionButton
+                                            onClick={() => handleCopyReferralCode(
+                                              codeEntry.id,
+                                              codeEntry.code,
+                                              codeEntry.status
+                                            )}
+                                            icon={<Copy size={14} />}
+                                            className="w-full shrink-0 sm:w-auto"
+                                          >
+                                            {copiedReferralCodeId === codeEntry.id
+                                              ? labels.referralCopied
+                                              : labels.referralCopyAction}
+                                          </DashboardActionButton>
+                                        ) : null}
                                       </div>
                                     </article>
                                   ))}
