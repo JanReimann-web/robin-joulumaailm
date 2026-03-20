@@ -3560,74 +3560,78 @@ export default function ListWorkspace({
 
   return (
     <div className="mt-6 grid min-w-0 gap-4 overflow-x-hidden lg:grid-cols-[1.2fr,1fr] lg:gap-6">
-      <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
-        <button
-          type="button"
-          onClick={() => toggleAccordionSection('create')}
-          className="flex w-full items-center justify-between gap-3 text-left"
-          aria-expanded={openAccordionSections.create}
-        >
-          <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
-          <ChevronDown
-            size={20}
-            className={`shrink-0 text-slate-300 transition-transform ${openAccordionSections.create ? 'rotate-180' : ''}`}
-          />
-        </button>
-
-        {openAccordionSections.create && (
-          <>
-        <form onSubmit={handleCreateList} className="mt-6 grid gap-4">
-          <label className="grid gap-1 text-sm text-slate-200">
-            <span>{labels.listNameLabel}</span>
-            <input
-              required
-              value={title}
-              onChange={(entry) => handleTitleChange(entry.target.value)}
-              placeholder={labels.listNamePlaceholder}
-              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-            />
-          </label>
-
-          <label className="grid gap-1 text-sm text-slate-200">
-            <span>{labels.slugLabel}</span>
-            <div className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-emerald-200">
-              {composedCreateUrl}
-            </div>
-            <span>{labels.urlNameLabel}</span>
-            <input
-              required
-              value={slug}
-              onChange={(entry) => handleSlugChange(entry.target.value)}
-              placeholder={labels.urlNamePlaceholder}
-              className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
-            />
-            <span className="text-xs text-slate-400">{labels.slugHint}</span>
-          </label>
-
+      <div className="min-w-0 space-y-4 lg:space-y-6">
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
           <button
-            type="submit"
-            disabled={isCreatingList}
-            className="mt-2 w-full rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            type="button"
+            onClick={() => toggleAccordionSection('create')}
+            className="flex w-full items-center justify-between gap-3 text-left"
+            aria-expanded={openAccordionSections.create}
           >
-            {isCreatingList ? labels.creatingList : labels.createListAction}
+            <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
+            <ChevronDown
+              size={20}
+              className={`shrink-0 text-slate-300 transition-transform ${openAccordionSections.create ? 'rotate-180' : ''}`}
+            />
           </button>
-        </form>
 
-        {createListSuccess && (
-          <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
-            {createListSuccess}
-          </p>
-        )}
+          {openAccordionSections.create && (
+            <>
+              <form onSubmit={handleCreateList} className="mt-6 grid gap-4">
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.listNameLabel}</span>
+                  <input
+                    required
+                    value={title}
+                    onChange={(entry) => handleTitleChange(entry.target.value)}
+                    placeholder={labels.listNamePlaceholder}
+                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                  />
+                </label>
 
-        {createListError && (
-          <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
-            {createListError}
-          </p>
-        )}
+                <label className="grid gap-1 text-sm text-slate-200">
+                  <span>{labels.slugLabel}</span>
+                  <div className="rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-sm text-emerald-200">
+                    {composedCreateUrl}
+                  </div>
+                  <span>{labels.urlNameLabel}</span>
+                  <input
+                    required
+                    value={slug}
+                    onChange={(entry) => handleSlugChange(entry.target.value)}
+                    placeholder={labels.urlNamePlaceholder}
+                    className="w-full min-w-0 rounded-lg border border-white/20 bg-slate-950/80 px-3 py-2 text-white"
+                  />
+                  <span className="text-xs text-slate-400">{labels.slugHint}</span>
+                </label>
+
+                <button
+                  type="submit"
+                  disabled={isCreatingList}
+                  className="mt-2 w-full rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  {isCreatingList ? labels.creatingList : labels.createListAction}
+                </button>
+              </form>
+
+              {createListSuccess && (
+                <p className="mt-4 rounded-xl border border-emerald-300/40 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-200">
+                  {createListSuccess}
+                </p>
+              )}
+
+              {createListError && (
+                <p className="mt-4 rounded-xl border border-red-300/40 bg-red-300/10 px-4 py-3 text-sm text-red-100">
+                  {createListError}
+                </p>
+              )}
+            </>
+          )}
+        </section>
 
         <section
           ref={desktopPreviewSectionRef}
-          className="mt-8 hidden border-t border-white/10 pt-6 lg:block"
+          className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6"
         >
           <header className="flex items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-white">{labels.previewPanelTitle}</h3>
@@ -3674,9 +3678,7 @@ export default function ListWorkspace({
             </div>
           )}
         </section>
-          </>
-        )}
-      </section>
+      </div>
 
       <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.myListsTitle}</h2>
