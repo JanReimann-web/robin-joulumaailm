@@ -42,6 +42,7 @@ type VideoProcessingErrorCode =
   | 'video_too_long'
   | 'video_processing_failed'
   | 'video_processing_unavailable'
+  | 'video_queue_full'
 
 export class VideoProcessingError extends Error {
   code: VideoProcessingErrorCode
@@ -297,7 +298,7 @@ const deleteStorageObjectIfExists = async (objectPath: string) => {
   }
 }
 
-const isProcessableSectionPath = (
+export const isProcessableSectionPath = (
   value: string
 ): value is ProcessableVideoSectionPath => {
   return PROCESSABLE_VIDEO_SECTION_PATHS.includes(
@@ -305,12 +306,12 @@ const isProcessableSectionPath = (
   )
 }
 
-export const processStoredVideoUpload = async (params: {
+export const assertValidProcessableVideoSource = (params: {
   userId: string
   listId: string
   sectionPath: string
   incomingPath: string
-}) : Promise<UploadMediaMetadata> => {
+}) => {
   if (!isProcessableSectionPath(params.sectionPath)) {
     throw new VideoProcessingError('invalid_section')
   }
@@ -319,6 +320,17 @@ export const processStoredVideoUpload = async (params: {
   if (!params.incomingPath.startsWith(expectedPrefix)) {
     throw new VideoProcessingError('invalid_source')
   }
+
+  return params.sectionPath
+}
+
+export const processStoredVideoUpload = async (params: {
+  userId: string
+  listId: string
+  sectionPath: string
+  incomingPath: string
+}) : Promise<UploadMediaMetadata> => {
+  const sectionPath = assertValidProcessableVideoSource(params)
 
   const bucket = adminStorage.bucket()
   const incomingFile = bucket.file(params.incomingPath)
@@ -366,7 +378,7 @@ export const processStoredVideoUpload = async (params: {
       )
     )
     const finalObjectName = `${Date.now()}-${randomUUID()}-${originalFileName}`
-    const finalPath = `users/${params.userId}/lists/${params.listId}/${params.sectionPath}/${finalObjectName}`
+    const finalPath = `users/${params.userId}/lists/${params.listId}/${sectionPath}/${finalObjectName}`
     const downloadToken = randomUUID()
 
     await bucket.upload(outputPath, {

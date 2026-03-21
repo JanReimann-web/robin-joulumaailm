@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import {
-  processStoredVideoUpload,
-  VideoProcessingError,
-} from '@/lib/lists/video-processing.server'
+  enqueueVideoProcessingJob,
+} from '@/lib/lists/video-processing-queue.server'
+import { VideoProcessingError } from '@/lib/lists/video-processing.server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-export const maxDuration = 120
 
 type ProcessVideoBody = {
   listId?: string
@@ -77,16 +76,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const processedVideo = await processStoredVideoUpload({
-      userId: decodedToken.uid,
+    const queuedJob = await enqueueVideoProcessingJob({
+      ownerId: decodedToken.uid,
       listId,
       sectionPath,
       incomingPath,
     })
 
-    return NextResponse.json(processedVideo)
+    return NextResponse.json(queuedJob, { status: 202 })
   } catch (error) {
-    console.error('Video processing failed', {
+    console.error('Video processing enqueue failed', {
       listId,
       sectionPath,
       code: error instanceof VideoProcessingError ? error.code : 'unknown_error',
@@ -104,11 +103,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: error.code, details }, { status: 400 })
       }
 
+      if (error.code === 'video_queue_full') {
+        return NextResponse.json({ error: error.code, details }, { status: 429 })
+      }
+
       if (error.code === 'video_processing_unavailable') {
         return NextResponse.json({ error: error.code, details }, { status: 503 })
       }
 
-      return NextResponse.json({ error: error.code, details }, { status: 500 })
+      return NextResponse.json({ error: error.code, details }, { status: 400 })
     }
 
     return NextResponse.json({ error: 'video_processing_failed' }, { status: 500 })

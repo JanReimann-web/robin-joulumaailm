@@ -185,6 +185,8 @@ export class MediaProcessingError extends Error {
     | 'missing_auth'
     | 'invalid_auth'
     | 'video_processing_failed'
+    | 'video_processing_timeout'
+    | 'video_queue_full'
     | 'video_processing_unavailable'
     | 'video_probe_failed'
     | 'invalid_source'
@@ -196,6 +198,8 @@ export class MediaProcessingError extends Error {
       | 'missing_auth'
       | 'invalid_auth'
       | 'video_processing_failed'
+      | 'video_processing_timeout'
+      | 'video_queue_full'
       | 'video_processing_unavailable'
       | 'video_probe_failed'
       | 'invalid_source'
@@ -282,6 +286,28 @@ type ProcessVideoErrorPayload = {
   details?: string | null
 }
 
+type QueuedVideoJobPayload = {
+  jobId?: string
+  status?: 'queued'
+}
+
+type VideoJobStatusPayload =
+  | {
+      jobId?: string
+      status?: 'queued' | 'processing'
+    }
+  | {
+      jobId?: string
+      status?: 'completed'
+      media?: UploadMediaMetadata
+    }
+  | {
+      jobId?: string
+      status?: 'failed'
+      error?: string
+      details?: string | null
+    }
+
 const normalizeProcessingErrorDetails = (value: unknown) => {
   if (typeof value !== 'string') {
     return null
@@ -316,6 +342,126 @@ const resolveOwnerId = (ownerId?: string) => {
   return null
 }
 
+const delay = (ms: number) => {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, ms)
+  })
+}
+
+const kickQueuedVideoJob = async (params: {
+  jobId: string
+  idToken: string
+}) => {
+  await fetch('/api/lists/media/process-video/run', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${params.idToken}`,
+    },
+    body: JSON.stringify({
+      jobId: params.jobId,
+    }),
+    keepalive: true,
+  }).catch(() => undefined)
+}
+
+const pollQueuedVideoJob = async (params: {
+  jobId: string
+  idToken: string
+}) => {
+  const startedAtMs = Date.now()
+  let pollAttempt = 0
+
+  while ((Date.now() - startedAtMs) < (1000 * 60 * 4)) {
+    pollAttempt += 1
+
+    if (pollAttempt === 1 || pollAttempt % 4 === 0) {
+      void kickQueuedVideoJob({
+        jobId: params.jobId,
+        idToken: params.idToken,
+      })
+    }
+
+    await delay(pollAttempt === 1 ? 1_000 : 2_000)
+
+    const response = await fetch(
+      `/api/lists/media/process-video/${encodeURIComponent(params.jobId)}`,
+      {
+        headers: {
+          authorization: `Bearer ${params.idToken}`,
+        },
+      }
+    )
+
+    const payload = await response
+      .json()
+      .catch(() => ({ error: 'video_processing_failed' })) as
+      | VideoJobStatusPayload
+      | ProcessVideoErrorPayload
+
+    if (!response.ok) {
+      const errorCode = 'error' in payload ? payload.error : undefined
+      const details = normalizeProcessingErrorDetails(
+        'details' in payload ? payload.details : null
+      )
+
+      if (response.status === 401 && errorCode === 'missing_auth') {
+        throw new MediaProcessingError('missing_auth', details)
+      }
+
+      if (response.status === 401 && errorCode === 'invalid_auth') {
+        throw new MediaProcessingError('invalid_auth', details)
+      }
+
+      throw new MediaProcessingError('video_processing_failed', details)
+    }
+
+    if ('status' in payload && payload.status === 'completed' && payload.media) {
+      return payload.media
+    }
+
+    if ('status' in payload && payload.status === 'failed') {
+      const details = normalizeProcessingErrorDetails(payload.details)
+
+      if (payload.error === 'video_too_long') {
+        throw new MediaValidationError('video_too_long')
+      }
+
+      if (payload.error === 'video_processing_unavailable') {
+        throw new MediaProcessingError('video_processing_unavailable', details)
+      }
+
+      if (payload.error === 'video_probe_failed') {
+        throw new MediaProcessingError('video_probe_failed', details)
+      }
+
+      if (payload.error === 'invalid_section') {
+        throw new MediaProcessingError('invalid_section', details)
+      }
+
+      if (payload.error === 'invalid_source') {
+        throw new MediaProcessingError('invalid_source', details)
+      }
+
+      if (payload.error === 'video_queue_full') {
+        throw new MediaProcessingError('video_queue_full', details)
+      }
+
+      throw new MediaProcessingError(
+        payload.error === 'video_processing_timeout'
+          ? 'video_processing_timeout'
+          : 'video_processing_failed',
+        details
+      )
+    }
+  }
+
+  throw new MediaProcessingError(
+    'video_processing_timeout',
+    'Video processing timed out while waiting for the worker to finish.'
+  )
+}
+
 const processUploadedVideo = async (params: UploadListMediaParams) => {
   const prepared = await prepareUploadMedia(params.file, ['video/'])
   const safeName = buildSafeFileName(prepared.file.name || 'video')
@@ -339,6 +485,8 @@ const processUploadedVideo = async (params: UploadListMediaParams) => {
     },
   })
 
+  let isJobQueued = false
+
   try {
     const idToken = await auth.currentUser?.getIdToken()
     if (!idToken) {
@@ -361,7 +509,7 @@ const processUploadedVideo = async (params: UploadListMediaParams) => {
     const payload = await response
       .json()
       .catch(() => ({ error: 'video_processing_failed' })) as
-      | UploadMediaMetadata
+      | QueuedVideoJobPayload
       | ProcessVideoErrorPayload
 
     if (!response.ok) {
@@ -384,6 +532,10 @@ const processUploadedVideo = async (params: UploadListMediaParams) => {
           throw new MediaProcessingError('video_processing_unavailable', details)
         }
 
+        if (payload.error === 'video_queue_full') {
+          throw new MediaProcessingError('video_queue_full', details)
+        }
+
         if (payload.error === 'video_probe_failed') {
           throw new MediaProcessingError('video_probe_failed', details)
         }
@@ -404,9 +556,20 @@ const processUploadedVideo = async (params: UploadListMediaParams) => {
       throw new MediaProcessingError('video_processing_failed')
     }
 
-    return payload as UploadMediaMetadata
+    if (!('status' in payload) || payload.status !== 'queued' || !payload.jobId) {
+      throw new MediaProcessingError('video_processing_failed')
+    }
+
+    isJobQueued = true
+
+    return await pollQueuedVideoJob({
+      jobId: payload.jobId,
+      idToken,
+    })
   } catch (error) {
-    await deleteObject(incomingRef).catch(() => undefined)
+    if (!isJobQueued) {
+      await deleteObject(incomingRef).catch(() => undefined)
+    }
     throw error
   }
 }
