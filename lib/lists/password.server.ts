@@ -1,11 +1,16 @@
 import 'server-only'
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
+import {
+  isValidVisibilityPassword as isValidVisibilityPasswordByPolicy,
+} from '@/lib/lists/password-policy'
 
 const PASSWORD_HASH_LENGTH = 64
-const PASSWORD_MIN_LENGTH = 6
 const ACCESS_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30
 const ACCESS_TOKEN_VERSION = 1
 const PUBLIC_ACCESS_COOKIE_PREFIX = 'giftlist_access_'
+const RESERVATION_ACCESS_COOKIE_PREFIX = 'giftlist_reservation_'
+const RESERVATION_ACCESS_TOKEN_VERSION = 1
+const RESERVATION_ACCESS_TOKEN_TTL_MS = 1000 * 60 * 60 * 24 * 30
 
 const getAccessTokenSecret = () => {
   const configured =
@@ -37,9 +42,7 @@ const sign = (payload: string) => {
     .digest('base64url')
 }
 
-export const isValidVisibilityPassword = (value: string) => {
-  return value.trim().length >= PASSWORD_MIN_LENGTH
-}
+export const isValidVisibilityPassword = isValidVisibilityPasswordByPolicy
 
 export const hashVisibilityPassword = (
   password: string,
@@ -92,6 +95,108 @@ export const createPublicAccessToken = (params: {
 
 export const getPublicAccessCookieName = (slug: string) => {
   return `${PUBLIC_ACCESS_COOKIE_PREFIX}${slug}`
+}
+
+const getReservationCookieSuffix = (itemId: string) => {
+  return createHash('sha256').update(itemId).digest('hex').slice(0, 24)
+}
+
+export const getReservationAccessCookieName = (params: {
+  slug: string
+  itemId: string
+}) => {
+  return `${RESERVATION_ACCESS_COOKIE_PREFIX}${params.slug}_${getReservationCookieSuffix(params.itemId)}`
+}
+
+export const createReservationAccessToken = (params: {
+  listId: string
+  slug: string
+  itemId: string
+  reservationId: string
+}) => {
+  const payload = toBase64Url(
+    JSON.stringify({
+      v: RESERVATION_ACCESS_TOKEN_VERSION,
+      listId: params.listId,
+      slug: params.slug,
+      itemId: params.itemId,
+      reservationId: params.reservationId,
+      exp: Date.now() + RESERVATION_ACCESS_TOKEN_TTL_MS,
+    })
+  )
+  const signature = sign(payload)
+
+  return `${payload}.${signature}`
+}
+
+export const verifyReservationAccessToken = (params: {
+  token: string
+  listId: string
+  slug: string
+  itemId: string
+  reservationId: string
+}) => {
+  const parsed = readReservationAccessToken(params.token)
+  if (!parsed) {
+    return false
+  }
+
+  return (
+    parsed.listId === params.listId
+    && parsed.slug === params.slug
+    && parsed.itemId === params.itemId
+    && parsed.reservationId === params.reservationId
+  )
+}
+
+export const readReservationAccessToken = (token: string) => {
+  const parts = token.split('.')
+  if (parts.length !== 2) {
+    return null
+  }
+
+  const [payload, signature] = parts
+  const expectedSignature = sign(payload)
+  const signatureBuffer = Buffer.from(signature)
+  const expectedBuffer = Buffer.from(expectedSignature)
+
+  if (signatureBuffer.length !== expectedBuffer.length) {
+    return null
+  }
+
+  if (!timingSafeEqual(signatureBuffer, expectedBuffer)) {
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(fromBase64Url(payload)) as {
+      v?: number
+      listId?: string
+      slug?: string
+      itemId?: string
+      reservationId?: string
+      exp?: number
+    }
+
+    const isValid = (
+      parsed.v === RESERVATION_ACCESS_TOKEN_VERSION
+      && typeof parsed.exp === 'number'
+      && parsed.exp > Date.now()
+    )
+
+    if (!isValid) {
+      return null
+    }
+
+    return {
+      listId: parsed.listId ?? '',
+      slug: parsed.slug ?? '',
+      itemId: parsed.itemId ?? '',
+      reservationId: parsed.reservationId ?? '',
+    }
+  } catch {
+    return null
+  }
 }
 
 export const verifyPublicAccessToken = (params: {

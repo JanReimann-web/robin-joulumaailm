@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
+import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  getRateLimitFingerprint,
+} from '@/lib/security/request-rate-limit.server'
 
 export const runtime = 'nodejs'
 
@@ -34,6 +39,16 @@ export async function POST(request: NextRequest) {
 
   if (!EMAIL_PATTERN.test(email) || !source) {
     return NextResponse.json({ error: 'invalid_lead' }, { status: 400 })
+  }
+
+  const rateLimit = await consumeRateLimit({
+    scope: 'lead-capture',
+    key: getRateLimitFingerprint(request),
+    limit: 5,
+    windowMs: 1000 * 60 * 60,
+  })
+  if (!rateLimit.ok) {
+    return createRateLimitResponse(rateLimit.retryAfterSeconds)
   }
 
   const leadRef = adminDb.collection('marketingLeads').doc(buildLeadDocId(email))

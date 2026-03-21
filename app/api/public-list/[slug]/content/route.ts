@@ -98,6 +98,9 @@ export async function GET(
     stories: content.stories,
     items: content.items,
   })
+  const cacheControl = list.visibility === 'public'
+    ? 'public, max-age=0, s-maxage=15, stale-while-revalidate=60'
+    : 'private, no-store'
 
   return NextResponse.json(
     {
@@ -124,7 +127,7 @@ export async function GET(
     },
     {
       headers: {
-        'cache-control': 'no-store',
+        'cache-control': cacheControl,
       },
     }
   )

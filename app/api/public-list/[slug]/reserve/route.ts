@@ -3,11 +3,18 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { adminDb } from '@/lib/firebase/admin'
 import { hasPublishedListAccess } from '@/lib/lists/access'
 import {
+  createReservationAccessToken,
   getPublicAccessCookieName,
+  getReservationAccessCookieName,
   verifyPublicAccessToken,
 } from '@/lib/lists/password.server'
 import { getPublicListBySlug } from '@/lib/lists/public-server'
 import { GiftListItem } from '@/lib/lists/types'
+import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  getRateLimitFingerprint,
+} from '@/lib/security/request-rate-limit.server'
 
 export const runtime = 'nodejs'
 
@@ -102,6 +109,16 @@ export async function POST(
     return NextResponse.json({ error: 'invalid_guest_message' }, { status: 400 })
   }
 
+  const rateLimit = await consumeRateLimit({
+    scope: 'public-list-reserve',
+    key: `${list.slug}:${getRateLimitFingerprint(request)}`,
+    limit: 20,
+    windowMs: 1000 * 60 * 10,
+  })
+  if (!rateLimit.ok) {
+    return createRateLimitResponse(rateLimit.retryAfterSeconds)
+  }
+
   const listRef = adminDb.collection('lists').doc(list.id)
   const itemRef = listRef.collection('items').doc(itemId)
   const reservationRef = listRef.collection('reservations').doc()
@@ -159,7 +176,25 @@ export async function POST(
       })
     })
 
-    return NextResponse.json({ ok: true })
+    const response = NextResponse.json({ ok: true })
+    response.cookies.set({
+      name: getReservationAccessCookieName({
+        slug: list.slug,
+        itemId,
+      }),
+      value: createReservationAccessToken({
+        listId: list.id,
+        slug: list.slug,
+        itemId,
+        reservationId: reservationRef.id,
+      }),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+    })
+    return response
   } catch (error) {
     if (!(error instanceof Error)) {
       return NextResponse.json({ error: 'reserve_failed' }, { status: 500 })

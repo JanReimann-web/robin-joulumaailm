@@ -317,7 +317,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Private: only you can view and manage this list in your dashboard.",
       "visibilityPasswordLabel": "List password",
       "visibilityPasswordPlaceholder": "Set access password",
-      "visibilityPasswordHint": "Use at least 6 characters. Share this password only with invited guests. Password protection on a public list requires at least Premium.",
+      "visibilityPasswordHint": "Use at least 8 characters, including uppercase, lowercase, a number, and a symbol. Share this password only with invited guests. Password protection on a public list requires at least Premium.",
       "createListAction": "Create list",
       "creatingList": "Creating list...",
       "listCreated": "List created successfully.",
@@ -382,7 +382,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platinum",
       "billingVideoNotice": "This list contains video. Platinum is required. You can have up to 20 videos and each video can be up to 60 seconds.",
       "billingPasswordNotice": "A password-protected public list requires at least Premium.",
-      "billingLaunchRegionsNotice": "Package purchases are currently available only for customers in Estonia, the EU27, and the United States.",
+      "billingLaunchRegionsNotice": "Package purchases are currently available only for customers in the EU27 and the United States.",
       "billingTaxCollectionNotice": "Checkout collects billing address details and optional Tax ID for Stripe Tax calculations.",
       "billingMarketUnsupportedNotice": "Your current region is outside the launch markets. Package purchases are blocked until Giftlist Studio starts selling there.",
       "billingMarketSanctionedNotice": "Package purchases are blocked in your current region because Giftlist Studio does not sell to sanctioned markets, including Belarus, Cuba, Iran, North Korea, Russia, and Syria.",
@@ -415,7 +415,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Copy code",
       "referralCopied": "Copied",
       "referralStatusActive": "Active",
-      "referralStatusReserved": "Reserved",
+      "referralStatusReserved": "Awaiting payment",
       "referralStatusRedeemed": "Used",
       "referralCodeInputLabel": "Use a referral code on this purchase",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -472,7 +472,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "List deleted permanently.",
       "errorListSettingsUpdate": "Failed to update list settings.",
       "errorDeleteList": "Failed to delete list.",
-      "heroEditorTitle": "Public intro (hero)",
+      "heroEditorTitle": "Public intro",
       "heroEditorSubtitle": "Shown to guests before they open gifts, stories, and wheel.",
       "heroTitleLabel": "Hero headline",
       "heroBodyLabel": "Hero text",
@@ -606,7 +606,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Invalid URL name format. Follow the URL rules.",
       "errorSlugReserved": "This URL name is reserved by the system. Choose another one.",
       "errorSlugTaken": "This URL is already taken. Try another URL name.",
-      "errorVisibilityPasswordRequired": "Please set a password (min 6 characters) for this visibility mode.",
+      "errorVisibilityPasswordRequired": "Please set a strong password (min 8 characters, uppercase, lowercase, number, and symbol) for this visibility mode.",
       "errorVisibilityRequiresPremium": "A password-protected public list requires at least Premium.",
       "errorCreateFailed": "List creation failed. Please try again."
     },
@@ -929,7 +929,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privaatne: ainult sina näed ja haldad seda nimekirja oma töölaual.",
       "visibilityPasswordLabel": "Nimekirja parool",
       "visibilityPasswordPlaceholder": "Määra ligipääsuparool",
-      "visibilityPasswordHint": "Kasuta vähemalt 6 tähemärki. Jaga seda parooli ainult kutsutud külalistele. Paroolikaitse avalikul lehel vajab vähemalt Premium paketti.",
+      "visibilityPasswordHint": "Kasuta vähemalt 8 tähemärki ning lisa suur täht, väike täht, number ja sümbol. Jaga seda parooli ainult kutsutud külalistele. Paroolikaitse avalikul lehel vajab vähemalt Premium paketti.",
       "createListAction": "Loo nimekiri",
       "creatingList": "Loon nimekirja...",
       "listCreated": "Nimekiri on loodud.",
@@ -994,7 +994,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platinum",
       "billingVideoNotice": "Selles nimekirjas on video. See nõuab Platinum paketti. Kokku võib olla kuni 20 videot ja iga video võib olla kuni 60 sekundit.",
       "billingPasswordNotice": "Paroolikaitsega avalik nimekiri nõuab vähemalt Premium paketti.",
-      "billingLaunchRegionsNotice": "Paketiostud on praegu saadaval ainult klientidele Eestis, EU27 riikides ja Ameerika Ühendriikides.",
+      "billingLaunchRegionsNotice": "Paketiostud on praegu saadaval ainult klientidele EU27 riikides ja Ameerika Ühendriikides.",
       "billingTaxCollectionNotice": "Checkout kogub arveldusaadressi andmed ja soovi korral Tax ID, et Stripe Tax saaks maksud õigesti arvutada.",
       "billingMarketUnsupportedNotice": "Sinu praegune piirkond ei kuulu veel launch-turgude hulka. Paketiost on seal seni blokeeritud.",
       "billingMarketSanctionedNotice": "Paketiost on sinu praeguses piirkonnas blokeeritud, sest Giftlist Studio ei müü sanktsiooniturgudele, sealhulgas Valgevenesse, Kuubale, Iraani, Põhja-Koreasse, Venemaale ja Süüriasse.",
@@ -1027,7 +1027,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Kopeeri kood",
       "referralCopied": "Kopeeritud",
       "referralStatusActive": "Aktiivne",
-      "referralStatusReserved": "Broneeritud",
+      "referralStatusReserved": "Maksmist ootab",
       "referralStatusRedeemed": "Kasutatud",
       "referralCodeInputLabel": "Kasuta selle ostu jaoks referral koodi",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -1084,7 +1084,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Nimekiri on jäädavalt kustutatud.",
       "errorListSettingsUpdate": "Nimekirja seadete uuendamine ebaõnnestus.",
       "errorDeleteList": "Nimekirja kustutamine ebaõnnestus.",
-      "heroEditorTitle": "Avalehe hero",
+      "heroEditorTitle": "Avalik intro",
       "heroEditorSubtitle": "Seda näevad külalised esimesena enne kingitusi, lugu ja ratast.",
       "heroTitleLabel": "Hero pealkiri",
       "heroBodyLabel": "Hero tekst",
@@ -1218,7 +1218,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "URL nimi ei vasta vormingule. Kontrolli URL nime reegleid.",
       "errorSlugReserved": "See URL nimi on süsteemi poolt reserveeritud. Vali teine.",
       "errorSlugTaken": "See URL on juba kasutusel. Vali teine URL nimi.",
-      "errorVisibilityPasswordRequired": "Selle nähtavuse jaoks määra parool (vähemalt 6 tähemärki).",
+      "errorVisibilityPasswordRequired": "Selle nähtavuse jaoks määra tugev parool (vähemalt 8 tähemärki, suur ja väike täht, number ning sümbol).",
       "errorVisibilityRequiresPremium": "Paroolikaitsega avalik nimekiri nõuab vähemalt Premium paketti.",
       "errorCreateFailed": "Nimekirja loomine ebaõnnestus. Proovi uuesti."
     },
@@ -1273,7 +1273,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "babyShower": "Vauvan suihku",
       "graduation": "Valmistuminen",
       "housewarming": "Kotona lämpeneminen",
-      "christmas": "Joulu"
+      "christmas": "joulu"
     },
     "home": {
       "processTitle": "Kuinka Giftlist Studio toimii",
@@ -1305,7 +1305,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
         },
         {
           "question": "Voinko suojata julkisen lahjaluetteloni salasanalla?",
-          "answer": "Kyllä. Salasanasuojattu julkinen jakaminen on saatavilla sitä tukevissa paketeissa, joten voit jakaa listan vain kutsutuille vieraille."
+          "answer": "Kyllä. Salasanasuojattu julkinen jakaminen on saatavilla sitä tukevissa paketeissa, joten voit jakaa luettelon vain kutsutuille vieraille."
         },
         {
           "question": "Voinko testata sivua ennen kuin se tulee julkiseksi?",
@@ -1315,7 +1315,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "ctaTitle": "Rakenna häälahjasivusi ennen vieraiden kysymysten alkamista",
       "ctaBody": "Aloita ilmaisella kokeilulla, valitse malli ja julkaise, kun häätietosi, lahjaideasi ja tarinasisältösi ovat valmiita vieraille.",
       "ctaPrimary": "Aloita ilmainen kokeilu",
-      "ctaSecondary": "Katso live-esimerkki häistä"
+      "ctaSecondary": "Katso live hääesimerkki"
     },
     "eventPages": {
       "readMoreAction": "Tutustu sivuun",
@@ -1339,7 +1339,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
         "samples": [
           "Astiasetti",
           "Liinavaatteet ja kodintekstiilit",
-          "Viikonlopun lomarahasto",
+          "Viikonloppumatkarahasto",
           "Älykäs keittiökone"
         ]
       },
@@ -1368,7 +1368,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
         ]
       },
       "babyShower": {
-        "seoTitle": "Baby Shower -lahjalista",
+        "seoTitle": "Baby Shower -lahjaluettelo",
         "seoDescription": "Suunnittele vauvasuihkun rekisterityylinen lahjalista yksinkertaisella jakamisella ja päällekkäisyyden ehkäisyllä.",
         "headline": "Baby shower -luettelo selkeällä prioriteetilla",
         "intro": "Lisää välttämättömiä tavaroita ja mukavia lahjoja, jotta vieraat voivat varata juuri sen, mitä vielä tarvitset.",
@@ -1541,7 +1541,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Yksityinen: vain sinä voit tarkastella ja hallita tätä luetteloa hallintapaneelissasi.",
       "visibilityPasswordLabel": "Listaa salasana",
       "visibilityPasswordPlaceholder": "Aseta pääsysalasana",
-      "visibilityPasswordHint": "Käytä vähintään 6 merkkiä. Jaa tämä salasana vain kutsutuille vieraille. Julkisen listan salasanasuojaus vaatii vähintään Premiumin.",
+      "visibilityPasswordHint": "Käytä vähintään 8 merkkiä, mukaan lukien isot kirjaimet, pienet kirjaimet, numero ja symboli. Jaa tämä salasana vain kutsutuille vieraille. Julkisen listan salasanasuojaus vaatii vähintään Premiumin.",
       "createListAction": "Luo luettelo",
       "creatingList": "Luetteloa luodaan...",
       "listCreated": "Listan luominen onnistui.",
@@ -1606,7 +1606,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platina",
       "billingVideoNotice": "Tämä luettelo sisältää videon. Platina vaaditaan. Sinulla voi olla enintään 20 videota ja jokainen video voi olla enintään 60 sekuntia pitkä.",
       "billingPasswordNotice": "Salasanalla suojattu julkinen luettelo vaatii vähintään Premiumin.",
-      "billingLaunchRegionsNotice": "Pakettiostot ovat tällä hetkellä vain Viron, EU27:n ja Yhdysvaltojen asiakkaiden saatavilla.",
+      "billingLaunchRegionsNotice": "Pakettiostot ovat tällä hetkellä saatavilla vain EU27:n ja Yhdysvaltojen asiakkaille.",
       "billingTaxCollectionNotice": "Checkout kerää laskutusosoitteen tiedot ja valinnaisen verotunnuksen Stripe Tax -laskelmia varten.",
       "billingMarketUnsupportedNotice": "Nykyinen alueesi on julkaisumarkkinoiden ulkopuolella. Paketin ostot estetään, kunnes Giftlist Studio alkaa myydä siellä.",
       "billingMarketSanctionedNotice": "Pakettien ostaminen on estetty nykyisellä alueellasi, koska Giftlist Studio ei myy pakotetuille markkinoille, mukaan lukien Valko-Venäjä, Kuuba, Iran, Pohjois-Korea, Venäjä ja Syyria.",
@@ -1639,7 +1639,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Kopioi koodi",
       "referralCopied": "Kopioitu",
       "referralStatusActive": "Aktiivinen",
-      "referralStatusReserved": "Varattu",
+      "referralStatusReserved": "Odottaa maksua",
       "referralStatusRedeemed": "Käytetty",
       "referralCodeInputLabel": "Käytä viittauskoodia tässä ostoksessa",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -1696,7 +1696,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Lista poistettu pysyvästi.",
       "errorListSettingsUpdate": "Luettelon asetusten päivittäminen epäonnistui.",
       "errorDeleteList": "Listan poistaminen epäonnistui.",
-      "heroEditorTitle": "Julkinen esittely (sankari)",
+      "heroEditorTitle": "Julkinen esittely",
       "heroEditorSubtitle": "Näytetään vieraille ennen kuin he avaavat lahjoja, tarinoita ja pyörää.",
       "heroTitleLabel": "Hero otsikko",
       "heroBodyLabel": "Sankarin teksti",
@@ -1803,13 +1803,13 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorAddStory": "Tarinahetken lisääminen epäonnistui.",
       "errorUpdateStory": "Tarinahetken päivitys epäonnistui.",
       "errorDeleteStory": "Tarinahetken poistaminen epäonnistui.",
-      "errorAddWheelEntry": "Pyörän kysymyksen lisääminen epäonnistui.",
+      "errorAddWheelEntry": "Pyöräkysymyksen lisääminen epäonnistui.",
       "errorUpdateWheelEntry": "Pyörän kysymyksen päivittäminen epäonnistui.",
       "errorDeleteWheelEntry": "Pyörän kysymyksen poistaminen epäonnistui.",
       "errorWheelAnswerRequired": "Lisää tekstivastaus ennen pyöräkysymyksen tallentamista.",
       "errorWheelLimitReached": "Pyörässä voi olla enintään 12 kysymystä kerrallaan.",
       "errorMediaUnsupportedType": "Mediatyyppiä ei tueta. Käytä kuvaa tai videota.",
-      "errorMediaTooLarge": "Valittu tiedosto on liian suuri lähetettäväksi.",
+      "errorMediaTooLarge": "Valittu tiedosto on liian suuri ladattavaksi.",
       "errorMediaProcessingFailed": "Videon käsittely epäonnistui. Kokeile lyhyempää tai yksinkertaisempaa tiedostoa ja lataa se uudelleen.",
       "errorMediaVideoTooLong": "Videot voivat olla jopa 60 sekunnin pituisia.",
       "errorMediaVideoCountExceeded": "Platinum tukee jopa 20 videota. Poista yksi tai useampi video ennen tallentamista.",
@@ -1830,7 +1830,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Virheellinen URL-nimen muoto. Noudata URL-sääntöjä.",
       "errorSlugReserved": "Järjestelmä on varannut tämän URL-osoitteen nimen. Valitse toinen.",
       "errorSlugTaken": "Tämä URL-osoite on jo varattu. Kokeile toista URL-nimeä.",
-      "errorVisibilityPasswordRequired": "Aseta salasana (vähintään 6 merkkiä) tälle näkyvyystilalle.",
+      "errorVisibilityPasswordRequired": "Aseta vahva salasana (vähintään 8 merkkiä, isot kirjaimet, pienet kirjaimet, numero ja symboli) tälle näkyvyystilalle.",
       "errorVisibilityRequiresPremium": "Salasanalla suojattu julkinen luettelo vaatii vähintään Premiumin.",
       "errorCreateFailed": "Listan luominen epäonnistui. Yritä uudelleen."
     },
@@ -1845,7 +1845,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "gallery": "Galleri",
       "pricing": "Prissättning",
       "login": "Logga in",
-      "dashboard": "Instrumentbräda"
+      "dashboard": "Instrumentpanel"
     },
     "languageSwitcher": {
       "label": "Visa in",
@@ -2023,7 +2023,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
         "samples": [
           "Varma vinterkläder",
           "Heminredningsartiklar",
-          "Kaffe eller teservis",
+          "Kaffe- eller teservis",
           "Presentkort för upplevelser"
         ]
       }
@@ -2110,14 +2110,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "accountCreated": "Konto skapat. Kontrollera din e-post för verifiering och fortsätt.",
       "errorGeneric": "Autentiseringen misslyckades. Försök igen.",
       "errorInvalidCredentials": "Felaktig e-postadress eller lösenord.",
-      "errorInvalidEmail": "Vänligen ange en giltig e-postadress.",
+      "errorInvalidEmail": "Ange en giltig e-postadress.",
       "errorEmailInUse": "Den här e-postadressen används redan.",
       "errorWeakPassword": "Lösenordet är för svagt. Använd minst 6 tecken.",
       "errorEmailPasswordDisabled": "E-post/lösenordsinloggning är inte aktiverad i Firebase Auth."
     },
     "dashboard": {
-      "title": "Instrumentbräda",
-      "subtitle": "Skapa och hantera dina evenemangspresentlistor.",
+      "title": "Instrumentpanel",
+      "subtitle": "Skapa och hantera dina eventpresentlistor.",
       "loadingAuth": "Kontrollerar din session...",
       "redirecting": "Du är inte inloggad. Omdirigerar till inloggning...",
       "signedInAs": "Inloggad som",
@@ -2153,7 +2153,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privat: endast du kan se och hantera den här listan i din instrumentpanel.",
       "visibilityPasswordLabel": "Lista lösenord",
       "visibilityPasswordPlaceholder": "Ange åtkomstlösenord",
-      "visibilityPasswordHint": "Använd minst 6 tecken. Dela detta lösenord endast med inbjudna gäster. Lösenordsskydd på en offentlig lista kräver minst Premium.",
+      "visibilityPasswordHint": "Använd minst 8 tecken, inklusive versaler, gemener, en siffra och en symbol. Dela detta lösenord endast med inbjudna gäster. Lösenordsskydd på en offentlig lista kräver minst Premium.",
       "createListAction": "Skapa lista",
       "creatingList": "Skapar lista...",
       "listCreated": "Listan har skapats.",
@@ -2188,11 +2188,11 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "previewOpenLinkAction": "Öppna länken",
       "previewWheelSpinAction": "Snurra hjulet",
       "previewWheelSpinning": "Spinning...",
-      "previewWheelIntro": "Snurra på hjulet för att välja en slumpmässig fråga.",
+      "previewWheelIntro": "Snurra hjulet för att välja en slumpmässig fråga.",
       "previewWheelRevealAction": "Avslöja svaret",
       "previewWheelNoAnswer": "Inget svar har lagts till för denna fråga ännu.",
       "closePreviewAction": "Stäng förhandsvisning",
-      "previewLoading": "Laddar förhandsvisning...",
+      "previewLoading": "Laddar förhandsgranskning...",
       "activatePassAction": "Aktivera 90-dagarspaket",
       "activatingPass": "Aktiverar pass...",
       "redirectingToCheckout": "Omdirigerar till säker kassa...",
@@ -2218,7 +2218,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platina",
       "billingVideoNotice": "Den här listan innehåller video. Platina krävs. Du kan ha upp till 20 videor och varje video kan vara upp till 60 sekunder.",
       "billingPasswordNotice": "En lösenordsskyddad offentlig lista kräver minst Premium.",
-      "billingLaunchRegionsNotice": "Paketköp är för närvarande endast tillgängliga för kunder i Estland, EU27 och USA.",
+      "billingLaunchRegionsNotice": "Paketköp är för närvarande endast tillgängliga för kunder i EU27 och USA.",
       "billingTaxCollectionNotice": "Checkout samlar in faktureringsadressuppgifter och valfritt skatte-ID för Stripe-skatteberäkningar.",
       "billingMarketUnsupportedNotice": "Din nuvarande region ligger utanför lanseringsmarknaderna. Paketköp är spärrade tills Giftlist Studio börjar sälja där.",
       "billingMarketSanctionedNotice": "Paketköp är blockerade i din nuvarande region eftersom Giftlist Studio inte säljer till sanktionerade marknader, inklusive Vitryssland, Kuba, Iran, Nordkorea, Ryssland och Syrien.",
@@ -2251,7 +2251,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Kopiera kod",
       "referralCopied": "Kopierade",
       "referralStatusActive": "Aktiv",
-      "referralStatusReserved": "Reserverad",
+      "referralStatusReserved": "Väntar på betalning",
       "referralStatusRedeemed": "Används",
       "referralCodeInputLabel": "Använd en hänvisningskod vid detta köp",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -2308,7 +2308,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Lista raderad permanent.",
       "errorListSettingsUpdate": "Det gick inte att uppdatera listinställningarna.",
       "errorDeleteList": "Det gick inte att ta bort listan.",
-      "heroEditorTitle": "Offentligt intro (hjälte)",
+      "heroEditorTitle": "Offentligt intro",
       "heroEditorSubtitle": "Visas för gästerna innan de öppnar presenter, berättelser och hjul.",
       "heroTitleLabel": "Hjälte rubrik",
       "heroBodyLabel": "Hjälte text",
@@ -2355,7 +2355,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "statusAvailable": "Tillgänglig",
       "statusReserved": "Reserverad",
       "statusGifted": "Begåvad",
-      "releaseReservationAction": "Frisläpp reservation",
+      "releaseReservationAction": "Släpp reservation",
       "markGiftedAction": "Markera som begåvad",
       "markAvailableAction": "Ställ in som tillgängligt",
       "reservationGuestNameLabel": "Reserverad av",
@@ -2441,8 +2441,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "trialNotice": "Under den 14-dagars provperioden kan du bygga listan, hålla den privat och förhandsgranska den, men offentlig delning låses upp först efter paketaktivering.",
       "errorInvalidSlug": "Ogiltigt format för URL-namn. Följ URL-reglerna.",
       "errorSlugReserved": "Detta URL-namn är reserverat av systemet. Välj en annan.",
-      "errorSlugTaken": "Denna URL är redan upptagen. Försök med ett annat URL-namn.",
-      "errorVisibilityPasswordRequired": "Ange ett lösenord (minst 6 tecken) för detta synlighetsläge.",
+      "errorSlugTaken": "Den här webbadressen är redan upptagen. Försök med ett annat URL-namn.",
+      "errorVisibilityPasswordRequired": "Vänligen ange ett starkt lösenord (minst 8 tecken, versaler, gemener, siffror och symbol) för detta synlighetsläge.",
       "errorVisibilityRequiresPremium": "En lösenordsskyddad offentlig lista kräver minst Premium.",
       "errorCreateFailed": "Det gick inte att skapa listan. Försök igen."
     },
@@ -2765,7 +2765,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privat: bare du kan se og administrere denne listen i dashbordet.",
       "visibilityPasswordLabel": "Liste passord",
       "visibilityPasswordPlaceholder": "Angi tilgangspassord",
-      "visibilityPasswordHint": "Bruk minst 6 tegn. Del dette passordet kun med inviterte gjester. Passordbeskyttelse på en offentlig liste krever minst Premium.",
+      "visibilityPasswordHint": "Bruk minst 8 tegn, inkludert store bokstaver, små bokstaver, et tall og et symbol. Del dette passordet kun med inviterte gjester. Passordbeskyttelse på en offentlig liste krever minst Premium.",
       "createListAction": "Opprett liste",
       "creatingList": "Oppretter liste ...",
       "listCreated": "Listen er opprettet.",
@@ -2830,7 +2830,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platinum",
       "billingVideoNotice": "Denne listen inneholder video. Platina kreves. Du kan ha opptil 20 videoer, og hver video kan være på opptil 60 sekunder.",
       "billingPasswordNotice": "En passordbeskyttet offentlig liste krever minst Premium.",
-      "billingLaunchRegionsNotice": "Pakkekjøp er foreløpig kun tilgjengelig for kunder i Estland, EU27 og USA.",
+      "billingLaunchRegionsNotice": "Pakkekjøp er foreløpig kun tilgjengelig for kunder i EU27 og USA.",
       "billingTaxCollectionNotice": "Checkout samler inn faktureringsadressedetaljer og valgfri skatte-ID for Stripe-skatteberegninger.",
       "billingMarketUnsupportedNotice": "Din nåværende region er utenfor lanseringsmarkedene. Pakkekjøp er blokkert til Giftlist Studio begynner å selge der.",
       "billingMarketSanctionedNotice": "Pakkekjøp er blokkert i din nåværende region fordi Giftlist Studio ikke selger til sanksjonerte markeder, inkludert Hviterussland, Cuba, Iran, Nord-Korea, Russland og Syria.",
@@ -2863,7 +2863,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Kopier koden",
       "referralCopied": "Kopiert",
       "referralStatusActive": "Aktiv",
-      "referralStatusReserved": "Reservert",
+      "referralStatusReserved": "Venter på betaling",
       "referralStatusRedeemed": "Brukt",
       "referralCodeInputLabel": "Bruk en henvisningskode på dette kjøpet",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -2920,7 +2920,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Liste slettet permanent.",
       "errorListSettingsUpdate": "Kunne ikke oppdatere listeinnstillingene.",
       "errorDeleteList": "Kunne ikke slette listen.",
-      "heroEditorTitle": "Offentlig intro (helt)",
+      "heroEditorTitle": "Offentlig intro",
       "heroEditorSubtitle": "Vist til gjestene før de åpner gaver, historier og hjul.",
       "heroTitleLabel": "Heltens overskrift",
       "heroBodyLabel": "Heltetekst",
@@ -3054,7 +3054,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Ugyldig URL-navnformat. Følg URL-reglene.",
       "errorSlugReserved": "Dette URL-navnet er reservert av systemet. Velg en annen.",
       "errorSlugTaken": "Denne nettadressen er allerede tatt. Prøv et annet URL-navn.",
-      "errorVisibilityPasswordRequired": "Vennligst angi et passord (minst 6 tegn) for denne synlighetsmodusen.",
+      "errorVisibilityPasswordRequired": "Angi et sterkt passord (minst 8 tegn, store, små, tall og symbol) for denne synlighetsmodusen.",
       "errorVisibilityRequiresPremium": "En passordbeskyttet offentlig liste krever minst Premium.",
       "errorCreateFailed": "Oppretting av liste mislyktes. Vennligst prøv igjen."
     },
@@ -3082,7 +3082,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "subtitle": "Saml billeder, videoer, din historie, gaveideer og legende gæsteøjeblikke på én elegant side. Gæster kan reservere gaver, før de køber, så oplevelsen forbliver magisk og organiseret.",
       "seoTitle": "Bryllupsside og gaveliste alternativ | Giftlist Studio",
       "seoDescription": "Opret en smuk bryllupsside med din historie, billeder, videoer, gavereservationer, adgangskodebeskyttelse og QR-deling. Et register alternative par kan faktisk lave deres eget.",
-      "primaryCta": "Se live bryllupssiden",
+      "primaryCta": "Se live bryllupsside",
       "secondaryCta": "Start gratis prøveperiode",
       "proofPoints": [
         "Billeder, videoer, historiesektioner og en live eksempelside",
@@ -3362,7 +3362,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "templateModern": "Moderne",
       "templateMinimal": "Minimal",
       "templatePlayful": "legende",
-      "templateKidsBoyTinyPilot": "Lille pilot (0-3)",
+      "templateKidsBoyTinyPilot": "Lille Pilot (0-3)",
       "templateKidsBoyDinoRanger": "Dino Ranger (4-7)",
       "templateKidsBoyGalaxyRacer": "Galaxy Racer (8-12)",
       "templateKidsGirlTinyBloom": "Tiny Bloom (0-3)",
@@ -3377,7 +3377,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privat: kun du kan se og administrere denne liste i dit dashboard.",
       "visibilityPasswordLabel": "Liste adgangskode",
       "visibilityPasswordPlaceholder": "Indstil adgangskode",
-      "visibilityPasswordHint": "Brug mindst 6 tegn. Del kun denne adgangskode med inviterede gæster. Adgangskodebeskyttelse på en offentlig liste kræver mindst Premium.",
+      "visibilityPasswordHint": "Brug mindst 8 tegn, inklusive store bogstaver, små bogstaver, et tal og et symbol. Del kun denne adgangskode med inviterede gæster. Adgangskodebeskyttelse på en offentlig liste kræver mindst Premium.",
       "createListAction": "Opret liste",
       "creatingList": "Opretter liste...",
       "listCreated": "Listen er oprettet.",
@@ -3442,7 +3442,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platinum",
       "billingVideoNotice": "Denne liste indeholder video. Platin er påkrævet. Du kan have op til 20 videoer, og hver video kan vare op til 60 sekunder.",
       "billingPasswordNotice": "En adgangskodebeskyttet offentlig liste kræver mindst Premium.",
-      "billingLaunchRegionsNotice": "Pakkekøb er i øjeblikket kun tilgængelige for kunder i Estland, EU27 og USA.",
+      "billingLaunchRegionsNotice": "Pakkekøb er i øjeblikket kun tilgængelige for kunder i EU27 og USA.",
       "billingTaxCollectionNotice": "Checkout indsamler faktureringsadresseoplysninger og valgfrit skatte-id til Stripe-afgiftsberegninger.",
       "billingMarketUnsupportedNotice": "Din nuværende region er uden for lanceringsmarkederne. Pakkekøb er blokeret, indtil Giftlist Studio begynder at sælge der.",
       "billingMarketSanctionedNotice": "Pakkekøb er blokeret i din nuværende region, fordi Giftlist Studio ikke sælger til sanktionerede markeder, herunder Belarus, Cuba, Iran, Nordkorea, Rusland og Syrien.",
@@ -3475,7 +3475,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Kopiér kode",
       "referralCopied": "Kopieret",
       "referralStatusActive": "Aktiv",
-      "referralStatusReserved": "Reserveret",
+      "referralStatusReserved": "Afventer betaling",
       "referralStatusRedeemed": "Brugt",
       "referralCodeInputLabel": "Brug en henvisningskode på dette køb",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -3532,7 +3532,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Liste slettet permanent.",
       "errorListSettingsUpdate": "Kunne ikke opdatere listeindstillingerne.",
       "errorDeleteList": "Listen kunne ikke slettes.",
-      "heroEditorTitle": "Offentlig intro (helt)",
+      "heroEditorTitle": "Offentlig intro",
       "heroEditorSubtitle": "Vist til gæster, før de åbner gaver, historier og hjul.",
       "heroTitleLabel": "Hero overskrift",
       "heroBodyLabel": "Helte tekst",
@@ -3637,8 +3637,8 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorDeleteItem": "Elementet kunne ikke slettes.",
       "errorUpdateStatus": "Kunne ikke opdatere status.",
       "errorAddStory": "Kunne ikke tilføje historieøjeblik.",
-      "errorUpdateStory": "Kunne ikke opdatere historieøjeblikket.",
-      "errorDeleteStory": "Det lykkedes ikke at slette historieøjeblikket.",
+      "errorUpdateStory": "Kunne ikke opdatere historiens øjeblik.",
+      "errorDeleteStory": "Historiemomentet kunne ikke slettes.",
       "errorAddWheelEntry": "Kunne ikke tilføje hjulspørgsmål.",
       "errorUpdateWheelEntry": "Kunne ikke opdatere hjulspørgsmålet.",
       "errorDeleteWheelEntry": "Hjulspørgsmålet kunne ikke slettes.",
@@ -3646,7 +3646,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorWheelLimitReached": "Hjulet kan indeholde op til 12 spørgsmål ad gangen.",
       "errorMediaUnsupportedType": "Ikke-understøttet medietype. Brug billede eller video.",
       "errorMediaTooLarge": "Den valgte fil er for stor til upload.",
-      "errorMediaProcessingFailed": "Videobehandling mislykkedes. Prøv en kortere eller enklere fil og upload igen.",
+      "errorMediaProcessingFailed": "Videobehandling mislykkedes. Prøv en kortere eller enklere fil, og upload igen.",
       "errorMediaVideoTooLong": "Videoer kan være op til 60 sekunder lange.",
       "errorMediaVideoCountExceeded": "Platinum understøtter op til 20 videoer. Fjern en eller flere videoer, før du gemmer.",
       "errorMediaUsageLimitExceeded": "Denne liste overskrider Platinum-pakkegrænsen på 200 mediefiler. Fjern nogle medier, før du gemmer.",
@@ -3666,7 +3666,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Ugyldigt URL-navneformat. Følg URL-reglerne.",
       "errorSlugReserved": "Dette URL-navn er reserveret af systemet. Vælg en anden.",
       "errorSlugTaken": "Denne URL er allerede taget. Prøv et andet URL-navn.",
-      "errorVisibilityPasswordRequired": "Indstil venligst en adgangskode (min. 6 tegn) til denne synlighedstilstand.",
+      "errorVisibilityPasswordRequired": "Indstil en stærk adgangskode (min. 8 tegn, store bogstaver, små bogstaver, tal og symbol) for denne synlighedstilstand.",
       "errorVisibilityRequiresPremium": "En adgangskodebeskyttet offentlig liste kræver mindst Premium.",
       "errorCreateFailed": "Oprettelse af liste mislykkedes. Prøv venligst igen."
     },
@@ -3777,7 +3777,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "liveExampleTitle": "Live-Beispielseite für diese Veranstaltung",
       "liveExampleBody": "Sehen Sie sich die fertige Beispielliste für dieselbe Veranstaltung an, probieren Sie verschiedene Designs aus und öffnen Sie die Beispielseite direkt von hier aus.",
       "ctaPrimary": "Beginnen Sie mit Ihrer Liste",
-      "ctaSecondary": "Preise anzeigen",
+      "ctaSecondary": "Preise ansehen",
       "backHomeAction": "Zurück nach Hause",
       "wedding": {
         "seoTitle": "Hochzeitsgeschenkliste | Private Hochzeitsregister-Alternative",
@@ -3926,7 +3926,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "ctaTitle": "Sind Sie bereit, Ihre eigene Eventseite zu erstellen?",
       "ctaBody": "Beginnen Sie mit einer kostenlosen Testversion, wählen Sie ein Thema und erstellen Sie eine Geschenkliste, die zu Ihrem Veranstaltungsstil passt.",
       "ctaAction": "Beginnen Sie mit Ihrer Liste",
-      "secondaryCtaAction": "Preise anzeigen"
+      "secondaryCtaAction": "Preise ansehen"
     },
     "login": {
       "title": "Melden Sie sich an, um Ihre Listen zu verwalten",
@@ -3989,7 +3989,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privat: Nur Sie können diese Liste in Ihrem Dashboard anzeigen und verwalten.",
       "visibilityPasswordLabel": "Passwort auflisten",
       "visibilityPasswordPlaceholder": "Zugangspasswort festlegen",
-      "visibilityPasswordHint": "Verwenden Sie mindestens 6 Zeichen. Teilen Sie dieses Passwort nur mit eingeladenen Gästen. Der Passwortschutz auf einer öffentlichen Liste erfordert mindestens Premium.",
+      "visibilityPasswordHint": "Verwenden Sie mindestens 8 Zeichen, einschließlich Großbuchstaben, Kleinbuchstaben, einer Zahl und einem Symbol. Teilen Sie dieses Passwort nur mit eingeladenen Gästen. Der Passwortschutz auf einer öffentlichen Liste erfordert mindestens Premium.",
       "createListAction": "Liste erstellen",
       "creatingList": "Liste erstellen...",
       "listCreated": "Liste erfolgreich erstellt.",
@@ -4054,7 +4054,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platin",
       "billingVideoNotice": "Diese Liste enthält Videos. Platin ist erforderlich. Sie können bis zu 20 Videos haben und jedes Video kann bis zu 60 Sekunden lang sein.",
       "billingPasswordNotice": "Für eine passwortgeschützte öffentliche Liste ist mindestens Premium erforderlich.",
-      "billingLaunchRegionsNotice": "Paketkäufe sind derzeit nur für Kunden in Estland, der EU27 und den Vereinigten Staaten möglich.",
+      "billingLaunchRegionsNotice": "Paketkäufe sind derzeit nur für Kunden in der EU27 und den Vereinigten Staaten möglich.",
       "billingTaxCollectionNotice": "Beim Bezahlvorgang werden Angaben zur Rechnungsadresse und optional die Steuer-ID für Stripe-Steuerberechnungen erfasst.",
       "billingMarketUnsupportedNotice": "Ihre aktuelle Region liegt außerhalb der Einführungsmärkte. Paketkäufe sind blockiert, bis Giftlist Studio dort mit dem Verkauf beginnt.",
       "billingMarketSanctionedNotice": "Paketkäufe sind in Ihrer aktuellen Region blockiert, da Giftlist Studio nicht an sanktionierte Märkte verkauft, darunter Weißrussland, Kuba, Iran, Nordkorea, Russland und Syrien.",
@@ -4087,13 +4087,13 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Code kopieren",
       "referralCopied": "Kopiert",
       "referralStatusActive": "Aktiv",
-      "referralStatusReserved": "Reserviert",
+      "referralStatusReserved": "Warten auf Zahlung",
       "referralStatusRedeemed": "Gebraucht",
       "referralCodeInputLabel": "Verwenden Sie für diesen Kauf einen Empfehlungscode",
       "referralCodeInputPlaceholder": "ABCD-1234",
       "referralApplyAction": "Bewerben",
       "referralApplying": "Überprüfen...",
-      "referralApplied": "Angewendet: {code} gibt {discount} % Rabatt auf diesen Kauf.",
+      "referralApplied": "Angewendet: {code} gewährt {discount} % Rabatt auf diesen Kauf.",
       "referralRewardSavedHint": "Ihre verdiente Empfehlungsprämie bleibt für einen späteren Kauf gespeichert, solange dieser Empfehlungscode angewendet wird.",
       "referralClearAction": "Code entfernen",
       "referralLoadFailed": "Die Empfehlungsdetails konnten nicht geladen werden.",
@@ -4144,7 +4144,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Liste endgültig gelöscht.",
       "errorListSettingsUpdate": "Die Listeneinstellungen konnten nicht aktualisiert werden.",
       "errorDeleteList": "Liste konnte nicht gelöscht werden.",
-      "heroEditorTitle": "Öffentliches Intro (Held)",
+      "heroEditorTitle": "Öffentliche Einführung",
       "heroEditorSubtitle": "Wird den Gästen gezeigt, bevor sie Geschenke, Geschichten und das Rad öffnen.",
       "heroTitleLabel": "Überschrift „Held“.",
       "heroBodyLabel": "Heldentext",
@@ -4278,7 +4278,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Ungültiges URL-Namensformat. Befolgen Sie die URL-Regeln.",
       "errorSlugReserved": "Dieser URL-Name ist vom System reserviert. Wählen Sie ein anderes.",
       "errorSlugTaken": "Diese URL ist bereits vergeben. Versuchen Sie es mit einem anderen URL-Namen.",
-      "errorVisibilityPasswordRequired": "Bitte legen Sie für diesen Sichtbarkeitsmodus ein Passwort (mindestens 6 Zeichen) fest.",
+      "errorVisibilityPasswordRequired": "Bitte legen Sie für diesen Sichtbarkeitsmodus ein sicheres Passwort (mindestens 8 Zeichen, Großbuchstaben, Kleinbuchstaben, Zahlen und Symbole) fest.",
       "errorVisibilityRequiresPremium": "Für eine passwortgeschützte öffentliche Liste ist mindestens Premium erforderlich.",
       "errorCreateFailed": "Die Erstellung der Liste ist fehlgeschlagen. Bitte versuchen Sie es erneut."
     },
@@ -4357,7 +4357,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "faqEntries": [
         {
           "question": "Le Giftlist Studio est-il uniquement destiné aux listes de cadeaux de mariage ?",
-          "answer": "Non, mais les mariages sont le point de départ le plus évident. Giftlist Studio fonctionne également pour les anniversaires, les fêtes d'anniversaire d'enfants, les baby showers, les remises de diplômes, les pendaisons de crémaillère et la planification de cadeaux de Noël."
+          "answer": "Non, mais les mariages sont le point de départ le plus clair. Giftlist Studio fonctionne également pour les anniversaires, les fêtes d'anniversaire d'enfants, les baby showers, les remises de diplômes, les pendaisons de crémaillère et la planification de cadeaux de Noël."
         },
         {
           "question": "Les invités peuvent-ils réserver des cadeaux avant de les acheter ?",
@@ -4601,7 +4601,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privé : vous seul pouvez consulter et gérer cette liste dans votre tableau de bord.",
       "visibilityPasswordLabel": "Liste du mot de passe",
       "visibilityPasswordPlaceholder": "Définir le mot de passe d'accès",
-      "visibilityPasswordHint": "Utilisez au moins 6 caractères. Partagez ce mot de passe uniquement avec les invités. La protection par mot de passe sur une liste publique nécessite au moins Premium.",
+      "visibilityPasswordHint": "Utilisez au moins 8 caractères, dont des majuscules, des minuscules, un chiffre et un symbole. Partagez ce mot de passe uniquement avec les invités. La protection par mot de passe sur une liste publique nécessite au moins Premium.",
       "createListAction": "Créer une liste",
       "creatingList": "Création d'une liste...",
       "listCreated": "Liste créée avec succès.",
@@ -4630,7 +4630,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "previewPrivateHint": "Définissez la visibilité sur Public pour activer l'aperçu et le partage.",
       "previewHeroAction": "Aller à la page d'accueil",
       "previewContinueAction": "Continuer à lister",
-      "previewContinueHint": "Continuez vers la section cadeaux, moments d'histoire et roues.",
+      "previewContinueHint": "Continuez vers la section cadeaux, moments d’histoire et roues.",
       "previewPasswordPrompt": "Cette liste est protégée par mot de passe. Entrez le mot de passe pour continuer.",
       "previewUnlockAction": "Aperçu du déverrouillage",
       "previewOpenLinkAction": "Ouvrir le lien",
@@ -4666,7 +4666,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platine",
       "billingVideoNotice": "Cette liste contient des vidéos. Le platine est requis. Vous pouvez avoir jusqu’à 20 vidéos et chaque vidéo peut durer jusqu’à 60 secondes.",
       "billingPasswordNotice": "Une liste publique protégée par mot de passe nécessite au moins Premium.",
-      "billingLaunchRegionsNotice": "Les achats de forfaits ne sont actuellement disponibles que pour les clients en Estonie, dans l'UE27 et aux États-Unis.",
+      "billingLaunchRegionsNotice": "Les achats de forfaits ne sont actuellement disponibles que pour les clients de l'UE27 et des États-Unis.",
       "billingTaxCollectionNotice": "Checkout collecte les détails de l'adresse de facturation et l'identifiant fiscal facultatif pour les calculs de la taxe Stripe.",
       "billingMarketUnsupportedNotice": "Votre région actuelle est en dehors des marchés de lancement. Les achats de packages sont bloqués jusqu'à ce que Giftlist Studio commence à y vendre.",
       "billingMarketSanctionedNotice": "Les achats de forfaits sont bloqués dans votre région actuelle car Giftlist Studio ne vend pas sur les marchés sanctionnés, notamment la Biélorussie, Cuba, l'Iran, la Corée du Nord, la Russie et la Syrie.",
@@ -4699,7 +4699,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Copier le code",
       "referralCopied": "Copié",
       "referralStatusActive": "Actif",
-      "referralStatusReserved": "Réservé",
+      "referralStatusReserved": "En attente de paiement",
       "referralStatusRedeemed": "Utilisé",
       "referralCodeInputLabel": "Utiliser un code de parrainage sur cet achat",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -4756,7 +4756,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Liste supprimée définitivement.",
       "errorListSettingsUpdate": "Échec de la mise à jour des paramètres de la liste.",
       "errorDeleteList": "Échec de la suppression de la liste.",
-      "heroEditorTitle": "Intro publique (héros)",
+      "heroEditorTitle": "Présentation publique",
       "heroEditorSubtitle": "Montré aux invités avant qu'ils n'ouvrent les cadeaux, les histoires et la roue.",
       "heroTitleLabel": "Titre du héros",
       "heroBodyLabel": "Texte du héros",
@@ -4836,7 +4836,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "wheelSubtitle": "Ajoutez des questions personnalisées avec une réponse textuelle requise pour les invités.",
       "wheelQuestionLabel": "Question",
       "wheelAnswerTextLabel": "Texte de réponse",
-      "wheelAnswerAudioLabel": "Réponse audio (désactivée)",
+      "wheelAnswerAudioLabel": "Répondre audio (désactivé)",
       "wheelAnswerAudioHint": "Les réponses audio ne sont plus utilisées.",
       "addWheelEntryAction": "Ajouter une question sur la roue",
       "addingWheelEntry": "Question de sauvegarde de la roue...",
@@ -4890,7 +4890,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Format de nom d'URL non valide. Suivez les règles d'URL.",
       "errorSlugReserved": "Ce nom d'URL est réservé par le système. Choisissez-en un autre.",
       "errorSlugTaken": "Cette URL est déjà prise. Essayez un autre nom d'URL.",
-      "errorVisibilityPasswordRequired": "Veuillez définir un mot de passe (min 6 caractères) pour ce mode de visibilité.",
+      "errorVisibilityPasswordRequired": "Veuillez définir un mot de passe fort (min 8 caractères, majuscules, minuscules, chiffre et symbole) pour ce mode de visibilité.",
       "errorVisibilityRequiresPremium": "Une liste publique protégée par mot de passe nécessite au moins Premium.",
       "errorCreateFailed": "La création de la liste a échoué. Veuillez réessayer."
     },
@@ -4940,7 +4940,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "title": "Plantillas de listas de regalos por tipo de evento",
       "subtitle": "Comience con una página de eventos creada para bodas, cumpleaños, fiestas infantiles, baby showers, graduaciones, inauguraciones de casas o Navidad.",
       "wedding": "boda",
-      "birthday": "Cumpleaños",
+      "birthday": "cumpleaños",
       "kidsBirthday": "cumpleaños (niños)",
       "babyShower": "baby shower",
       "graduation": "Graduación",
@@ -5199,7 +5199,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "templateMinimal": "mínimo",
       "templatePlayful": "juguetón",
       "templateKidsBoyTinyPilot": "Pequeño piloto (0-3)",
-      "templateKidsBoyDinoRanger": "Dinosaurio guardabosques (4-7)",
+      "templateKidsBoyDinoRanger": "Dinosaurio Guardabosques (4-7)",
       "templateKidsBoyGalaxyRacer": "Corredor galáctico (8-12)",
       "templateKidsGirlTinyBloom": "Pequeña floración (0-3)",
       "templateKidsGirlFairyGarden": "Jardín de hadas (4-7)",
@@ -5213,7 +5213,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privado: solo tú puedes ver y administrar esta lista en tu panel de control.",
       "visibilityPasswordLabel": "Listar contraseña",
       "visibilityPasswordPlaceholder": "Establecer contraseña de acceso",
-      "visibilityPasswordHint": "Utilice al menos 6 caracteres. Comparta esta contraseña solo con invitados. La protección con contraseña en una lista pública requiere al menos Premium.",
+      "visibilityPasswordHint": "Utilice al menos 8 caracteres, incluidas mayúsculas, minúsculas, un número y un símbolo. Comparta esta contraseña solo con invitados. La protección con contraseña en una lista pública requiere al menos Premium.",
       "createListAction": "Crear lista",
       "creatingList": "Creando lista...",
       "listCreated": "Lista creada exitosamente.",
@@ -5278,7 +5278,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platino",
       "billingVideoNotice": "Esta lista contiene vídeos. Se requiere platino. Puedes tener hasta 20 videos y cada video puede durar hasta 60 segundos.",
       "billingPasswordNotice": "Una lista pública protegida con contraseña requiere al menos Premium.",
-      "billingLaunchRegionsNotice": "Actualmente, las compras de paquetes solo están disponibles para clientes de Estonia, la UE27 y Estados Unidos.",
+      "billingLaunchRegionsNotice": "Actualmente, las compras de paquetes solo están disponibles para clientes de la UE27 y Estados Unidos.",
       "billingTaxCollectionNotice": "El proceso de pago recopila los detalles de la dirección de facturación y la identificación fiscal opcional para los cálculos del impuesto Stripe.",
       "billingMarketUnsupportedNotice": "Su región actual está fuera de los mercados de lanzamiento. Las compras de paquetes están bloqueadas hasta que Giftlist Studio comience a venderse allí.",
       "billingMarketSanctionedNotice": "Las compras de paquetes están bloqueadas en su región actual porque Giftlist Studio no vende a mercados sancionados, incluidos Bielorrusia, Cuba, Irán, Corea del Norte, Rusia y Siria.",
@@ -5309,9 +5309,9 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralGenerateSuccess": "Nuevo código de referencia generado.",
       "referralEmpty": "Aún no hay códigos de referencia.",
       "referralCopyAction": "Copiar código",
-      "referralCopied": "copiado",
+      "referralCopied": "Copiado",
       "referralStatusActive": "Activo",
-      "referralStatusReserved": "Reservado",
+      "referralStatusReserved": "En espera de pago",
       "referralStatusRedeemed": "Usado",
       "referralCodeInputLabel": "Utilice un código de referencia en esta compra",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -5368,7 +5368,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Lista eliminada permanentemente.",
       "errorListSettingsUpdate": "No se pudo actualizar la configuración de la lista.",
       "errorDeleteList": "No se pudo eliminar la lista.",
-      "heroEditorTitle": "Introducción pública (héroe)",
+      "heroEditorTitle": "Introducción pública",
       "heroEditorSubtitle": "Se muestra a los invitados antes de abrir los regalos, las historias y la rueda.",
       "heroTitleLabel": "Titular de héroe",
       "heroBodyLabel": "Texto de héroe",
@@ -5502,7 +5502,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Formato de nombre de URL no válido. Siga las reglas de URL.",
       "errorSlugReserved": "Este nombre de URL está reservado por el sistema. Elige otro.",
       "errorSlugTaken": "Esta URL ya está en uso. Pruebe con otro nombre de URL.",
-      "errorVisibilityPasswordRequired": "Establezca una contraseña (mínimo 6 caracteres) para este modo de visibilidad.",
+      "errorVisibilityPasswordRequired": "Establezca una contraseña segura (mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos) para este modo de visibilidad.",
       "errorVisibilityRequiresPremium": "Una lista pública protegida con contraseña requiere al menos Premium.",
       "errorCreateFailed": "Error al crear la lista. Por favor inténtalo de nuevo."
     },
@@ -5611,7 +5611,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       ],
       "sampleTitle": "Ideias populares para presentes",
       "liveExampleTitle": "Página de exemplo ao vivo para este evento",
-      "liveExampleBody": "Explore a lista de exemplos finalizada para o mesmo evento, experimente designs diferentes e abra a página de exemplo diretamente daqui.",
+      "liveExampleBody": "Explore a lista de amostras finalizada para o mesmo evento, experimente designs diferentes e abra a página de exemplo diretamente daqui.",
       "ctaPrimary": "Comece sua lista",
       "ctaSecondary": "Ver preços",
       "backHomeAction": "De volta para casa",
@@ -5723,14 +5723,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "basePrice": "9,95 euros / 90 dias",
       "baseFeatures": [
         "Até 25 fotos",
-        "Apenas imagens",
+        "Somente imagens",
         "Uma lista pública por 90 dias"
       ],
       "premiumName": "Prêmio",
       "premiumPrice": "19,95 euros / 90 dias",
       "premiumFeatures": [
         "Até 50 fotos",
-        "Apenas imagens",
+        "Somente imagens",
         "Proteção por senha para a lista pública"
       ],
       "platinumName": "Platina",
@@ -5825,7 +5825,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privado: somente você pode visualizar e gerenciar esta lista em seu painel.",
       "visibilityPasswordLabel": "Listar senha",
       "visibilityPasswordPlaceholder": "Definir senha de acesso",
-      "visibilityPasswordHint": "Use pelo menos 6 caracteres. Compartilhe esta senha apenas com convidados. A proteção por senha em uma lista pública requer pelo menos Premium.",
+      "visibilityPasswordHint": "Use pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, um número e um símbolo. Compartilhe esta senha apenas com convidados. A proteção por senha em uma lista pública requer pelo menos Premium.",
       "createListAction": "Criar lista",
       "creatingList": "Criando lista...",
       "listCreated": "Lista criada com sucesso.",
@@ -5890,7 +5890,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Prêmio → Platina",
       "billingVideoNotice": "Esta lista contém vídeo. Platina é necessária. Você pode ter até 20 vídeos e cada vídeo pode ter até 60 segundos.",
       "billingPasswordNotice": "Uma lista pública protegida por senha requer pelo menos Premium.",
-      "billingLaunchRegionsNotice": "Atualmente, as compras de pacotes estão disponíveis apenas para clientes na Estônia, na UE27 e nos Estados Unidos.",
+      "billingLaunchRegionsNotice": "Atualmente, as compras de pacotes estão disponíveis apenas para clientes na UE27 e nos Estados Unidos.",
       "billingTaxCollectionNotice": "O Checkout coleta detalhes do endereço de cobrança e ID fiscal opcional para cálculos de Stripe Tax.",
       "billingMarketUnsupportedNotice": "Sua região atual está fora dos mercados de lançamento. As compras de pacotes ficam bloqueadas até que Giftlist Studio comece a vender lá.",
       "billingMarketSanctionedNotice": "As compras de pacotes estão bloqueadas na sua região atual porque Giftlist Studio não vende para mercados sancionados, incluindo Bielorrússia, Cuba, Irã, Coreia do Norte, Rússia e Síria.",
@@ -5923,7 +5923,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Copiar código",
       "referralCopied": "Copiado",
       "referralStatusActive": "Ativo",
-      "referralStatusReserved": "Reservado",
+      "referralStatusReserved": "Aguardando pagamento",
       "referralStatusRedeemed": "Usado",
       "referralCodeInputLabel": "Use um código de referência nesta compra",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -5941,14 +5941,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "planBasePrice": "9,95 euros / 90 dias",
       "planBaseFeatures": [
         "Até 25 fotos",
-        "Apenas imagens",
+        "Somente imagens",
         "Uma lista pública por 90 dias"
       ],
       "planPremiumName": "Prêmio",
       "planPremiumPrice": "19,95 euros / 90 dias",
       "planPremiumFeatures": [
         "Até 50 fotos",
-        "Apenas imagens",
+        "Somente imagens",
         "Proteção por senha para a lista pública"
       ],
       "planPlatinumName": "Platina",
@@ -5980,7 +5980,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Lista excluída permanentemente.",
       "errorListSettingsUpdate": "Falha ao atualizar as configurações da lista.",
       "errorDeleteList": "Falha ao excluir lista.",
-      "heroEditorTitle": "Introdução pública (herói)",
+      "heroEditorTitle": "Introdução pública",
       "heroEditorSubtitle": "Mostrado aos convidados antes de abrirem presentes, histórias e rodarem.",
       "heroTitleLabel": "Título do herói",
       "heroBodyLabel": "Texto heróico",
@@ -6092,7 +6092,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorDeleteWheelEntry": "Falha ao excluir a pergunta da roda.",
       "errorWheelAnswerRequired": "Adicione uma resposta de texto antes de salvar a pergunta da roda.",
       "errorWheelLimitReached": "A roda pode conter até 12 perguntas por vez.",
-      "errorMediaUnsupportedType": "Tipo de mídia não suportado. Use imagem ou vídeo.",
+      "errorMediaUnsupportedType": "Tipo de mídia não compatível. Use imagem ou vídeo.",
       "errorMediaTooLarge": "O arquivo selecionado é muito grande para upload.",
       "errorMediaProcessingFailed": "Falha no processamento de vídeo. Experimente um arquivo mais curto ou mais simples e faça upload novamente.",
       "errorMediaVideoTooLong": "Os vídeos podem ter até 60 segundos de duração.",
@@ -6114,7 +6114,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Formato de nome de URL inválido. Siga as regras de URL.",
       "errorSlugReserved": "Este nome de URL é reservado pelo sistema. Escolha outro.",
       "errorSlugTaken": "Este URL já está em uso. Tente outro nome de URL.",
-      "errorVisibilityPasswordRequired": "Defina uma senha (mínimo de 6 caracteres) para este modo de visibilidade.",
+      "errorVisibilityPasswordRequired": "Defina uma senha forte (mínimo de 8 caracteres, maiúsculas, minúsculas, número e símbolo) para este modo de visibilidade.",
       "errorVisibilityRequiresPremium": "Uma lista pública protegida por senha requer pelo menos Premium.",
       "errorCreateFailed": "Falha na criação da lista. Por favor, tente novamente."
     },
@@ -6427,17 +6427,17 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "templateKidsBoyGalaxyRacer": "Corridore Galassia (8-12)",
       "templateKidsGirlTinyBloom": "Piccolo Fiore (0-3)",
       "templateKidsGirlFairyGarden": "Giardino Fatato (4-7)",
-      "templateKidsGirlStarlightPop": "Starlight pop (8-12)",
+      "templateKidsGirlStarlightPop": "Starlight Pop (8-12)",
       "visibilityLabel": "Visibilità",
       "visibilityPublic": "Pubblico",
       "visibilityPublicPassword": "Pubblico (password)",
       "visibilityPrivate": "Privato",
       "visibilityHelpPublic": "Pubblico: gli ospiti possono aprire il collegamento di condivisione, visualizzare l'elenco e prenotare regali.",
-      "visibilityHelpPublicPassword": "Pubblico (password): gli ospiti aprono il collegamento di condivisione, ma devono inserire la password prima di poter visualizzare e prenotare. Ciò richiede almeno Premium.",
+      "visibilityHelpPublicPassword": "Pubblico (password): gli ospiti aprono il link di condivisione, ma devono inserire la password prima di poter visualizzare e prenotare. Ciò richiede almeno Premium.",
       "visibilityHelpPrivate": "Privato: solo tu puoi visualizzare e gestire questo elenco nella tua dashboard.",
       "visibilityPasswordLabel": "Elenco password",
       "visibilityPasswordPlaceholder": "Imposta la password di accesso",
-      "visibilityPasswordHint": "Utilizza almeno 6 caratteri. Condividi questa password solo con gli ospiti invitati. La protezione tramite password in un elenco pubblico richiede almeno Premium.",
+      "visibilityPasswordHint": "Utilizza almeno 8 caratteri, inclusi maiuscoli, minuscoli, un numero e un simbolo. Condividi questa password solo con gli ospiti invitati. La protezione tramite password in un elenco pubblico richiede almeno Premium.",
       "createListAction": "Crea elenco",
       "creatingList": "Creazione elenco...",
       "listCreated": "Elenco creato con successo.",
@@ -6502,7 +6502,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premio → Platino",
       "billingVideoNotice": "Questo elenco contiene video. È richiesto il platino. Puoi avere fino a 20 video e ogni video può durare fino a 60 secondi.",
       "billingPasswordNotice": "Un elenco pubblico protetto da password richiede almeno Premium.",
-      "billingLaunchRegionsNotice": "Gli acquisti di pacchetti sono attualmente disponibili solo per i clienti in Estonia, UE27 e Stati Uniti.",
+      "billingLaunchRegionsNotice": "Gli acquisti di pacchetti sono attualmente disponibili solo per i clienti nell'UE27 e negli Stati Uniti.",
       "billingTaxCollectionNotice": "Checkout raccoglie i dettagli dell'indirizzo di fatturazione e l'ID fiscale opzionale per i calcoli delle imposte Stripe.",
       "billingMarketUnsupportedNotice": "La tua regione attuale è fuori dai mercati di lancio. Gli acquisti di pacchetti sono bloccati finché Giftlist Studio non inizia a vendere lì.",
       "billingMarketSanctionedNotice": "Gli acquisti di pacchetti sono bloccati nella tua regione attuale perché Giftlist Studio non vende ai mercati sanzionati, tra cui Bielorussia, Cuba, Iran, Corea del Nord, Russia e Siria.",
@@ -6535,7 +6535,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Copia il codice",
       "referralCopied": "Copiato",
       "referralStatusActive": "Attivo",
-      "referralStatusReserved": "Riservato",
+      "referralStatusReserved": "In attesa di pagamento",
       "referralStatusRedeemed": "Usato",
       "referralCodeInputLabel": "Utilizza un codice di riferimento su questo acquisto",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -6592,7 +6592,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Elenco eliminato definitivamente.",
       "errorListSettingsUpdate": "Impossibile aggiornare le impostazioni dell'elenco.",
       "errorDeleteList": "Impossibile eliminare l'elenco.",
-      "heroEditorTitle": "Presentazione pubblica (eroe)",
+      "heroEditorTitle": "Introduzione pubblica",
       "heroEditorSubtitle": "Mostrato agli ospiti prima di aprire regali, storie e ruota.",
       "heroTitleLabel": "Titolo dell'eroe",
       "heroBodyLabel": "Testo dell'eroe",
@@ -6726,7 +6726,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Formato del nome URL non valido. Segui le regole dell'URL.",
       "errorSlugReserved": "Questo nome URL è riservato dal sistema. Scegline un altro.",
       "errorSlugTaken": "Questo URL è già utilizzato. Prova un altro nome URL.",
-      "errorVisibilityPasswordRequired": "Imposta una password (minimo 6 caratteri) per questa modalità di visibilità.",
+      "errorVisibilityPasswordRequired": "Imposta una password complessa (minimo 8 caratteri, maiuscole, minuscole, numeri e simboli) per questa modalità di visibilità.",
       "errorVisibilityRequiresPremium": "Un elenco pubblico protetto da password richiede almeno Premium.",
       "errorCreateFailed": "Creazione dell'elenco non riuscita. Per favore riprova."
     },
@@ -6805,7 +6805,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "faqEntries": [
         {
           "question": "Czy Giftlist Studio jest przeznaczony tylko do list prezentów ślubnych?",
-          "answer": "Nie, ale śluby są najlepszym punktem wyjścia. Giftlist Studio sprawdza się również podczas urodzin, przyjęć urodzinowych dla dzieci, pryszniców dla dzieci, ukończenia szkoły, parapetówek i planowania prezentów świątecznych."
+          "answer": "Nie, ale śluby są najlepszym punktem wyjścia. Giftlist Studio sprawdza się również podczas urodzin, przyjęć urodzinowych dla dzieci, baby shower, ukończenia szkoły, parapetówek i planowania prezentów świątecznych."
         },
         {
           "question": "Czy goście mogą zarezerwować prezenty przed ich zakupem?",
@@ -6842,7 +6842,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "wedding": {
         "seoTitle": "Lista prezentów ślubnych | Alternatywa dla prywatnego rejestru ślubów",
         "seoDescription": "Utwórz piękną listę prezentów ślubnych i alternatywę dla rejestru z ochroną hasłem, śledzeniem rezerwacji i brakiem duplikatów prezentów.",
-        "headline": "Piękna strona ślubna, z której goście będą faktycznie korzystać",
+        "headline": "Piękna strona ślubna, z której goście będą rzeczywiście korzystać",
         "intro": "Giftlist Studio zapewnia parom jedną elegancką stronę ślubną zawierającą zdjęcia, filmy, treść historii, rezerwacje w stylu rejestru i zabawną interakcję z gośćmi bez duplikowania prezentów.",
         "samples": [
           "Zestaw naczyń obiadowych",
@@ -7028,7 +7028,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "urlNamePlaceholder": "marko-anna-wesele",
       "slugHint": "W nazwie adresu URL użyj od 3 do 32 znaków, małych liter, cyfr i łączników.",
       "regenerateUrlCodeAction": "Nowy kod",
-      "eventTypeLabel": "Typ zdarzenia",
+      "eventTypeLabel": "Typ wydarzenia",
       "templateLabel": "Szablon",
       "templateClassic": "Klasyczny",
       "templateModern": "Nowoczesne",
@@ -7049,7 +7049,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Prywatna: tylko Ty możesz przeglądać tę listę i zarządzać nią w swoim panelu kontrolnym.",
       "visibilityPasswordLabel": "Lista haseł",
       "visibilityPasswordPlaceholder": "Ustaw hasło dostępu",
-      "visibilityPasswordHint": "Użyj co najmniej 6 znaków. Udostępnij to hasło tylko zaproszonym gościom. Ochrona hasłem na liście publicznej wymaga co najmniej Premium.",
+      "visibilityPasswordHint": "Użyj co najmniej 8 znaków, w tym wielkich i małych liter, cyfr i symboli. Udostępnij to hasło tylko zaproszonym gościom. Ochrona hasłem na liście publicznej wymaga co najmniej Premium.",
       "createListAction": "Utwórz listę",
       "creatingList": "Tworzenie listy...",
       "listCreated": "Lista została utworzona pomyślnie.",
@@ -7081,7 +7081,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "previewContinueHint": "Przejdź do prezentów, momentów historii i sekcji kół.",
       "previewPasswordPrompt": "Ta lista jest chroniona hasłem. Wprowadź hasło, aby kontynuować.",
       "previewUnlockAction": "Odblokuj podgląd",
-      "previewOpenLinkAction": "Otwórz łącze",
+      "previewOpenLinkAction": "Otwórz link",
       "previewWheelSpinAction": "Zakręć kołem",
       "previewWheelSpinning": "Wirowanie...",
       "previewWheelIntro": "Zakręć kołem, aby wybrać losowe pytanie.",
@@ -7114,7 +7114,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platyna",
       "billingVideoNotice": "Ta lista zawiera wideo. Wymagana jest platyna. Możesz mieć maksymalnie 20 filmów, a każdy film może mieć maksymalnie 60 sekund.",
       "billingPasswordNotice": "Lista publiczna chroniona hasłem wymaga co najmniej wersji Premium.",
-      "billingLaunchRegionsNotice": "Zakupy pakietowe są obecnie dostępne tylko dla klientów w Estonii, UE-27 i Stanach Zjednoczonych.",
+      "billingLaunchRegionsNotice": "Zakupy pakietowe są obecnie dostępne tylko dla klientów w UE-27 i Stanach Zjednoczonych.",
       "billingTaxCollectionNotice": "Checkout zbiera dane adresowe do rozliczeń i opcjonalny identyfikator podatkowy na potrzeby obliczeń podatku Stripe.",
       "billingMarketUnsupportedNotice": "Twój obecny region znajduje się poza rynkami premiery. Zakupy pakietów są zablokowane do czasu rozpoczęcia sprzedaży Giftlist Studio.",
       "billingMarketSanctionedNotice": "Zakupy pakietów są zablokowane w Twoim obecnym regionie, ponieważ Giftlist Studio nie sprzedaje na rynkach objętych sankcjami, w tym na Białorusi, Kubie, Iranie, Korei Północnej, Rosji i Syrii.",
@@ -7147,7 +7147,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Skopiuj kod",
       "referralCopied": "Skopiowano",
       "referralStatusActive": "Aktywny",
-      "referralStatusReserved": "Zarezerwowane",
+      "referralStatusReserved": "Oczekiwanie na płatność",
       "referralStatusRedeemed": "Używany",
       "referralCodeInputLabel": "Użyj kodu polecającego przy tym zakupie",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -7204,7 +7204,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Lista usunięta trwale.",
       "errorListSettingsUpdate": "Nie udało się zaktualizować ustawień listy.",
       "errorDeleteList": "Nie udało się usunąć listy.",
-      "heroEditorTitle": "Publiczne wprowadzenie (bohater)",
+      "heroEditorTitle": "Publiczne wprowadzenie",
       "heroEditorSubtitle": "Pokazywane gościom przed otwarciem prezentów, historii i koła.",
       "heroTitleLabel": "Nagłówek bohatera",
       "heroBodyLabel": "Tekst bohatera",
@@ -7338,7 +7338,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Nieprawidłowy format nazwy adresu URL. Postępuj zgodnie z zasadami dotyczącymi adresów URL.",
       "errorSlugReserved": "Ta nazwa adresu URL jest zarezerwowana przez system. Wybierz inny.",
       "errorSlugTaken": "Ten adres URL jest już zajęty. Wypróbuj inną nazwę adresu URL.",
-      "errorVisibilityPasswordRequired": "Proszę ustawić hasło (min. 6 znaków) dla tego trybu widoczności.",
+      "errorVisibilityPasswordRequired": "Ustaw silne hasło (min. 8 znaków, wielkie i małe litery, cyfry i symbole) dla tego trybu widoczności.",
       "errorVisibilityRequiresPremium": "Lista publiczna chroniona hasłem wymaga co najmniej wersji Premium.",
       "errorCreateFailed": "Tworzenie listy nie powiodło się. Spróbuj ponownie."
     },
@@ -7539,7 +7539,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
     "pricing": {
       "title": "Простая цена для вашей 90-дневной страницы мероприятия",
       "seoTitle": "Цены и пакеты подарков",
-      "seoDescription": "Сравните базовые, премиальные и платиновые цены на ваш онлайн-список подарков. Ознакомьтесь с ограничениями на фото, видео, защитой паролем и 90-дневным доступом.",
+      "seoDescription": "Сравните базовые, премиальные и платиновые цены на ваш онлайн-список подарков. Ознакомьтесь с ограничениями на фото и видео, защитой паролем и 90-дневным доступом.",
       "trialLine": "Создайте все бесплатно в течение 14 дней, прежде чем активировать хостинг.",
       "draftOnlyLine": "Во время пробной версии вы можете спроектировать, просмотреть и протестировать все возможности перед публичным запуском.",
       "perListLine": "Каждый пакет распространяется на одну страницу мероприятия.",
@@ -7582,7 +7582,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "title": "Посмотрите готовые примеры, прежде чем создавать свой собственный список.",
       "subtitle": "Просматривайте реальные списки образцов по типам событий, переключайте дизайн предварительного просмотра и сравнивайте, как один и тот же контент воспринимается в разных темах.",
       "seoTitle": "Галерея примеров списка подарков",
-      "seoDescription": "Прежде чем создавать собственную страницу, просмотрите примеры списков реальных подарков на свадьбы, дни рождения, детские праздники, выпускные, новоселья и Рождество.",
+      "seoDescription": "Прежде чем создавать собственную страницу, просмотрите примеры списков реальных подарков на свадьбы, дни рождения, детские праздники, выпускные, новоселье и Рождество.",
       "themeHint": "При изменении дизайна здесь обновляется только карточка предварительного просмотра, поэтому гости могут сравнить стили, прежде чем создавать собственный список.",
       "sectionSubtitle": "Примеры и слоты-заполнители для {event}.",
       "entryBadge": "Живой пример",
@@ -7661,7 +7661,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Частный: только вы можете просматривать этот список и управлять им на своей панели управления.",
       "visibilityPasswordLabel": "Список паролей",
       "visibilityPasswordPlaceholder": "Установить пароль доступа",
-      "visibilityPasswordHint": "Используйте не менее 6 символов. Делитесь этим паролем только с приглашенными гостями. Для защиты паролем в общедоступном списке требуется уровень как минимум Premium.",
+      "visibilityPasswordHint": "Используйте не менее 8 символов, включая прописные и строчные буквы, цифры и символы. Делитесь этим паролем только с приглашенными гостями. Для защиты паролем в общедоступном списке требуется уровень как минимум Premium.",
       "createListAction": "Создать список",
       "creatingList": "Создание списка...",
       "listCreated": "Список успешно создан.",
@@ -7677,7 +7677,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "accessExpired": "Срок действия истек",
       "daysLeftTag": "Осталось дней",
       "previewAction": "Открыть предварительный просмотр",
-      "copyLinkAction": "Скопировать ссылку",
+      "copyLinkAction": "Копировать ссылку",
       "linkCopied": "Ссылка скопирована.",
       "showQrAction": "Показать QR-код",
       "hideQrAction": "Скрыть QR-код",
@@ -7690,7 +7690,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "previewPrivateHint": "Установите для видимости значение «Общедоступно», чтобы включить предварительный просмотр и совместное использование.",
       "previewHeroAction": "Перейти на домашнюю страницу",
       "previewContinueAction": "Продолжить список",
-      "previewContinueHint": "Продолжаем подарки, сюжетные моменты и раздел «Колеса».",
+      "previewContinueHint": "Продолжаем подарки, сюжетные моменты и раздел «Колесо».",
       "previewPasswordPrompt": "Этот список защищен паролем. Введите пароль, чтобы продолжить.",
       "previewUnlockAction": "Разблокировать предварительный просмотр",
       "previewOpenLinkAction": "Открыть ссылку",
@@ -7726,7 +7726,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Премиум → Платина",
       "billingVideoNotice": "Этот список содержит видео. Платина обязательна. Вы можете иметь до 20 видео, продолжительность каждого видео может достигать 60 секунд.",
       "billingPasswordNotice": "Публичный список, защищенный паролем, требует уровня Premium.",
-      "billingLaunchRegionsNotice": "Покупка пакетов в настоящее время доступна только для клиентов в Эстонии, 27 странах ЕС и США.",
+      "billingLaunchRegionsNotice": "Покупки пакетов в настоящее время доступны только для клиентов из 27 стран ЕС и США.",
       "billingTaxCollectionNotice": "Checkout собирает данные об адресе выставления счета и дополнительный налоговый идентификатор для расчета налога Stripe.",
       "billingMarketUnsupportedNotice": "Ваш текущий регион находится за пределами рынков запуска. Покупки пакетов блокируются до тех пор, пока там не начнет продаваться Giftlist Studio.",
       "billingMarketSanctionedNotice": "Покупки пакетов заблокированы в вашем текущем регионе, поскольку Giftlist Studio не продается на санкционированных рынках, включая Беларусь, Кубу, Иран, Северную Корею, Россию и Сирию.",
@@ -7759,7 +7759,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Скопировать код",
       "referralCopied": "Скопировано",
       "referralStatusActive": "Активный",
-      "referralStatusReserved": "Зарезервировано",
+      "referralStatusReserved": "Ожидание оплаты",
       "referralStatusRedeemed": "Б/у",
       "referralCodeInputLabel": "Используйте реферальный код для этой покупки",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -7816,7 +7816,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Список удален навсегда.",
       "errorListSettingsUpdate": "Не удалось обновить настройки списка.",
       "errorDeleteList": "Не удалось удалить список.",
-      "heroEditorTitle": "Публичное вступление (герой)",
+      "heroEditorTitle": "Публичное вступление",
       "heroEditorSubtitle": "Показывается гостям перед тем, как они откроют подарки, истории и колесо.",
       "heroTitleLabel": "Главный заголовок",
       "heroBodyLabel": "Геройский текст",
@@ -7950,7 +7950,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Неверный формат имени URL. Следуйте правилам URL.",
       "errorSlugReserved": "Это имя URL зарезервировано системой. Выберите другой.",
       "errorSlugTaken": "Этот URL-адрес уже занят. Попробуйте другое имя URL.",
-      "errorVisibilityPasswordRequired": "Пожалуйста, установите пароль (минимум 6 символов) для этого режима видимости.",
+      "errorVisibilityPasswordRequired": "Установите надежный пароль (минимум 8 символов, прописные и строчные буквы, цифры и символы) для этого режима видимости.",
       "errorVisibilityRequiresPremium": "Публичный список, защищенный паролем, требует уровня Premium.",
       "errorCreateFailed": "Не удалось создать список. Пожалуйста, попробуйте еще раз."
     },
@@ -8219,7 +8219,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "emailButton": "Vai arī turpiniet ar e-pastu",
       "emailLabel": "E-pasta adrese",
       "passwordLabel": "Parole",
-      "signInAction": "Pierakstīties",
+      "signInAction": "Pierakstieties",
       "createAccountAction": "Izveidot kontu",
       "resetPasswordAction": "Atiestatīt paroli",
       "signingIn": "Notiek pierakstīšanās...",
@@ -8273,7 +8273,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPrivate": "Privāts: tikai jūs varat skatīt un pārvaldīt šo sarakstu savā informācijas panelī.",
       "visibilityPasswordLabel": "Saraksta parole",
       "visibilityPasswordPlaceholder": "Iestatiet piekļuves paroli",
-      "visibilityPasswordHint": "Izmantojiet vismaz 6 rakstzīmes. Kopīgojiet šo paroli tikai ar uzaicinātajiem viesiem. Paroles aizsardzībai publiskajā sarakstā ir nepieciešama vismaz Premium.",
+      "visibilityPasswordHint": "Izmantojiet vismaz 8 rakstzīmes, tostarp lielos, mazos, ciparus un simbolus. Kopīgojiet šo paroli tikai ar uzaicinātajiem viesiem. Paroles aizsardzībai publiskajā sarakstā ir nepieciešama vismaz Premium.",
       "createListAction": "Izveidot sarakstu",
       "creatingList": "Notiek saraksta izveide...",
       "listCreated": "Saraksts ir veiksmīgi izveidots.",
@@ -8338,7 +8338,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platīns",
       "billingVideoNotice": "Šajā sarakstā ir video. Nepieciešams platīns. Jums var būt līdz 20 videoklipu, un katrs videoklips var būt līdz 60 sekundēm garš.",
       "billingPasswordNotice": "Ar paroli aizsargātam publiskam sarakstam ir nepieciešama vismaz Premium.",
-      "billingLaunchRegionsNotice": "Paciņu iegāde pašlaik ir pieejama tikai klientiem Igaunijā, ES27 valstīs un ASV.",
+      "billingLaunchRegionsNotice": "Paciņu iegāde pašlaik ir pieejama tikai klientiem ES-27 un ASV.",
       "billingTaxCollectionNotice": "Pakalpojumā Checkout tiek apkopota informācija par norēķinu adresi un papildu nodokļu ID, lai veiktu svītru nodokļa aprēķinus.",
       "billingMarketUnsupportedNotice": "Jūsu pašreizējais reģions atrodas ārpus palaišanas tirgiem. Pakešu pirkumi tiek bloķēti, līdz Giftlist Studio tajā sāks pārdot.",
       "billingMarketSanctionedNotice": "Pakešu iegāde jūsu pašreizējā reģionā ir bloķēta, jo Giftlist Studio nepārdod tirgos, uz kuriem attiecas sankcijas, tostarp Baltkrievijā, Kubā, Irānā, Ziemeļkorejā, Krievijā un Sīrijā.",
@@ -8371,7 +8371,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Kopēt kodu",
       "referralCopied": "Kopēts",
       "referralStatusActive": "Aktīvs",
-      "referralStatusReserved": "Rezervēts",
+      "referralStatusReserved": "Gaida maksājumu",
       "referralStatusRedeemed": "Lietots",
       "referralCodeInputLabel": "Šim pirkumam izmantojiet novirzīšanas kodu",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -8428,7 +8428,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Saraksts ir neatgriezeniski izdzēsts.",
       "errorListSettingsUpdate": "Neizdevās atjaunināt saraksta iestatījumus.",
       "errorDeleteList": "Neizdevās izdzēst sarakstu.",
-      "heroEditorTitle": "Publisks ievads (varonis)",
+      "heroEditorTitle": "Publisks ievads",
       "heroEditorSubtitle": "Parādīts viesiem, pirms viņi atver dāvanas, stāstus un riteni.",
       "heroTitleLabel": "Varoņa virsraksts",
       "heroBodyLabel": "Varoņa teksts",
@@ -8519,7 +8519,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "wheelLimitHint": "Pievienoti jautājumi {count}/{max}.",
       "wheelEntryAdded": "Pievienots jautājums par riteni.",
       "wheelEntryUpdated": "Jautājums par riteni ir atjaunināts.",
-      "wheelEntryDeleted": "Riteņa jautājums dzēsts.",
+      "wheelEntryDeleted": "Jautājums par riteni ir izdzēsts.",
       "deleteWheelEntryAction": "Dzēst jautājumu",
       "deletingWheelEntry": "Notiek jautājuma dzēšana...",
       "dragToReorderHint": "Velciet kartītes, lai mainītu secību, vai izmantojiet bultiņu pogas.",
@@ -8562,7 +8562,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Nederīgs URL nosaukuma formāts. Ievērojiet URL noteikumus.",
       "errorSlugReserved": "Šo URL nosaukumu ir rezervējusi sistēma. Izvēlieties citu.",
       "errorSlugTaken": "Šis URL jau ir aizņemts. Izmēģiniet citu URL nosaukumu.",
-      "errorVisibilityPasswordRequired": "Lūdzu, iestatiet paroli (vismaz 6 rakstzīmes) šim redzamības režīmam.",
+      "errorVisibilityPasswordRequired": "Lūdzu, šim redzamības režīmam iestatiet spēcīgu paroli (vismaz 8 rakstzīmes, lielie, mazie burti, cipars un simbols).",
       "errorVisibilityRequiresPremium": "Ar paroli aizsargātam publiskam sarakstam ir nepieciešama vismaz Premium.",
       "errorCreateFailed": "Neizdevās izveidot sarakstu. Lūdzu, mēģiniet vēlreiz."
     },
@@ -8883,14 +8883,14 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "visibilityHelpPublic": "Vieša: svečiai gali atidaryti jūsų bendrinimo nuorodą, peržiūrėti sąrašą ir rezervuoti dovanas.",
       "visibilityHelpPublicPassword": "Viešas (slaptažodis): svečiai atidaro bendrinimo nuorodą, bet turi įvesti slaptažodį, kad galėtų peržiūrėti ir rezervuoti. Tam reikia bent „Premium“.",
       "visibilityHelpPrivate": "Privatus: tik jūs galite peržiūrėti ir tvarkyti šį sąrašą savo prietaisų skydelyje.",
-      "visibilityPasswordLabel": "Sąrašo slaptažodis",
+      "visibilityPasswordLabel": "Sąrašas slaptažodis",
       "visibilityPasswordPlaceholder": "Nustatykite prieigos slaptažodį",
-      "visibilityPasswordHint": "Naudokite bent 6 simbolius. Bendrinkite šį slaptažodį tik su pakviestais svečiais. Slaptažodžiui apsaugai viešame sąraše reikalinga bent „Premium“.",
+      "visibilityPasswordHint": "Naudokite bent 8 simbolius, įskaitant didžiąsias, mažąsias raides, skaičių ir simbolį. Bendrinkite šį slaptažodį tik su pakviestais svečiais. Slaptažodžiui apsaugai viešame sąraše reikalinga bent „Premium“.",
       "createListAction": "Sukurti sąrašą",
       "creatingList": "Kuriamas sąrašas...",
       "listCreated": "Sąrašas sėkmingai sukurtas.",
       "myListsTitle": "Mano sąrašai",
-      "emptyLists": "Dar nėra sąrašų. Sukurkite savo pirmąjį sąrašą aukščiau.",
+      "emptyLists": "Dar nėra sąrašų. Sukurkite pirmąjį sąrašą aukščiau.",
       "eventTag": "Renginys",
       "visibilityTag": "Matomumas",
       "slugTag": "URL pavadinimas",
@@ -8950,7 +8950,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "billingUpgradePremiumToPlatinum": "Premium → Platinum",
       "billingVideoNotice": "Šiame sąraše yra vaizdo įrašas. Reikalinga platina. Galite turėti iki 20 vaizdo įrašų, o kiekvienas vaizdo įrašas gali būti iki 60 sekundžių.",
       "billingPasswordNotice": "Slaptažodžiu apsaugotam viešam sąrašui reikalinga bent „Premium“.",
-      "billingLaunchRegionsNotice": "Šiuo metu paketus gali įsigyti tik Estijos, ES-27 ir JAV klientai.",
+      "billingLaunchRegionsNotice": "Šiuo metu paketus gali įsigyti tik ES-27 ir JAV klientai.",
       "billingTaxCollectionNotice": "„Checkout“ renka išsamią atsiskaitymo adreso informaciją ir pasirenkamą mokesčių ID, kad būtų galima apskaičiuoti „Stripe Tax“.",
       "billingMarketUnsupportedNotice": "Dabartinis jūsų regionas yra už paleidimo rinkų ribų. Paketų pirkimas blokuojamas, kol Giftlist Studio ten nepradės pardavinėti.",
       "billingMarketSanctionedNotice": "Paketų pirkimas blokuojamas jūsų dabartiniame regione, nes Giftlist Studio neparduoda sankcionuotose rinkose, įskaitant Baltarusiją, Kubą, Iraną, Šiaurės Korėją, Rusiją ir Siriją.",
@@ -8983,7 +8983,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "referralCopyAction": "Nukopijuokite kodą",
       "referralCopied": "Nukopijuota",
       "referralStatusActive": "Aktyvus",
-      "referralStatusReserved": "Rezervuota",
+      "referralStatusReserved": "Laukia apmokėjimo",
       "referralStatusRedeemed": "Naudota",
       "referralCodeInputLabel": "Pirkdami naudokite nukreipimo kodą",
       "referralCodeInputPlaceholder": "ABCD-1234",
@@ -9040,7 +9040,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "listDeleted": "Sąrašas ištrintas visam laikui.",
       "errorListSettingsUpdate": "Nepavyko atnaujinti sąrašo nustatymų.",
       "errorDeleteList": "Nepavyko ištrinti sąrašo.",
-      "heroEditorTitle": "Viešas intro (herojus)",
+      "heroEditorTitle": "Viešas intro",
       "heroEditorSubtitle": "Rodoma svečiams prieš atidarant dovanas, istorijas ir vairą.",
       "heroTitleLabel": "Herojaus antraštė",
       "heroBodyLabel": "Herojaus tekstas",
@@ -9174,7 +9174,7 @@ export const dictionaries: Record<Locale, Dictionary> = {
       "errorInvalidSlug": "Netinkamas URL pavadinimo formatas. Laikykitės URL taisyklių.",
       "errorSlugReserved": "Šį URL pavadinimą rezervavo sistema. Pasirinkite kitą.",
       "errorSlugTaken": "Šis URL jau užimtas. Pabandykite kitą URL pavadinimą.",
-      "errorVisibilityPasswordRequired": "Šiam matomumo režimui nustatykite slaptažodį (mažiausiai 6 simboliai).",
+      "errorVisibilityPasswordRequired": "Šiam matomumo režimui nustatykite tvirtą slaptažodį (mažiausiai 8 simboliai, didžiosios, mažosios raidės, skaičius ir simbolis).",
       "errorVisibilityRequiresPremium": "Slaptažodžiu apsaugotam viešam sąrašui reikalinga bent „Premium“.",
       "errorCreateFailed": "Nepavyko sukurti sąrašo. Bandykite dar kartą."
     },
@@ -9344,7 +9344,7 @@ export const homeMarketingCopy = {
       },
       {
         "title": "Återkom när nästa kapitel börjar",
-        "body": "När familjen växer eller ett nytt firande anländer är samma konto redo för nästa evenemang."
+        "body": "När familjen växer eller ett nytt firande kommer är samma konto redo för nästa evenemang."
       },
       {
         "title": "Ge gästerna ett välbekant, vackert flöde",
@@ -9479,7 +9479,7 @@ export const homeMarketingCopy = {
         "body": "Wenn die Familie wächst oder eine neue Feier ansteht, ist dasselbe Konto für die nächste Veranstaltung bereit."
       },
       {
-        "title": "Bieten Sie Ihren Gästen einen vertrauten, schönen Flow",
+        "title": "Geben Sie Ihren Gästen einen vertrauten, schönen Flow",
         "body": "Gäste verstehen bereits, wie die Seite funktioniert, und Sie teilen Ihre Feierlichkeiten weiterhin auf eine herzliche, persönliche und unkomplizierte Art und Weise."
       }
     ],
@@ -9732,7 +9732,7 @@ export const homeMarketingCopy = {
       }
     ],
     "lifecycleTitle": "От свадьбы до каждого следующего торжества",
-    "lifecycleBody": "Многие пары начинают со свадьбы, а затем возвращаются, когда наступает следующая глава: детский праздник, первый день рождения, новоселье, Рождество или другое семейное событие. Один знакомый стиль страницы упрощает создание каждого нового мероприятия и облегчает обмен информацией.",
+    "lifecycleBody": "Многие пары начинают со свадьбы, а затем возвращаются, когда наступает следующая глава: детский праздник, первый день рождения, новоселье, Рождество или другое семейное событие. Один знакомый стиль страницы упрощает создание и обмен информацией о каждом новом мероприятии.",
     "lifecycleSteps": [
       {
         "title": "Начните с самого важного дня",
@@ -9754,7 +9754,7 @@ export const homeMarketingCopy = {
     "leadSubmitLabel": "Получайте обновления",
     "leadSuccessMessage": "Спасибо. Мы сохранили ваш адрес электронной почты для обновлений о запуске.",
     "leadErrorMessage": "Нам не удалось сохранить ваш адрес электронной почты. Пожалуйста, попробуйте еще раз.",
-    "leadNote": "Мы используем вашу электронную почту только для обновления продукта и запуска обновлений.",
+    "leadNote": "Мы используем вашу электронную почту только для обновления продуктов и запуска обновлений.",
     "leadPrivacyLabel": "Политика конфиденциальности"
   },
   "lv": {
@@ -9985,7 +9985,7 @@ export const pricingMarketingCopy = {
     "lifecycleBody": "Der kostenpflichtige Pass ist für ein Live-Event-Fenster konzipiert. Sie können dieselbe Liste später aktualisieren, bei Bedarf erweitern und die unten aufgeführten Lebenszyklusregeln befolgen, wenn der aktive Zeitraum endet.",
     "trustBlock": "Kein Abonnement. 14 Tage kostenlose Bauzeit. Veröffentlichen Sie erst, wenn Sie bereit sind.",
     "leadTitle": "Möchten Sie Preis- und Einführungsaktualisierungen in Ihrem Posteingang?",
-    "leadBody": "Hinterlassen Sie Ihre E-Mail-Adresse, um nach der Veröffentlichung von Wedding-First über Startaktualisierungen, Planänderungen und neue Veranstaltungsvorlagen benachrichtigt zu werden.",
+    "leadBody": "Hinterlassen Sie Ihre E-Mail-Adresse, um nach der Veröffentlichung von Wedding-First über Startaktualisierungen, Planänderungen und neue Event-Vorlagen benachrichtigt zu werden.",
     "leadInputLabel": "E-Mail-Adresse",
     "leadInputPlaceholder": "you@example.com",
     "leadSubmitLabel": "Erhalten Sie Updates",
@@ -10117,7 +10117,7 @@ export const pricingMarketingCopy = {
     "leadSubmitLabel": "Получайте обновления",
     "leadSuccessMessage": "Спасибо. Мы сохранили ваш адрес электронной почты для получения обновлений о ценах и запуске.",
     "leadErrorMessage": "Нам не удалось сохранить ваш адрес электронной почты. Пожалуйста, попробуйте еще раз.",
-    "leadNote": "Мы используем вашу электронную почту только для обновления продукта и запуска обновлений.",
+    "leadNote": "Мы используем вашу электронную почту только для обновления продуктов и запуска обновлений.",
     "leadPrivacyLabel": "Политика конфиденциальности"
   },
   "lv": {
@@ -10369,7 +10369,7 @@ export const weddingIntentLeadCopy = {
   },
   "de": {
     "title": "Erhalten Sie Updates zur Hochzeitsveröffentlichung",
-    "body": "Hinterlassen Sie Ihre E-Mail, um mehr über neue Hochzeitsbeispiele, Einführungsaktualisierungen und die nächsten Event-Lebenszyklusvorlagen zu erfahren.",
+    "body": "Hinterlassen Sie Ihre E-Mail-Adresse, um mehr über neue Hochzeitsbeispiele, Einführungsaktualisierungen und die nächsten Event-Lebenszyklusvorlagen zu erfahren.",
     "inputLabel": "E-Mail-Adresse",
     "inputPlaceholder": "you@example.com",
     "submitLabel": "Erhalten Sie Updates",
@@ -10441,7 +10441,7 @@ export const weddingIntentLeadCopy = {
     "submitLabel": "Получайте обновления",
     "successMessage": "Спасибо. Мы сохранили ваш адрес электронной почты для обновлений о запуске.",
     "errorMessage": "Нам не удалось сохранить ваш адрес электронной почты. Пожалуйста, попробуйте еще раз.",
-    "note": "Мы используем вашу электронную почту только для обновления продукта и запуска обновлений.",
+    "note": "Мы используем вашу электронную почту только для обновления продуктов и запуска обновлений.",
     "privacyLabel": "Политика конфиденциальности"
   },
   "lv": {
@@ -10680,7 +10680,7 @@ export const galleryCopy = {
     "featuredTitle": "Comece com o exemplo do casamento que faz o produto parecer real",
     "featuredBody": "O casamento é a primeira compra. Depois que os casais confiam no produto aqui, aniversários, chás de bebê, formaturas, Natal e outros eventos tornam-se compras repetidas naturais.",
     "collectionTitle": "Exemplos ao vivo por evento",
-    "collectionBody": "Cada cartão abaixo leva a uma página pública finalizada para que os visitantes possam ver como o Giftlist Studio funciona antes de se inscrever.",
+    "collectionBody": "Cada cartão abaixo leva a uma página pública finalizada para que os visitantes possam ver como o Giftlist Studio funciona antes de se inscreverem.",
     "sectionBody": "Exemplo ao vivo para {event}.",
     "emptyTitle": "A galeria está sendo curada",
     "emptyBody": "Não há exemplos públicos disponíveis no momento. Comece seu teste gratuito ou entre em contato conosco se quiser que a página do seu evento seja divulgada antecipadamente.",
@@ -10735,7 +10735,7 @@ export const galleryCopy = {
     "supportBody": "Wyślij dopracowany publiczny przykład do recenzji, a my rozważymy go w galerii. Aby uzyskać wsparcie, partnerstwo lub prośby o wcześniejszy dostęp, skontaktuj się z {email}.",
     "supportAction": "Wsparcie e-mailowe",
     "leadTitle": "Otrzymuj aktualizacje premierowe i polecane przykładowe zrzuty",
-    "leadBody": "Zostaw swój e-mail, aby otrzymać powiadomienie, gdy pojawią się nowe przykłady ślubu, aktualizacje i szablony wydarzeń cyklu życia.",
+    "leadBody": "Zostaw swój e-mail, aby otrzymywać powiadomienia, gdy pojawią się nowe przykłady ślubu, aktualizacje i szablony wydarzeń cyklu życia.",
     "leadInputLabel": "Adres e-mail",
     "leadInputPlaceholder": "ty@example.com",
     "leadSubmitLabel": "Dołącz do listy",
@@ -10803,7 +10803,7 @@ export const galleryCopy = {
     "supportTitle": "Norite, kad jūsų renginio puslapis būtų rodomas?",
     "supportBody": "Nusiųskite nušlifuotą viešą pavyzdį peržiūrėti ir mes galime jį apsvarstyti galerijai. Dėl paramos, partnerystės ar išankstinės prieigos užklausų susisiekite su {email}.",
     "supportAction": "Pagalba el. paštu",
-    "leadTitle": "Gaukite paleidimo naujinius ir siūlomus pavyzdžius",
+    "leadTitle": "Gaukite paleidimo naujinimus ir siūlomus pavyzdžius",
     "leadBody": "Palikite el. pašto adresą, kad gautumėte pranešimą, kai bus pristatyti nauji vestuvių pavyzdžiai, paleidimo atnaujinimai ir gyvavimo ciklo įvykių šablonai.",
     "leadInputLabel": "El. pašto adresas",
     "leadInputPlaceholder": "tu@example.com",
@@ -10830,6 +10830,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "This list is password protected. Enter the password to continue.",
     "passwordIncorrect": "Incorrect password. Please try again.",
     "passwordCheckFailed": "Password check failed. Please try again.",
+    "passwordRateLimited": "Too many password attempts. Please wait a moment and try again.",
     "passwordLabel": "Password",
     "hidePasswordAria": "Hide password",
     "showPasswordAria": "Show password",
@@ -10868,6 +10869,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "This list has expired and no longer accepts reservations.",
     "reservationUnavailable": "This gift has already been reserved.",
     "reservationFailed": "Reservation failed. Please try again.",
+    "reservationRateLimited": "Too many reservation attempts. Please wait a moment and try again.",
     "thankYouTitle": "Thank you!",
     "thankYouBody": "Your reservation was saved successfully.",
     "storyTitleDefault": "Our story",
@@ -10906,6 +10908,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "See nimekiri on parooliga kaitstud. Jätkamiseks sisesta parool.",
     "passwordIncorrect": "Vale parool. Proovi uuesti.",
     "passwordCheckFailed": "Parooli kontroll ebaõnnestus. Proovi uuesti.",
+    "passwordRateLimited": "Liiga palju paroolikatseid. Oota veidi ja proovi uuesti.",
     "passwordLabel": "Parool",
     "hidePasswordAria": "Peida parool",
     "showPasswordAria": "Näita parooli",
@@ -10944,6 +10947,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "See nimekiri on aegunud ja ei võta enam broneeringuid vastu.",
     "reservationUnavailable": "See kingitus on juba broneeritud.",
     "reservationFailed": "Broneerimine ebaõnnestus. Proovi uuesti.",
+    "reservationRateLimited": "Liiga palju broneerimiskatseid. Oota veidi ja proovi uuesti.",
     "thankYouTitle": "Aitäh!",
     "thankYouBody": "Sinu broneering salvestati edukalt.",
     "storyTitleDefault": "Meie lugu",
@@ -10982,6 +10986,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Tämä luettelo on suojattu salasanalla. Anna salasana jatkaaksesi.",
     "passwordIncorrect": "Väärä salasana. Yritä uudelleen.",
     "passwordCheckFailed": "Salasanan tarkistus epäonnistui. Yritä uudelleen.",
+    "passwordRateLimited": "Liian monta salasanayritystä. Odota hetki ja yritä uudelleen.",
     "passwordLabel": "Salasana",
     "hidePasswordAria": "Piilota salasana",
     "showPasswordAria": "Näytä salasana",
@@ -11020,6 +11025,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Tämä luettelo on vanhentunut, eikä se hyväksy enää varauksia.",
     "reservationUnavailable": "Tämä lahja on jo varattu.",
     "reservationFailed": "Varaus epäonnistui. Yritä uudelleen.",
+    "reservationRateLimited": "Liian monta varausyritystä. Odota hetki ja yritä uudelleen.",
     "thankYouTitle": "Kiitos!",
     "thankYouBody": "Varauksesi tallennettu onnistuneesti.",
     "storyTitleDefault": "Meidän tarinamme",
@@ -11038,7 +11044,7 @@ export const publicGiftListCopy = {
     "eventBabyShower": "Vauvan suihku",
     "eventGraduation": "Valmistuminen",
     "eventHousewarming": "Kotona lämpeneminen",
-    "eventChristmas": "Joulu",
+    "eventChristmas": "joulu",
     "languageLabel": "Katso sisään",
     "expandImageAria": "Avaa kuva",
     "closeImageAction": "Sulje"
@@ -11058,6 +11064,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Denna lista är lösenordsskyddad. Ange lösenordet för att fortsätta.",
     "passwordIncorrect": "Felaktigt lösenord. Försök igen.",
     "passwordCheckFailed": "Lösenordskontrollen misslyckades. Försök igen.",
+    "passwordRateLimited": "För många lösenordsförsök. Vänta ett ögonblick och försök igen.",
     "passwordLabel": "Lösenord",
     "hidePasswordAria": "Dölj lösenord",
     "showPasswordAria": "Visa lösenord",
@@ -11069,7 +11076,7 @@ export const publicGiftListCopy = {
     "noWheelQuestions": "Inga hjulfrågor har lagts till ännu.",
     "spinAction": "Snurra hjulet",
     "spinning": "Spinning...",
-    "wheelIntro": "Snurra på hjulet för att välja en slumpmässig fråga.",
+    "wheelIntro": "Snurra hjulet för att välja en slumpmässig fråga.",
     "revealAnswerAction": "Avslöja svaret",
     "noAnswerForQuestion": "Inget svar har lagts till för denna fråga ännu.",
     "productLinkAction": "Öppna produktlänken",
@@ -11096,6 +11103,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Denna lista har löpt ut och accepterar inte längre reservationer.",
     "reservationUnavailable": "Denna gåva har redan reserverats.",
     "reservationFailed": "Bokningen misslyckades. Försök igen.",
+    "reservationRateLimited": "För många bokningsförsök. Vänta ett ögonblick och försök igen.",
     "thankYouTitle": "Tack!",
     "thankYouBody": "Din bokning har sparats.",
     "storyTitleDefault": "Vår historia",
@@ -11134,6 +11142,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Denne listen er passordbeskyttet. Skriv inn passordet for å fortsette.",
     "passwordIncorrect": "Feil passord. Vennligst prøv igjen.",
     "passwordCheckFailed": "Passordkontroll mislyktes. Vennligst prøv igjen.",
+    "passwordRateLimited": "For mange passordforsøk. Vent et øyeblikk og prøv igjen.",
     "passwordLabel": "Passord",
     "hidePasswordAria": "Skjul passord",
     "showPasswordAria": "Vis passord",
@@ -11172,6 +11181,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Denne listen er utløpt og godtar ikke lenger reservasjoner.",
     "reservationUnavailable": "Denne gaven er allerede reservert.",
     "reservationFailed": "Reservasjonen mislyktes. Vennligst prøv igjen.",
+    "reservationRateLimited": "For mange reservasjonsforsøk. Vent et øyeblikk og prøv igjen.",
     "thankYouTitle": "Takk!",
     "thankYouBody": "Reservasjonen din ble lagret.",
     "storyTitleDefault": "Vår historie",
@@ -11210,6 +11220,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Denne liste er beskyttet med adgangskode. Indtast adgangskoden for at fortsætte.",
     "passwordIncorrect": "Forkert adgangskode. Prøv venligst igen.",
     "passwordCheckFailed": "Adgangskodekontrol mislykkedes. Prøv venligst igen.",
+    "passwordRateLimited": "For mange adgangskodeforsøg. Vent et øjeblik, og prøv igen.",
     "passwordLabel": "Adgangskode",
     "hidePasswordAria": "Skjul adgangskode",
     "showPasswordAria": "Vis adgangskode",
@@ -11248,6 +11259,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Denne liste er udløbet og accepterer ikke længere reservationer.",
     "reservationUnavailable": "Denne gave er allerede reserveret.",
     "reservationFailed": "Reservationen mislykkedes. Prøv venligst igen.",
+    "reservationRateLimited": "For mange reservationsforsøg. Vent et øjeblik, og prøv igen.",
     "thankYouTitle": "Tak!",
     "thankYouBody": "Din reservation blev gemt.",
     "storyTitleDefault": "Vores historie",
@@ -11286,6 +11298,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Diese Liste ist passwortgeschützt. Geben Sie das Passwort ein, um fortzufahren.",
     "passwordIncorrect": "Falsches Passwort. Bitte versuchen Sie es erneut.",
     "passwordCheckFailed": "Die Passwortüberprüfung ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "passwordRateLimited": "Zu viele Passwortversuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
     "passwordLabel": "Passwort",
     "hidePasswordAria": "Passwort verbergen",
     "showPasswordAria": "Passwort anzeigen",
@@ -11324,7 +11337,8 @@ export const publicGiftListCopy = {
     "reservationExpired": "Diese Liste ist abgelaufen und akzeptiert keine Reservierungen mehr.",
     "reservationUnavailable": "Dieses Geschenk ist bereits reserviert.",
     "reservationFailed": "Reservierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
-    "thankYouTitle": "Vielen Dank!",
+    "reservationRateLimited": "Zu viele Reservierungsversuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+    "thankYouTitle": "Danke schön!",
     "thankYouBody": "Ihre Reservierung wurde erfolgreich gespeichert.",
     "storyTitleDefault": "Unsere Geschichte",
     "wheelTitleDefault": "Rad der Weisheit",
@@ -11362,6 +11376,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Cette liste est protégée par mot de passe. Entrez le mot de passe pour continuer.",
     "passwordIncorrect": "Mot de passe incorrect. Veuillez réessayer.",
     "passwordCheckFailed": "La vérification du mot de passe a échoué. Veuillez réessayer.",
+    "passwordRateLimited": "Trop de tentatives de mot de passe. Veuillez patienter un moment et réessayer.",
     "passwordLabel": "Mot de passe",
     "hidePasswordAria": "Masquer le mot de passe",
     "showPasswordAria": "Afficher le mot de passe",
@@ -11400,6 +11415,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Cette liste est expirée et n'accepte plus de réservations.",
     "reservationUnavailable": "Ce cadeau a déjà été réservé.",
     "reservationFailed": "La réservation a échoué. Veuillez réessayer.",
+    "reservationRateLimited": "Trop de tentatives de réservation. Veuillez patienter un moment et réessayer.",
     "thankYouTitle": "Merci!",
     "thankYouBody": "Votre réservation a été enregistrée avec succès.",
     "storyTitleDefault": "Notre histoire",
@@ -11438,6 +11454,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Esta lista está protegida con contraseña. Ingrese la contraseña para continuar.",
     "passwordIncorrect": "Contraseña incorrecta. Por favor inténtalo de nuevo.",
     "passwordCheckFailed": "Error en la verificación de contraseña. Por favor inténtalo de nuevo.",
+    "passwordRateLimited": "Demasiados intentos de contraseña. Espere un momento e inténtelo de nuevo.",
     "passwordLabel": "Contraseña",
     "hidePasswordAria": "Ocultar contraseña",
     "showPasswordAria": "Mostrar contraseña",
@@ -11476,6 +11493,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Esta lista ha caducado y ya no acepta reservas.",
     "reservationUnavailable": "Este regalo ya ha sido reservado.",
     "reservationFailed": "La reserva falló. Por favor inténtalo de nuevo.",
+    "reservationRateLimited": "Demasiados intentos de reserva. Espere un momento e inténtelo de nuevo.",
     "thankYouTitle": "¡Gracias!",
     "thankYouBody": "Su reserva fue guardada exitosamente.",
     "storyTitleDefault": "nuestra historia",
@@ -11489,7 +11507,7 @@ export const publicGiftListCopy = {
     "statusGifted": "superdotado",
     "noGiftItems": "Aún no se han agregado artículos de regalo.",
     "eventWedding": "boda",
-    "eventBirthday": "Cumpleaños",
+    "eventBirthday": "cumpleaños",
     "eventKidsBirthday": "cumpleaños (niños)",
     "eventBabyShower": "baby shower",
     "eventGraduation": "Graduación",
@@ -11514,6 +11532,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Esta lista é protegida por senha. Digite a senha para continuar.",
     "passwordIncorrect": "Senha incorreta. Por favor, tente novamente.",
     "passwordCheckFailed": "A verificação da senha falhou. Por favor, tente novamente.",
+    "passwordRateLimited": "Muitas tentativas de senha. Aguarde um momento e tente novamente.",
     "passwordLabel": "Senha",
     "hidePasswordAria": "Ocultar senha",
     "showPasswordAria": "Mostrar senha",
@@ -11552,6 +11571,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Esta lista expirou e não aceita mais reservas.",
     "reservationUnavailable": "Este presente já foi reservado.",
     "reservationFailed": "Falha na reserva. Por favor, tente novamente.",
+    "reservationRateLimited": "Muitas tentativas de reserva. Aguarde um momento e tente novamente.",
     "thankYouTitle": "Obrigado!",
     "thankYouBody": "A sua reserva foi guardada com sucesso.",
     "storyTitleDefault": "Nossa história",
@@ -11590,6 +11610,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Questo elenco è protetto da password. Inserisci la password per continuare.",
     "passwordIncorrect": "Password errata. Per favore riprova.",
     "passwordCheckFailed": "Il controllo della password non è riuscito. Per favore riprova.",
+    "passwordRateLimited": "Troppi tentativi di password. Attendi un attimo e riprova.",
     "passwordLabel": "Parola d'ordine",
     "hidePasswordAria": "Nascondi la password",
     "showPasswordAria": "Mostra password",
@@ -11628,6 +11649,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Questa lista è scaduta e non accetta più prenotazioni.",
     "reservationUnavailable": "Questo regalo è già stato prenotato.",
     "reservationFailed": "Prenotazione fallita. Per favore riprova.",
+    "reservationRateLimited": "Troppi tentativi di prenotazione. Attendi un attimo e riprova.",
     "thankYouTitle": "Grazie!",
     "thankYouBody": "La tua prenotazione è stata salvata con successo.",
     "storyTitleDefault": "La nostra storia",
@@ -11666,6 +11688,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Ta lista jest chroniona hasłem. Wprowadź hasło, aby kontynuować.",
     "passwordIncorrect": "Nieprawidłowe hasło. Spróbuj ponownie.",
     "passwordCheckFailed": "Sprawdzanie hasła nie powiodło się. Spróbuj ponownie.",
+    "passwordRateLimited": "Zbyt wiele prób podania hasła. Poczekaj chwilę i spróbuj ponownie.",
     "passwordLabel": "Hasło",
     "hidePasswordAria": "Ukryj hasło",
     "showPasswordAria": "Pokaż hasło",
@@ -11704,6 +11727,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Ta lista wygasła i nie przyjmuje już rezerwacji.",
     "reservationUnavailable": "Ten prezent został już zarezerwowany.",
     "reservationFailed": "Rezerwacja nie powiodła się. Spróbuj ponownie.",
+    "reservationRateLimited": "Zbyt wiele prób rezerwacji. Poczekaj chwilę i spróbuj ponownie.",
     "thankYouTitle": "Dziękuję!",
     "thankYouBody": "Twoja rezerwacja została pomyślnie zapisana.",
     "storyTitleDefault": "Nasza historia",
@@ -11742,6 +11766,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Этот список защищен паролем. Введите пароль, чтобы продолжить.",
     "passwordIncorrect": "Неправильный пароль. Пожалуйста, попробуйте еще раз.",
     "passwordCheckFailed": "Проверка пароля не удалась. Пожалуйста, попробуйте еще раз.",
+    "passwordRateLimited": "Слишком много попыток ввода пароля. Пожалуйста, подождите немного и повторите попытку.",
     "passwordLabel": "Пароль",
     "hidePasswordAria": "Скрыть пароль",
     "showPasswordAria": "Показать пароль",
@@ -11780,6 +11805,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Срок действия этого списка истек, и бронирование больше не принимается.",
     "reservationUnavailable": "Этот подарок уже зарезервирован.",
     "reservationFailed": "Бронирование не удалось. Пожалуйста, попробуйте еще раз.",
+    "reservationRateLimited": "Слишком много попыток резервирования. Пожалуйста, подождите немного и повторите попытку.",
     "thankYouTitle": "Спасибо!",
     "thankYouBody": "Ваше бронирование успешно сохранено.",
     "storyTitleDefault": "Наша история",
@@ -11818,6 +11844,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Šis saraksts ir aizsargāts ar paroli. Lai turpinātu, ievadiet paroli.",
     "passwordIncorrect": "Nepareiza parole. Lūdzu, mēģiniet vēlreiz.",
     "passwordCheckFailed": "Paroles pārbaude neizdevās. Lūdzu, mēģiniet vēlreiz.",
+    "passwordRateLimited": "Pārāk daudz paroles mēģinājumu. Lūdzu, uzgaidiet brīdi un mēģiniet vēlreiz.",
     "passwordLabel": "Parole",
     "hidePasswordAria": "Slēpt paroli",
     "showPasswordAria": "Rādīt paroli",
@@ -11856,6 +11883,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Šis saraksts ir beidzies, un tas vairs nepieņem rezervācijas.",
     "reservationUnavailable": "Šī dāvana jau ir rezervēta.",
     "reservationFailed": "Rezervācija neizdevās. Lūdzu, mēģiniet vēlreiz.",
+    "reservationRateLimited": "Pārāk daudz rezervācijas mēģinājumu. Lūdzu, uzgaidiet brīdi un mēģiniet vēlreiz.",
     "thankYouTitle": "Paldies!",
     "thankYouBody": "Jūsu rezervācija tika veiksmīgi saglabāta.",
     "storyTitleDefault": "Mūsu stāsts",
@@ -11894,6 +11922,7 @@ export const publicGiftListCopy = {
     "passwordProtectedPrompt": "Šis sąrašas yra apsaugotas slaptažodžiu. Norėdami tęsti, įveskite slaptažodį.",
     "passwordIncorrect": "Neteisingas slaptažodis. Bandykite dar kartą.",
     "passwordCheckFailed": "Nepavyko patikrinti slaptažodžio. Bandykite dar kartą.",
+    "passwordRateLimited": "Per daug bandymų įvesti slaptažodį. Šiek tiek palaukite ir bandykite dar kartą.",
     "passwordLabel": "Slaptažodis",
     "hidePasswordAria": "Slėpti slaptažodį",
     "showPasswordAria": "Rodyti slaptažodį",
@@ -11932,6 +11961,7 @@ export const publicGiftListCopy = {
     "reservationExpired": "Šis sąrašas nebegalioja ir nebepriima rezervacijų.",
     "reservationUnavailable": "Ši dovana jau rezervuota.",
     "reservationFailed": "Rezervuoti nepavyko. Bandykite dar kartą.",
+    "reservationRateLimited": "Per daug rezervavimo bandymų. Šiek tiek palaukite ir bandykite dar kartą.",
     "thankYouTitle": "Ačiū!",
     "thankYouBody": "Jūsų rezervacija sėkmingai išsaugota.",
     "storyTitleDefault": "Mūsų istorija",
@@ -12047,7 +12077,7 @@ export const legalCopy = {
     },
     "consent": {
       "title": "Käytämme evästeitä ja selaimen tallennustilaa",
-      "body": "Tarvittavat evästeet ja selaimen tallennustila pitävät sisäänkirjautumisen, salasanalla suojatun luettelon käytön, suostumusvalinnat ja gallerian esimerkkivaraukset toiminnassa. Analytics pysyy poissa käytöstä, ellet salli sitä.",
+      "body": "Tarvittavat evästeet ja selaimen tallennustila pitävät kirjautumisen, salasanalla suojatun luettelon pääsyn, suostumusvalinnat ja gallerian esimerkkivaraukset toiminnassa. Analytics pysyy poissa käytöstä, ellet salli sitä.",
       "settingsAction": "Evästeasetukset",
       "acceptNecessaryAction": "Käytä vain tarpeellista",
       "acceptAllAction": "Salli analytiikka",
@@ -12154,7 +12184,7 @@ export const legalCopy = {
   },
   "da": {
     "footer": {
-      "companyLabel": "Selskab",
+      "companyLabel": "Firma",
       "addressLabel": "Adresse",
       "cookieSettings": "Cookie-indstillinger",
       "cookiePolicy": "Cookie politik",
@@ -12832,7 +12862,7 @@ export const weddingIntentContent = {
     "wedding-registry-alternative": {
       "seoTitle": "Häärekisterin vaihtoehto | Giftlist Studio",
       "seoDescription": "Käytä Giftlist Studio-vaihtoehtoa häärekisteriin tyylikkäällä suunnittelulla, yksityisellä jakamisella ja kaksoissuojatulla varauksella.",
-      "eyebrow": "Häärekisterin vaihtoehto",
+      "eyebrow": "Häärekisteri vaihtoehto",
       "title": "Häärekisterivaihtoehto pariskunnille, jotka haluavat jotain henkilökohtaisempaa",
       "body": "Giftlist Studio toimii, kun haluat rekisterin käytännön osia, mutta kauniimman sivun, joustavamman jakamisen ja vahvemman tarinavetoisen esityksen.",
       "benefitTitle": "Missä se voittaa",
@@ -12916,7 +12946,7 @@ export const weddingIntentContent = {
       ]
     },
     "private-wedding-registry": {
-      "seoTitle": "Privat bröllopsregister | Giftlist Studio",
+      "seoTitle": "Privata bröllopsregistret | Giftlist Studio",
       "seoDescription": "Skapa ett privat bröllopsregisteralternativ med lösenordsskydd, bokningsspårning och en elegant gästsida.",
       "eyebrow": "Privat bröllopsregister",
       "title": "Ett privat bröllopsregister utan den generiska registerkänslan",
@@ -13773,7 +13803,7 @@ export const weddingIntentContent = {
       "seoTitle": "Pagina dei regali di nozze per gli ospiti | Giftlist Studio",
       "seoDescription": "Crea una pagina dei regali di nozze per gli ospiti con prenotazioni di regali chiare, dettagli dell'evento e un'esperienza pubblica raffinata.",
       "eyebrow": "Pagina dei regali di nozze per gli ospiti",
-      "title": "Offri agli ospiti una pagina chiara del regalo di nozze invece di istruzioni sparse",
+      "title": "Offri agli ospiti una pagina chiara per i regali di nozze invece di istruzioni sparse",
       "body": "Giftlist Studio aiuta le coppie a condividere una pagina in cui gli ospiti possono comprendere l'evento, vedere idee regalo e prenotare articoli prima di acquistarli.",
       "benefitTitle": "Perché gli ospiti lo usano",
       "benefits": [
@@ -14005,7 +14035,7 @@ export const weddingIntentContent = {
       "body": "Giftlist Studio помогает парам поделиться одной страницей, где гости могут ознакомиться с событием, увидеть идеи подарков и зарезервировать товары перед их покупкой.",
       "benefitTitle": "Почему гости этим пользуются",
       "benefits": [
-        "Гости видят, что доступно, прежде чем совершить покупку.",
+        "Посетители видят, что доступно, прежде чем совершить покупку.",
         "Одна ссылка проще, чем несколько сообщений и обновлений",
         "Страница выглядит достаточно отполированной, чтобы ею можно было с уверенностью поделиться с семьей и друзьями."
       ],
@@ -14233,7 +14263,7 @@ export const weddingIntentContent = {
       "body": "Giftlist Studio padeda poroms pasidalinti vienu puslapiu, kuriame svečiai gali suprasti įvykį, pamatyti dovanų idėjas ir rezervuoti prekes prieš jas perkant.",
       "benefitTitle": "Kodėl svečiai juo naudojasi",
       "benefits": [
-        "Svečiai prieš pirkdami pamato, kas yra",
+        "Prieš pirkdami svečiai pamato, ką turi",
         "Viena nuoroda yra lengviau nei keli pranešimai ir naujiniai",
         "Puslapis atrodo pakankamai nušlifuotas, kad būtų galima drąsiai dalytis su šeima ir draugais"
       ],
@@ -15672,7 +15702,7 @@ export const privacyPageContent = {
       {
         "title": "11. Änderungen dieser Richtlinie",
         "paragraphs": [
-          "Wir können diese Richtlinie aktualisieren, wenn sich der Dienst, gesetzliche Anforderungen, Anbieter oder Datenflüsse ändern. Die auf dieser Seite veröffentlichte Version ist die aktuelle."
+          "Wir können diese Richtlinie aktualisieren, wenn sich der Dienst, rechtliche Anforderungen, Anbieter oder Datenflüsse ändern. Die auf dieser Seite veröffentlichte Version ist die aktuelle."
         ]
       }
     ]
@@ -15696,7 +15726,7 @@ export const privacyPageContent = {
         "points": [
           "Données de compte et de profil telles que l'adresse e-mail, le nom d'affichage, l'URL de la photo de profil, les identifiants du fournisseur, l'heure de création du compte et le statut d'essai/d'accès.",
           "Données de liste de cadeaux créées par l'hôte, y compris le titre de la liste, le slug, le type d'événement, le choix de conception, les paramètres de visibilité, l'état de protection par mot de passe, le texte d'introduction, la date et le lieu de l'événement, les articles cadeaux, les entrées d'histoire, les entrées de roue et les métadonnées de commande associées.",
-          "Métadonnées multimédias hébergées telles que le chemin de stockage, le type de fichier, la taille du fichier et la durée de la vidéo. Les images peuvent être optimisées et les vidéos peuvent être traitées au format MP4 pour les forfaits pris en charge.",
+          "Métadonnées multimédia hébergées telles que le chemin de stockage, le type de fichier, la taille du fichier et la durée de la vidéo. Les images peuvent être optimisées et les vidéos peuvent être traitées au format MP4 pour les forfaits pris en charge.",
           "Données de réservation saisies par les invités, y compris le nom de l'invité, le message facultatif, si l'invité a autorisé l'affichage public de son nom, l'horodatage de la réservation et l'élément réservé.",
           "Données de facturation et de parrainage telles que le forfait sélectionné, la devise, le montant, les identifiants de session de paiement, les références de paiement, les codes de parrainage, les soldes de récompenses de parrainage et les horodatages des périodes d'accès.",
           "Données de prospect marketing telles que l'adresse e-mail, les paramètres régionaux, la source d'inscription et les horodatages de soumission lorsqu'un visiteur demande le lancement, les prix ou les mises à jour du produit.",
@@ -15760,7 +15790,7 @@ export const privacyPageContent = {
         "points": [
           "Les données du profil du compte sont conservées tant que le compte reste actif ou aussi longtemps que nécessaire au fonctionnement de la relation de service.",
           "Le contenu de la liste de cadeaux est conservé pendant que la liste est active, pendant la période d'essai ou d'accès payant applicable, et jusqu'à ce que l'hôte supprime la liste ou que le cycle de vie du service supprime le contenu de la liste hébergée après la fin de la période d'accès configurée.",
-          "La suppression d'une liste du tableau de bord est conçue pour supprimer le document de liste, les médias de liste hébergés, les histoires, les entrées de roue, les enregistrements de réservation, le mot de passe secret et la revendication de slug public associés à cette liste.",
+          "La suppression d'une liste du tableau de bord est conçue pour supprimer le document de liste, les médias de liste hébergés, les histoires, les entrées de roue, les enregistrements de réservation, le mot de passe secret et la réclamation publique associée à cette liste.",
           "Les métadonnées de facturation, de prévention de la fraude et de comptabilité peuvent être conservées plus longtemps si cela est nécessaire pour des raisons commerciales ou juridiques légitimes.",
           "Les enregistrements d'inscription des prospects marketing sont conservés jusqu'à ce que le destinataire se désabonne, demande la suppression ou que la liste de mise à jour de lancement ne soit plus nécessaire.",
           "Les préférences en matière de cookies sont conservées pendant 180 jours, sauf si elles sont effacées plus tôt. Le stockage de la session de réservation de démonstration est temporaire et lié à la session de navigation actuelle du visiteur."
@@ -16175,7 +16205,7 @@ export const privacyPageContent = {
       {
         "title": "3. Co może zostać upublicznione",
         "points": [
-          "Jeśli gospodarz ustawi listę jako publiczną lub chronioną hasłem, tytuł listy, treść wstępu, prezentacja wydarzenia, prezenty, historie i inna treść opublikowana przez gospodarza mogą stać się widoczne dla każdej osoby mającej link lub hasło.",
+          "Jeśli gospodarz ustawi listę jako publiczną lub chronioną hasłem, tytuł listy, treść wprowadzająca, prezentacja wydarzenia, prezenty, historie i inna treść opublikowana przez gospodarza mogą stać się widoczne dla każdej osoby mającej link lub hasło.",
           "Kiedy gość rezerwuje prezent, gospodarz zawsze otrzymuje imię i nazwisko gościa oraz ewentualną wiadomość na pulpicie nawigacyjnym dotyczącą zarezerwowanego przedmiotu.",
           "Gość może osobno wybrać, czy jego imię i nazwisko ma być publicznie widoczne na karcie podarunkowej. Jeśli gość nie zezwala na publiczne wyświetlanie nazwy, gospodarz nadal widzi ją prywatnie na pulpicie nawigacyjnym.",
           "Po dokonaniu rezerwacji wiadomość o rezerwacji prezentu może zostać wyświetlona na publicznej karcie podarunkowej. Dlatego gospodarze powinni publikować na stronie z udostępnioną listą tylko ten rodzaj interakcji z gośćmi, który uznają za wygodny."
@@ -16325,7 +16355,7 @@ export const privacyPageContent = {
         "title": "6. Файлы cookie, хранилище браузера и доступ, защищенный паролем.",
         "points": [
           "Необходимое пространство используется для сохранения входа в систему, настройки файлов cookie, доступа к общедоступному списку, защищенного паролем, и состояния резервирования демо-версии на страницах образцов галереи.",
-          "Публичные списки, защищенные паролем, создают файл cookie доступа после ввода правильного пароля. Срок действия файла cookie истекает автоматически по истечении срока его технического действия.",
+          "Публичные списки, защищенные паролем, создают файл cookie доступа после ввода правильного пароля. Срок действия файла cookie автоматически истекает по истечении срока его технического действия.",
           "Пароли для защищенных общедоступных списков не хранятся в виде обычного текста. Служба хранит секреты проверки пароля в виде хешированных и солевых значений.",
           "Аналитика не является обязательной и остается отключенной до тех пор, пока посетитель не даст согласие. Страницы общедоступного списка подарков исключены из отслеживания страниц аналитики."
         ]
@@ -16348,7 +16378,7 @@ export const privacyPageContent = {
           "Удаление списка с панели мониторинга предназначено для удаления документа списка, носителей размещенного списка, историй, записей колеса, записей резервирования, секретного пароля и общедоступного утверждения пула, связанного с этим списком.",
           "Метаданные выставления счетов, предотвращения мошенничества и бухгалтерского учета могут храниться дольше, если это необходимо по законным деловым или юридическим причинам.",
           "Записи о регистрации потенциальных клиентов по маркетингу хранятся до тех пор, пока получатель не откажется от подписки, не попросит удалить или пока список обновлений для запуска больше не понадобится.",
-          "Настройки файлов cookie сохраняются в течение 180 дней, если они не будут удалены ранее. Хранение сеанса демо-бронирования является временным и привязано к текущему сеансу браузера посетителя."
+          "Настройки файлов cookie хранятся в течение 180 дней, если они не будут удалены ранее. Хранение сеанса демо-бронирования является временным и привязано к текущему сеансу браузера посетителя."
         ]
       },
       {
@@ -16364,7 +16394,7 @@ export const privacyPageContent = {
         "title": "10. Ваш выбор и права",
         "points": [
           "Вы можете принять только необходимое хранилище и отключить аналитику.",
-          "Вы можете в любое время снова открыть настройки файлов cookie из нижнего колонтитула и обновить свои аналитические настройки.",
+          "Вы можете в любое время снова открыть настройки файлов cookie из нижнего колонтитула и обновить настройки аналитики.",
           "Если вы присоединились к форме обновления запуска, вы можете попросить нас удалить ваш адрес электронной почты из этого списка.",
           "Хозяева могут редактировать или удалять свои списки с панели управления.",
           "В соответствии с применимым законодательством вы можете иметь право на доступ, исправление, удаление, ограничение или возражение против обработки ваших персональных данных, а также на подачу жалобы в компетентный надзорный орган.",
@@ -17072,7 +17102,7 @@ export const faqPageContent = {
     "sections": [
       {
         "id": "aloittamiseen",
-        "title": "Aloitus",
+        "title": "Aloittaminen",
         "entries": [
           {
             "question": "Kuinka luon ensimmäisen lahjaluetteloni?",
@@ -17092,7 +17122,7 @@ export const faqPageContent = {
             "question": "Mitä näkyy 14 päivän kokeilujakson aikana?",
             "answer": [
               "Kokeilujakson aikana voit luoda luettelon, ladata sisältöä ja esikatsella, miltä sivu näyttää.",
-              "Julkinen isännöinti riippuu siitä, että luettelolla on aktiivinen julkaistun käyttöoikeuden tila. Kokeilu on tarkoitettu pääasiassa asennukseen ja esikatseluun ennen 90 päivän maksujakson aktivointia."
+              "Julkinen isännöinti riippuu siitä, että luettelolla on aktiivinen julkaistun käyttöoikeuden tila. Kokeilu on pääasiassa asennukseen ja esikatseluun ennen 90 päivän maksujakson aktivointia."
             ]
           }
         ]
@@ -17932,7 +17962,7 @@ export const faqPageContent = {
             "question": "Kan jeg bruge min egen henvisningskode?",
             "answer": [
               "Nej. Selvhenvisning er blokeret.",
-              "Henvisningstilgængeligheden kan også begrænses for gratis konti eller for købere, der allerede har brugt en henvisning som defineret af reglerne for live-produkter."
+              "Henvisningstilgængeligheden kan også begrænses for gratis konti eller for købere, der allerede har brugt en henvisning som defineret af reglerne for live produkt."
             ]
           }
         ]
@@ -18606,7 +18636,7 @@ export const faqPageContent = {
           {
             "question": "¿Puedo usar mi propio código de referencia?",
             "answer": [
-              "No. La autorremisión está bloqueada.",
+              "No. La autorreferencia está bloqueada.",
               "La disponibilidad de las referencias también se puede restringir para cuentas gratuitas o para compradores que ya han utilizado una referencia según lo definido por las reglas del producto activo."
             ]
           }
@@ -18946,7 +18976,7 @@ export const faqPageContent = {
           {
             "question": "Qual è la differenza tra pubblico, protetto da password e privato?",
             "answer": [
-              "Pubblico significa che l'elenco può essere aperto con il suo collegamento diretto mentre è attivo il periodo di accesso all'elenco.",
+              "Pubblico significa che l'elenco può essere aperto con il relativo collegamento diretto mentre è attivo il periodo di accesso all'elenco.",
               "Pubblico protetto da password significa che l'ospite deve inserire la password corretta prima di visualizzare l'elenco. Ciò attualmente richiede Premium o Platinum.",
               "Privato è destinato alla modifica e all'anteprima da parte del proprietario anziché all'accesso ospite aperto."
             ]
@@ -19325,7 +19355,7 @@ export const faqPageContent = {
         "title": "Начало работы",
         "entries": [
           {
-            "question": "Как мне создать свой первый список подарков?",
+            "question": "Как мне составить свой первый список подарков?",
             "answer": [
               "Войдите в систему с помощью Google или электронной почты/пароля, откройте панель управления и создайте новый список с заголовком, общедоступным ярлыком, типом события, дизайном и видимостью.",
               "Каждый новый список начинается с 14-дневной пробной версии, поэтому вы можете создать и просмотреть его перед активацией периода платного доступа."
@@ -19370,7 +19400,7 @@ export const faqPageContent = {
             "question": "Что произойдет, если я позже обновлю пакет до более высокого уровня?",
             "answer": [
               "Поддерживаемые пути обновления используют более низкую цену обновления вместо повторного взимания полной целевой цены пакета.",
-              "Текущие цены на обновление: базовая до премиум-12,95, базовая до платиновой 24,95 и премиум-платиновая 12,95 в валюте оформления заказа. Обновление запускает новый 90-дневный период доступа к этому списку."
+              "Текущие цены обновления: базовая до премиум-12,95, базовая до платиновой 24,95 и премиум-платиновая 12,95 в валюте оформления заказа. Обновление запускает новый 90-дневный период доступа к этому списку."
             ]
           },
           {
@@ -19425,20 +19455,20 @@ export const faqPageContent = {
             "question": "Что должен ввести гость при резервировании подарка?",
             "answer": [
               "Требуется имя гостя.",
-              "Сообщение не является обязательным, и гость также может выбрать, будет ли его имя публично отображаться на зарезервированной подарочной карте."
+              "A message is optional, and the guest can also choose whether their name may be shown publicly on the reserved gift card."
             ]
           },
           {
             "question": "Что видит владелец списка после бронирования?",
             "answer": [
               "На информационной панели отображается зарезервированный подарок вместе с именем гостя, дополнительным сообщением и информацией о том, разрешил ли гость показывать свое имя публично.",
-              "Это позволяет хозяину понять как статус бронирования, так и сообщение, оставленное с этим конкретным подарком."
+              "This lets the host understand both the reservation status and the message left with that specific gift."
             ]
           },
           {
-            "question": "Что становится видимым на общедоступной подарочной карте после бронирования?",
+            "question": "What becomes visible on the public gift card after reservation?",
             "answer": [
-              "Подарочная карта может показать, что товар зарезервирован.",
+              "The gift card can show that the item has been reserved.",
               "Если гость разрешил отображение публичного имени, имя гостя также может быть показано. Сообщение гостя также может появиться на карте после завершения бронирования."
             ]
           },
@@ -19458,14 +19488,14 @@ export const faqPageContent = {
           {
             "question": "Какие медиафайлы я могу загрузить?",
             "answer": [
-              "Giftlist Studio поддерживает изображения на протяжении всего списка. Поддержка видео доступна в планах, которые это позволяют.",
-              "Изображения могут быть оптимизированы автоматически. Поддерживаемые видео обрабатываются на стороне сервера в удобный для Интернета формат MP4."
+              "Giftlist Studio поддерживает изображения на протяжении всего списка. Video support is available on plans that allow it.",
+              "Изображения могут быть оптимизированы автоматически. Supported videos are processed server-side into a web-friendly MP4 format."
             ]
           },
           {
             "question": "Каков лимит видео?",
             "answer": [
-              "Видео в настоящее время ограничены списками Platinum, до 20 видео в каждом списке, и каждое видео может длиться до 60 секунд.",
+              "Videos are currently limited to Platinum lists, up to 20 videos per list, and each video can be up to 60 seconds long.",
               "На информационной панели также отображаются эти ограничения, чтобы организаторы могли планировать свой список перед загрузкой."
             ]
           },
@@ -19479,7 +19509,7 @@ export const faqPageContent = {
           {
             "question": "Учитываются ли большие фотографии при ограничении объема хранилища RAW?",
             "answer": [
-              "Модель видимого продукта теперь основана в первую очередь на количестве файлов, а не только на необработанных мегабайтах.",
+              "The visible product model is now based primarily on file counts, not just raw megabytes.",
               "Тем не менее, служба по-прежнему применяет технические ограничения на размер файла и обработку в фоновом режиме, чтобы обеспечить стабильность и надежность загрузки."
             ]
           }
@@ -19493,14 +19523,14 @@ export const faqPageContent = {
             "question": "Как работает касса?",
             "answer": [
               "Если биллинг включен, проверка пакетов осуществляется через Stripe. После успешного оформления заказа выбранный список получает соответствующий период доступа.",
-              "Если списку требуется более крупный пакет из-за количества носителей, использования видео или защиты паролем, процесс оформления заказа поможет вам выбрать правильный план."
+              "If a list needs a larger package because of media count, video use, or password protection, the checkout flow will guide you to the right plan."
             ]
           },
           {
             "question": "Как работают реферальные коды?",
             "answer": [
-              "Соответствующие критериям пользователи могут создать до 3 активных реферальных кодов. Действительный реферальный код дает покупателю скидку 20 % на одну соответствующую покупку.",
-              "Каждый успешный погашенный реферал дает владельцу кода бонус в размере 10 % на будущую покупку, а также скидку до 30 % на один заказ."
+              "Соответствующие критериям пользователи могут создать до 3 активных реферальных кодов. A valid referral code gives the buyer 20% off one qualifying purchase.",
+              "Each successful redeemed referral gives the code owner 10% reward credit for a future purchase, up to a 30% discount on one order."
             ]
           },
           {
@@ -19647,7 +19677,7 @@ export const faqPageContent = {
         "title": "Dāvanu rezervēšana",
         "entries": [
           {
-            "question": "Kas jāievada viesim, rezervējot dāvanu?",
+            "question": "Kas viesim jāievada, rezervējot dāvanu?",
             "answer": [
               "Viesa vārds ir jānorāda.",
               "Ziņojums nav obligāts, un viesis var arī izvēlēties, vai viņa vārds var tikt publiski rādīts rezervētajā dāvanu kartē."
@@ -19768,7 +19798,7 @@ export const faqPageContent = {
   "lt": {
     "updatedLabel": "Paskutinį kartą atnaujinta",
     "updatedValue": "2026 m. kovo 17 d",
-    "sectionJumpLabel": "Pereiti prie temos",
+    "sectionJumpLabel": "Peršokti į temą",
     "sections": [
       {
         "id": "pradžia",
@@ -19881,7 +19911,7 @@ export const faqPageContent = {
           {
             "question": "Ką sąrašo savininkas mato po rezervacijos?",
             "answer": [
-              "Prietaisų skydelyje rodoma rezervuota dovana kartu su svečio vardu, pasirenkamu pranešimu ir tuo, ar svečias leido viešai rodyti savo vardą.",
+              "Prietaisų skydelyje rodoma rezervuota dovana kartu su svečio vardu, pasirenkamu pranešimu ir ar svečias leido viešai rodyti savo vardą.",
               "Tai leidžia šeimininkui suprasti rezervacijos būseną ir pranešimą, paliktą su ta konkrečia dovana."
             ]
           },
@@ -20473,7 +20503,7 @@ export const termsPageContent = {
         ]
       },
       {
-        "title": "8. Mediegränser och bearbetning",
+        "title": "8. Mediebegränsningar och bearbetning",
         "points": [
           "Paketgränserna beror för närvarande på medieantal och videostöd snarare än bara på obearbetad lagringsstorlek.",
           "Vid tidpunkten för dessa villkor stöder Base upp till 25 bilder, Premium stöder upp till 50 bilder och lösenordsskydd, och Platinum stöder upp till 200 mediefiler inklusive upp till 20 videor.",
@@ -20769,7 +20799,7 @@ export const termsPageContent = {
         "title": "10. Henvisninger",
         "points": [
           "Henvisningsfunktioner er kun tilgængelige, hvor den aktuelle konto og pakkelogik tillader det.",
-          "Henvisningskoder er muligvis ikke selvanvendelige og kan være begrænset til ét køb med rabat som køber plus begrænsede belønningskreditter til fremtidige køb.",
+          "Henvisningskoder er muligvis ikke selvanvendelige og kan være begrænset til ét køb med rabat som køber plus begrænsede belønningskreditter for fremtidige køb.",
           "Giftlist Studio kan reservere, frigive, indløse, tilbagekalde eller ugyldiggøre henvisningskoder, hvor det kræves af produktreglerne, betalingstilstand, forebyggelse af svindel eller teknisk konsistens."
         ]
       },
@@ -21615,7 +21645,7 @@ export const termsPageContent = {
         "title": "13. Zawieszenie, usunięcie i rozwiązanie umowy",
         "points": [
           "Gospodarze mogą usuwać własne listy z panelu.",
-          "Giftlist Studio może zawiesić lub usunąć dostęp do usługi lub określonych treści, jeśli jest to konieczne ze względów bezpieczeństwa, zapobiegania nadużyciom, zgodności z prawem lub naruszenia niniejszych warunków.",
+          "Giftlist Studio może zawiesić lub usunąć dostęp do usługi lub określonych treści, jeżeli jest to konieczne ze względów bezpieczeństwa, zapobiegania nadużyciom, zgodności z prawem lub naruszenia niniejszych warunków.",
           "Usunięcie listy ma na celu usunięcie hostowanej zawartości listy i powiązanych zapisów operacyjnych z aktywnego środowiska usług, z zastrzeżeniem wymogów dotyczących rozliczeń, audytu i prawnego przechowywania."
         ]
       },
@@ -21719,7 +21749,7 @@ export const termsPageContent = {
         "points": [
           "Когда включена платная оплата, активация пакета обрабатывается через настроенного поставщика платежей, в настоящее время Stripe.",
           "Отображаемая валюта может варьироваться в зависимости от региона, обнаруженного посетителем. При оформлении заказа на странице оформления заказа и окончательном подтверждении платежа контролируется фактически списанная сумма и валюта.",
-          "Поддерживаемые обновления пакета могут предлагаться по более низкой цене обновления вместо полной целевой цены пакета. На момент действия настоящих условий базовая цена до Premium составляет 12,95, от Base до Platinum — 24,95, а от Premium до Platinum — 12,95 в валюте оформления заказа, и при каждом обновлении начинается новый 90-дневный период доступа.",
+          "Поддерживаемые обновления пакета могут предлагаться по более низкой цене вместо полной целевой цены пакета. На момент действия настоящих условий базовая цена до Premium составляет 12,95, от Base до Platinum — 24,95, а от Premium до Platinum — 12,95 в валюте оформления заказа, и при каждом обновлении начинается новый 90-дневный период доступа.",
           "Реферальные скидки, бонусные баллы, бесплатный доступ и другие рекламные акции регулируются правилами действующего продукта и могут быть ограничены, изменены или удалены с течением времени.",
           "В случае успешного завершения платежа активируется соответствующий период доступа к списку согласно применимым правилам пакета."
         ]

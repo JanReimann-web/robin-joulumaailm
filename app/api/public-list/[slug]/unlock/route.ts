@@ -3,10 +3,14 @@ import { adminDb } from '@/lib/firebase/admin'
 import {
   createPublicAccessToken,
   getPublicAccessCookieName,
-  isValidVisibilityPassword,
   verifyVisibilityPassword,
 } from '@/lib/lists/password.server'
 import { getPublicListBySlug } from '@/lib/lists/public-server'
+import {
+  consumeRateLimit,
+  createRateLimitResponse,
+  getRateLimitFingerprint,
+} from '@/lib/security/request-rate-limit.server'
 
 export const runtime = 'nodejs'
 
@@ -24,6 +28,7 @@ export async function POST(
   request: NextRequest,
   context: RouteContext
 ) {
+  const slug = context.params.slug
   const list = await getPublicListBySlug(context.params.slug)
   if (!list || list.accessStatus !== 'active') {
     return NextResponse.json({ error: 'not_found' }, { status: 404 })
@@ -41,8 +46,18 @@ export async function POST(
   }
 
   const password = body.password?.trim() ?? ''
-  if (!isValidVisibilityPassword(password)) {
+  if (password.length === 0) {
     return NextResponse.json({ error: 'invalid_password' }, { status: 400 })
+  }
+
+  const rateLimit = await consumeRateLimit({
+    scope: 'public-list-unlock',
+    key: `${slug}:${getRateLimitFingerprint(request)}`,
+    limit: 8,
+    windowMs: 1000 * 60 * 10,
+  })
+  if (!rateLimit.ok) {
+    return createRateLimitResponse(rateLimit.retryAfterSeconds)
   }
 
   const secretSnap = await adminDb.collection('listAccessSecrets').doc(list.id).get()

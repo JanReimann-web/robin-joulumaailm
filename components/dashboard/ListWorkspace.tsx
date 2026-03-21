@@ -73,6 +73,7 @@ import {
   uploadStoryMedia,
 } from '@/lib/lists/media'
 import { buildPublicSlug, generatePublicUrlCode } from '@/lib/lists/public-link'
+import { isValidVisibilityPassword } from '@/lib/lists/password-policy'
 import {
   BillingPlanId,
   MAX_VIDEO_DURATION_SECONDS,
@@ -1400,7 +1401,7 @@ export default function ListWorkspace({
     && visibility === 'public_password'
   )
   const isVisibilityPasswordMissing = isSwitchingToPasswordProtected
-    && visibilityPassword.trim().length < 6
+    && !isValidVisibilityPassword(visibilityPassword)
   const selectedListMediaUsage = useMemo(
     () => resolveListMediaUsage({
       list: selectedList,
@@ -1982,7 +1983,7 @@ export default function ListWorkspace({
     }
 
     const normalizedPassword = visibilityPassword.trim()
-    if (isSwitchingToPasswordProtected && normalizedPassword.length < 6) {
+    if (isSwitchingToPasswordProtected && !isValidVisibilityPassword(normalizedPassword)) {
       setScopedListError('settings', labels.errorVisibilityPasswordRequired)
       return
     }
@@ -1991,7 +1992,7 @@ export default function ListWorkspace({
       visibility === 'public_password'
       && !isSwitchingToPasswordProtected
       && normalizedPassword.length > 0
-      && normalizedPassword.length < 6
+      && !isValidVisibilityPassword(normalizedPassword)
     ) {
       setScopedListError('settings', labels.errorVisibilityPasswordRequired)
       return
@@ -2324,7 +2325,7 @@ export default function ListWorkspace({
   }
 
   const handleUnlockDesktopPreview = () => {
-    if (desktopPreviewPassword.trim().length < 6) {
+    if (desktopPreviewPassword.trim().length === 0) {
       return
     }
 
@@ -2349,7 +2350,7 @@ export default function ListWorkspace({
   }
 
   const handleUnlockMobilePreview = () => {
-    if (mobilePreviewPassword.trim().length < 6) {
+    if (mobilePreviewPassword.trim().length === 0) {
       return
     }
 
@@ -3442,7 +3443,7 @@ export default function ListWorkspace({
                         onTogglePasswordVisibility={onTogglePasswordVisibility}
                         onSubmit={onUnlock}
                         submitLabel={labels.previewUnlockAction}
-                        isSubmitDisabled={password.trim().length < 6}
+                        isSubmitDisabled={password.trim().length === 0}
                         onClose={onClosePasswordPrompt}
                         closeAriaLabel={labels.closePreviewAction}
                         autoFocus

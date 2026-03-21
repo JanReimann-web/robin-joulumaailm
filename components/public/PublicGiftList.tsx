@@ -96,6 +96,7 @@ export const PUBLIC_COPY = {
     passwordProtectedPrompt: 'This list is password protected. Enter the password to continue.',
     passwordIncorrect: 'Incorrect password. Please try again.',
     passwordCheckFailed: 'Password check failed. Please try again.',
+    passwordRateLimited: 'Too many password attempts. Please wait a moment and try again.',
     passwordLabel: 'Password',
     hidePasswordAria: 'Hide password',
     showPasswordAria: 'Show password',
@@ -134,6 +135,7 @@ export const PUBLIC_COPY = {
     reservationExpired: 'This list has expired and no longer accepts reservations.',
     reservationUnavailable: 'This gift has already been reserved.',
     reservationFailed: 'Reservation failed. Please try again.',
+    reservationRateLimited: 'Too many reservation attempts. Please wait a moment and try again.',
     thankYouTitle: 'Thank you!',
     thankYouBody: 'Your reservation was saved successfully.',
     storyTitleDefault: 'Our story',
@@ -172,6 +174,7 @@ export const PUBLIC_COPY = {
     passwordProtectedPrompt: 'See nimekiri on parooliga kaitstud. Jätkamiseks sisesta parool.',
     passwordIncorrect: 'Vale parool. Proovi uuesti.',
     passwordCheckFailed: 'Parooli kontroll ebaõnnestus. Proovi uuesti.',
+    passwordRateLimited: 'Liiga palju paroolikatseid. Oota veidi ja proovi uuesti.',
     passwordLabel: 'Parool',
     hidePasswordAria: 'Peida parool',
     showPasswordAria: 'Näita parooli',
@@ -210,6 +213,7 @@ export const PUBLIC_COPY = {
     reservationExpired: 'See nimekiri on aegunud ja ei võta enam broneeringuid vastu.',
     reservationUnavailable: 'See kingitus on juba broneeritud.',
     reservationFailed: 'Broneerimine ebaõnnestus. Proovi uuesti.',
+    reservationRateLimited: 'Liiga palju broneerimiskatseid. Oota veidi ja proovi uuesti.',
     thankYouTitle: 'Aitäh!',
     thankYouBody: 'Sinu broneering salvestati edukalt.',
     storyTitleDefault: 'Meie lugu',
@@ -570,8 +574,7 @@ export default function PublicGiftList({
 
       try {
         const response = await fetch(
-          `/api/public-list/${encodeURIComponent(slug)}/meta`,
-          { cache: 'no-store' }
+          `/api/public-list/${encodeURIComponent(slug)}/meta`
         )
 
         if (!response.ok) {
@@ -616,8 +619,7 @@ export default function PublicGiftList({
 
     try {
       const response = await fetch(
-        `/api/public-list/${encodeURIComponent(slug)}/content`,
-        { cache: 'no-store' }
+        `/api/public-list/${encodeURIComponent(slug)}/content`
       )
 
       if (response.status === 401) {
@@ -708,6 +710,11 @@ export default function PublicGiftList({
       )
 
       if (!response.ok) {
+        if (response.status === 429) {
+          setError(copy.passwordRateLimited)
+          return
+        }
+
         setError(copy.passwordIncorrect)
         return
       }
@@ -1086,6 +1093,11 @@ export default function PublicGiftList({
           return
         }
 
+        if (payload.error === 'rate_limited' || response.status === 429) {
+          setDetailsError(copy.reservationRateLimited)
+          return
+        }
+
         setDetailsError(copy.detailsSaveFailed)
         return
       }
@@ -1287,7 +1299,7 @@ export default function PublicGiftList({
             onTogglePasswordVisibility={() => setIsPasswordVisible((current) => !current)}
             onSubmit={handleUnlock}
             submitLabel={copy.unlockAction}
-            isSubmitDisabled={password.trim().length < 6}
+                        isSubmitDisabled={password.trim().length === 0}
             isBusy={isUnlocking}
             busyLabel={copy.checkingPassword}
             error={error}
@@ -1514,7 +1526,7 @@ export default function PublicGiftList({
                   onTogglePasswordVisibility={() => setIsPasswordVisible((current) => !current)}
                   onSubmit={handleUnlock}
                   submitLabel={copy.unlockAction}
-                  isSubmitDisabled={password.trim().length < 6}
+                    isSubmitDisabled={password.trim().length === 0}
                   isBusy={isUnlocking}
                   busyLabel={copy.checkingPassword}
                   error={error}

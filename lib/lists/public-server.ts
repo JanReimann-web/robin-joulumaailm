@@ -1,5 +1,6 @@
 import 'server-only'
 import { Timestamp } from 'firebase-admin/firestore'
+import { unstable_cache } from 'next/cache'
 import { adminDb } from '@/lib/firebase/admin'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { addDays, resolveListAccessStatus, TRIAL_DAYS } from '@/lib/lists/access'
@@ -211,6 +212,16 @@ export const getPublicListBySlug = async (
     return null
   }
 
+  return await getCachedPublicListBySlug(slug)
+}
+
+const getCachedPublicListBySlug = unstable_cache(async (
+  slug: string
+): Promise<PublicListRecord | null> => {
+  if (!isValidSlug(slug) || isReservedSlug(slug)) {
+    return null
+  }
+
   const slugClaimSnap = await adminDb.collection('slugClaims').doc(slug).get()
   const listId = slugClaimSnap.data()?.listId
 
@@ -234,9 +245,13 @@ export const getPublicListBySlug = async (
     listData,
     hasComplimentaryAccess
   )
-}
+}, ['public-list-by-slug'], { revalidate: 60 })
 
 export const getPublicListContent = async (listId: string) => {
+  return await getCachedPublicListContent(listId)
+}
+
+const getCachedPublicListContent = unstable_cache(async (listId: string) => {
   const listRef = adminDb.collection('lists').doc(listId)
   const [itemsSnap, storiesSnap, wheelSnap] = await Promise.all([
     listRef.collection('items').get(),
@@ -291,28 +306,18 @@ export const getPublicListContent = async (listId: string) => {
     stories,
     wheelEntries,
   }
-}
+}, ['public-list-content'], { revalidate: 15 })
 
 export const getPublicListPreviewMedia = async (
   listId: string
 ): Promise<PublicPreviewMedia> => {
+  return await getCachedPublicListPreviewMedia(listId)
+}
+
+const getCachedPublicListPreviewMedia = unstable_cache(async (
+  listId: string
+): Promise<PublicPreviewMedia> => {
   const listRef = adminDb.collection('lists').doc(listId)
-  const listSnap = await listRef.get()
-  const listData = listSnap.data() as Record<string, unknown> | undefined
-  const introMediaUrl = listData?.introMediaUrl
-  const introMediaType = listData?.introMediaType
-
-  if (
-    typeof introMediaUrl === 'string'
-    && typeof introMediaType === 'string'
-    && isPreviewMediaType(introMediaType)
-  ) {
-    return {
-      url: introMediaUrl,
-      type: introMediaType,
-    }
-  }
-
   const [storiesSnap, itemsSnap] = await Promise.all([
     listRef.collection('stories').get(),
     listRef.collection('items').get(),
@@ -365,6 +370,6 @@ export const getPublicListPreviewMedia = async (
   }
 
   return null
-}
+}, ['public-list-preview-media'], { revalidate: 300 })
 
 

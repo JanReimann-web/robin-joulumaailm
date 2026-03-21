@@ -47,6 +47,7 @@ import {
   isTemplateAllowedForEvent,
   normalizeTemplateId,
 } from '@/lib/lists/types'
+import { isValidVisibilityPassword } from '@/lib/lists/password-policy'
 
 export class SlugTakenError extends Error {
   constructor() {
@@ -398,7 +399,7 @@ export const updateGiftListSettings = async (input: {
 
   if (input.visibility === 'public_password') {
     const normalizedPassword = input.visibilityPassword?.trim() ?? ''
-    if (normalizedPassword.length > 0 && normalizedPassword.length < 6) {
+    if (normalizedPassword.length > 0 && !isValidVisibilityPassword(normalizedPassword)) {
       throw new VisibilityPasswordRequiredError()
     }
   }

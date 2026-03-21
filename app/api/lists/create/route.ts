@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { addDays, getListPurgeDate, TRIAL_DAYS } from '@/lib/lists/access'
-import { hashVisibilityPassword, isValidVisibilityPassword } from '@/lib/lists/password.server'
+import { hashVisibilityPassword } from '@/lib/lists/password.server'
+import { isValidVisibilityPassword } from '@/lib/lists/password-policy'
 import { isReservedSlug, isValidSlug, sanitizeSlug } from '@/lib/lists/slug'
 import {
   TEMPLATE_IDS,

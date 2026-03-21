@@ -19,7 +19,18 @@ export async function GET(
     return NextResponse.json({ error: 'not_found' }, { status: 404 })
   }
 
-  const previewMedia = await getPublicListPreviewMedia(list.id)
+  const previewMedia =
+    list.introMediaUrl
+    && list.introMediaType
+    && (
+      list.introMediaType.startsWith('image/')
+      || list.introMediaType.startsWith('video/')
+    )
+      ? {
+          url: list.introMediaUrl,
+          type: list.introMediaType,
+        }
+      : await getPublicListPreviewMedia(list.id)
 
   return NextResponse.json(
     {
@@ -44,7 +55,7 @@ export async function GET(
     },
     {
       headers: {
-        'cache-control': 'no-store',
+        'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400',
       },
     }
   )

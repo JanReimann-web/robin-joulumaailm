@@ -3,7 +3,8 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore'
 import { hasServerSideComplimentaryEntitlement } from '@/lib/account-entitlements.server'
 import { adminAuth, adminDb } from '@/lib/firebase/admin'
 import { hasPublishedListAccess, resolveListAccessStatus } from '@/lib/lists/access'
-import { hashVisibilityPassword, isValidVisibilityPassword } from '@/lib/lists/password.server'
+import { hashVisibilityPassword } from '@/lib/lists/password.server'
+import { isValidVisibilityPassword } from '@/lib/lists/password-policy'
 import { BILLING_PLAN_IDS, type BillingPlanId, isVisibilityAllowedForPlan } from '@/lib/lists/plans'
 import {
   VISIBILITY_OPTIONS,
