@@ -399,7 +399,7 @@ export const enDictionary: Dictionary = {
     billingUpgradePremiumToPlatinum: 'Premium → Platinum',
     billingVideoNotice: 'This list contains video. Platinum is required. You can have up to 20 videos and each video can be up to 60 seconds.',
     billingPasswordNotice: 'A password-protected public list requires at least Premium.',
-    billingLaunchRegionsNotice: 'Package purchases are currently available only for customers in Estonia, the EU27, and the United States.',
+    billingLaunchRegionsNotice: 'Package purchases are currently available only for customers in the EU27 and the United States.',
     billingTaxCollectionNotice: 'Checkout collects billing address details and optional Tax ID for Stripe Tax calculations.',
     billingMarketUnsupportedNotice: 'Your current region is outside the launch markets. Package purchases are blocked until Giftlist Studio starts selling there.',
     billingMarketSanctionedNotice: 'Package purchases are blocked in your current region because Giftlist Studio does not sell to sanctioned markets, including Belarus, Cuba, Iran, North Korea, Russia, and Syria.',

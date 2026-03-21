@@ -398,7 +398,7 @@ export const etDictionary: Dictionary = {
     billingUpgradePremiumToPlatinum: 'Premium → Platinum',
     billingVideoNotice: 'Selles nimekirjas on video. See nõuab Platinum paketti. Kokku võib olla kuni 20 videot ja iga video võib olla kuni 60 sekundit.',
     billingPasswordNotice: 'Paroolikaitsega avalik nimekiri nõuab vähemalt Premium paketti.',
-    billingLaunchRegionsNotice: 'Paketiostud on praegu saadaval ainult klientidele Eestis, EU27 riikides ja Ameerika Ühendriikides.',
+    billingLaunchRegionsNotice: 'Paketiostud on praegu saadaval ainult klientidele EU27 riikides ja Ameerika Ühendriikides.',
     billingTaxCollectionNotice: 'Checkout kogub arveldusaadressi andmed ja soovi korral Tax ID, et Stripe Tax saaks maksud õigesti arvutada.',
     billingMarketUnsupportedNotice: 'Sinu praegune piirkond ei kuulu veel launch-turgude hulka. Paketiost on seal seni blokeeritud.',
     billingMarketSanctionedNotice: 'Paketiost on sinu praeguses piirkonnas blokeeritud, sest Giftlist Studio ei müü sanktsiooniturgudele, sealhulgas Valgevenesse, Kuubale, Iraani, Põhja-Koreasse, Venemaale ja Süüriasse.',
