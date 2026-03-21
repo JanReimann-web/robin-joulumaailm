@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { CalendarDays, CheckCircle2, Clock3, Globe2, MapPin, X } from 'lucide-react'
+import { CalendarDays, CheckCircle2, ChevronDown, Clock3, Globe2, MapPin, X } from 'lucide-react'
 import BrandLogo from '@/components/site/BrandLogo'
 import EventPasswordPrompt from '@/components/shared/EventPasswordPrompt'
 import { publicGiftListCopy as localizedPublicGiftListCopy } from '@/lib/i18n/generated'
@@ -393,9 +393,11 @@ export default function PublicGiftList({
   const [success, setSuccess] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [lightboxMedia, setLightboxMedia] = useState<LightboxMedia>(null)
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
   const thankYouTimeoutRef = useRef<number | null>(null)
   const thankYouCloseTimeoutRef = useRef<number | null>(null)
   const thankYouLaunchTimeoutRef = useRef<number | null>(null)
+  const languageSwitcherRef = useRef<HTMLDivElement | null>(null)
   const copy = localizedPublicGiftListCopy[locale]
   const modalRoot = hasMounted ? document.body : null
   const demoStorageKey = useMemo(() => buildDemoReservationStorageKey(slug), [slug])
@@ -516,6 +518,28 @@ export default function PublicGiftList({
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [lightboxMedia])
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!languageSwitcherRef.current?.contains(event.target as Node)) {
+        setIsLanguageMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsLanguageMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('keydown', handleEscape)
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('keydown', handleEscape)
+    }
+  }, [])
 
   useEffect(() => {
     if (!hasMounted) {
@@ -1142,21 +1166,76 @@ export default function PublicGiftList({
   }
 
   const languageSwitcher = (
-    <div className="relative inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/10 px-3 py-2">
-      <Globe2 size={14} className="text-white/70" />
-      <label className="sr-only" htmlFor="public-language-switcher">{copy.languageLabel}</label>
-      <select
-        id="public-language-switcher"
-        value={locale}
-        onChange={(event) => setLocale(event.target.value as PublicLocale)}
-        className="bg-transparent pr-6 text-sm font-medium text-white outline-none"
+    <div ref={languageSwitcherRef} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setIsLanguageMenuOpen((current) => !current)}
+        className="event-surface-card inline-flex min-w-[8.75rem] items-center justify-between gap-3 rounded-full border px-3 py-2 text-sm font-semibold transition hover:brightness-[1.03] sm:min-w-[10rem] sm:px-4"
+        aria-expanded={isLanguageMenuOpen}
+        aria-haspopup="menu"
+        aria-label={copy.languageLabel}
+        style={{ color: 'var(--event-text-strong)' }}
       >
-        {locales.map((availableLocale) => (
-          <option key={availableLocale} value={availableLocale} className="bg-slate-950 text-white">
-            {localeNativeNames[availableLocale]}
-          </option>
-        ))}
-      </select>
+        <span className="inline-flex min-w-0 items-center gap-2">
+          <Globe2 size={15} style={{ color: 'var(--event-link)' }} />
+          <span className="truncate">{localeNativeNames[locale]}</span>
+        </span>
+        <ChevronDown
+          size={15}
+          className={`shrink-0 transition ${isLanguageMenuOpen ? 'rotate-180' : ''}`}
+          style={{ color: 'var(--event-text-muted)' }}
+        />
+      </button>
+
+      {isLanguageMenuOpen && (
+        <div
+          className="event-surface-panel absolute right-0 z-50 mt-3 min-w-[12rem] rounded-[1.5rem] border p-2 shadow-2xl backdrop-blur"
+          role="menu"
+          aria-label={copy.languageLabel}
+        >
+          <p
+            className="px-3 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.2em]"
+            style={{ color: 'var(--event-text-soft)' }}
+          >
+            {copy.languageLabel}
+          </p>
+          <div className="grid gap-1">
+            {locales.map((availableLocale) => {
+              const isActive = availableLocale === locale
+
+              return (
+                <button
+                  key={availableLocale}
+                  type="button"
+                  onClick={() => {
+                    setLocale(availableLocale)
+                    setIsLanguageMenuOpen(false)
+                  }}
+                  className={`inline-flex items-center justify-between rounded-[1.1rem] px-3 py-2.5 text-sm font-medium transition ${
+                    isActive
+                      ? 'event-accent-button'
+                      : 'event-surface-card border border-transparent hover:brightness-[1.04]'
+                  }`}
+                  role="menuitemradio"
+                  aria-checked={isActive}
+                >
+                  <span>{localeNativeNames[availableLocale]}</span>
+                  <span
+                    className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+                    style={{
+                      color: isActive
+                        ? 'var(--event-accent-text)'
+                        : 'var(--event-text-soft)',
+                    }}
+                  >
+                    {availableLocale}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 
