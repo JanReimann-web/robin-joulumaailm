@@ -1689,6 +1689,13 @@ export default function ListWorkspace({
   const listCollectionError = listError?.section === 'lists' ? listError.message : null
   const listSettingsSuccess = listSuccess?.section === 'settings' ? listSuccess.message : null
   const listSettingsError = listError?.section === 'settings' ? listError.message : null
+  const createSectionTitle = `1. ${labels.builderTitle}`
+  const listSettingsSectionTitle = `2. ${labels.listSettingsTitle}`
+  const introSectionTitle = `3. ${labels.heroEditorTitle} (hero)`
+  const storiesSectionTitle = `4. ${labels.storiesTitle}`
+  const wheelSectionTitle = `5. ${labels.wheelTitle}`
+  const itemsSectionTitle = `6. ${labels.itemsTitle}`
+  const billingSectionTitle = `7. ${labels.billingPlanTitle}`
 
   const handleTitleChange = (value: string) => {
     setTitle(value)
@@ -3607,7 +3614,7 @@ export default function ListWorkspace({
             className="flex w-full items-center justify-between gap-3 text-left"
             aria-expanded={openAccordionSections.create}
           >
-            <h2 className="text-lg font-semibold text-white sm:text-xl">{labels.builderTitle}</h2>
+            <h2 className="text-lg font-semibold text-white sm:text-xl">{createSectionTitle}</h2>
             <ChevronDown
               size={20}
               className={`shrink-0 text-slate-300 transition-transform ${openAccordionSections.create ? 'rotate-180' : ''}`}
@@ -3871,11 +3878,12 @@ export default function ListWorkspace({
             </select>
           </label>
 
+          <div className="flex flex-col">
           <DashboardAccordionSection
-            title={labels.listSettingsTitle}
+            title={listSettingsSectionTitle}
             isOpen={openAccordionSections.settings}
             onToggle={() => toggleAccordionSection('settings')}
-            className="mt-6"
+            className="mt-6 order-1"
           >
             <p className="text-sm text-slate-300">{labels.listSettingsSubtitle}</p>
 
@@ -4016,10 +4024,10 @@ export default function ListWorkspace({
           </DashboardAccordionSection>
 
           <DashboardAccordionSection
-            title={labels.billingPlanTitle}
+            title={billingSectionTitle}
             isOpen={openAccordionSections.billing}
             onToggle={() => toggleAccordionSection('billing')}
-            className="mt-6"
+            className="mt-6 order-6"
           >
             <p className="text-sm text-slate-300">{labels.billingPlanSubtitle}</p>
 
@@ -4454,10 +4462,10 @@ export default function ListWorkspace({
           </DashboardAccordionSection>
 
           <DashboardAccordionSection
-            title={labels.heroEditorTitle}
+            title={introSectionTitle}
             isOpen={openAccordionSections.intro}
             onToggle={() => toggleAccordionSection('intro')}
-            className="mt-6"
+            className="mt-6 order-2"
           >
             <p className="text-sm text-slate-300">{labels.heroEditorSubtitle}</p>
 
@@ -4669,10 +4677,10 @@ export default function ListWorkspace({
           </DashboardAccordionSection>
 
           <DashboardAccordionSection
-            title={labels.itemsTitle}
+            title={itemsSectionTitle}
             isOpen={openAccordionSections.items}
             onToggle={() => toggleAccordionSection('items')}
-            className="mt-6"
+            className="mt-6 order-5"
           >
 
           <form ref={itemFormRef} onSubmit={handleAddItem} className="mt-4 grid gap-3">
@@ -4932,10 +4940,10 @@ export default function ListWorkspace({
           </DashboardAccordionSection>
 
         <DashboardAccordionSection
-          title={labels.storiesTitle}
+          title={storiesSectionTitle}
           isOpen={openAccordionSections.stories}
           onToggle={() => toggleAccordionSection('stories')}
-          className="mt-6"
+          className="mt-6 order-3"
         >
           <p className="text-sm text-slate-300">{labels.storiesSubtitle}</p>
 
@@ -5103,10 +5111,10 @@ export default function ListWorkspace({
         </DashboardAccordionSection>
 
         <DashboardAccordionSection
-          title={labels.wheelTitle}
+          title={wheelSectionTitle}
           isOpen={openAccordionSections.wheel}
           onToggle={() => toggleAccordionSection('wheel')}
-          className="mt-6"
+          className="mt-6 order-4"
         >
           <p className="text-sm text-slate-300">{labels.wheelSubtitle}</p>
           <p className="mt-3 text-xs text-slate-400">
@@ -5221,6 +5229,7 @@ export default function ListWorkspace({
             ))}
           </div>
         </DashboardAccordionSection>
+        </div>
         </div>
       </section>
 
