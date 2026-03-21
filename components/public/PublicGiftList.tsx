@@ -1533,7 +1533,6 @@ export default function PublicGiftList({
           <h2 className="text-xl font-semibold text-white">
             {eventSectionCopy?.storyTitle ?? copy.storyTitleDefault}
           </h2>
-          <p className="mt-2 text-sm text-slate-300">{copy.storySubtitle}</p>
 
           <div className="mt-4 grid gap-4">
             {stories.map((story, index) => {
