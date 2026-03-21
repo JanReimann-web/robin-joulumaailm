@@ -345,6 +345,10 @@ type ListFeedbackState = {
   message: string
 }
 
+type ShowcaseLoadOptions = {
+  showErrors?: boolean
+}
+
 const dashboardActionButtonClassName = (variant: DashboardActionButtonProps['variant'] = 'secondary') => {
   const baseClassName = 'inline-flex min-h-[2.5rem] items-center justify-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60'
 
@@ -611,6 +615,7 @@ export default function ListWorkspace({
   const [hasHandledBillingReturn, setHasHandledBillingReturn] = useState(false)
   const [hasResolvedClientAuth, setHasResolvedClientAuth] = useState(Boolean(auth.currentUser))
   const [hasClientAuthUser, setHasClientAuthUser] = useState(Boolean(auth.currentUser))
+  const [authSyncVersion, setAuthSyncVersion] = useState(0)
   const [openAccordionSections, setOpenAccordionSections] = useState<Record<DashboardAccordionSectionId, boolean>>({
     create: false,
     settings: false,
@@ -696,6 +701,7 @@ export default function ListWorkspace({
 
       setHasClientAuthUser(Boolean(auth.currentUser))
       setHasResolvedClientAuth(true)
+      setAuthSyncVersion((current) => current + 1)
     }
 
     if (typeof authWithReady.authStateReady === 'function') {
@@ -715,6 +721,7 @@ export default function ListWorkspace({
 
         setHasClientAuthUser(Boolean(user))
         setHasResolvedClientAuth(true)
+        setAuthSyncVersion((current) => current + 1)
       },
       () => {
         if (!isActive) {
@@ -723,6 +730,7 @@ export default function ListWorkspace({
 
         setHasClientAuthUser(false)
         setHasResolvedClientAuth(true)
+        setAuthSyncVersion((current) => current + 1)
       }
     )
 
@@ -1102,7 +1110,8 @@ export default function ListWorkspace({
     labels.errorShowcaseUpdateFailed,
   ])
 
-  const loadShowcaseState = useCallback(async () => {
+  const loadShowcaseState = useCallback(async (options?: ShowcaseLoadOptions) => {
+    const showErrors = options?.showErrors ?? false
     setIsShowcaseLoading(true)
 
     try {
@@ -1120,6 +1129,10 @@ export default function ListWorkspace({
     } catch (rawError) {
       setCanManageGallery(false)
       setShowcaseListIds([])
+
+      if (!showErrors) {
+        return
+      }
 
       if (rawError instanceof ShowcaseClientError) {
         setScopedListError('lists', getShowcaseErrorMessage(rawError.code))
@@ -1152,7 +1165,7 @@ export default function ListWorkspace({
     }
 
     void loadReferralSummary()
-  }, [hasClientAuthUser, hasResolvedClientAuth, loadReferralSummary])
+  }, [authSyncVersion, hasClientAuthUser, hasResolvedClientAuth, loadReferralSummary])
 
   useEffect(() => {
     if (
@@ -1163,7 +1176,7 @@ export default function ListWorkspace({
     ) {
       void loadReferralSummary()
     }
-  }, [billingStatus, hasClientAuthUser, hasHandledBillingReturn, hasResolvedClientAuth, loadReferralSummary])
+  }, [authSyncVersion, billingStatus, hasClientAuthUser, hasHandledBillingReturn, hasResolvedClientAuth, loadReferralSummary])
 
   useEffect(() => {
     if (!hasResolvedClientAuth) {
@@ -1177,8 +1190,8 @@ export default function ListWorkspace({
       return
     }
 
-    void loadShowcaseState()
-  }, [hasClientAuthUser, hasResolvedClientAuth, loadShowcaseState])
+    void loadShowcaseState({ showErrors: false })
+  }, [authSyncVersion, hasClientAuthUser, hasResolvedClientAuth, loadShowcaseState])
 
   const resetDesktopPreviewFlow = useCallback(() => {
     setIsDesktopPreviewEntered(false)
@@ -1691,7 +1704,9 @@ export default function ListWorkspace({
   const listSettingsError = listError?.section === 'settings' ? listError.message : null
   const createSectionTitle = `1. ${labels.builderTitle}`
   const listSettingsSectionTitle = `2. ${labels.listSettingsTitle}`
-  const introSectionTitle = `3. ${labels.heroEditorTitle} (hero)`
+  const introSectionTitle = labels.heroEditorTitle.toLowerCase().includes('(hero)')
+    ? `3. ${labels.heroEditorTitle}`
+    : `3. ${labels.heroEditorTitle} (hero)`
   const storiesSectionTitle = `4. ${labels.storiesTitle}`
   const wheelSectionTitle = `5. ${labels.wheelTitle}`
   const itemsSectionTitle = `6. ${labels.itemsTitle}`
@@ -2113,7 +2128,7 @@ export default function ListWorkspace({
         listId: list.id,
         publish: !isCurrentlyShowcased,
       })
-      await loadShowcaseState()
+      await loadShowcaseState({ showErrors: false })
     } catch (rawError) {
       if (rawError instanceof ShowcaseClientError) {
         setScopedListError('lists', getShowcaseErrorMessage(rawError.code))
