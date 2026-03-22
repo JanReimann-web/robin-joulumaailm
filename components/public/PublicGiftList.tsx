@@ -421,6 +421,19 @@ export default function PublicGiftList({
     setDetailsError(null)
   }, [])
 
+  const lockProtectedContent = useCallback(() => {
+    setHasEntered(false)
+    setList(null)
+    setItems([])
+    setStories([])
+    setWheelEntries([])
+    setSelectedWheelEntryId(null)
+    setError(null)
+    setSuccess(null)
+    setIsPasswordPromptOpen(true)
+    setIsPasswordVisible(false)
+  }, [])
+
   useEffect(() => {
     setLocale(detectInitialLocale())
   }, [])
@@ -550,7 +563,7 @@ export default function PublicGiftList({
       return
     }
 
-    const isPasswordPromptModalOpen = isPasswordPromptOpen && hasEntered
+    const isPasswordPromptModalOpen = isPasswordPromptOpen && (hasEntered || Boolean(list))
 
     if (!lightboxMedia && !isDetailsModalOpen && !isThankYouVisible && !isPasswordPromptModalOpen) {
       return
@@ -562,7 +575,7 @@ export default function PublicGiftList({
     return () => {
       document.body.style.overflow = previousOverflow
     }
-  }, [hasEntered, hasMounted, isDetailsModalOpen, isPasswordPromptOpen, isThankYouVisible, lightboxMedia])
+  }, [hasEntered, hasMounted, isDetailsModalOpen, isPasswordPromptOpen, isThankYouVisible, lightboxMedia, list])
 
   useEffect(() => {
     let cancelled = false
@@ -623,8 +636,7 @@ export default function PublicGiftList({
       )
 
       if (response.status === 401) {
-        setIsPasswordPromptOpen(true)
-        setIsPasswordVisible(false)
+        lockProtectedContent()
         return false
       }
 
@@ -658,7 +670,7 @@ export default function PublicGiftList({
     } finally {
       setContentLoading(false)
     }
-  }, [copy.failedLoadContent, slug])
+  }, [copy.failedLoadContent, lockProtectedContent, slug])
 
   useEffect(() => {
     if (!selectedWheelEntryId) {
@@ -787,7 +799,7 @@ export default function PublicGiftList({
       return null
     }
 
-    const heroMediaClassName = 'h-[17rem] w-full object-cover sm:h-[21rem] lg:h-[24rem]'
+    const heroMediaClassName = 'h-[22rem] w-full object-cover sm:h-[27rem] lg:h-[31rem]'
 
     if (media.type.startsWith('image/')) {
       return (
@@ -829,7 +841,7 @@ export default function PublicGiftList({
       return null
     }
 
-    const heroMediaClassName = 'h-[17rem] w-full object-cover sm:h-[21rem] lg:h-[24rem]'
+    const heroMediaClassName = 'h-[22rem] w-full object-cover sm:h-[27rem] lg:h-[31rem]'
 
     if (media.type.startsWith('image/')) {
       return (
@@ -1088,8 +1100,7 @@ export default function PublicGiftList({
 
         if (payload.error === 'password_required') {
           resetReservationDetails()
-          setHasEntered(false)
-          setIsPasswordPromptOpen(true)
+          lockProtectedContent()
           return
         }
 
@@ -1269,7 +1280,7 @@ export default function PublicGiftList({
     </div>
   )
 
-  const shouldShowInlinePasswordPrompt = !hasEntered && isPasswordPromptOpen && isPasswordProtected
+  const shouldShowInlinePasswordPrompt = !hasEntered && !list && isPasswordPromptOpen && isPasswordProtected
 
   const passwordPromptModal = (
     !shouldShowInlinePasswordPrompt
@@ -1337,9 +1348,9 @@ export default function PublicGiftList({
             {params.media ? (
               renderStaticHeroMedia(params.media, params.title)
             ) : (
-              <div className="relative h-[17rem] overflow-hidden sm:h-[21rem] lg:h-[24rem]">
+              <div className="relative h-[22rem] overflow-hidden sm:h-[27rem] lg:h-[31rem]">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-white/10 to-transparent" />
-                <div className="absolute inset-x-[8%] top-[18%] h-[62%] rounded-[2rem] border border-white/15 bg-black/10 animate-pulse" />
+                <div className="absolute inset-x-[8%] top-[14%] h-[70%] rounded-[2rem] border border-white/15 bg-black/10 animate-pulse" />
                 <div className="absolute -right-10 top-6 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute bottom-4 left-8 h-20 w-20 rounded-full bg-black/10 blur-2xl" />
               </div>
