@@ -1230,6 +1230,11 @@ export default function PublicGiftList({
                   }`}
                   role="menuitemradio"
                   aria-checked={isActive}
+                  style={{
+                    color: isActive
+                      ? 'var(--event-accent-text)'
+                      : 'var(--event-text-strong)',
+                  }}
                 >
                   <span>{localeNativeNames[availableLocale]}</span>
                   <span
@@ -1253,15 +1258,13 @@ export default function PublicGiftList({
 
   const brandBar = (animated = false) => (
     <div className="mb-4 flex items-start justify-between gap-3 sm:items-center">
-      <div className="event-surface-card rounded-full border px-3 py-2 sm:px-4">
-        <BrandLogo
-          href={homeHref}
-          tone="event"
-          size="sm"
-          animated={animated}
-          className="max-w-[15rem] sm:max-w-none"
-        />
-      </div>
+      <BrandLogo
+        href={homeHref}
+        tone="event"
+        size="sm"
+        animated={animated}
+        className="max-w-[15rem] sm:max-w-none"
+      />
       {languageSwitcher}
     </div>
   )
