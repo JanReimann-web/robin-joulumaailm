@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { defaultLocale, isLocale } from '@/lib/i18n/config'
+import { maintenanceModeEnabled } from '@/lib/site/maintenance'
 
 const PUBLIC_FILE = /\.[^/]+$/
 const BYPASS_PREFIXES = ['/api', '/_next', '/l']
+const MAINTENANCE_BYPASS_PREFIXES = ['/api', '/_next']
+const MAINTENANCE_PAGE_PATH = '/maintenance'
 const RESERVED_ROOT_SEGMENTS = new Set(['pricing', 'login', 'dashboard'])
 const SENSITIVE_POST_API_PATTERNS = [
   /^\/api\/leads$/,
@@ -78,6 +81,8 @@ export function middleware(request: NextRequest) {
   const requestHost = request.headers.get('host')
   const canonicalSiteUrl = getCanonicalSiteUrl()
   const canonicalSiteHost = getCanonicalSiteHost()
+  const isMaintenancePageRequest =
+    pathname === MAINTENANCE_PAGE_PATH || pathname.startsWith(`${MAINTENANCE_PAGE_PATH}/`)
 
   if (
     isSensitivePostApiRequest(request)
@@ -101,6 +106,23 @@ export function middleware(request: NextRequest) {
     canonicalUrl.hostname = targetUrl.hostname
     canonicalUrl.port = targetUrl.port
     return NextResponse.redirect(canonicalUrl)
+  }
+
+  if (maintenanceModeEnabled && !isMaintenancePageRequest) {
+    const isPageRequest =
+      ['GET', 'HEAD'].includes(request.method)
+      && !MAINTENANCE_BYPASS_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+      && !PUBLIC_FILE.test(pathname)
+
+    if (isPageRequest) {
+      const url = request.nextUrl.clone()
+      url.pathname = MAINTENANCE_PAGE_PATH
+      return NextResponse.rewrite(url)
+    }
+  }
+
+  if (isMaintenancePageRequest) {
+    return NextResponse.next()
   }
 
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
