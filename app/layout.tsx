@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Sans } from 'next/font/google'
-import { AuthProvider } from '@/components/auth/AuthProvider'
-import CookieConsentManager from '@/components/site/CookieConsentManager'
 import { localeIntlCodes } from '@/lib/i18n/config'
+import { maintenanceModeEnabled, maintenanceNotice } from '@/lib/site/maintenance'
 import { buildAbsoluteUrl, getSiteUrl } from '@/lib/site/url'
 import './globals.css'
 
@@ -72,11 +71,30 @@ export const viewport: Viewport = {
   colorScheme: 'only light',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  if (maintenanceModeEnabled) {
+    return (
+      <html lang="et">
+        <body className={`${ibmPlexSans.variable} antialiased`}>
+          <main className="flex min-h-screen items-center justify-center bg-white px-6 text-center text-neutral-950">
+            <h1 className="text-2xl font-medium tracking-normal sm:text-3xl">
+              {maintenanceNotice.title}
+            </h1>
+          </main>
+        </body>
+      </html>
+    )
+  }
+
+  const [{ AuthProvider }, { default: CookieConsentManager }] = await Promise.all([
+    import('@/components/auth/AuthProvider'),
+    import('@/components/site/CookieConsentManager'),
+  ])
+
   return (
     <html lang="en">
       <body className={`${ibmPlexSans.variable} antialiased`}>

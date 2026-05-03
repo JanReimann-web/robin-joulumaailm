@@ -7,6 +7,7 @@ import TrackedLink from '@/components/site/TrackedLink'
 import { isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
 import { eventSlugToType, eventTypeToSlug, EVENT_ROUTE_SLUGS } from '@/lib/lists/event-route'
+import { maintenanceModeEnabled } from '@/lib/site/maintenance'
 import { buildLocalizedAlternates, buildLocalizedUrl } from '@/lib/site/url'
 import { getWeddingIntentContent } from '@/lib/site/wedding-intent'
 import { getPublishedShowcaseEntryForEvent } from '@/lib/showcase.server'
@@ -43,6 +44,10 @@ const weddingPageCopy = {
 } as const
 
 export function generateStaticParams() {
+  if (maintenanceModeEnabled) {
+    return []
+  }
+
   return locales.flatMap((locale) =>
     EVENT_ROUTE_SLUGS.map((eventSlug) => ({
       locale,

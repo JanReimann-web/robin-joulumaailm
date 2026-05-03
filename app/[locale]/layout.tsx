@@ -7,6 +7,7 @@ import CookieSettingsButton from '@/components/site/CookieSettingsButton'
 import SiteNavigation from '@/components/site/SiteNavigation'
 import { defaultLocale, isLocale, locales } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/get-dictionary'
+import { maintenanceModeEnabled, maintenanceNotice } from '@/lib/site/maintenance'
 import { COMPANY_ADDRESS, COMPANY_NAME, getLegalCopy } from '@/lib/site/legal'
 import { SUPPORT_EMAIL, SUPPORT_EMAIL_HREF } from '@/lib/site/contact'
 import { buildLocalizedAlternates, buildLocalizedUrl, getSiteUrl } from '@/lib/site/url'
@@ -40,10 +41,24 @@ const contactLabelMap = {
 } as const
 
 export function generateStaticParams() {
+  if (maintenanceModeEnabled) {
+    return []
+  }
+
   return locales.map((locale) => ({ locale }))
 }
 
 export function generateMetadata({ params }: LocaleLayoutProps): Metadata {
+  if (maintenanceModeEnabled) {
+    return {
+      title: maintenanceNotice.title,
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }
+  }
+
   const locale = isLocale(params.locale) ? params.locale : defaultLocale
   const dict = getDictionary(locale)
 
